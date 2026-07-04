@@ -1,0 +1,52 @@
+<vd-component name="nav" vd-prop-title="Post details"></vd-component>
+
+<main class="mx-auto w-[92%] max-w-3xl py-10">
+  <div class="mb-6 flex items-center justify-between">
+    <a href="/" vd-nav class="btn btn-sm btn-ghost">← All posts</a>
+    <div class="flex gap-2">
+      <button
+        vd-request="posts.getOne"
+        vd-request-config="{ params: { id: postId }, target: 'post', autoState: true }"
+        class="btn btn-sm btn-ghost"
+      >
+        Reload through request directive
+      </button>
+      <a
+        vd-bind:href="'/blog/posts/' + postId + '/edit'"
+        vd-nav
+        class="btn btn-sm btn-outline"
+      >
+        Edit example
+      </a>
+    </div>
+  </div>
+
+  <div vd-show="postLoading" class="flex justify-center py-20">
+    <span class="loading loading-spinner loading-lg"></span>
+  </div>
+
+  <p
+    vd-if="postError !== ''"
+    vd-text="postError"
+    class="alert alert-error"
+  ></p>
+
+  <article vd-if="Boolean(post)" class="prose max-w-none">
+    <div class="mb-4 flex flex-wrap gap-2">
+      <span
+        vd-for="tag in post?.tags || []"
+        vd-text="tag"
+        class="badge badge-primary badge-outline"
+      ></span>
+    </div>
+    <h1 vd-text="post?.title || ''"></h1>
+    <p vd-text="post?.body || ''" class="text-lg leading-8"></p>
+    <div class="not-prose mt-8 rounded-xl bg-base-200 p-4">
+      <strong>Dynamic route context</strong>
+      <p class="mt-1 text-sm opacity-70">
+        Folder <code>pages/blog/posts/[id]</code> produced route param:
+        <code vd-text="postId"></code>
+      </p>
+    </div>
+  </article>
+</main>

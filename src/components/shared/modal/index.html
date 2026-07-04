@@ -1,0 +1,21 @@
+<div
+  vd-if="opened"
+  vd-on:click="close()"
+  class="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"
+>
+  <div
+    vd-on:click.stop="true"
+    class="card w-full max-w-md bg-base-100 shadow-2xl"
+  >
+    <div class="card-body">
+      <h2 class="card-title">Expose API modal</h2>
+      <p>
+        The page opened this component through
+        <code>state.components.featureModal.open()</code>.
+      </p>
+      <div class="card-actions justify-end">
+        <button vd-on:click="close()" class="btn btn-primary">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

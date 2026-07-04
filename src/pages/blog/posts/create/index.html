@@ -1,0 +1,74 @@
+<vd-component name="nav" vd-prop-title="Create post"></vd-component>
+
+<main class="mx-auto w-[92%] max-w-2xl py-10">
+  <a href="/" vd-nav class="btn btn-sm btn-ghost mb-5">← Back</a>
+  <form
+    vd-request="posts.create"
+    vd-request-config="{ target: 'createPostResult', autoState: true }"
+    class="card border border-base-300 bg-base-100 shadow-sm"
+  >
+    <div class="card-body">
+      <div>
+        <p class="text-sm font-medium text-primary">Request + model example</p>
+        <h1 class="text-3xl font-bold">Create a post</h1>
+      </div>
+
+      <label class="form-control">
+        <span class="label-text mb-2">Title</span>
+        <input
+          name="title"
+          vd-model="draft.title"
+          required
+          class="input input-bordered"
+          placeholder="A useful title"
+        />
+      </label>
+
+      <label class="form-control">
+        <span class="label-text mb-2">Body</span>
+        <textarea
+          name="body"
+          vd-model="draft.body"
+          required
+          class="textarea textarea-bordered min-h-40"
+          placeholder="Write your post…"
+        ></textarea>
+      </label>
+
+      <label class="form-control">
+        <span class="label-text mb-2">Tags</span>
+        <input
+          name="tags"
+          vd-model="draft.tags"
+          class="input input-bordered"
+          placeholder="framework, html, javascript"
+        />
+      </label>
+
+      <p class="text-xs opacity-60">
+        Preview: <span vd-text="draft.title || 'Untitled post'"></span>
+      </p>
+
+      <p vd-show="createPostLoading" class="text-sm">Publishing…</p>
+      <p
+        vd-if="createPostError !== ''"
+        vd-text="createPostError"
+        class="alert alert-error"
+      ></p>
+      <div
+        vd-if="Boolean(createPostResult?.id)"
+        class="alert alert-success"
+      >
+        <span vd-text="'Created post #' + createPostResult.id"></span>
+      </div>
+
+      <button
+        type="submit"
+        vd-bind:disabled="createPostLoading"
+        class="btn btn-primary"
+      >
+        Publish
+      </button>
+    </div>
+  </form>
+</main>

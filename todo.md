@@ -1,0 +1,357 @@
+# VeloDom TODO
+
+## Goal
+
+This file turns the current framework review into a practical roadmap.
+
+The current priority is not adding random features.  
+The priority is to make the existing core stable, clear, documented, and release-ready.
+
+---
+
+## Phase 0: Compiler Foundation
+
+The compiler is the long-term architectural center of VeloDom. New template
+features should be evaluated for compile-time implementation before adding
+runtime work.
+
+### 0.1 Template Frontend
+
+- [x] Create a standalone compiler package with no DOM dependency
+- [x] Parse HTML start tags and attributes into a small template AST
+- [x] Preserve source offsets for compiler diagnostics
+- [x] Recognize preferred `vd-*` directives
+- [x] Keep `data-vd-*` directives backward compatible
+- [x] Transform `vd-on:event.modifier` into runtime event metadata
+- [x] Transform `vd-bind:name` into runtime binding metadata
+- [x] Validate unknown or malformed directives at compile time
+
+### 0.2 Compiler Output
+
+- [x] Generate normalized HTML for the current runtime
+- [x] Generate serializable directive metadata
+- [x] Add development diagnostics with file and source locations
+- [x] Add production mode with diagnostics stripped
+- [ ] Define optimizer and tree-shaking extension points
+- [x] Add compiler tests for directives, nested HTML, comments, scripts, and quoted attributes
+
+### 0.3 Vite Integration
+
+- [x] Create a VeloDom Vite plugin
+- [x] Compile page and component HTML during Vite load/build
+- [x] Keep the runtime free from preferred-syntax normalization
+- [x] Surface compiler diagnostics through Vite
+- [x] Preserve lazy page and component chunks
+
+### 0.4 TypeScript Migration
+
+- [ ] Add TypeScript as a framework development dependency
+- [ ] Migrate shared/compiler contracts first
+- [ ] Migrate runtime modules incrementally
+- [ ] Generate declaration files for the public API
+- [ ] Keep JavaScript and TypeScript identical for application authors
+
+### Phase 0 Acceptance Criteria
+
+- [x] Preferred `vd-*` syntax works in page and component HTML
+- [x] Existing `data-vd-*` templates continue working unchanged
+- [x] Malformed directives fail during development build
+- [x] Compiler modules run under Node without browser globals
+- [x] Production build uses compiler output and passes all framework tests
+
+---
+
+## General Framework Roadmap
+
+The goal of this roadmap is to make the VeloDom core reusable for building
+different kinds of websites, while keeping application code outside `src/core`.
+
+### Phase A: Core Boundaries
+
+- [x] Move all `import.meta.glob(...)` usage out of core into a Vite adapter
+- [x] Inject page and component resources into `createApp(...)`
+- [x] Keep filesystem folder conventions inside the adapter, not the router
+- [x] Inject application routes and middleware into `createApp(...)`
+- [x] Provide one public request API through `src/core/requests/index.js`
+- [x] Keep named framework constants inside `src/core/constants.js`
+- [x] Add tests for the Vite adapter resource maps
+
+### Phase A Acceptance Criteria
+
+- [x] `src/core` contains no `import.meta.glob(...)`
+- [x] Nested page and component folders are indexed by adapter paths
+- [x] Core router and component mounting work from injected resource maps
+- [x] Missing or invalid adapters fail with structured startup errors
+
+### Phase B: Configurable Auth
+
+- [x] Replace fixed auth modes with an auth provider interface
+- [x] Support a configurable default auth provider
+- [x] Move demo localStorage auth configuration outside core
+- [x] Keep server-session and localStorage providers as optional core helpers
+- [x] Pass request context and `AbortSignal` to auth providers
+- [x] Add tests for custom auth providers
+- [ ] Add direct tests for role checks
+
+### Phase C: Public Framework API
+
+- [x] Support `createApp({ routes, middleware })`
+- [x] Export the complete supported public API from one entry file
+- [x] Prevent application code from importing internal core files
+- [x] Document public APIs separately from internal APIs
+- [ ] Freeze public names before publishing the package
+
+### Phase D: Lifecycle
+
+- [x] Add a formal `mounted(context)` hook
+- [x] Add a formal `destroy(context)` hook
+- [x] Add `context.onCleanup(callback)`
+- [x] Expose a lifecycle `AbortSignal`
+- [x] Run page cleanup before navigation
+- [x] Run component cleanup before unmount
+- [x] Add lifecycle ordering and cleanup tests
+
+### Phase E: Generic Router
+
+- [x] Add route params such as `/posts/:id`
+- [x] Add parsed query-string access
+- [x] Add navigation guards
+- [x] Add route metadata
+- [x] Preserve lazy page loading through adapters
+- [x] Keep 404 behavior configurable
+- [x] Add tests for params, query strings, guards, and route matching
+
+### Phase F: Optional Plugins
+
+- [x] Define the smallest useful plugin contract
+- [x] Support `createApp({ plugins: [] })`
+- [x] Add plugin setup and cleanup
+- [ ] Keep validation optional
+- [ ] Keep shared state optional
+- [ ] Keep cache, retry, and devtools optional
+- [ ] Avoid adding SSR until the browser framework core is stable
+
+### Phase G: Release Hardening
+
+- [x] Remove remaining application assumptions from core errors and hints
+- [ ] Add source-aware errors for adapters and user files
+- [ ] Complete router, component, directive, request, and lifecycle tests
+- [ ] Add package exports and semantic versioning rules
+- [ ] Add a minimal package-consumer example
+- [ ] Benchmark common page and loop rendering cases
+
+### Phase H: Blog Showcase Application
+
+After the generic core is stable, replace the current demo application with a
+complete blog project whose files remain under `src/pages`, `src/components`,
+and `src/api`.
+
+- [x] Create a blog home page with reactive post lists and loops
+- [x] Create a post details page using route params and requests
+- [x] Create post create/edit pages using forms and `vd-model`
+- [x] Create an auth/profile page demonstrating auth providers and roles
+- [ ] Create reusable nav, post card, loader, form, modal, and error components
+- [ ] Demonstrate props, slots, refs, grouped refs, `expose`, and page events
+- [ ] Demonstrate every conditional, binding, model, loop, and event directive
+- [x] Demonstrate request result/loading/error state and cancellation
+- [x] Demonstrate application middleware and advanced pipeline middleware
+- [x] Demonstrate safe cross-page writes through `config.js`
+- [x] Add a framework features page linking to every working example
+- [x] Add intentional error examples with structured framework reporting
+- [x] Remove legacy demo pages that duplicate or contradict the final API
+- [x] Verify the complete blog with tests and a production build
+
+---
+
+## MVP Complete
+
+### 1. Core Stability
+
+- [ ] Add tests for page routing
+- [ ] Add tests for component mounting and unmount cleanup
+- [ ] Add tests for refs collection
+- [ ] Add tests for grouped component refs with `data-vd-key`
+- [ ] Add tests for event bus behavior: `on`, `off`, `once`, `emit`
+- [ ] Add tests for page state persistence
+- [ ] Add tests for child state inheritance and local override behavior
+
+### 2. Directives Coverage
+
+- [ ] Add tests for `data-vd-if`
+- [ ] Add tests for `data-vd-elseif`
+- [ ] Add tests for `data-vd-else`
+- [ ] Add tests for `data-vd-show`
+- [ ] Add tests for `data-vd-text`
+- [ ] Add tests for `data-vd-model`
+- [ ] Add tests for `data-vd-class`
+- [ ] Add tests for `data-vd-style`
+- [ ] Add tests for `data-vd-attr`
+- [ ] Add tests for `data-vd-value`
+- [ ] Add tests for `data-vd-src`
+- [ ] Add tests for `data-vd-href`
+- [ ] Add tests for `data-vd-alt`
+- [ ] Add tests for `data-vd-disabled`
+- [ ] Add tests for `data-vd-checked`
+- [ ] Add tests for `data-vd-for`
+- [ ] Add tests for event directives and modifiers
+
+### 3. Request System Stability
+
+- [ ] Add tests for `data-vd-request`
+- [ ] Add tests for `data-vd-request-config`
+- [ ] Add tests for `data-vd-request-state`
+- [ ] Add tests for explicit `params`, `target`, `state`, `loading`, `error`
+- [ ] Add tests for current-page request writes
+- [ ] Add tests for cross-page request writes
+- [ ] Add tests for blocked external writes
+- [ ] Add tests for page config `allowExternalWrite`
+- [x] Add tests for request auth modes
+- [x] Add tests for application middleware resolution
+- [x] Add tests for middleware params transforms
+- [x] Add tests for advanced middleware using `next()`
+- [ ] Add tests for request error events
+- [ ] Add tests for request success events
+
+### 4. Error System
+
+- [ ] Add tests for structured runtime error formatting
+- [ ] Add tests for file/line/column reporting
+- [ ] Add tests for directive-specific error messages
+- [ ] Add tests for fatal error screen behavior
+- [ ] Add tests for invalid request config reporting
+- [ ] Add tests for invalid external write reporting
+
+### 5. Naming and API Freeze
+
+- [ ] Freeze naming for `page-router` and `request-router`
+- [ ] Decide whether `data-vd-request-state` keeps its current name or becomes a clearer alias
+- [ ] Freeze request naming convention: `Result`, `Loading`, `Error`
+- [ ] Freeze component public API pattern: `expose`
+- [x] Freeze page opt-in external write pattern: `page.config.js`
+
+---
+
+## V1 Release
+
+### 6. Documentation
+
+- [ ] Split docs into clear sections:
+- [ ] Getting Started
+- [ ] Pages
+- [ ] Components
+- [ ] Refs
+- [ ] Emit vs Ref vs Request
+- [ ] Directives
+- [ ] Request Router
+- [ ] Auth and Middleware
+- [ ] Error Handling
+- [ ] Best Practices
+- [ ] Recipes
+
+### 7. Practical Recipes
+
+- [ ] Add recipe: simple page state
+- [ ] Add recipe: component with `expose`
+- [ ] Add recipe: `ref` group with `key`
+- [ ] Add recipe: component emits event to page
+- [ ] Add recipe: simple request in same page
+- [ ] Add recipe: request using `data-vd-request-config`
+- [ ] Add recipe: request using `data-vd-request-state`
+- [ ] Add recipe: request writing to another page
+- [ ] Add recipe: allowing external page writes safely
+- [ ] Add recipe: auth-protected request
+- [ ] Add recipe: request with application middleware
+- [ ] Add recipe: form create/update/delete
+- [ ] Add recipe: common framework error examples
+
+### 8. Lifecycle
+
+- [x] Formalize `destroy` hook
+- [ ] Document `init` object signature as the preferred style
+- [x] Add and document the `mounted` hook
+- [x] Expose `onCleanup` and lifecycle `AbortSignal`
+
+### 9. Project Polish
+
+- [ ] Review folder naming consistency inside `src/core`
+- [ ] Review internal naming consistency across `pages`, `components`, and `api`
+- [ ] Review demo pages for consistency with final API style
+- [ ] Remove legacy examples that no longer represent the preferred API
+
+---
+
+## V1.5 Improvements
+
+### 10. Request UX
+
+- [x] Add automatic request cancellation on supersede and unmount
+- [ ] Add request debounce support
+- [ ] Add request throttle support
+- [ ] Add request retry option
+- [ ] Add redirect behavior on auth failure
+- [ ] Add global before-request hook
+- [ ] Add global after-request hook
+- [ ] Add request success callback pattern if needed
+
+### 11. Forms and Validation
+
+- [ ] Design a simple validation API
+- [ ] Add built-in required validation
+- [ ] Add built-in min/max validation
+- [ ] Add built-in pattern validation
+- [ ] Add validation error state conventions
+- [ ] Integrate form validation with request flow
+
+### 12. Performance
+
+- [ ] Review re-render behavior in loops
+- [ ] Reduce unnecessary full-block updates where possible
+- [ ] Improve granular updates for large pages
+- [ ] Benchmark common UI cases
+
+---
+
+## V2 Ideas
+
+### 13. Shared State
+
+- [ ] Decide if the framework truly needs a global store
+- [ ] If needed, design the smallest useful shared state API
+- [ ] Keep shared state optional, not mandatory
+
+### 14. Developer Tooling
+
+- [ ] Create CLI for page scaffolding
+- [ ] Create CLI for component scaffolding
+- [ ] Create CLI for API file scaffolding
+- [ ] Create CLI for demo scaffolding
+
+### 15. Framework Identity
+
+- [ ] Write a one-paragraph positioning statement
+- [ ] Define who VeloDom is for
+- [ ] Define what VeloDom does better than plain JS
+- [ ] Define when to choose VeloDom over heavier frameworks
+- [ ] Define what problems VeloDom intentionally does not solve
+
+---
+
+## Suggested Order
+
+1. Tests
+2. Documentation
+3. Naming freeze
+4. Lifecycle cleanup
+5. Request UX improvements
+6. Validation
+7. Performance pass
+8. Tooling
+
+---
+
+## Notes
+
+- Do not add new features unless they support clarity, stability, or real user workflows.
+- Keep the framework HTML-first and simple for the user.
+- Prefer conventions that reduce boilerplate.
+- Protect framework power features with clear guardrails and strong error messages.

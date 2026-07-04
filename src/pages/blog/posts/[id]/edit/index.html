@@ -1,0 +1,47 @@
+<vd-component name="nav" vd-prop-title="Edit post"></vd-component>
+
+<main class="mx-auto w-[92%] max-w-2xl py-10">
+  <a
+    vd-bind:href="'/blog/posts/' + postId"
+    vd-nav
+    class="btn btn-sm btn-ghost mb-5"
+  >
+    ← Post details
+  </a>
+
+  <form
+    vd-request="posts.update"
+    vd-request-config="{ params: { id: postId }, target: 'updatePostResult', autoState: true }"
+    class="card border border-base-300 bg-base-100 shadow-sm"
+  >
+    <div class="card-body">
+      <h1 class="text-3xl font-bold">Edit post #<span vd-text="postId"></span></h1>
+      <input
+        name="title"
+        vd-model="editDraft.title"
+        required
+        class="input input-bordered"
+        placeholder="New post title"
+      />
+      <p vd-show="updatePostLoading">Saving…</p>
+      <p
+        vd-if="updatePostError !== ''"
+        vd-text="updatePostError"
+        class="alert alert-error"
+      ></p>
+      <div
+        vd-if="Boolean(updatePostResult?.id)"
+        class="alert alert-success"
+      >
+        <span vd-text="'Updated post #' + updatePostResult.id"></span>
+      </div>
+      <button
+        type="submit"
+        vd-bind:disabled="updatePostLoading"
+        class="btn btn-warning"
+      >
+        Save changes
+      </button>
+    </div>
+  </form>
+</main>

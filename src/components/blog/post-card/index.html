@@ -1,0 +1,26 @@
+<article
+  vd-class="{ 'ring-2 ring-primary': highlighted }"
+  class="rounded-xl bg-base-200 p-4"
+>
+  <p class="text-xs font-medium uppercase opacity-60">Component prop</p>
+  <h3
+    vd-text="post?.title || 'Waiting for a featured post'"
+    class="mt-1 font-semibold"
+  ></h3>
+  <div class="mt-3 flex gap-2">
+    <button
+      type="button"
+      vd-on:click="toggleHighlight()"
+      class="btn btn-xs btn-outline"
+    >
+      Highlight
+    </button>
+    <button
+      type="button"
+      vd-on:click="announce()"
+      class="btn btn-xs btn-primary"
+    >
+      Emit event
+    </button>
+  </div>
+</article>

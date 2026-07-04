@@ -1,0 +1,211 @@
+<vd-component name="nav" vd-prop-title="Features"></vd-component>
+
+<main class="mx-auto w-[92%] max-w-6xl py-10">
+  <header class="mb-10">
+    <p class="text-sm font-medium text-primary">Living documentation</p>
+    <h1 class="text-4xl font-bold">Framework features</h1>
+    <p class="mt-3 max-w-3xl opacity-70">
+      Every section is a working example. This page intentionally uses the preferred
+      <code>vd-*</code> syntax compiled by the VeloDom Vite plugin.
+    </p>
+  </header>
+
+  <div class="grid gap-6 lg:grid-cols-2">
+    <vd-component name="shared/demo-panel">
+      <vd-child name="header">State and conditionals</vd-child>
+      <vd-child>
+        <div class="space-y-4">
+          <div class="flex flex-wrap gap-2">
+            <button vd-on:click="increment()" class="btn btn-primary">
+              Count: <span vd-text="count"></span>
+            </button>
+            <button vd-on:click="toggleVisible()" class="btn btn-outline">
+              Toggle visibility
+            </button>
+          </div>
+
+          <p vd-if="count === 0" class="alert">No clicks yet.</p>
+          <p vd-elseif="count < 3" class="alert alert-info">Getting started.</p>
+          <p vd-else class="alert alert-success">Reactive state is working.</p>
+
+          <p vd-show="visible" class="rounded-lg bg-base-200 p-3">
+            <code>vd-show</code> keeps this element mounted.
+          </p>
+        </div>
+      </vd-child>
+      <vd-child name="footer">
+        <span class="badge badge-outline">if / elseif / else / show / text</span>
+      </vd-child>
+    </vd-component>
+
+    <vd-component name="shared/demo-panel">
+      <vd-child name="header">Models, refs, and bindings</vd-child>
+      <vd-child>
+        <div class="space-y-3">
+          <input
+            vd-ref="nameInput"
+            vd-model="profile.name"
+            class="input input-bordered w-full"
+            placeholder="Your name"
+          />
+          <p>
+            Hello, <strong vd-text="profile.name || 'reader'"></strong>
+          </p>
+          <label class="label cursor-pointer justify-start gap-3">
+            <input type="checkbox" vd-model="accepted" class="checkbox" />
+            <span>I accept the HTML-first approach</span>
+          </label>
+          <input type="color" vd-model="color" class="h-10 w-full" />
+          <div
+            vd-class="{ 'font-bold': accepted }"
+            vd-style="{ color: color }"
+            vd-attr="{ 'data-accepted': accepted }"
+          >
+            Class, style, and attribute bindings
+          </div>
+          <button vd-on:click="focusName()" class="btn btn-sm btn-outline">
+            Focus through DOM ref
+          </button>
+        </div>
+      </vd-child>
+      <vd-child name="footer">
+        <span class="badge badge-outline">model / ref / class / style / attr</span>
+      </vd-child>
+    </vd-component>
+
+    <vd-component name="shared/demo-panel">
+      <vd-child name="header">Loops and component public APIs</vd-child>
+      <vd-child>
+        <ul class="mb-4 space-y-2">
+          <li
+            vd-for="(item, index) in items"
+            class="rounded-lg bg-base-200 px-3 py-2"
+          >
+            <span vd-text="index + 1"></span>.
+            <span vd-text="item"></span>
+          </li>
+        </ul>
+
+        <div class="grid gap-3 md:grid-cols-2">
+          <vd-component
+            name="eventCard"
+            vd-ref="featureCards"
+            vd-key="1"
+            vd-prop-title="Feature card one"
+          ></vd-component>
+          <vd-component
+            name="eventCard"
+            vd-ref="featureCards"
+            vd-key="2"
+            vd-prop-title="Feature card two"
+          ></vd-component>
+        </div>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button vd-on:click="openCards()" class="btn btn-sm btn-primary">
+            Call grouped expose API
+          </button>
+          <button vd-on:click="toggleSecondCard()" class="btn btn-sm btn-outline">
+            Call byKey["2"]
+          </button>
+        </div>
+      </vd-child>
+      <vd-child name="footer">
+        <span class="badge badge-outline">for / props / grouped refs / expose / emit</span>
+      </vd-child>
+    </vd-component>
+
+    <vd-component name="shared/demo-panel">
+      <vd-child name="header">Requests and middleware</vd-child>
+      <vd-child>
+        <div class="flex flex-wrap gap-2">
+          <button
+            vd-request="posts.getOne"
+            vd-request-config="{ params: { id: 1 }, target: 'demoResult', autoState: true }"
+            class="btn btn-sm btn-primary"
+          >
+            Load post 1
+          </button>
+          <button
+            vd-request="posts.getOne"
+            vd-request-config="{ params: { id: 2 }, target: 'demoResult', autoState: true }"
+            class="btn btn-sm btn-secondary"
+          >
+            Supersede with post 2
+          </button>
+          <button
+            vd-request="demo.middlewarePost"
+            vd-request-config="{ params: { id: ' 3 ' }, target: 'demoResult', autoState: true }"
+            class="btn btn-sm btn-outline"
+          >
+            Middleware pipeline
+          </button>
+          <button
+            vd-request="posts.getOne"
+            vd-request-config="{ params: { id: 6 }, target: 'home', state: 'externalPostResult', autoState: true }"
+            class="btn btn-sm btn-accent"
+          >
+            Write safely to home
+          </button>
+        </div>
+
+        <p vd-show="demoLoading" class="mt-3">Loading request…</p>
+        <p
+          vd-if="demoError !== ''"
+          vd-text="demoError"
+          class="alert alert-error mt-3"
+        ></p>
+        <div vd-if="Boolean(demoResult?.id)" class="alert alert-success mt-3">
+          <span vd-text="'Loaded: ' + demoResult.title"></span>
+        </div>
+      </vd-child>
+      <vd-child name="footer">
+        <span class="badge badge-outline">result / loading / error / cancellation</span>
+      </vd-child>
+    </vd-component>
+
+    <vd-component name="shared/demo-panel">
+      <vd-child name="header">Slots and modal expose</vd-child>
+      <vd-child>
+        <p class="mb-3 opacity-70">
+          This entire panel uses named slots. The modal is controlled by a component ref.
+        </p>
+        <button vd-on:click="openModal()" class="btn btn-primary">
+          Open modal
+        </button>
+        <vd-component
+          name="shared/modal"
+          vd-ref="featureModal"
+        ></vd-component>
+      </vd-child>
+      <vd-child name="footer">
+        <span class="badge badge-outline">slots / component ref / expose</span>
+      </vd-child>
+    </vd-component>
+
+    <vd-component name="shared/demo-panel">
+      <vd-child name="header">Lifecycle and events</vd-child>
+      <vd-child>
+        <ul class="space-y-2">
+          <li
+            vd-for="line in eventLog"
+            vd-text="line"
+            class="rounded-lg bg-base-200 px-3 py-2 text-sm"
+          ></li>
+        </ul>
+      </vd-child>
+      <vd-child name="footer">
+        <span class="badge badge-outline">init / mounted / destroy / onCleanup / signal</span>
+      </vd-child>
+    </vd-component>
+  </div>
+
+  <section class="mt-8 rounded-2xl bg-base-200 p-6">
+    <h2 class="text-2xl font-bold">More examples</h2>
+    <div class="mt-4 flex flex-wrap gap-3">
+      <a href="/account/profile" vd-nav class="btn btn-outline">Auth provider and route meta</a>
+      <a href="/features/errors" vd-nav class="btn btn-outline">Structured error lab</a>
+      <a href="/blog/posts/create" vd-nav class="btn btn-outline">Form request</a>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,67 @@
+<vd-component name="nav" vd-prop-title="Profile"></vd-component>
+
+<main class="mx-auto w-[92%] max-w-4xl py-10">
+  <header>
+    <p class="text-sm font-medium text-primary">Configurable provider example</p>
+    <h1 vd-text="routeTitle" class="text-4xl font-bold"></h1>
+    <p class="mt-3 opacity-70">
+      The core knows only the auth provider contract. This application registers
+      a localStorage provider named <code>demo</code>.
+    </p>
+  </header>
+
+  <div class="mt-8 grid gap-6 md:grid-cols-2">
+    <section class="card border border-base-300 bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title">Demo session</h2>
+        <pre
+          vd-text="sessionPreview"
+          class="overflow-auto rounded-lg bg-base-200 p-3 text-xs"
+        ></pre>
+        <div class="card-actions">
+          <button vd-on:click="setEditor()" class="btn btn-secondary btn-sm">
+            Editor
+          </button>
+          <button vd-on:click="setAdmin()" class="btn btn-primary btn-sm">
+            Admin
+          </button>
+          <button vd-on:click="clearSession()" class="btn btn-ghost btn-sm">
+            Clear
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card border border-base-300 bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title">Role-protected requests</h2>
+        <div class="flex flex-wrap gap-2">
+          <button
+            vd-request="demo.editorPost"
+            vd-request-config="{ params: { id: 4 }, target: 'authResult', autoState: true }"
+            class="btn btn-secondary btn-sm"
+          >
+            Editor route
+          </button>
+          <button
+            vd-request="demo.adminPost"
+            vd-request-config="{ params: { id: 5 }, target: 'authResult', autoState: true }"
+            class="btn btn-primary btn-sm"
+          >
+            Admin route
+          </button>
+        </div>
+
+        <p vd-show="authLoading" class="mt-3">Checking provider…</p>
+        <p
+          vd-if="authError !== ''"
+          vd-text="authError"
+          class="alert alert-error mt-3"
+        ></p>
+        <div vd-if="Boolean(authResult?.id)" class="alert alert-success mt-3">
+          <span vd-text="'Authorized: ' + authResult.title"></span>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>

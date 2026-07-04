@@ -1,0 +1,131 @@
+<vd-component name="nav" vd-prop-title="Blog"></vd-component>
+
+<main class="mx-auto w-[92%] max-w-6xl py-10">
+  <section class="hero rounded-3xl bg-base-200 px-6 py-12">
+    <div class="hero-content text-center">
+      <div class="max-w-3xl">
+        <div class="badge badge-primary badge-outline mb-4">
+          Compiler-first · HTML-first
+        </div>
+        <h1 class="text-4xl font-bold md:text-6xl">VeloDom Blog</h1>
+        <p class="mt-4 text-lg opacity-75">
+          A complete showcase application built with folders, reactive state,
+          directives, requests, nested components, lifecycle hooks, and route metadata.
+        </p>
+        <div class="mt-6 flex flex-wrap justify-center gap-3">
+          <a href="/blog/posts/create" vd-nav class="btn btn-primary">Write a post</a>
+          <a href="/features" vd-nav class="btn btn-outline">Explore framework features</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-10 grid gap-8 lg:grid-cols-[1fr_20rem]">
+    <div>
+      <div class="mb-5 flex items-center justify-between gap-3">
+        <div>
+          <p class="text-sm font-medium text-primary">Latest writing</p>
+          <h2 class="text-3xl font-bold">Posts</h2>
+        </div>
+        <span vd-show="postsLoading" class="loading loading-spinner loading-md"></span>
+      </div>
+
+      <p
+        vd-if="postsError !== ''"
+        vd-text="postsError"
+        class="alert alert-error mb-4"
+      ></p>
+
+      <div class="grid gap-5 md:grid-cols-2" vd-if="!postsLoading">
+        <article
+          vd-for="post in posts"
+          vd-class="{ 'border-primary': post.id === featuredPost?.id }"
+          class="card border border-base-300 bg-base-100 shadow-sm"
+        >
+          <div class="card-body">
+            <div class="flex flex-wrap gap-1">
+              <span
+                vd-for="tag in post.tags"
+                vd-text="tag"
+                class="badge badge-ghost badge-sm"
+              ></span>
+            </div>
+            <h3 vd-text="post.title" class="card-title"></h3>
+            <p vd-text="post.body.slice(0, 110) + '…'" class="opacity-70"></p>
+            <div class="card-actions mt-3 justify-between">
+              <span
+                vd-text="post.views ? post.views + ' views' : 'New post'"
+                class="text-xs opacity-60"
+              ></span>
+              <a
+                vd-bind:href="'/blog/posts/' + post.id"
+                vd-nav
+                class="btn btn-sm btn-primary"
+              >
+                Read
+              </a>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <button
+        type="button"
+        vd-on:click="loadMore()"
+        vd-bind:disabled="postsLoading"
+        class="btn btn-outline mt-6 w-full"
+      >
+        Load more posts
+      </button>
+    </div>
+
+    <aside class="space-y-5">
+      <section class="card border border-base-300 bg-base-100">
+        <div class="card-body">
+          <h2 class="card-title">Popular tags</h2>
+          <div class="flex flex-wrap gap-2">
+            <span
+              vd-for="(tag, index) in tags"
+              vd-if="index < 12"
+              vd-text="tag"
+              class="badge badge-outline"
+            ></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card border border-base-300 bg-base-100">
+        <div class="card-body">
+          <h2 class="card-title">Featured component</h2>
+          <p class="text-sm opacity-70">
+            This card receives a post through component props and exposes methods.
+          </p>
+          <vd-component
+            name="blog/post-card"
+            vd-props="{ post: featuredPost }"
+            vd-ref="featuredCard"
+          ></vd-component>
+        </div>
+      </section>
+
+      <section class="card border border-base-300 bg-base-100">
+        <div class="card-body">
+          <h2 class="card-title">Cross-page request result</h2>
+          <p vd-show="externalPostLoading" class="text-sm">Loading…</p>
+          <p
+            vd-if="externalPostError !== ''"
+            vd-text="externalPostError"
+            class="text-error"
+          ></p>
+          <a
+            vd-if="Boolean(externalPostResult?.id)"
+            vd-bind:href="'/blog/posts/' + externalPostResult.id"
+            vd-text="externalPostResult?.title || ''"
+            vd-nav
+            class="link link-primary"
+          ></a>
+        </div>
+      </section>
+    </aside>
+  </section>
+</main>
