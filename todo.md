@@ -17,7 +17,7 @@ runtime work.
 
 ### 0.1 Template Frontend
 
-- [x] Create a standalone compiler package with no DOM dependency
+- [x] Create a standalone compiler module with no DOM dependency
 - [x] Parse HTML start tags and attributes into a small template AST
 - [x] Preserve source offsets for compiler diagnostics
 - [x] Recognize preferred `vd-*` directives
@@ -78,17 +78,19 @@ different kinds of websites, while keeping application code outside `src/core`.
 
 ### Phase A: Core Boundaries
 
-- [x] Move all `import.meta.glob(...)` usage out of core into a Vite adapter
+- [x] Isolate all `import.meta.glob(...)` usage in the Vite adapter
 - [x] Inject page and component resources into `createApp(...)`
 - [x] Keep filesystem folder conventions inside the adapter, not the router
 - [x] Inject application routes and middleware into `createApp(...)`
 - [x] Provide one public request API through `src/core/requests/index.ts`
 - [x] Keep named framework constants inside `src/core/constants.ts`
 - [x] Add tests for the Vite adapter resource maps
+- [x] Consolidate all framework-owned source under `src/core`
+- [x] Expose build integrations through supported package subpaths
 
 ### Phase A Acceptance Criteria
 
-- [x] `src/core` contains no `import.meta.glob(...)`
+- [x] Runtime modules outside `src/core/adapters` contain no `import.meta.glob(...)`
 - [x] Nested page and component folders are indexed by adapter paths
 - [x] Core router and component mounting work from injected resource maps
 - [x] Missing or invalid adapters fail with structured startup errors
@@ -283,7 +285,7 @@ and `src/api`.
 
 ### 9. Project Polish
 
-- [ ] Review folder naming consistency inside `src/core`
+- [x] Review folder naming consistency inside `src/core`
 - [ ] Review internal naming consistency across `pages`, `components`, and `api`
 - [ ] Review demo pages for consistency with final API style
 - [ ] Remove legacy examples that no longer represent the preferred API

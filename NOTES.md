@@ -3,7 +3,8 @@
 ## Architectural Decisions
 
 - VeloDom is compiler-first, HTML-first, and folder-first.
-- `src/core` and `packages` contain reusable framework machinery only.
+- `src/core` is the single home for reusable framework source, including the
+  compiler, shared contracts, adapters, and Vite plugin.
 - `src/pages`, `src/components`, and `src/api` are application-owned.
 - Build-tool discovery belongs to adapters; the runtime accepts injected
   resource maps.
@@ -17,6 +18,8 @@
   differences and no JSX/TSX.
 - The public application import boundary is the `velodom` package export backed
   by `src/core/index.ts`; other core modules are internal until promoted.
+- Build-specific framework features use explicit subpath exports:
+  `velodom/vite`, `velodom/vite-plugin`, and `velodom/compiler`.
 - Backward compatibility is preserved while the preferred `vd-*` compiler
   syntax and folder conventions mature.
 - Inactive conditional branches suspend dependent directive evaluation.

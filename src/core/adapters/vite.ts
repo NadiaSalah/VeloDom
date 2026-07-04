@@ -5,7 +5,7 @@ import {
 } from "./resource-map.ts";
 
 const pageHtmlFiles = import.meta.glob(
-  "../pages/**/index.html",
+  "../../pages/**/index.html",
   {
     query: "?raw",
     import: "default"
@@ -13,14 +13,14 @@ const pageHtmlFiles = import.meta.glob(
 );
 
 const pageModuleFiles = import.meta.glob([
-  "../pages/**/script.ts",
-  "../pages/**/script.js",
-  "../pages/**/page.js"
+  "../../pages/**/script.ts",
+  "../../pages/**/script.js",
+  "../../pages/**/page.js"
 ]);
 const pageConfigFiles = import.meta.glob(
   [
-    "../pages/**/config.js",
-    "../pages/**/page.config.js"
+    "../../pages/**/config.js",
+    "../../pages/**/page.config.js"
   ],
   {
     eager: true,
@@ -28,7 +28,7 @@ const pageConfigFiles = import.meta.glob(
   }
 );
 const pageStyleFiles = import.meta.glob(
-  "../pages/**/*.css",
+  "../../pages/**/*.css",
   {
     query: "?inline",
     import: "default"
@@ -36,19 +36,19 @@ const pageStyleFiles = import.meta.glob(
 );
 
 const componentHtmlFiles = import.meta.glob(
-  "../components/**/index.html",
+  "../../components/**/index.html",
   {
     query: "?raw",
     import: "default"
   }
 );
 const componentModuleFiles = import.meta.glob([
-  "../components/**/script.ts",
-  "../components/**/script.js",
-  "../components/**/component.js"
+  "../../components/**/script.ts",
+  "../../components/**/script.js",
+  "../../components/**/component.js"
 ]);
 const componentStyleFiles = import.meta.glob(
-  "../components/**/*.css",
+  "../../components/**/*.css",
   {
     query: "?inline",
     import: "default"
@@ -60,12 +60,12 @@ export function createViteAdapter() {
     pages: {
       html: indexFolderFiles(
         pageHtmlFiles,
-        "../pages/",
+        "../../pages/",
         "/index.html"
       ),
       modules: indexFolderVariants(
         pageModuleFiles,
-        "../pages/",
+        "../../pages/",
         [
           "/script.ts",
           "/script.js",
@@ -74,30 +74,30 @@ export function createViteAdapter() {
       ),
       configs: indexFolderVariants(
         pageConfigFiles,
-        "../pages/",
+        "../../pages/",
         [
           "/config.js",
           "/page.config.js"
         ]
       ),
-      styles: rebaseFiles(pageStyleFiles, "../pages/")
+      styles: rebaseFiles(pageStyleFiles, "../../pages/")
     },
     components: {
       html: indexFolderFiles(
         componentHtmlFiles,
-        "../components/",
+        "../../components/",
         "/index.html"
       ),
       modules: indexFolderVariants(
         componentModuleFiles,
-        "../components/",
+        "../../components/",
         [
           "/script.ts",
           "/script.js",
           "/component.js"
         ]
       ),
-      styles: rebaseFiles(componentStyleFiles, "../components/")
+      styles: rebaseFiles(componentStyleFiles, "../../components/")
     }
   };
 }

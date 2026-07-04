@@ -4,7 +4,7 @@ import {
   indexFolderFiles,
   indexFolderVariants,
   rebaseFiles
-} from "../../src/adapters/resource-map.ts";
+} from "../../src/core/adapters/resource-map.ts";
 
 test("page files are indexed by nested folder name", () => {
   const homeLoader = () => "home";

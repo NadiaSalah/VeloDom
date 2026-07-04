@@ -5,9 +5,9 @@ import {
   createServerSessionAuthProvider,
   VD_AUTH
 } from "velodom";
+import { createViteAdapter } from "velodom/vite";
 import routes from "./api/routes.js";
 import middleware from "./api/middleware.js";
-import { createViteAdapter } from "./adapters/vite.ts";
 
 createApp({
   adapter: createViteAdapter(),

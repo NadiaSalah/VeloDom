@@ -22,7 +22,7 @@ The repository now includes:
 - a complete blog showcase application
 - Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
 
-Latest verification on 2026-07-04: TypeScript and ESLint checks pass, 35 tests
+Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 35 tests
 pass, declarations are generated, and the Vite production build completes.
 
 The safe expression AST, optimizer, stricter internal typing, and tree-shaking
@@ -39,31 +39,29 @@ extension points remain roadmap work.
 ## Architecture
 
 ```text
-packages/
-  compiler/              HTML parser, directive transform, metadata, diagnostics
-  shared/                compiler/shared directive contracts
-  vite-plugin/           build-time template compilation
-
 src/
-  core/                  framework runtime only
-    index.ts             public framework entry and exported types
+  core/                  all framework-owned source
+    adapters/            Vite discovery and resource-map adapters
+    compiler/            HTML AST, transforms, metadata, diagnostics
+    shared/              shared compiler/runtime contracts
+    vite-plugin/         build-time template compilation
+    requests/            HTTP, auth, middleware, request directives
+    errors/              framework error reporting and fatal screen
+    index.ts             public runtime entry and exported types
     types.ts             public application contracts
     router.ts            generic matching, params, query, guards
     page-router.ts       page runtime and navigation lifecycle
     lifecycle.ts         mounted/destroy/onCleanup/signal
-    requests/            HTTP, auth providers, middleware, request directives
 
-  adapters/
-    vite.ts              import.meta.glob folder discovery
-    resource-map.ts      framework-neutral resource indexing helpers
-
-  pages/                 application pages
-  components/            application components
-  api/                   application routes, handlers, validation, middleware
+  pages/                 user-owned application pages
+  components/            user-owned application components
+  api/                   user-owned routes, handlers, and middleware
+  main.js                user-owned application bootstrap
 ```
 
-Framework machinery stays in `src/core` and `packages`. Blog/domain behavior
-stays in `src/pages`, `src/components`, and `src/api`.
+All framework source now lives under `src/core`; application authors should not
+edit its internal files. Root configuration files remain at the repository root
+because Vite, TypeScript, ESLint, and npm discover them there.
 
 ## Start the Application
 
@@ -93,7 +91,7 @@ import {
   createServerSessionAuthProvider,
   VD_AUTH
 } from "velodom";
-import { createViteAdapter } from "./adapters/vite.ts";
+import { createViteAdapter } from "velodom/vite";
 import routes from "./api/routes.js";
 import middleware from "./api/middleware.js";
 
@@ -117,6 +115,24 @@ createApp({
 ```
 
 The core does not import application routes or middleware.
+
+## Source Ownership
+
+Application authors normally edit:
+
+- `src/pages`
+- `src/components`
+- `src/api`
+- `src/main.js`
+- application styles and assets
+
+Framework maintainers edit `src/core`. Consumers use these supported entry
+points instead of importing internal files:
+
+- `velodom` — runtime and public types
+- `velodom/vite` — Vite resource adapter
+- `velodom/vite-plugin` — build plugin
+- `velodom/compiler` — compiler API
 
 ## Folder-First Convention
 
@@ -604,12 +620,12 @@ See [todo.md](todo.md). The next architectural priorities are:
 
 The main files changed in the current architecture milestone are:
 
-- `packages/compiler/src/index.ts` and `packages/vite-plugin/src/index.ts`
+- `src/core/compiler/index.ts` and `src/core/vite-plugin/index.ts`
 - `src/core/index.ts`, `src/core/types.ts`, `src/core/router.ts`,
   `src/core/lifecycle.ts`, and `src/core/plugins.ts`
 - `src/core/requests/auth.ts`, `request-router.ts`, and
   `middleware-engine.ts`
-- `src/adapters/vite.ts` and `src/core/resource-adapter.ts`
+- `src/core/adapters/vite.ts` and `src/core/resource-adapter.ts`
 - the blog application under `src/pages`, `src/components`, and `src/api`
 
 The conditional-directive evaluation regression is covered by

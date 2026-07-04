@@ -23,8 +23,7 @@ export default tseslint.config(
   },
   {
     files: [
-      "src/**/*.ts",
-      "packages/**/*.ts"
+      "src/**/*.ts"
     ],
     extends: [
       eslint.configs.recommended,

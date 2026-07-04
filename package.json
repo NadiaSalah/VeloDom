@@ -8,6 +8,18 @@
     ".": {
       "types": "./src/core/index.ts",
       "import": "./src/core/index.ts"
+    },
+    "./compiler": {
+      "types": "./src/core/compiler/index.ts",
+      "import": "./src/core/compiler/index.ts"
+    },
+    "./vite": {
+      "types": "./src/core/adapters/vite.ts",
+      "import": "./src/core/adapters/vite.ts"
+    },
+    "./vite-plugin": {
+      "types": "./src/core/vite-plugin/index.ts",
+      "import": "./src/core/vite-plugin/index.ts"
     }
   },
   "scripts": {

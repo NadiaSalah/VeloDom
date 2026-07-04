@@ -26,11 +26,9 @@
   },
   "include": [
     "src/core/**/*.ts",
-    "src/adapters/**/*.ts",
     "src/api/**/*.ts",
     "src/components/**/*.ts",
-    "src/pages/**/*.ts",
-    "packages/**/*.ts"
+    "src/pages/**/*.ts"
   ],
   "exclude": [
     "node_modules",

@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import type { Plugin } from "vite";
-import { compileTemplate } from "../../compiler/src/index.ts";
+import { compileTemplate } from "../compiler/index.ts";
 
 export function velodom(): Plugin {
   let mode: "development" | "production" = "development";

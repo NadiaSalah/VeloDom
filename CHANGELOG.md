@@ -4,6 +4,29 @@ All important local changes to VeloDom are recorded here. The project is not
 published yet, so entries describe development milestones rather than released
 package versions.
 
+## 2026-07-05
+
+### Changed
+
+- Consolidated all framework-owned source under `src/core`.
+- Moved resource adapters to `src/core/adapters`.
+- Moved compiler, shared contracts, and the Vite plugin from `packages` into
+  dedicated `src/core` subfolders.
+- Added supported `velodom/compiler`, `velodom/vite`, and
+  `velodom/vite-plugin` package entry points.
+- Kept application-owned `pages`, `components`, `api`, and bootstrap files
+  outside the framework folder.
+
+### Removed
+
+- Removed the redundant private `packages` source layer.
+
+### Verification
+
+- TypeScript and ESLint checks pass.
+- `npm test`: 35 tests passing.
+- `npm run build`: production build successful.
+
 ## 2026-07-04
 
 ### Added

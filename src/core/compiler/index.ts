@@ -1,7 +1,7 @@
 import {
   BINDING_DIRECTIVES,
   isPreferredDirective
-} from "../../shared/src/directives.ts";
+} from "../shared/directives.ts";
 
 export interface CompilerOptions {
   filename?: string;

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { compileTemplate } from "../../packages/compiler/src/index.ts";
+import { compileTemplate } from "../../src/core/compiler/index.ts";
 
 test("preferred directives compile to backward-compatible runtime names", () => {
   const result = compileTemplate(`
