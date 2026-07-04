@@ -5,7 +5,6 @@ import {
 } from "../constants.ts";
 import { reportUserActionError } from "../errors/error-reporter.ts";
 import { isPlainObject } from "../shared/object.ts";
-import { findProtectedStatePathKey } from "../shared/path.ts";
 import {
   createAuthRuntime,
   getDefaultAuthSessionUrl,
@@ -16,6 +15,11 @@ import {
   executeRequestMiddleware,
   resolveRequestMiddleware
 } from "./middleware-engine.ts";
+import {
+  createAutoStatusBinding,
+  resolveRequestBinding,
+  validateRequestBindingAccess
+} from "./request-bindings.ts";
 
 const activeRequests = new WeakMap();
 const activeTargetRequests = new WeakMap();
@@ -87,7 +91,7 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
       title: "Missing Request Route",
       directive: VD.REQUEST,
       line: 48,
-      hint: "Set data-vd-request to a valid route such as posts.getOne."
+      hint: "Set vd-request to a valid route such as posts.getOne."
     });
     return;
   }
@@ -126,7 +130,7 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
   );
 
   if (params === VD_INTERNAL.REQUEST_ABORT) {
-    reportRequestDirectiveProblem(state, el, routeName, "data-vd-params must return an object", {
+    reportRequestDirectiveProblem(state, el, routeName, "vd-params must return an object", {
       title: "Invalid Request Params",
       directive: VD.PARAMS,
       expression: typeof paramsInput === "string"
@@ -141,7 +145,8 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
   const meta = {
     el,
     routeName,
-    ownerState: state
+    ownerState: state,
+    report: reportRequestDirectiveProblem
   };
   const targetBinding = resolveRequestBinding(
     targetAttr,
@@ -338,7 +343,7 @@ function getRequestConfig(el, state, context, event, evaluate, routeName) {
   });
 
   if (!isPlainObject(evaluated)) {
-    reportRequestDirectiveProblem(state, el, routeName, "data-vd-request-config must return an object", {
+    reportRequestDirectiveProblem(state, el, routeName, "vd-request-config must return an object", {
       title: "Invalid Request Config",
       directive: VD.REQUEST_CONFIG,
       expression,
@@ -531,344 +536,6 @@ function getTargetRequestMap(state) {
   }
 
   return requests;
-}
-
-function resolveRequestBinding(targetAttr, pathAttr, valueAttr, currentState, context, directive, meta: any = {}) {
-  const rawTarget = String(targetAttr || "").trim();
-  const rawPath = String(pathAttr || "").trim();
-  const rawValue = String(valueAttr || "").trim();
-
-  if (rawPath && !sanitizeRequestPagePath(rawPath)) {
-    return reportRequestDirectiveProblem(meta.ownerState, meta.el, meta.routeName, `Invalid page path "${rawPath}"`, {
-      title: "Invalid Request Page Path",
-      directive: VD.PATH,
-      expression: rawPath,
-      line: 277,
-      hint: "Use a clean folder path like posts or admin/posts without '..'."
-    });
-  }
-
-  if (rawPath && !rawTarget) {
-    return reportRequestDirectiveProblem(meta.ownerState, meta.el, meta.routeName, "data-vd-path requires data-vd-target", {
-      title: "Incomplete Request Target",
-      directive: VD.PATH,
-      expression: rawPath,
-      line: 286,
-      hint: "Add data-vd-target with the page name. Example: data-vd-path=\"posts\" data-vd-target=\"create-post\"."
-    });
-  }
-
-  if (rawPath && rawTarget.includes(".")) {
-    return reportRequestDirectiveProblem(meta.ownerState, meta.el, meta.routeName, "Do not combine data-vd-path with dot notation target", {
-      title: "Conflicting Request Target Syntax",
-      directive: VD.TARGET,
-      expression: rawTarget,
-      line: 295,
-      hint: "Use either data-vd-target=\"home.posts\" or data-vd-path=\"posts\" + data-vd-target=\"create-post\"."
-    });
-  }
-
-  const pageName = resolveRequestPageName(rawTarget, rawPath, rawValue, directive);
-
-  if (!rawValue && directive !== VD.TARGET) {
-    return {
-      state: pageName
-        ? getTargetPageState(pageName, currentState, context)
-        : currentState,
-      path: "",
-      pageName: pageName || context.page || currentState.__vdPageName || ""
-    };
-  }
-
-  if (directive === VD.TARGET && !rawTarget) {
-    if (!rawValue) {
-      return reportRequestDirectiveProblem(meta.ownerState, meta.el, meta.routeName, "Request result target is missing", {
-        title: "Missing Request Target",
-        directive: VD.TARGET,
-        line: 320,
-        hint: "Set data-vd-target to a state path or page name."
-      });
-    }
-
-    return {
-      state: currentState,
-      path: rawValue,
-      pageName: context.page || currentState.__vdPageName || ""
-    };
-  }
-
-  if (directive === VD.TARGET && !rawValue && rawTarget) {
-    if (pageName) {
-      return reportRequestDirectiveProblem(meta.ownerState, meta.el, meta.routeName, "Cross-page request target requires data-vd-state", {
-        title: "Missing Cross-page State Name",
-        directive: VD.STATE,
-        expression: rawTarget,
-        line: 333,
-        hint: "Example: data-vd-target=\"home\" data-vd-state=\"posts\"."
-      });
-    }
-
-    if (rawTarget.includes(".")) {
-      return resolveAbsoluteBinding(rawTarget, currentState, context, meta);
-    }
-
-    return {
-      state: currentState,
-      path: rawTarget,
-      pageName: context.page || currentState.__vdPageName || ""
-    };
-  }
-
-  if (pageName && context.hasPage && !context.hasPage(pageName)) {
-    return reportRequestDirectiveProblem(meta.ownerState, meta.el, meta.routeName, `Target page "${pageName}" does not exist`, {
-      title: "Unknown Request Target Page",
-      directive: rawPath ? VD.PATH : VD.TARGET,
-      expression: pageName,
-      line: 355,
-      hint: "Register the target page through the configured resource adapter."
-    });
-  }
-
-  if (pageName && rawValue.includes(".")) {
-    return reportRequestDirectiveProblem(meta.ownerState, meta.el, meta.routeName, "Do not combine cross-page target with dot notation state path", {
-      title: "Conflicting Request State Syntax",
-      directive,
-      expression: rawValue,
-      line: 365,
-      hint: "Use data-vd-state=\"result\" for cross-page targets, or use a full dot path alone like home.result."
-    });
-  }
-
-  if (pageName && !rawValue.includes(".")) {
-    const pageState = getTargetPageState(pageName, currentState, context);
-
-    return {
-      state: pageState,
-      path: rawValue,
-      pageName
-    };
-  }
-
-  if (rawValue.includes(".")) {
-    return resolveAbsoluteBinding(rawValue, currentState, context, meta);
-  }
-
-  return {
-    state: currentState,
-    path: rawValue,
-    pageName: context.page || currentState.__vdPageName || ""
-  };
-}
-
-function resolveRequestPageName(targetAttr, pathAttr, valueAttr, directive) {
-  const target = String(targetAttr || "").trim();
-  const path = sanitizeRequestPagePath(pathAttr);
-  const hasStateName = Boolean(String(valueAttr || "").trim());
-
-  if (path) {
-    return target.includes("/")
-      ? sanitizeRequestPagePath(target)
-      : joinRequestPagePath(path, target);
-  }
-
-  if (target.includes("/")) {
-    return sanitizeRequestPagePath(target);
-  }
-
-  if (directive !== VD.TARGET && target && !target.includes(".")) {
-    return sanitizeRequestPagePath(target);
-  }
-
-  if (directive === VD.TARGET && hasStateName && target && !target.includes(".")) {
-    return sanitizeRequestPagePath(target);
-  }
-
-  return "";
-}
-
-function joinRequestPagePath(path, page) {
-  const pageName = sanitizeRequestPagePath(page);
-
-  if (!path) return pageName;
-  if (!pageName) return path;
-
-  return `${path}/${pageName}`;
-}
-
-function sanitizeRequestPagePath(path) {
-  const value = String(path || "").trim();
-
-  if (!value) return "";
-  if (value.includes("..")) return "";
-
-  return value
-    .replace(/^\/+|\/+$/g, "")
-    .replace(/\/{2,}/g, "/");
-}
-
-function resolveAbsoluteBinding(binding, currentState, context, meta: any = {}) {
-  const parts = String(binding || "")
-    .trim()
-    .split(".")
-    .filter(Boolean);
-
-  if (parts.length <= 1) {
-    return {
-      state: currentState,
-      path: parts[0] || "",
-      pageName: context.page || currentState.__vdPageName || ""
-    };
-  }
-
-  if (Object.hasOwn(currentState, parts[0])) {
-    return {
-      state: currentState,
-      path: parts.join("."),
-      pageName: context.page || currentState.__vdPageName || ""
-    };
-  }
-
-  const pageName = parts[0];
-
-  if (context.hasPage && !context.hasPage(pageName)) {
-    return reportRequestDirectiveProblem(meta.ownerState, meta.el, meta.routeName, `Target page "${pageName}" does not exist`, {
-      title: "Unknown Request Target Page",
-      directive: meta.directive || VD.TARGET,
-      expression: binding,
-      line: 479,
-      hint: "Use an existing page name like home or a valid page path like posts/create-post."
-    });
-  }
-
-  const pageState = getTargetPageState(pageName, currentState, context);
-
-  return {
-    state: pageState,
-    path: parts.slice(1).join("."),
-    pageName
-  };
-}
-
-function getTargetPageState(pageName, currentState, context) {
-  const normalized = String(pageName || "").trim();
-
-  if (!normalized) {
-    return currentState;
-  }
-
-  if (normalized === context.page) {
-    return currentState;
-  }
-
-  return context.getPageState?.(normalized) || currentState;
-}
-
-function createAutoStatusBinding(targetBinding, kind) {
-  if (!targetBinding?.path) {
-    return {
-      state: targetBinding?.state || null,
-      path: "",
-      pageName: targetBinding?.pageName || ""
-    };
-  }
-
-  return {
-    state: targetBinding.state,
-    path: deriveRequestStatusPath(targetBinding.path, kind),
-    pageName: targetBinding.pageName
-  };
-}
-
-function deriveRequestStatusPath(targetPath, kind) {
-  const segments = String(targetPath || "")
-    .split(".")
-    .filter(Boolean);
-
-  if (segments.length === 0) {
-    return "";
-  }
-
-  const suffix = kind === "loading"
-    ? "Loading"
-    : "Error";
-  const last = segments.pop();
-  const base = last.endsWith("Result")
-    ? last.slice(0, -6)
-    : last;
-
-  segments.push(`${base}${suffix}`);
-
-  return segments.join(".");
-}
-
-function validateRequestBindingAccess(binding, currentState, context, meta: any = {}) {
-  if (!binding?.path) {
-    return true;
-  }
-
-  const protectedKey = findProtectedStatePathKey(binding.path);
-
-  if (protectedKey) {
-    const targetPage = binding.pageName || binding.state?.__vdPageName || "";
-
-    return reportRequestDirectiveProblem(meta.ownerState, meta.el, meta.routeName, `Writes to protected state key "${protectedKey}" are not allowed`, {
-      title: "Protected Request State Path",
-      directive: meta.directive || VD.TARGET,
-      expression: targetPage
-        ? `${targetPage}.${binding.path}`
-        : binding.path,
-      hint: "Use normal application state keys. Prototype and framework-owned keys cannot be targeted."
-    });
-  }
-
-  const targetPage = binding.pageName || binding.state?.__vdPageName || "";
-  const currentPage = context.page || currentState.__vdPageName || "";
-
-  if (!targetPage || targetPage === currentPage) {
-    return true;
-  }
-
-  const topLevelKey = String(binding.path)
-    .split(".")
-    .filter(Boolean)[0];
-
-  if (!topLevelKey) {
-    return true;
-  }
-
-  const allowList = binding.state?.$allowExternalWrite;
-
-  if (allowList === undefined) {
-    return reportRequestDirectiveProblem(meta.ownerState, meta.el, meta.routeName, `Page "${targetPage}" does not allow external state writes`, {
-      title: "External Page Write Not Allowed",
-      directive: meta.directive || VD.TARGET,
-      expression: `${targetPage}.${binding.path}`,
-      line: 581,
-      hint: `Allow it in ${targetPage}/page.config.js with export default { allowExternalWrite: ["${topLevelKey}"] }.`
-    });
-  }
-
-  if (!Array.isArray(allowList)) {
-    return reportRequestDirectiveProblem(meta.ownerState, meta.el, meta.routeName, `Page "${targetPage}" has an invalid external write allowlist`, {
-      title: "Invalid External Write Allowlist",
-      directive: meta.directive || VD.TARGET,
-      expression: `${targetPage}.allowExternalWrite`,
-      line: 591,
-      hint: "Set allowExternalWrite in page.config.js to an array of top-level state keys."
-    });
-  }
-
-  if (!allowList.includes(topLevelKey)) {
-    return reportRequestDirectiveProblem(meta.ownerState, meta.el, meta.routeName, `Page "${targetPage}" does not expose "${topLevelKey}" for external writes`, {
-      title: "External Page State Blocked",
-      directive: meta.directive || VD.TARGET,
-      expression: `${targetPage}.${binding.path}`,
-      line: 601,
-      hint: `Add "${topLevelKey}" to allowExternalWrite in ${targetPage}/page.config.js.`
-    });
-  }
-
-  return true;
 }
 
 function resolveRouteConfig(routeName, state, el) {

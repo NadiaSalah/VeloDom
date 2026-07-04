@@ -22,6 +22,10 @@ package versions.
 - Standardized application pages and components on preferred `script.js` or
   `script.ts` filenames, kebab-case component folders, and `vd-*` templates.
 - Renamed the legacy `eventCard` component to `event-card`.
+- Extracted expression scope and state-path operations from `directives.ts`.
+- Extracted request target resolution, automatic status bindings, and
+  cross-page write policy from `request-router.ts`.
+- Updated runtime diagnostics to recommend preferred `vd-*` syntax.
 
 ### Removed
 
@@ -31,7 +35,7 @@ package versions.
 ### Verification
 
 - TypeScript and ESLint checks pass.
-- `npm test`: 38 tests passing.
+- `npm test`: 44 tests passing.
 - `npm run build`: production build successful.
 
 ## 2026-07-04

@@ -1,11 +1,16 @@
 import {
   VD,
-  VD_EVENT_KEY_MODIFIERS,
-  VD_PROTECTED_STATE_KEYS
+  VD_EVENT_KEY_MODIFIERS
 } from "./constants.ts";
 import { reportUserActionError } from "./errors/error-reporter.ts";
 import { applyRequests } from "./requests/request-router.ts";
-import { findProtectedStatePathKey } from "./shared/path.ts";
+import {
+  createScope,
+  evaluate,
+  isIterable,
+  readValue,
+  writeValue
+} from "./directives/expression.ts";
 
 const invalidConditionalPlacementReported = new WeakSet();
 const invalidConditionalTypeReported = new WeakSet();
@@ -373,12 +378,12 @@ function applyModel(root, state, cleanups) {
 
       if (!key?.trim()) {
         reportUserActionError("Missing model path", {
-          title: "Invalid data-vd-model",
+          title: "Invalid vd-model",
           directive: VD.MODEL,
           file: "src/core/directives.ts",
           line: 319,
           el,
-          hint: "Set data-vd-model to a state path like user.name"
+          hint: "Set vd-model to a state path like user.name"
         });
 
         return;
@@ -808,135 +813,6 @@ function parseFor(expression) {
   };
 }
 
-function createScope(parent, locals) {
-  return new Proxy(locals, {
-    get(target, key) {
-      if (key === "_subscribe") return parent._subscribe;
-      if (key === "_notify") return parent._notify;
-      if (key in target) return target[key];
-
-      return parent[key];
-    },
-
-    set(target, key, value) {
-      if (key in target) {
-        target[key] = value;
-        parent._notify();
-        return true;
-      }
-
-      parent[key] = value;
-      return true;
-    },
-
-    has(target, key) {
-      return key in target || key in parent;
-    }
-  });
-}
-
-function evaluate(
-  expression,
-  state,
-  event = null,
-  el = null,
-  props = {},
-  meta: any = {}
-) {
-  try {
-    const fn = new Function(
-      "state",
-      "event",
-      "props",
-      "el",
-      `with(state){ return (${expression}) }`
-    );
-
-    return fn.call(el, state, event, props, el);
-  } catch (err) {
-    reportUserActionError(err, {
-      title: "Expression Evaluation Error",
-      directive: meta.directive || "expression",
-      expression,
-      file: "src/core/directives.ts",
-      line: 709,
-      el,
-      hint: "Check expression syntax and make sure referenced variables exist."
-    });
-
-    return "";
-  }
-}
-
-function readValue(path, state) {
-  const normalizedPath = resolvePathKeys(path, state);
-
-  if (!normalizedPath) return undefined;
-
-  return normalizedPath
-    .split(".")
-    .reduce((value, key) => value?.[key], state);
-}
-
-function writeValue(path, state, value) {
-  const protectedKey = findProtectedStatePathKey(path);
-
-  if (protectedKey) {
-    reportUserActionError(`Protected state key "${protectedKey}" cannot be written`, {
-      title: "Protected State Path",
-      directive: VD.MODEL,
-      expression: String(path || ""),
-      file: "src/core/directives.ts",
-      hint: "Use normal application state keys. Prototype and framework-owned keys are reserved."
-    });
-
-    return;
-  }
-
-  const normalizedPath = resolvePathKeys(path, state);
-
-  if (!normalizedPath) {
-    reportUserActionError("Empty state path", {
-      title: "Invalid State Path",
-      directive: VD.MODEL,
-      expression: String(path || ""),
-      file: "src/core/directives.ts",
-      line: 813,
-      level: "warn",
-      hint: "Provide a valid target path like posts or home.posts."
-    });
-
-    return;
-  }
-
-  const keys = normalizedPath.split(".");
-
-  if (keys.length === 1) {
-    state[keys[0]] = value;
-    return;
-  }
-
-  const last = keys.pop();
-  const target = keys.reduce((current, key) => current?.[key], state);
-
-  if (!target) {
-    reportUserActionError("Model path target does not exist", {
-      title: "Invalid Model Path",
-      directive: VD.MODEL,
-      expression: normalizedPath,
-      file: "src/core/directives.ts",
-      line: 743,
-      level: "warn",
-      hint: "Create the nested object before binding. Example: state.user = {}."
-    });
-
-    return;
-  }
-
-  target[last] = value;
-  state._notify();
-}
-
 function getInputValue(el) {
   if (el.type === "checkbox") {
     return el.checked;
@@ -954,35 +830,6 @@ function setInputValue(el, value) {
   el.value = value ?? "";
 }
 
-function isIterable(value) {
-  return Boolean(value && typeof value[Symbol.iterator] === "function");
-}
-
-function resolvePathKeys(path, state) {
-  const cleaned = String(path || "")
-    .trim()
-    .replace(/\[(\w+)\]/g, ".$1")
-    .replace(/^\.+|\.+$/g, "");
-
-  if (!cleaned) return "";
-
-  const parts = cleaned.split(".").filter(Boolean);
-
-  if (parts.some(key => VD_PROTECTED_STATE_KEYS.includes(key) || key.startsWith("__vd"))) {
-    return "";
-  }
-
-  if (parts.length <= 1) {
-    return parts[0] || "";
-  }
-
-  if (parts[0] in state) {
-    return parts.join(".");
-  }
-
-  return parts.slice(1).join(".");
-}
-
 function reportInvalidConditionalPlacement(el) {
   if (invalidConditionalPlacementReported.has(el)) return;
 
@@ -990,14 +837,14 @@ function reportInvalidConditionalPlacement(el) {
 
   const directive = el.hasAttribute(VD.ELSEIF) ? VD.ELSEIF : VD.ELSE;
   const previous = el.previousElementSibling;
-  let hint = "Place it directly after an element that has data-vd-if.";
+  let hint = "Place it directly after an element that has vd-if.";
 
   if (!previous) {
-    hint = "This directive needs a previous sibling with data-vd-if.";
+    hint = "This directive needs a previous sibling with vd-if.";
   } else if (previous.hasAttribute(VD.ELSE)) {
-    hint = "data-vd-elseif cannot appear after data-vd-else.";
+    hint = "vd-elseif cannot appear after vd-else.";
   } else if (!(previous.hasAttribute(VD.IF) || previous.hasAttribute(VD.ELSEIF))) {
-    hint = "Use data-vd-if first, then optional data-vd-elseif, then optional data-vd-else.";
+    hint = "Use vd-if first, then optional vd-elseif, then optional vd-else.";
   }
 
   reportUserActionError("Conditional directive used without a valid previous if-chain", {

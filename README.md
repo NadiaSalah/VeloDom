@@ -22,7 +22,7 @@ The repository now includes:
 - a complete blog showcase application
 - Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
 
-Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 38 tests
+Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 44 tests
 pass, declarations are generated, and the Vite production build completes.
 
 The safe expression AST, optimizer, stricter internal typing, and tree-shaking
@@ -46,6 +46,8 @@ src/
     shared/              shared contracts and validated object/path utilities
     vite-plugin/         build-time template compilation
     requests/            HTTP, auth, middleware, request directives
+      request-bindings.ts target resolution and cross-page write policy
+    directives/          expression scope and state path engine
     errors/              framework error reporting and fatal screen
     index.ts             public runtime entry and exported types
     types.ts             public application contracts
@@ -644,6 +646,8 @@ The local/public `expose` contract is covered by
 `test/core/reactive.test.js` and integrated by `src/core/mount.ts`.
 Shared object validation, folder normalization, and protected-state path
 detection are covered by `test/core/shared.test.js`.
+Expression/state-path behavior and request binding policies are covered by
+`test/core/expression.test.js` and `test/requests/request-bindings.test.js`.
 
 Important decisions and deferred technical work are recorded in
 [NOTES.md](NOTES.md). Milestone history is recorded in

@@ -219,7 +219,7 @@ export function createPageRouter(adapter: any = {}, options: any = {}) {
         title: "Invalid Navigation Path",
         file: "src/core/page-router.ts",
         line: 95,
-        hint: "Set a valid href on links with data-vd-nav."
+        hint: "Set a valid href on links with vd-nav."
       });
 
       return;

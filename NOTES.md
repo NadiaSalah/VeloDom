@@ -29,6 +29,10 @@
 - Application examples use kebab-case folders, preferred `script`/`config`
   filenames, and compiler-facing `vd-*` syntax. Legacy names and
   `data-vd-*` remain framework compatibility inputs, not preferred examples.
+- Large runtime entry modules coordinate features while focused modules own
+  reusable behavior: `directives/expression.ts` handles expression state
+  access, and `requests/request-bindings.ts` handles request destinations and
+  cross-page policy.
 - Backward compatibility is preserved while the preferred `vd-*` compiler
   syntax and folder conventions mature.
 - Inactive conditional branches suspend dependent directive evaluation.
