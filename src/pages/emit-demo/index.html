@@ -1,4 +1,4 @@
-<vd-component name="nav" data-vd-prop-title="Emit + Ref Demo"></vd-component>
+<vd-component name="nav" vd-prop-title="Emit + Ref Demo"></vd-component>
 
 <main class="w-[90%] max-w-6xl m-auto mt-8 pb-8 flex flex-col gap-4">
   <section class="card bg-base-100 shadow-sm border">
@@ -6,19 +6,19 @@
       <h2 class="card-title">Page Controls (using ref)</h2>
 
       <div class="flex flex-wrap gap-2">
-        <button class="btn btn-primary btn-sm" data-vd-onclick="openMainGroup()">
+        <button class="btn btn-primary btn-sm" vd-on:click="openMainGroup()">
           Open mainCards group
         </button>
-        <button class="btn btn-warning btn-sm" data-vd-onclick="toggleMainKey2()">
+        <button class="btn btn-warning btn-sm" vd-on:click="toggleMainKey2()">
           Toggle mainCards key=2
         </button>
-        <button class="btn btn-info btn-sm" data-vd-onclick="pingMainGroup()">
+        <button class="btn btn-info btn-sm" vd-on:click="pingMainGroup()">
           Emit ping from mainCards
         </button>
-        <button class="btn btn-success btn-sm" data-vd-onclick="openSideCard()">
+        <button class="btn btn-success btn-sm" vd-on:click="openSideCard()">
           Open sideCard
         </button>
-        <button class="btn btn-ghost btn-sm" data-vd-onclick="clearLog()">
+        <button class="btn btn-ghost btn-sm" vd-on:click="clearLog()">
           Clear Log
         </button>
       </div>
@@ -28,26 +28,26 @@
   <section class="grid md:grid-cols-2 gap-4">
     <div class="flex flex-col gap-3">
       <vd-component
-        name="eventCard"
-        data-vd-ref="mainCards"
-        data-vd-key="1"
-        data-vd-prop-title="Main Card 1"
+        name="event-card"
+        vd-ref="mainCards"
+        vd-key="1"
+        vd-prop-title="Main Card 1"
       ></vd-component>
 
       <vd-component
-        name="eventCard"
-        data-vd-ref="mainCards"
-        data-vd-key="2"
-        data-vd-prop-title="Main Card 2"
+        name="event-card"
+        vd-ref="mainCards"
+        vd-key="2"
+        vd-prop-title="Main Card 2"
       ></vd-component>
     </div>
 
     <div>
       <vd-component
-        name="eventCard"
-        data-vd-ref="sideCard"
-        data-vd-key="3"
-        data-vd-prop-title="Side Card (independent)"
+        name="event-card"
+        vd-ref="sideCard"
+        vd-key="3"
+        vd-prop-title="Side Card (independent)"
       ></vd-component>
     </div>
   </section>
@@ -59,13 +59,13 @@
         Child button emits: <code>event-card:ping</code>. Page listens and records payload.
       </p>
 
-      <div data-vd-if="eventsLog.length === 0" class="text-sm opacity-60">
+      <div vd-if="eventsLog.length === 0" class="text-sm opacity-60">
         No events yet.
       </div>
 
-      <ul data-vd-if="eventsLog.length > 0" class="list bg-base-100 rounded-box">
-        <li data-vd-for="entry in eventsLog" class="list-row text-sm">
-          <span data-vd-text="entry"></span>
+      <ul vd-if="eventsLog.length > 0" class="list bg-base-100 rounded-box">
+        <li vd-for="entry in eventsLog" class="list-row text-sm">
+          <span vd-text="entry"></span>
         </li>
       </ul>
     </div>

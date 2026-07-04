@@ -1,0 +1,17 @@
+<div class="card bg-base-100 border shadow-sm">
+  <div class="card-body">
+    <h3 class="card-title">
+      <span vd-text="title"></span>
+      <span class="badge badge-outline" vd-text="`key:${cardKey}`"></span>
+    </h3>
+
+    <p class="text-sm opacity-80" vd-if="opened">Status: Open</p>
+    <p class="text-sm opacity-80" vd-else>Status: Closed</p>
+
+    <div class="flex gap-2 mt-2">
+      <button class="btn btn-sm btn-primary" vd-on:click="open()">Open</button>
+      <button class="btn btn-sm btn-warning" vd-on:click="toggle()">Toggle</button>
+      <button class="btn btn-sm btn-info" vd-on:click="emitPing()">Emit Ping</button>
+    </div>
+  </div>
+</div>

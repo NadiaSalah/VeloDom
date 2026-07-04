@@ -19,6 +19,9 @@ package versions.
 - Declaration generation now removes stale output before running TypeScript.
 - Consolidated repeated plain-object, folder-path, and protected-state helpers
   into tested modules under `src/core/shared`.
+- Standardized application pages and components on preferred `script.js` or
+  `script.ts` filenames, kebab-case component folders, and `vd-*` templates.
+- Renamed the legacy `eventCard` component to `event-card`.
 
 ### Removed
 
@@ -28,7 +31,7 @@ package versions.
 ### Verification
 
 - TypeScript and ESLint checks pass.
-- `npm test`: 35 tests passing.
+- `npm test`: 38 tests passing.
 - `npm run build`: production build successful.
 
 ## 2026-07-04

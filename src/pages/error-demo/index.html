@@ -1,4 +1,4 @@
-<vd-component name="nav" data-vd-prop-title="Error Demo"></vd-component>
+<vd-component name="nav" vd-prop-title="Error Demo"></vd-component>
 
 <main class="w-[90%] max-w-6xl m-auto mt-8 pb-8 flex flex-col gap-4">
   <section class="card bg-base-100 shadow-sm border">
@@ -14,7 +14,7 @@
     <div class="card-body">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <h2 class="card-title">Auth Session Demo</h2>
-        <button class="btn btn-sm btn-ghost" data-vd-onclick="refreshSessionState()">
+        <button class="btn btn-sm btn-ghost" vd-on:click="refreshSessionState()">
           Refresh session
         </button>
       </div>
@@ -24,23 +24,23 @@
       </p>
 
       <div class="mockup-code text-xs mt-2">
-        <pre><code data-vd-text="sessionPreview"></code></pre>
+        <pre><code vd-text="sessionPreview"></code></pre>
       </div>
 
       <div class="flex flex-wrap gap-2 mt-3">
-        <button class="btn btn-sm btn-outline" data-vd-onclick="setViewerSession()">
+        <button class="btn btn-sm btn-outline" vd-on:click="setViewerSession()">
           Set viewer session
         </button>
-        <button class="btn btn-sm btn-outline btn-info" data-vd-onclick="setEditorSession()">
+        <button class="btn btn-sm btn-outline btn-info" vd-on:click="setEditorSession()">
           Set editor session
         </button>
-        <button class="btn btn-sm btn-outline btn-success" data-vd-onclick="setAdminSession()">
+        <button class="btn btn-sm btn-outline btn-success" vd-on:click="setAdminSession()">
           Set admin session
         </button>
-        <button class="btn btn-sm btn-outline btn-warning" data-vd-onclick="setBrokenSession()">
+        <button class="btn btn-sm btn-outline btn-warning" vd-on:click="setBrokenSession()">
           Set broken JSON
         </button>
-        <button class="btn btn-sm btn-outline btn-error" data-vd-onclick="clearSession()">
+        <button class="btn btn-sm btn-outline btn-error" vd-on:click="clearSession()">
           Clear session
         </button>
       </div>
@@ -51,8 +51,8 @@
     <button
       type="button"
       class="btn btn-error"
-      data-vd-request="posts.unknown"
-      data-vd-target="demoResult"
+      vd-request="posts.unknown"
+      vd-target="demoResult"
     >
       Invalid API route
     </button>
@@ -60,9 +60,9 @@
     <button
       type="button"
       class="btn btn-warning"
-      data-vd-request="posts.getOne"
-      data-vd-params="'wrong'"
-      data-vd-target="demoResult"
+      vd-request="posts.getOne"
+      vd-params="'wrong'"
+      vd-target="demoResult"
     >
       Invalid params expression
     </button>
@@ -70,8 +70,8 @@
     <button
       type="button"
       class="btn btn-secondary"
-      data-vd-request="posts.getOne"
-      data-vd-request-config="{ params: { id: 1 }, target: 'posts/missing-page', state: 'ghostResult' }"
+      vd-request="posts.getOne"
+      vd-request-config="{ params: { id: 1 }, target: 'posts/missing-page', state: 'ghostResult' }"
     >
       Unknown target page
     </button>
@@ -79,8 +79,8 @@
     <button
       type="button"
       class="btn btn-accent"
-      data-vd-request="posts.getOne"
-      data-vd-request-config="{ params: { id: 1 }, target: 'home' }"
+      vd-request="posts.getOne"
+      vd-request-config="{ params: { id: 1 }, target: 'home' }"
     >
       Missing cross-page state
     </button>
@@ -88,8 +88,8 @@
     <button
       type="button"
       class="btn btn-info"
-      data-vd-request="posts.getOne"
-      data-vd-request-config="{ params: { id: 1 }, path: '../admin', target: 'create-post', state: 'ghostResult' }"
+      vd-request="posts.getOne"
+      vd-request-config="{ params: { id: 1 }, path: '../admin', target: 'create-post', state: 'ghostResult' }"
     >
       Invalid request path
     </button>
@@ -97,9 +97,9 @@
     <button
       type="button"
       class="btn btn-outline"
-      data-vd-request="posts.update"
-      data-vd-request-config="{ params: { id: 1 }, target: 'demoResult' }"
-      data-vd-request-state
+      vd-request="posts.update"
+      vd-request-config="{ params: { id: 1 }, target: 'demoResult' }"
+      vd-request-state
     >
       API validation error
     </button>
@@ -107,8 +107,8 @@
     <button
       type="button"
       class="btn btn-neutral"
-      data-vd-request="posts.getOne"
-      data-vd-request-config="{ params: { id: 1 }, target: 'home', state: 'blockedResult', autoState: true }"
+      vd-request="posts.getOne"
+      vd-request-config="{ params: { id: 1 }, target: 'home', state: 'blockedResult', autoState: true }"
     >
       Blocked external write
     </button>
@@ -125,9 +125,9 @@
         <button
           type="button"
           class="btn btn-primary"
-          data-vd-request="demo.authPost"
-          data-vd-request-config="{ params: { id: 1 }, target: 'demoResult' }"
-          data-vd-request-state
+          vd-request="demo.authPost"
+          vd-request-config="{ params: { id: 1 }, target: 'demoResult' }"
+          vd-request-state
         >
           Auth required route
         </button>
@@ -135,9 +135,9 @@
         <button
           type="button"
           class="btn btn-secondary"
-          data-vd-request="demo.editorPost"
-          data-vd-request-config="{ params: { id: 1 }, target: 'demoResult' }"
-          data-vd-request-state
+          vd-request="demo.editorPost"
+          vd-request-config="{ params: { id: 1 }, target: 'demoResult' }"
+          vd-request-state
         >
           Editor or admin route
         </button>
@@ -145,9 +145,9 @@
         <button
           type="button"
           class="btn btn-accent"
-          data-vd-request="demo.adminPost"
-          data-vd-request-config="{ params: { id: 1 }, target: 'demoResult' }"
-          data-vd-request-state
+          vd-request="demo.adminPost"
+          vd-request-config="{ params: { id: 1 }, target: 'demoResult' }"
+          vd-request-state
         >
           Admin only route
         </button>
@@ -155,9 +155,9 @@
         <button
           type="button"
           class="btn btn-info"
-          data-vd-request="demo.middlewarePost"
-          data-vd-request-config="{ params: { id: ' 1 ' }, target: 'demoResult' }"
-          data-vd-request-state
+          vd-request="demo.middlewarePost"
+          vd-request-config="{ params: { id: ' 1 ' }, target: 'demoResult' }"
+          vd-request-state
         >
           Middleware pipeline
         </button>
@@ -165,9 +165,9 @@
         <button
           type="button"
           class="btn btn-warning"
-          data-vd-request="demo.serverAuthPost"
-          data-vd-request-config="{ params: { id: 1 }, target: 'demoResult' }"
-          data-vd-request-state
+          vd-request="demo.serverAuthPost"
+          vd-request-config="{ params: { id: 1 }, target: 'demoResult' }"
+          vd-request-state
         >
           Secure server auth route
         </button>
@@ -179,7 +179,7 @@
     <div class="card-body">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <h2 class="card-title">Successful Request Reference</h2>
-        <button class="btn btn-sm btn-ghost" data-vd-onclick="clearLogs()">
+        <button class="btn btn-sm btn-ghost" vd-on:click="clearLogs()">
           Clear log
         </button>
       </div>
@@ -188,9 +188,9 @@
         <button
           type="button"
           class="btn btn-primary btn-sm"
-          data-vd-request="posts.getOne"
-          data-vd-request-config="{ params: { id: 1 }, target: 'demoResult' }"
-          data-vd-request-state
+          vd-request="posts.getOne"
+          vd-request-config="{ params: { id: 1 }, target: 'demoResult' }"
+          vd-request-state
         >
           Valid request
         </button>
@@ -198,28 +198,28 @@
         <button
           type="button"
           class="btn btn-outline btn-sm"
-          data-vd-onclick="emitBrokenEvent()"
+          vd-on:click="emitBrokenEvent()"
         >
           Broken event listener
         </button>
       </div>
 
-      <p class="text-xs opacity-70 mt-2" data-vd-show="demoLoading">
+      <p class="text-xs opacity-70 mt-2" vd-show="demoLoading">
         Loading valid request...
       </p>
 
       <p
         class="text-error text-sm mt-2"
-        data-vd-if="demoError !== ''"
-        data-vd-text="demoError"
+        vd-if="demoError !== ''"
+        vd-text="demoError"
       ></p>
 
       <div
         class="rounded-lg bg-base-200 p-3 mt-2"
-        data-vd-if="Array.isArray(demoResult) && demoResult.length > 0"
+        vd-if="Array.isArray(demoResult) && demoResult.length > 0"
       >
-        <p class="font-medium" data-vd-text="demoResult?.[0]?.title || ''"></p>
-        <p class="text-sm opacity-70 mt-1" data-vd-text="'Post id: ' + (demoResult?.[0]?.id || '')"></p>
+        <p class="font-medium" vd-text="demoResult?.[0]?.title || ''"></p>
+        <p class="text-sm opacity-70 mt-1" vd-text="'Post id: ' + (demoResult?.[0]?.id || '')"></p>
       </div>
     </div>
   </section>
@@ -231,13 +231,13 @@
         This list is populated by <code>state.on("vd:request:error")</code> and <code>state.on("vd:request:success")</code>.
       </p>
 
-      <div data-vd-if="requestLogs.length === 0" class="text-sm opacity-60">
+      <div vd-if="requestLogs.length === 0" class="text-sm opacity-60">
         No request activity yet.
       </div>
 
-      <ul data-vd-if="requestLogs.length > 0" class="list rounded-box bg-base-100">
-        <li data-vd-for="entry in requestLogs" class="list-row text-sm">
-          <span data-vd-text="entry"></span>
+      <ul vd-if="requestLogs.length > 0" class="list rounded-box bg-base-100">
+        <li vd-for="entry in requestLogs" class="list-row text-sm">
+          <span vd-text="entry"></span>
         </li>
       </ul>
     </div>

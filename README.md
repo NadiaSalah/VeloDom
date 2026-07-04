@@ -22,7 +22,7 @@ The repository now includes:
 - a complete blog showcase application
 - Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
 
-Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 35 tests
+Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 38 tests
 pass, declarations are generated, and the Vite production build completes.
 
 The safe expression AST, optimizer, stricter internal typing, and tree-shaking
@@ -162,6 +162,10 @@ Backward-compatible names remain supported:
 - `page.js`
 - `component.js`
 - `page.config.js`
+
+These names are compatibility-only. The bundled application uses the preferred
+`script.js`/`script.ts`, `config.js`, kebab-case folders, and `vd-*` syntax
+throughout.
 
 Preferred names are:
 
