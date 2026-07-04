@@ -22,7 +22,7 @@ The repository now includes:
 - a complete blog showcase application
 - Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
 
-Latest verification on 2026-07-04: TypeScript and ESLint checks pass, 32 tests
+Latest verification on 2026-07-04: TypeScript and ESLint checks pass, 33 tests
 pass, declarations are generated, and the Vite production build completes.
 
 The safe expression AST, optimizer, stricter internal typing, and tree-shaking
@@ -349,6 +349,11 @@ Supported directives include:
 
 Legacy `data-vd-*` equivalents are supported.
 
+Conditional branches suspend dependent directive evaluation while inactive.
+For example, a `vd-bind:href` inside a false `vd-if` can safely reference data
+that will only exist when the condition becomes true. The binding remains
+reactive and evaluates as soon as the branch is activated.
+
 ## Components
 
 ```html
@@ -601,6 +606,9 @@ The main files changed in the current architecture milestone are:
   `middleware-engine.ts`
 - `src/adapters/vite.ts` and `src/core/resource-adapter.ts`
 - the blog application under `src/pages`, `src/components`, and `src/api`
+
+The conditional-directive evaluation regression is covered by
+`test/core/directives.test.js`. Its fix lives in `src/core/directives.ts`.
 
 Important decisions and deferred technical work are recorded in
 [NOTES.md](NOTES.md). Milestone history is recorded in

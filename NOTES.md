@@ -19,6 +19,9 @@
   by `src/core/index.ts`; other core modules are internal until promoted.
 - Backward compatibility is preserved while the preferred `vd-*` compiler
   syntax and folder conventions mature.
+- Inactive conditional branches suspend dependent directive evaluation.
+  Subscriptions remain registered so bindings evaluate when the branch becomes
+  active; this prevents false-branch null access without losing reactivity.
 
 ## Known Constraints
 

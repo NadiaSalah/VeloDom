@@ -45,6 +45,12 @@ package versions.
 - Request cancellation now follows superseding requests and owner unmount.
 - Core error hints no longer assume a particular application directory.
 
+### Fixed
+
+- Prevented bindings and nested directives inside inactive `vd-if` branches
+  from evaluating unavailable data. Directives resume reactively when their
+  branch becomes active.
+
 ### Removed
 
 - Legacy demo pages and components that duplicated the blog showcase.
@@ -52,5 +58,5 @@ package versions.
 
 ### Verification
 
-- `npm test`: 32 tests passing.
+- `npm test`: 33 tests passing.
 - `npm run build`: production build successful.

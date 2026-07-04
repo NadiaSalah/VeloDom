@@ -187,7 +187,7 @@ and `src/api`.
 
 ### 2. Directives Coverage
 
-- [ ] Add tests for `data-vd-if`
+- [x] Add tests for `data-vd-if`
 - [ ] Add tests for `data-vd-elseif`
 - [ ] Add tests for `data-vd-else`
 - [ ] Add tests for `data-vd-show`
@@ -198,7 +198,7 @@ and `src/api`.
 - [ ] Add tests for `data-vd-attr`
 - [ ] Add tests for `data-vd-value`
 - [ ] Add tests for `data-vd-src`
-- [ ] Add tests for `data-vd-href`
+- [x] Add tests for `data-vd-href`
 - [ ] Add tests for `data-vd-alt`
 - [ ] Add tests for `data-vd-disabled`
 - [ ] Add tests for `data-vd-checked`

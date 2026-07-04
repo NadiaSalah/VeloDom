@@ -8,6 +8,7 @@ import { applyRequests } from "./requests/request-router.ts";
 
 const invalidConditionalPlacementReported = new WeakSet();
 const invalidConditionalTypeReported = new WeakSet();
+const conditionalVisibility = new WeakMap<Element, boolean>();
 
 export function applyDirectives(root: any, state: any, options: any = {}) {
 
@@ -20,8 +21,8 @@ export function applyDirectives(root: any, state: any, options: any = {}) {
     hasPage: options.hasPage ?? null
   };
 
-  applyText(root, state, cleanups, context);
   applyIf(root, state, cleanups, context);
+  applyText(root, state, cleanups, context);
   applyShow(root, state, cleanups, context);
   applyBindings(root, state, cleanups, context);
   applyModel(root, state, cleanups);
@@ -49,6 +50,8 @@ function applyShow(root, state, cleanups, context) {
       const expression = el.getAttribute(VD.SHOW);
 
       const update = () => {
+        if (isConditionallyInactive(el)) return;
+
         const visible = Boolean(
           evaluate(expression, state, null, el, context.props, {
             directive: VD.SHOW
@@ -76,6 +79,8 @@ function applyText(root, state, cleanups, context) {
       const expression = el.getAttribute(VD.TEXT);
 
       const update = () => {
+        if (isConditionallyInactive(el)) return;
+
         el.textContent = evaluate(expression, state, null, el, context.props, {
           directive: VD.TEXT
         }) ?? "";
@@ -111,13 +116,16 @@ function applyIf(root, state, cleanups, context) {
       let matched = false;
 
       chain.forEach(node => {
-        const visible = shouldShowConditionalNode(
-          node,
-          state,
-          context.props,
-          matched
-        );
+        const visible = hasInactiveConditionalAncestor(node)
+          ? false
+          : shouldShowConditionalNode(
+            node,
+            state,
+            context.props,
+            matched
+          );
 
+        conditionalVisibility.set(node, visible);
         node.style.display = visible ? "" : "none";
 
         if (visible) {
@@ -155,6 +163,8 @@ function applyAttributeBinding(root, state, cleanups, context, directive, attrNa
       const expression = el.getAttribute(directive);
 
       const update = () => {
+        if (isConditionallyInactive(el)) return;
+
         const value = evaluate(expression, state, null, el, context.props, {
           directive
         });
@@ -183,6 +193,8 @@ function applyValueBinding(root, state, cleanups, context) {
       const expression = el.getAttribute(VD.VALUE);
 
       const update = () => {
+        if (isConditionallyInactive(el)) return;
+
         const value = evaluate(expression, state, null, el, context.props, {
           directive: VD.VALUE
         });
@@ -207,6 +219,8 @@ function applyBooleanBinding(root, state, cleanups, context, directive, attrName
       const expression = el.getAttribute(directive);
 
       const update = () => {
+        if (isConditionallyInactive(el)) return;
+
         const value = Boolean(evaluate(expression, state, null, el, context.props, {
           directive
         }));
@@ -237,6 +251,8 @@ function applyClassBinding(root, state, cleanups, context) {
       let applied = new Set();
 
       const update = () => {
+        if (isConditionallyInactive(el)) return;
+
         applied.forEach(name => el.classList.remove(name));
 
         const next = normalizeClassValue(
@@ -266,6 +282,8 @@ function applyStyleBinding(root, state, cleanups, context) {
       let appliedKeys = [];
 
       const update = () => {
+        if (isConditionallyInactive(el)) return;
+
         const value = evaluate(expression, state, null, el, context.props, {
           directive: VD.STYLE
         });
@@ -312,6 +330,8 @@ function applyAttrBinding(root, state, cleanups, context) {
       let appliedKeys = [];
 
       const update = () => {
+        if (isConditionallyInactive(el)) return;
+
         const value = evaluate(expression, state, null, el, context.props, {
           directive: VD.ATTR
         });
@@ -363,7 +383,9 @@ function applyModel(root, state, cleanups) {
         return;
       }
 
-      setInputValue(el, readValue(key, state));
+      if (!isConditionallyInactive(el)) {
+        setInputValue(el, readValue(key, state));
+      }
 
       const onInput = () => {
         writeValue(key, state, getInputValue(el));
@@ -373,6 +395,8 @@ function applyModel(root, state, cleanups) {
       cleanups.push(() => el.removeEventListener("input", onInput));
 
       const update = () => {
+        if (isConditionallyInactive(el)) return;
+
         const value = readValue(key, state);
 
         if (getInputValue(el) !== value) {
@@ -409,6 +433,7 @@ function applyEvents(root, state, cleanups, context) {
         };
 
         const handler = (event) => {
+          if (isConditionallyInactive(el)) return;
           if (!shouldRunEventHandler(config.modifiers, event)) return;
 
           if (config.modifiers.has("once")) {
@@ -480,6 +505,8 @@ function applyFor(root, state, cleanups, context) {
       el.replaceWith(marker);
 
       const update = () => {
+        if (isConditionallyInactive(el)) return;
+
         rendered.forEach(item => {
           item.cleanup();
           item.node.remove();
@@ -598,6 +625,27 @@ function isConditionalFollowup(el) {
     el.hasAttribute(VD.ELSEIF) ||
     el.hasAttribute(VD.ELSE)
   );
+}
+
+function isConditionallyInactive(el) {
+  return (
+    conditionalVisibility.get(el) === false
+    || hasInactiveConditionalAncestor(el)
+  );
+}
+
+function hasInactiveConditionalAncestor(el) {
+  let parent = el.parentElement;
+
+  while (parent) {
+    if (conditionalVisibility.get(parent) === false) {
+      return true;
+    }
+
+    parent = parent.parentElement;
+  }
+
+  return false;
 }
 
 function shouldShowConditionalNode(node, state, props, alreadyMatched) {
