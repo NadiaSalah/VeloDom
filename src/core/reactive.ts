@@ -1,3 +1,5 @@
+import { VD_PROTECTED_STATE_KEYS } from "./constants.ts";
+
 export function reactive(obj: any) {
 
   const listeners = new Set<() => void>();
@@ -103,4 +105,38 @@ export function mergeState(state, result) {
   Object.assign(state, next);
 
   return state;
+}
+
+export function mergeExposedMembers(state, expose) {
+  if (expose === undefined || expose === null) {
+    return state;
+  }
+
+  if (!isPlainObject(expose)) {
+    throw new TypeError("Component expose must be a plain object");
+  }
+
+  Object.entries(expose).forEach(([name, value]) => {
+    if (VD_PROTECTED_STATE_KEYS.includes(name)) {
+      throw new TypeError(
+        `Component expose member "${name}" conflicts with protected state`
+      );
+    }
+
+    state[name] = typeof value === "function"
+      ? (...args) => value.apply(state, args)
+      : value;
+  });
+
+  return state;
+}
+
+function isPlainObject(value) {
+  if (!value || Object.prototype.toString.call(value) !== "[object Object]") {
+    return false;
+  }
+
+  const prototype = Object.getPrototypeOf(value);
+
+  return prototype === Object.prototype || prototype === null;
 }

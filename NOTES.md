@@ -22,6 +22,9 @@
 - Inactive conditional branches suspend dependent directive evaluation.
   Subscriptions remain registered so bindings evaluate when the branch becomes
   active; this prevents false-branch null access without losing reactivity.
+- Component `expose` is one explicit contract for both local template methods
+  and parent ref APIs. Exposed members are merged into component state before
+  directives mount, while protected framework state names are rejected.
 
 ## Known Constraints
 

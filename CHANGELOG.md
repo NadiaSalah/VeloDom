@@ -50,6 +50,9 @@ package versions.
 - Prevented bindings and nested directives inside inactive `vd-if` branches
   from evaluating unavailable data. Directives resume reactively when their
   branch becomes active.
+- Made component `expose` members available to the component's own template as
+  well as parent refs, fixing undefined handlers such as `announce()` and
+  `close()`.
 
 ### Removed
 
@@ -58,5 +61,5 @@ package versions.
 
 ### Verification
 
-- `npm test`: 33 tests passing.
+- `npm test`: 35 tests passing.
 - `npm run build`: production build successful.

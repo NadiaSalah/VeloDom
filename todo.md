@@ -161,7 +161,7 @@ and `src/api`.
 - [x] Create post create/edit pages using forms and `vd-model`
 - [x] Create an auth/profile page demonstrating auth providers and roles
 - [ ] Create reusable nav, post card, loader, form, modal, and error components
-- [ ] Demonstrate props, slots, refs, grouped refs, `expose`, and page events
+- [x] Demonstrate props, slots, refs, grouped refs, `expose`, and page events
 - [ ] Demonstrate every conditional, binding, model, loop, and event directive
 - [x] Demonstrate request result/loading/error state and cancellation
 - [x] Demonstrate application middleware and advanced pipeline middleware

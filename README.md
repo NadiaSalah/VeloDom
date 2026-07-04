@@ -22,7 +22,7 @@ The repository now includes:
 - a complete blog showcase application
 - Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
 
-Latest verification on 2026-07-04: TypeScript and ESLint checks pass, 33 tests
+Latest verification on 2026-07-04: TypeScript and ESLint checks pass, 35 tests
 pass, declarations are generated, and the Vite production build completes.
 
 The safe expression AST, optimizer, stricter internal typing, and tree-shaking
@@ -387,6 +387,11 @@ export function init({ state }) {
 }
 ```
 
+Members returned through `expose` are available both to the component's own
+template and to its parent. The component can therefore use
+`vd-on:click="open()"` without also assigning `state.open = open`.
+Protected framework state names cannot be replaced through `expose`.
+
 From the page:
 
 ```js
@@ -609,6 +614,8 @@ The main files changed in the current architecture milestone are:
 
 The conditional-directive evaluation regression is covered by
 `test/core/directives.test.js`. Its fix lives in `src/core/directives.ts`.
+The local/public `expose` contract is covered by
+`test/core/reactive.test.js` and integrated by `src/core/mount.ts`.
 
 Important decisions and deferred technical work are recorded in
 [NOTES.md](NOTES.md). Milestone history is recorded in

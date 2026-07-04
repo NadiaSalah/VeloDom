@@ -4,7 +4,12 @@ import {
 } from "./constants.ts";
 import { getRefs } from "./refs.ts";
 import { applyDirectives } from "./directives.ts";
-import { createChildState, createState, mergeState } from "./reactive.ts";
+import {
+  createChildState,
+  createState,
+  mergeExposedMembers,
+  mergeState
+} from "./reactive.ts";
 import { applyScopedFolderStyles } from "./styles.ts";
 import { reportUserActionError } from "./errors/error-reporter.ts";
 import {
@@ -113,6 +118,7 @@ export async function mount(
           );
 
           mergeState(state, moduleResult);
+          mergeExposedMembers(state, moduleResult?.expose);
         }
 
         unregisterInstance = registerComponentInstance(

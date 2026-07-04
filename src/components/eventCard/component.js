@@ -24,11 +24,6 @@ export function init({ props, state, ctx }) {
     });
   }
 
-  state.open = open;
-  state.close = close;
-  state.toggle = toggle;
-  state.emitPing = emitPing;
-
   return {
     state,
     expose: {
