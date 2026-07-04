@@ -49,6 +49,7 @@ runtime work.
 - [x] Migrate shared/compiler contracts first
 - [x] Migrate core runtime and adapters to TypeScript
 - [x] Generate declaration files for the public API
+- [x] Clear stale declaration output before each generation
 - [x] Keep JavaScript and TypeScript identical for application authors
 - [x] Add a typed application page using the same page lifecycle API
 - [ ] Tighten permissive internal compatibility types incrementally

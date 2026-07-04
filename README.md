@@ -78,7 +78,13 @@ npm run build
 ```
 
 `npm run check` runs TypeScript and ESLint. `npm run types` generates public
-declarations under `types/`; the production build runs both automatically.
+declarations under `types/`; it clears stale declarations before generation.
+The production build runs both automatically.
+
+`src/core/types.ts` is framework source. The root `types/` directory is
+generated output, and `node_modules/@types` contains npm-managed declarations
+for external dependencies. Neither generated nor dependency declarations
+should be moved into `src/core`.
 
 ## App Bootstrap
 

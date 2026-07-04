@@ -28,7 +28,8 @@
     "preview": "vite preview",
     "test": "node --test",
     "typecheck": "tsc --noEmit",
-    "types": "tsc --project tsconfig.types.json",
+    "clean:types": "node -e \"require('node:fs').rmSync('types', { recursive: true, force: true })\"",
+    "types": "npm run clean:types && tsc --project tsconfig.types.json",
     "lint": "eslint .",
     "check": "npm run typecheck && npm run lint"
   },

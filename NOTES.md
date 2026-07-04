@@ -20,6 +20,9 @@
   by `src/core/index.ts`; other core modules are internal until promoted.
 - Build-specific framework features use explicit subpath exports:
   `velodom/vite`, `velodom/vite-plugin`, and `velodom/compiler`.
+- Source type contracts live in `src/core/types.ts`. Generated declarations
+  stay in the ignored root `types` build-output folder, while
+  `node_modules/@types` remains npm-managed dependency data.
 - Backward compatibility is preserved while the preferred `vd-*` compiler
   syntax and folder conventions mature.
 - Inactive conditional branches suspend dependent directive evaluation.

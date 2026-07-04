@@ -16,10 +16,12 @@ package versions.
   `velodom/vite-plugin` package entry points.
 - Kept application-owned `pages`, `components`, `api`, and bootstrap files
   outside the framework folder.
+- Declaration generation now removes stale output before running TypeScript.
 
 ### Removed
 
 - Removed the redundant private `packages` source layer.
+- Removed empty `packages` directories left behind after consolidation.
 
 ### Verification
 
