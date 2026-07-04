@@ -1,4 +1,4 @@
-import { requestJson } from "../core/index.js";
+import { requestJson } from "velodom";
 import { removeEmptyFields, trimStringFields } from "./middleware.js";
 import { toPositiveInteger } from "./validation.js";
 
@@ -13,7 +13,7 @@ export async function getAll({ limit = 20 } = {}, { signal } = {}) {
   return data.posts ?? [];
 }
 
-export async function getTags(params = {}, { signal } = {}) {
+export async function getTags(_params = {}, { signal } = {}) {
   const tags = await requestJson(`${baseUrl}/tag-list`, {
     signal
   });

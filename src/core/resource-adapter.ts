@@ -1,4 +1,4 @@
-export function validateResourceAdapter(adapter) {
+export function validateResourceAdapter(adapter: any) {
   if (!isPlainObject(adapter)) {
     throw createAdapterError(
       "VeloDom requires a resource adapter",
@@ -25,7 +25,7 @@ export function validateResourceAdapter(adapter) {
   };
 }
 
-function validateResourceGroup(value, label, options) {
+function validateResourceGroup(value, label, options: any) {
   if (!isPlainObject(value)) {
     throw createAdapterError(
       `Adapter "${label}" resources must be an object`,

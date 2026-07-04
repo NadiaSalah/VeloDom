@@ -1,4 +1,4 @@
-import { reportUserActionError } from "./errors/error-reporter.js";
+import { reportUserActionError } from "./errors/error-reporter.ts";
 
 export function createPageEventHub() {
   const listeners = new Map();
@@ -7,7 +7,7 @@ export function createPageEventHub() {
     if (!eventName || typeof handler !== "function") {
       reportUserActionError("Event listeners require an event name and function handler", {
         title: "Invalid Event Listener",
-        file: "src/core/events.js",
+        file: "src/core/events.ts",
         line: 6,
         level: "warn",
         hint: "Use state.on(\"event:name\", handlerFn)."
@@ -67,7 +67,7 @@ export function createPageEventHub() {
     if (!eventName) {
       reportUserActionError("Missing event name in emit()", {
         title: "Invalid Event Emit",
-        file: "src/core/events.js",
+        file: "src/core/events.ts",
         line: 45,
         level: "warn",
         hint: "Pass an event name like emit(\"nav:opened\", payload)."
@@ -85,7 +85,7 @@ export function createPageEventHub() {
       } catch (err) {
         reportUserActionError(err, {
           title: "Event Bus Listener Error",
-          file: "src/core/events.js",
+          file: "src/core/events.ts",
           line: 57,
           hint: `Check the listener registered for "${eventName}".`
         });

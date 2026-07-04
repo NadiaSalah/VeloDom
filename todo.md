@@ -45,11 +45,20 @@ runtime work.
 
 ### 0.4 TypeScript Migration
 
-- [ ] Add TypeScript as a framework development dependency
-- [ ] Migrate shared/compiler contracts first
-- [ ] Migrate runtime modules incrementally
-- [ ] Generate declaration files for the public API
-- [ ] Keep JavaScript and TypeScript identical for application authors
+- [x] Add TypeScript as a framework development dependency
+- [x] Migrate shared/compiler contracts first
+- [x] Migrate core runtime and adapters to TypeScript
+- [x] Generate declaration files for the public API
+- [x] Keep JavaScript and TypeScript identical for application authors
+- [x] Add a typed application page using the same page lifecycle API
+- [ ] Tighten permissive internal compatibility types incrementally
+
+### 0.5 Code Quality
+
+- [x] Add ESLint with TypeScript support
+- [x] Lint framework TypeScript and application JavaScript/TypeScript
+- [x] Make typecheck and lint required by the production build
+- [x] Keep tests runnable directly against TypeScript source
 
 ### Phase 0 Acceptance Criteria
 
@@ -58,6 +67,7 @@ runtime work.
 - [x] Malformed directives fail during development build
 - [x] Compiler modules run under Node without browser globals
 - [x] Production build uses compiler output and passes all framework tests
+- [x] Framework TypeScript, declarations, and ESLint checks pass
 
 ---
 
@@ -72,8 +82,8 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [x] Inject page and component resources into `createApp(...)`
 - [x] Keep filesystem folder conventions inside the adapter, not the router
 - [x] Inject application routes and middleware into `createApp(...)`
-- [x] Provide one public request API through `src/core/requests/index.js`
-- [x] Keep named framework constants inside `src/core/constants.js`
+- [x] Provide one public request API through `src/core/requests/index.ts`
+- [x] Keep named framework constants inside `src/core/constants.ts`
 - [x] Add tests for the Vite adapter resource maps
 
 ### Phase A Acceptance Criteria

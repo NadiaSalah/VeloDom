@@ -1,7 +1,7 @@
 import {
   VD_AUTH,
   VD_REQUEST
-} from "../../core/index.js";
+} from "velodom";
 
 export function init({ state, ctx }) {
   state.requestLogs ??= [];

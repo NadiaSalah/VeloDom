@@ -46,7 +46,7 @@ export const BINDING_DIRECTIVES = Object.freeze([
   "value"
 ]);
 
-export function isPreferredDirective(name) {
+export function isPreferredDirective(name: string) {
   return PREFERRED_DIRECTIVES.some(directive => (
     directive.endsWith("-")
       ? name.startsWith(directive)

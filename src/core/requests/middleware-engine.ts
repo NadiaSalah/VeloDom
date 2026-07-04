@@ -1,7 +1,7 @@
 import {
   VD_MIDDLEWARE,
   VD_REQUEST
-} from "../constants.js";
+} from "../constants.ts";
 
 export function defineRequestMiddleware(
   handler,
@@ -80,7 +80,7 @@ export async function executeRequestMiddleware({
   params = {},
   context = {},
   handler
-} = {}) {
+}: any = {}) {
   if (typeof handler !== "function") {
     throw createMiddlewareError(
       "Request middleware pipeline is missing a route handler"

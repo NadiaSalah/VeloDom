@@ -1,4 +1,4 @@
-export function createRouteTable(pageNames = [], configs = {}) {
+export function createRouteTable(pageNames: string[] = [], configs: any = {}) {
   return pageNames
     .filter(page => page !== "404")
     .map(page => {
@@ -170,8 +170,8 @@ function matchSegments(routeSegments, pathSegments) {
   return params;
 }
 
-function parseQuery(searchParams) {
-  const query = {};
+function parseQuery(searchParams: URLSearchParams) {
+  const query: Record<string, string | string[]> = {};
 
   for (const key of new Set(searchParams.keys())) {
     const values = searchParams.getAll(key);

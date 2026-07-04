@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
-import { velodom } from "./packages/vite-plugin/src/index.js";
+import { velodom } from "./packages/vite-plugin/src/index.ts";
 
 export default defineConfig({
   server: {

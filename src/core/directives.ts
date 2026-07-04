@@ -2,14 +2,14 @@ import {
   VD,
   VD_EVENT_KEY_MODIFIERS,
   VD_PROTECTED_STATE_KEYS
-} from "./constants.js";
-import { reportUserActionError } from "./errors/error-reporter.js";
-import { applyRequests } from "./requests/request-router.js";
+} from "./constants.ts";
+import { reportUserActionError } from "./errors/error-reporter.ts";
+import { applyRequests } from "./requests/request-router.ts";
 
 const invalidConditionalPlacementReported = new WeakSet();
 const invalidConditionalTypeReported = new WeakSet();
 
-export function applyDirectives(root, state, options = {}) {
+export function applyDirectives(root: any, state: any, options: any = {}) {
 
   const cleanups = [];
   const context = {
@@ -354,7 +354,7 @@ function applyModel(root, state, cleanups) {
         reportUserActionError("Missing model path", {
           title: "Invalid data-vd-model",
           directive: VD.MODEL,
-          file: "src/core/directives.js",
+          file: "src/core/directives.ts",
           line: 319,
           el,
           hint: "Set data-vd-model to a state path like user.name"
@@ -431,7 +431,7 @@ function applyEvents(root, state, cleanups, context) {
                 title: "Event Handler Error",
                 directive: `${VD.ON}-${config.eventName}`,
                 expression,
-                file: "src/core/directives.js",
+                file: "src/core/directives.ts",
                 line: 381,
                 el,
                 hint: "Check the handler expression and referenced state/functions."
@@ -463,7 +463,7 @@ function applyFor(root, state, cleanups, context) {
           title: "Invalid Loop Expression",
           directive: VD.FOR,
           expression,
-          file: "src/core/directives.js",
+          file: "src/core/directives.ts",
           line: 404,
           el,
           hint: "Use: item in items OR (item, index) in items"
@@ -496,7 +496,7 @@ function applyFor(root, state, cleanups, context) {
             title: "Invalid Loop Source",
             directive: VD.FOR,
             expression: config.source,
-            file: "src/core/directives.js",
+            file: "src/core/directives.ts",
             line: 424,
             el,
             hint: "Return an array or iterable value from the loop expression."
@@ -786,7 +786,14 @@ function createScope(parent, locals) {
   });
 }
 
-function evaluate(expression, state, event = null, el = null, props = {}, meta = {}) {
+function evaluate(
+  expression,
+  state,
+  event = null,
+  el = null,
+  props = {},
+  meta: any = {}
+) {
   try {
     const fn = new Function(
       "state",
@@ -802,7 +809,7 @@ function evaluate(expression, state, event = null, el = null, props = {}, meta =
       title: "Expression Evaluation Error",
       directive: meta.directive || "expression",
       expression,
-      file: "src/core/directives.js",
+      file: "src/core/directives.ts",
       line: 709,
       el,
       hint: "Check expression syntax and make sure referenced variables exist."
@@ -830,7 +837,7 @@ function writeValue(path, state, value) {
       title: "Protected State Path",
       directive: VD.MODEL,
       expression: String(path || ""),
-      file: "src/core/directives.js",
+      file: "src/core/directives.ts",
       hint: "Use normal application state keys. Prototype and framework-owned keys are reserved."
     });
 
@@ -844,7 +851,7 @@ function writeValue(path, state, value) {
       title: "Invalid State Path",
       directive: VD.MODEL,
       expression: String(path || ""),
-      file: "src/core/directives.js",
+      file: "src/core/directives.ts",
       line: 813,
       level: "warn",
       hint: "Provide a valid target path like posts or home.posts."
@@ -868,7 +875,7 @@ function writeValue(path, state, value) {
       title: "Invalid Model Path",
       directive: VD.MODEL,
       expression: normalizedPath,
-      file: "src/core/directives.js",
+      file: "src/core/directives.ts",
       line: 743,
       level: "warn",
       hint: "Create the nested object before binding. Example: state.user = {}."
@@ -957,7 +964,7 @@ function reportInvalidConditionalPlacement(el) {
   reportUserActionError("Conditional directive used without a valid previous if-chain", {
     title: "Invalid Conditional Chain",
     directive,
-    file: "src/core/directives.js",
+    file: "src/core/directives.ts",
     line: 82,
     el,
     hint
@@ -973,7 +980,7 @@ function reportInvalidConditionalType(el, expression, directive, value) {
     title: "Invalid If Condition Type",
     directive,
     expression,
-    file: "src/core/directives.js",
+    file: "src/core/directives.ts",
     line: 602,
     el,
     hint: "Return true/false explicitly. Example: count > 0"

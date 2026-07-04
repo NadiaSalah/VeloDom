@@ -1,9 +1,13 @@
-import { VD } from "./constants.js";
-import { reportUserActionError } from "./errors/error-reporter.js";
+import { VD } from "./constants.ts";
+import { reportUserActionError } from "./errors/error-reporter.ts";
 
 let scopeIndex = 0;
 
-export async function applyScopedFolderStyles(root, styleModules, folderPrefix) {
+export async function applyScopedFolderStyles(
+  root,
+  styleModules: Record<string, () => string | Promise<string>>,
+  folderPrefix
+) {
   const entries = Object.entries(styleModules)
     .filter(([filePath]) => filePath.startsWith(folderPrefix))
     .sort(([a], [b]) => a.localeCompare(b));
@@ -15,8 +19,7 @@ export async function applyScopedFolderStyles(root, styleModules, folderPrefix) 
 
   root.setAttribute(VD.SCOPE, scopeId);
 
-  let cssChunks = [];
-
+  let cssChunks;
   try {
     cssChunks = await Promise.all(
       entries.map(([, load]) => load())
@@ -24,7 +27,7 @@ export async function applyScopedFolderStyles(root, styleModules, folderPrefix) 
   } catch (err) {
     reportUserActionError(err, {
       title: "Style Load Error",
-      file: "src/core/styles.js",
+      file: "src/core/styles.ts",
       line: 16,
       hint: "Check CSS file names and syntax in page/component folders."
     });
@@ -62,7 +65,7 @@ function scopeCssBlock(content, scopeSelector, sourceFile) {
     if (close === -1) {
       reportUserActionError("Unmatched CSS brace", {
         title: "Invalid Scoped CSS",
-        file: sourceFile || "src/core/styles.js",
+        file: sourceFile || "src/core/styles.ts",
         line: 47,
         hint: "Make sure every '{' has a matching '}'."
       });

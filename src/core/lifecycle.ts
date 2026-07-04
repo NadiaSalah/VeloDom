@@ -1,4 +1,4 @@
-export function createLifecycleScope(baseContext = {}) {
+export function createLifecycleScope(baseContext: any = {}) {
   const controller = new AbortController();
   const callbacks = [];
   let disposed = false;

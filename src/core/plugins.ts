@@ -1,4 +1,7 @@
-export function createPluginManager(plugins = [], getContext = () => ({})) {
+export function createPluginManager(
+  plugins: any[] = [],
+  getContext: () => any = () => ({})
+) {
   if (!Array.isArray(plugins)) {
     throw new TypeError("VeloDom plugins must be an array");
   }

@@ -1,4 +1,4 @@
-import { VD } from "./constants.js";
+import { VD } from "./constants.ts";
 
 export function getRefs(el) {
 

@@ -1,5 +1,12 @@
 {
   "name": "@velodom/shared",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "types": "./src/directives.ts",
+  "exports": {
+    ".": {
+      "types": "./src/directives.ts",
+      "import": "./src/directives.ts"
+    }
+  }
 }

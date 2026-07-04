@@ -8,6 +8,10 @@ package versions.
 
 ### Added
 
+- TypeScript 6 and ESLint 10 development quality gates.
+- Public framework contracts and generated declaration files.
+- A TypeScript application example at `/features/typescript` while the blog
+  remains Vanilla JavaScript.
 - Standalone HTML template compiler under `packages/compiler`.
 - Shared directive contracts under `packages/shared`.
 - VeloDom Vite plugin under `packages/vite-plugin`.
@@ -26,10 +30,15 @@ package versions.
 
 ### Changed
 
+- Migrated framework core, adapters, compiler, shared contracts, and Vite
+  plugin source from JavaScript to TypeScript.
+- Production builds now require type checking, ESLint, and declaration
+  generation before Vite bundling.
+- Application imports use the public `velodom` package boundary.
 - Moved Vite-specific `import.meta.glob` discovery out of `src/core`.
 - Application routes, middleware, resources, auth providers, and plugins are
   injected through `createApp`.
-- Added one public framework entry at `src/core/index.js`.
+- Added one public framework entry at `src/core/index.ts`.
 - Preferred page/component filenames are now `script.js` or `script.ts` and
   `config.js`; legacy filenames remain compatible.
 - Preferred template syntax is `vd-*`; legacy `data-vd-*` remains compatible.

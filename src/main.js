@@ -4,10 +4,10 @@ import {
   createLocalStorageAuthProvider,
   createServerSessionAuthProvider,
   VD_AUTH
-} from "./core/index.js";
+} from "velodom";
 import routes from "./api/routes.js";
 import middleware from "./api/middleware.js";
-import { createViteAdapter } from "./adapters/vite.js";
+import { createViteAdapter } from "./adapters/vite.ts";
 
 createApp({
   adapter: createViteAdapter(),

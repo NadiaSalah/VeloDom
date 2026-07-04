@@ -11,19 +11,30 @@ JavaScript or TypeScript while continuing to write ordinary HTML templates.
 
 The repository now includes:
 
-- a standalone template compiler
-- a VeloDom Vite plugin
-- a runtime with router, state, directives, components, lifecycle, and events
+- a standalone TypeScript template compiler
+- a TypeScript VeloDom Vite plugin
+- a TypeScript runtime with router, state, directives, components, lifecycle,
+  and events
 - request middleware and configurable auth providers
 - a Vite folder-discovery adapter
+- generated public declaration files
+- TypeScript type checking and ESLint quality gates
 - a complete blog showcase application
 - Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
 
-Latest verification on 2026-07-04: 32 tests pass and the Vite production build
-completes successfully.
+Latest verification on 2026-07-04: TypeScript and ESLint checks pass, 32 tests
+pass, declarations are generated, and the Vite production build completes.
 
-The TypeScript migration, safe expression AST, optimizer, and declaration-file
-generation remain roadmap work.
+The safe expression AST, optimizer, stricter internal typing, and tree-shaking
+extension points remain roadmap work.
+
+## Technologies
+
+- TypeScript 6 for framework source and declarations
+- ESLint 10 with typescript-eslint
+- Vite 8
+- Vanilla HTML, CSS, and JavaScript or TypeScript for application code
+- Tailwind CSS and daisyUI for the showcase application only
 
 ## Architecture
 
@@ -35,15 +46,16 @@ packages/
 
 src/
   core/                  framework runtime only
-    index.js             public framework entry
-    router.js            generic matching, params, query, guards
-    page-router.js       page runtime and navigation lifecycle
-    lifecycle.js         mounted/destroy/onCleanup/signal
+    index.ts             public framework entry and exported types
+    types.ts             public application contracts
+    router.ts            generic matching, params, query, guards
+    page-router.ts       page runtime and navigation lifecycle
+    lifecycle.ts         mounted/destroy/onCleanup/signal
     requests/            HTTP, auth providers, middleware, request directives
 
   adapters/
-    vite.js              import.meta.glob folder discovery
-    resource-map.js      framework-neutral resource indexing helpers
+    vite.ts              import.meta.glob folder discovery
+    resource-map.ts      framework-neutral resource indexing helpers
 
   pages/                 application pages
   components/            application components
@@ -62,9 +74,13 @@ npm run dev
 Production build and tests:
 
 ```bash
+npm run check
 npm test
 npm run build
 ```
+
+`npm run check` runs TypeScript and ESLint. `npm run types` generates public
+declarations under `types/`; the production build runs both automatically.
 
 ## App Bootstrap
 
@@ -76,8 +92,8 @@ import {
   createLocalStorageAuthProvider,
   createServerSessionAuthProvider,
   VD_AUTH
-} from "./core/index.js";
-import { createViteAdapter } from "./adapters/vite.js";
+} from "velodom";
+import { createViteAdapter } from "./adapters/vite.ts";
 import routes from "./api/routes.js";
 import middleware from "./api/middleware.js";
 
@@ -131,6 +147,47 @@ Preferred names are:
 - `config.js`
 
 Nested folders work without manual registration.
+
+## TypeScript Inside, JavaScript Optional
+
+Framework and adapter source is TypeScript and must pass both `tsc` and ESLint.
+Application authors choose the language per page or component:
+
+```text
+src/pages/vanilla-page/script.js
+src/pages/typed-page/script.ts
+```
+
+Both receive the same hooks, state behavior, directives, and runtime API.
+TypeScript is opt-in for application code and does not require JSX or TSX.
+
+Vanilla JavaScript:
+
+```js
+import { requestJson } from "velodom";
+
+export function init({ state }) {
+  state.title = "JavaScript page";
+}
+```
+
+TypeScript:
+
+```ts
+import type { PageScriptContext, StateRecord } from "velodom";
+
+interface ExampleState extends StateRecord {
+  title: string;
+}
+
+export function init({ state }: PageScriptContext<ExampleState>) {
+  state.title = "TypeScript page";
+}
+```
+
+The working TypeScript example is available at `/features/typescript`. The
+remaining blog application deliberately uses Vanilla JavaScript, proving that
+TypeScript is not imposed on users.
 
 ## Compiler and Directive Syntax
 
@@ -407,7 +464,7 @@ Advanced pipeline middleware is explicit:
 import {
   defineRequestMiddleware,
   VD_MIDDLEWARE
-} from "../core/index.js";
+} from "velodom";
 
 export async function requestLogger(params, context, next) {
   const startedAt = performance.now();
@@ -509,10 +566,10 @@ import {
   createServerSessionAuthProvider,
   defineRequestMiddleware,
   requestJson
-} from "./core/index.js";
+} from "velodom";
 ```
 
-Files such as `page-router.js`, `mount.js`, and `request-router.js` are internal.
+Files such as `page-router.ts`, `mount.ts`, and `request-router.ts` are internal.
 
 ## Security Notes
 
@@ -529,7 +586,7 @@ See [todo.md](todo.md). The next architectural priorities are:
 
 1. safe expression parser and evaluator
 2. optimizer and tree-shaking extension points
-3. TypeScript migration and declaration generation
+3. stricter internal types with fewer compatibility `any` boundaries
 4. integration tests for DOM lifecycle and directives
 5. package publishing boundaries and CLI scaffolding
 
@@ -537,12 +594,12 @@ See [todo.md](todo.md). The next architectural priorities are:
 
 The main files changed in the current architecture milestone are:
 
-- `packages/compiler/src/index.js` and `packages/vite-plugin/src/index.js`
-- `src/core/index.js`, `src/core/router.js`, `src/core/lifecycle.js`, and
-  `src/core/plugins.js`
-- `src/core/requests/auth.js`, `request-router.js`, and
-  `middleware-engine.js`
-- `src/adapters/vite.js` and `src/core/resource-adapter.js`
+- `packages/compiler/src/index.ts` and `packages/vite-plugin/src/index.ts`
+- `src/core/index.ts`, `src/core/types.ts`, `src/core/router.ts`,
+  `src/core/lifecycle.ts`, and `src/core/plugins.ts`
+- `src/core/requests/auth.ts`, `request-router.ts`, and
+  `middleware-engine.ts`
+- `src/adapters/vite.ts` and `src/core/resource-adapter.ts`
 - the blog application under `src/pages`, `src/components`, and `src/api`
 
 Important decisions and deferred technical work are recorded in

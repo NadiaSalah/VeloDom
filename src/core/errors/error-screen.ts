@@ -1,6 +1,6 @@
 let fatalScreenShown = false;
 
-export function renderFatalFrameworkError(error, options = {}) {
+export function renderFatalFrameworkError(error, options: any = {}) {
   if (fatalScreenShown) return;
 
   fatalScreenShown = true;

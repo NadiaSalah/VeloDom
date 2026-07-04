@@ -1,9 +1,9 @@
 import {
   VD_AUTH,
   VD_REQUEST
-} from "../constants.js";
+} from "../constants.ts";
 
-export function createAuthRuntime(config = {}) {
+export function createAuthRuntime(config: any = {}) {
   if (!isPlainObject(config)) {
     throw new TypeError("VeloDom auth configuration must be a plain object");
   }
@@ -54,7 +54,7 @@ export function normalizeRequestAuthConfig(value, runtime = createAuthRuntime())
   }
 
   let provider = runtime.defaultProvider;
-  let options = {};
+  let options: any = {};
 
   if (typeof value === "string") {
     provider = value.trim();
@@ -90,7 +90,7 @@ export async function resolveRequestSession(
     routeName = "",
     state = null,
     el = null
-  } = {}
+  }: any = {}
 ) {
   if (!authConfig?.enabled) {
     return null;
@@ -130,10 +130,10 @@ export async function resolveRequestSession(
   return normalizeAuthSession(payload, authConfig.provider);
 }
 
-export function createServerSessionAuthProvider(defaults = {}) {
+export function createServerSessionAuthProvider(defaults: any = {}) {
   const base = normalizeServerOptions(defaults);
 
-  return async function serverSessionAuthProvider(context = {}) {
+  return async function serverSessionAuthProvider(context: any = {}) {
     const options = normalizeServerOptions({
       ...base,
       ...(context.options || {})
@@ -180,7 +180,7 @@ export function createServerSessionAuthProvider(defaults = {}) {
   };
 }
 
-export function createLocalStorageAuthProvider(defaults = {}) {
+export function createLocalStorageAuthProvider(defaults: any = {}) {
   const storageKey = String(
     defaults.storageKey || VD_AUTH.STORAGE_KEY
   ).trim();
@@ -190,7 +190,7 @@ export function createLocalStorageAuthProvider(defaults = {}) {
     throw new TypeError("localStorage auth provider requires a storage key");
   }
 
-  return function localStorageAuthProvider(context = {}) {
+  return function localStorageAuthProvider(context: any = {}) {
     if (typeof window === "undefined" || !window.localStorage) {
       throw createAuthError(
         "localStorage is not available",
@@ -301,7 +301,7 @@ function normalizeServerOptions(value) {
   };
 }
 
-function createAuthError(message, hint, cause) {
+function createAuthError(message, hint, cause = null) {
   const error = new Error(message);
   error.__vdStage = VD_REQUEST.STAGES.AUTH;
   error.__vdHint = hint;

@@ -1,9 +1,13 @@
-import { createPageRouter } from "./page-router.js";
-import { reportUserActionError } from "./errors/error-reporter.js";
-import { configureRequestRuntime } from "./requests/request-router.js";
-import { createPluginManager } from "./plugins.js";
+import { createPageRouter } from "./page-router.ts";
+import { reportUserActionError } from "./errors/error-reporter.ts";
+import { configureRequestRuntime } from "./requests/request-router.ts";
+import { createPluginManager } from "./plugins.ts";
+import type {
+  VeloDomApp,
+  VeloDomAppOptions
+} from "./types.ts";
 
-export function createApp(options = {}) {
+export function createApp(options: VeloDomAppOptions): VeloDomApp {
 
   configureRequestRuntime({
     routes: options.routes,
@@ -15,7 +19,7 @@ export function createApp(options = {}) {
     options.router
   );
   registerGlobalErrorHandlers();
-  let app;
+  const app = {} as VeloDomApp;
   const plugins = createPluginManager(
     options.plugins || [],
     () => ({
@@ -24,7 +28,7 @@ export function createApp(options = {}) {
     })
   );
 
-  app = {
+  Object.assign(app, {
 
     async mount() {
       await plugins.setup();
@@ -37,7 +41,7 @@ export function createApp(options = {}) {
     },
     navigate: router.navigate
 
-  };
+  });
 
   return app;
 }
@@ -52,7 +56,7 @@ function registerGlobalErrorHandlers() {
   window.addEventListener("error", (event) => {
     reportUserActionError(event?.error || event, {
       title: "Unexpected Runtime Error",
-      file: "src/core/velodom.js",
+      file: "src/core/velodom.ts",
       line: 27,
       hint: "Inspect the stack location and fix the failing expression or handler.",
       fatal: true
@@ -64,7 +68,7 @@ function registerGlobalErrorHandlers() {
 
     reportUserActionError(event?.reason || event, {
       title: "Unhandled Promise Rejection",
-      file: "src/core/velodom.js",
+      file: "src/core/velodom.ts",
       line: 33,
       hint: "Await promises in handlers and add try/catch around async logic.",
       fatal: true

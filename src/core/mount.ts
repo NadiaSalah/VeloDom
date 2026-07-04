@@ -1,26 +1,26 @@
 import {
   VD,
   VD_INTERNAL
-} from "./constants.js";
-import { getRefs } from "./refs.js";
-import { applyDirectives } from "./directives.js";
-import { createChildState, createState, mergeState } from "./reactive.js";
-import { applyScopedFolderStyles } from "./styles.js";
-import { reportUserActionError } from "./errors/error-reporter.js";
+} from "./constants.ts";
+import { getRefs } from "./refs.ts";
+import { applyDirectives } from "./directives.ts";
+import { createChildState, createState, mergeState } from "./reactive.ts";
+import { applyScopedFolderStyles } from "./styles.ts";
+import { reportUserActionError } from "./errors/error-reporter.ts";
 import {
   runModuleHook,
   runModuleInit
-} from "./init-runner.js";
-import { createLifecycleScope } from "./lifecycle.js";
+} from "./init-runner.ts";
+import { createLifecycleScope } from "./lifecycle.ts";
 
 const loaded = new WeakSet();
 
 export async function mount(
-  root = document,
-  parentState = null,
-  ancestry = [],
-  pageCtx = null,
-  resources = {}
+  root: any = document,
+  parentState: any = null,
+  ancestry: string[] = [],
+  pageCtx: any = null,
+  resources: any = {}
 ) {
 
   normalizeTemplateSyntax(root);
@@ -43,7 +43,7 @@ export async function mount(
       if (recursive) {
         reportUserActionError(`Recursive component "${folder}" blocked`, {
           title: "Recursive Component Usage",
-          file: "src/core/mount.js",
+          file: "src/core/mount.ts",
           line: 49,
           el,
           hint: "Avoid rendering the same component inside itself without a stop condition."
@@ -162,9 +162,9 @@ export async function mount(
         state?._dispose?.();
         reportUserActionError(err, {
           title: `Component Crash: ${name || "Unknown"}`,
-          file: "src/core/mount.js",
+          file: "src/core/mount.ts",
           line: 62,
-          hint: "Verify component folder, component.js export, and any user expression in its template.",
+          hint: "Verify the component folder, script.js/script.ts exports, and template expressions.",
           fatal: true
         });
       }
@@ -264,7 +264,7 @@ function parsePropsObject(expression, state) {
       title: "Invalid Component Props Expression",
       directive: VD.PROPS,
       expression,
-      file: "src/core/mount.js",
+      file: "src/core/mount.ts",
       line: 200,
       hint: "Use a valid object expression. Example: { name: userName, age: 20 }"
     });
@@ -470,8 +470,8 @@ function isCustomSlotTag(node) {
     .includes(node.tagName);
 }
 
-export async function disposeTree(root) {
-  const callbacks = new Set();
+export async function disposeTree(root: any) {
+  const callbacks = new Set<() => unknown | Promise<unknown>>();
 
   if (typeof root?.[VD_INTERNAL.CLEANUP_KEY] === "function") {
     callbacks.add(root[VD_INTERNAL.CLEANUP_KEY]);
@@ -489,7 +489,7 @@ export async function disposeTree(root) {
   }
 }
 
-function once(fn) {
+function once(fn: (...args: any[]) => any) {
   let called = false;
 
   return () => {

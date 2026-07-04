@@ -1,27 +1,27 @@
-import { disposeTree, mount } from "./mount.js";
-import { applyDirectives } from "./directives.js";
-import { getRefs } from "./refs.js";
-import { createState, mergeState } from "./reactive.js";
-import { applyScopedFolderStyles } from "./styles.js";
-import { createPageEventHub } from "./events.js";
+import { disposeTree, mount } from "./mount.ts";
+import { applyDirectives } from "./directives.ts";
+import { getRefs } from "./refs.ts";
+import { createState, mergeState } from "./reactive.ts";
+import { applyScopedFolderStyles } from "./styles.ts";
+import { createPageEventHub } from "./events.ts";
 import {
   VD,
   VD_INTERNAL
-} from "./constants.js";
-import { reportUserActionError } from "./errors/error-reporter.js";
+} from "./constants.ts";
+import { reportUserActionError } from "./errors/error-reporter.ts";
 import {
   runModuleHook,
   runModuleInit
-} from "./init-runner.js";
-import { createLifecycleScope } from "./lifecycle.js";
+} from "./init-runner.ts";
+import { createLifecycleScope } from "./lifecycle.ts";
 import {
   createRouteTable,
   resolveRouteLocation,
   runNavigationGuards
-} from "./router.js";
-import { validateResourceAdapter } from "./resource-adapter.js";
+} from "./router.ts";
+import { validateResourceAdapter } from "./resource-adapter.ts";
 
-export function createPageRouter(adapter = {}, options = {}) {
+export function createPageRouter(adapter: any = {}, options: any = {}) {
   const resources = validateResourceAdapter(adapter);
   const pageResources = resources.pages;
   const componentResources = resources.components;
@@ -128,7 +128,7 @@ export function createPageRouter(adapter = {}, options = {}) {
       const lifecycle = createLifecycleScope(
         createPageContext(state, events, runtime, route)
       );
-      const ctx = lifecycle.context;
+      const ctx: any = lifecycle.context;
 
       attachEventApiToState(state, events);
 
@@ -186,7 +186,7 @@ export function createPageRouter(adapter = {}, options = {}) {
       if (err?.code !== VD_INTERNAL.PAGE_NOT_FOUND_CODE) {
         reportUserActionError(err, {
           title: "Navigation Crash",
-          file: "src/core/page-router.js",
+          file: "src/core/page-router.ts",
           line: 28,
           hint: "Check page path, page module exports, and directive expressions used on the page.",
           fatal: true
@@ -216,7 +216,7 @@ export function createPageRouter(adapter = {}, options = {}) {
     if (!path || typeof path !== "string") {
       reportUserActionError("Missing navigation path", {
         title: "Invalid Navigation Path",
-        file: "src/core/page-router.js",
+        file: "src/core/page-router.ts",
         line: 95,
         hint: "Set a valid href on links with data-vd-nav."
       });
@@ -227,7 +227,7 @@ export function createPageRouter(adapter = {}, options = {}) {
     if (!path.startsWith("/")) {
       reportUserActionError(`Unsupported path "${path}"`, {
         title: "Unsupported Navigation Target",
-        file: "src/core/page-router.js",
+        file: "src/core/page-router.ts",
         line: 95,
         hint: "Use app-relative paths such as /profile or /posts/create-post."
       });
@@ -401,7 +401,7 @@ function getOrCreatePageState(pageName, runtime) {
   const key = sanitizePath(pageName) || "home";
 
   if (!runtime.pageStateRegistry[key]) {
-    const defaults = {
+    const defaults: any = {
       __vdPageName: key,
       components: {}
     };

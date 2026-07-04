@@ -2,7 +2,7 @@ import {
   indexFolderFiles,
   indexFolderVariants,
   rebaseFiles
-} from "./resource-map.js";
+} from "./resource-map.ts";
 
 const pageHtmlFiles = import.meta.glob(
   "../pages/**/index.html",

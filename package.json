@@ -3,18 +3,35 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "types": "./types/src/core/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/core/index.ts",
+      "import": "./src/core/index.ts"
+    }
+  },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run check && npm run types && vite build",
     "preview": "vite preview",
-    "test": "node --test"
+    "test": "node --test",
+    "typecheck": "tsc --noEmit",
+    "types": "tsc --project tsconfig.types.json",
+    "lint": "eslint .",
+    "check": "npm run typecheck && npm run lint"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.0",
+    "@types/node": "^26.1.0",
     "autoprefixer": "^10.5.0",
     "daisyui": "^5.5.19",
+    "eslint": "^10.6.0",
+    "globals": "^17.7.0",
     "postcss": "^8.5.14",
     "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.62.1",
     "vite": "^8.0.11"
   }
 }

@@ -3,18 +3,18 @@ import {
   VD_INTERNAL,
   VD_PROTECTED_STATE_KEYS,
   VD_REQUEST
-} from "../constants.js";
-import { reportUserActionError } from "../errors/error-reporter.js";
+} from "../constants.ts";
+import { reportUserActionError } from "../errors/error-reporter.ts";
 import {
   createAuthRuntime,
   getDefaultAuthSessionUrl,
   normalizeRequestAuthConfig,
   resolveRequestSession
-} from "./auth.js";
+} from "./auth.ts";
 import {
   executeRequestMiddleware,
   resolveRequestMiddleware
-} from "./middleware-engine.js";
+} from "./middleware-engine.ts";
 
 const activeRequests = new WeakMap();
 const activeTargetRequests = new WeakMap();
@@ -277,7 +277,7 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
       title: getRequestErrorTitle(err),
       directive: VD.REQUEST,
       expression: routeName,
-      file: "src/core/requests/request-router.js",
+      file: "src/core/requests/request-router.ts",
       line: 177,
       el,
       hint: err?.__vdHint || "Verify the route config, auth mode, application middleware, and request params."
@@ -532,7 +532,7 @@ function getTargetRequestMap(state) {
   return requests;
 }
 
-function resolveRequestBinding(targetAttr, pathAttr, valueAttr, currentState, context, directive, meta = {}) {
+function resolveRequestBinding(targetAttr, pathAttr, valueAttr, currentState, context, directive, meta: any = {}) {
   const rawTarget = String(targetAttr || "").trim();
   const rawPath = String(pathAttr || "").trim();
   const rawValue = String(valueAttr || "").trim();
@@ -705,7 +705,7 @@ function sanitizeRequestPagePath(path) {
     .replace(/\/{2,}/g, "/");
 }
 
-function resolveAbsoluteBinding(binding, currentState, context, meta = {}) {
+function resolveAbsoluteBinding(binding, currentState, context, meta: any = {}) {
   const parts = String(binding || "")
     .trim()
     .split(".")
@@ -800,7 +800,7 @@ function deriveRequestStatusPath(targetPath, kind) {
   return segments.join(".");
 }
 
-function validateRequestBindingAccess(binding, currentState, context, meta = {}) {
+function validateRequestBindingAccess(binding, currentState, context, meta: any = {}) {
   if (!binding?.path) {
     return true;
   }
@@ -990,7 +990,7 @@ function normalizeRouteMiddleware(value, routeName, state, el) {
     return [];
   }
 
-  const resolved = resolveRequestMiddleware(value, {
+  const resolved: any = resolveRequestMiddleware(value, {
     custom: appRequestMiddleware
   });
 
@@ -1047,7 +1047,7 @@ async function authorizeRouteRequest(routeConfig, context) {
   return session;
 }
 
-function reportRequestDirectiveProblem(state, el, routeName, error, options = {}) {
+function reportRequestDirectiveProblem(state, el, routeName, error, options: any = {}) {
   const problem = error instanceof Error
     ? error
     : new Error(String(error || "Invalid request configuration"));
@@ -1060,7 +1060,7 @@ function reportRequestDirectiveProblem(state, el, routeName, error, options = {}
     title: options.title || "Invalid Request Configuration",
     directive: options.directive || VD.REQUEST,
     expression: options.expression || routeName,
-    file: "src/core/requests/request-router.js",
+    file: "src/core/requests/request-router.ts",
     line: options.line || 48,
     el,
     hint: options.hint || "Check request route, target page, and state bindings."
@@ -1118,6 +1118,6 @@ function listApiRoutes() {
   return Object.keys(apiRoutes || {});
 }
 
-function callApiRoute(routeConfig, params = {}, context = {}) {
+function callApiRoute(routeConfig, params = {}, context: any = {}) {
   return routeConfig.handler(params, context);
 }

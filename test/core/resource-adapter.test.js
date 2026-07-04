@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { validateResourceAdapter } from "../../src/core/resource-adapter.js";
+import { validateResourceAdapter } from "../../src/core/resource-adapter.ts";
 
 test("resource adapter accepts lazy nested resource maps", () => {
   const adapter = validateResourceAdapter({

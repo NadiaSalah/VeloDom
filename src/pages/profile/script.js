@@ -1,6 +1,6 @@
 import {
   VD_AUTH
-} from "../../core/index.js";
+} from "velodom";
 
 export function init({ state, ctx }) {
   state.routeTitle = ctx.meta.title || "Profile";

@@ -1,6 +1,6 @@
-export function reactive(obj) {
+export function reactive(obj: any) {
 
-  const listeners = new Set();
+  const listeners = new Set<() => void>();
 
   const proxy = new Proxy(obj, {
 
@@ -34,12 +34,12 @@ export function reactive(obj) {
   return proxy;
 }
 
-export function createState(defaults = {}) {
+export function createState(defaults: any = {}) {
   return reactive({ ...defaults });
 }
 
-export function createChildState(parent, defaults = {}) {
-  const listeners = new Set();
+export function createChildState(parent: any, defaults: any = {}) {
+  const listeners = new Set<() => void>();
   const target = { ...defaults };
 
   const notify = () => {

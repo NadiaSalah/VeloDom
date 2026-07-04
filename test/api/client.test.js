@@ -3,7 +3,7 @@ import test from "node:test";
 import {
   ApiError,
   requestJson
-} from "../../src/core/requests/index.js";
+} from "../../src/core/requests/index.ts";
 import { toPositiveInteger } from "../../src/api/validation.js";
 
 test("positive integer validation rejects empty and zero values", () => {

@@ -1,21 +1,21 @@
 export {
   ApiError,
   requestJson
-} from "./http-client.js";
+} from "./http-client.ts";
 
 export {
   defineRequestMiddleware
-} from "./middleware-engine.js";
+} from "./middleware-engine.ts";
 
 export {
   createAuthRuntime,
   createLocalStorageAuthProvider,
   createServerSessionAuthProvider,
   normalizeAuthSession
-} from "./auth.js";
+} from "./auth.ts";
 
 export {
   VD_AUTH,
   VD_MIDDLEWARE,
   VD_REQUEST
-} from "../constants.js";
+} from "../constants.ts";

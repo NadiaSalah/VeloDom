@@ -1,5 +1,17 @@
 export class ApiError extends Error {
-  constructor(message, { status = 0, url = "", body = null, cause } = {}) {
+  status: number;
+  url: string;
+  body: unknown;
+
+  constructor(
+    message,
+    {
+      status = 0,
+      url = "",
+      body = null,
+      cause
+    }: any = {}
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
@@ -12,13 +24,13 @@ export class ApiError extends Error {
   }
 }
 
-export async function requestJson(url, options = {}) {
+export async function requestJson(url, options: any = {}) {
   const method = String(options.method || "GET").toUpperCase();
   const headers = {
     Accept: "application/json",
     ...(options.headers || {})
   };
-  const requestOptions = {
+  const requestOptions: RequestInit = {
     method,
     headers,
     signal: options.signal

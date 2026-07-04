@@ -1,4 +1,4 @@
-import { requestJson } from "../core/index.js";
+import { requestJson } from "velodom";
 import { toPositiveInteger } from "./validation.js";
 
 const baseUrl = "https://dummyjson.com/users";

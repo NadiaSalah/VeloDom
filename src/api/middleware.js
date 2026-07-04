@@ -1,7 +1,7 @@
 import {
   defineRequestMiddleware,
   VD_MIDDLEWARE
-} from "../core/index.js";
+} from "velodom";
 
 export function trimStringFields(params = {}) {
   return Object.fromEntries(

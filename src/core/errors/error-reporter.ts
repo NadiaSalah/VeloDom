@@ -1,6 +1,6 @@
-import { renderFatalFrameworkError } from "./error-screen.js";
+import { renderFatalFrameworkError } from "./error-screen.ts";
 
-export function reportUserActionError(error, options = {}) {
+export function reportUserActionError(error, options: any = {}) {
   const normalized = normalizeError(error);
   const location = resolveLocation(normalized.stack, options, normalized.__vdSynthetic === true);
   const title = options.title || "Runtime Error";
@@ -71,7 +71,7 @@ function normalizeError(error) {
 
 function resolveLocation(stack, options, preferFallback = false) {
   const fallback = {
-    file: options.file || "src/core/unknown.js",
+    file: options.file || "src/core/unknown.ts",
     line: options.line || 1,
     column: options.column || 1
   };
@@ -91,7 +91,7 @@ function resolveLocation(stack, options, preferFallback = false) {
     const parsed = parseStackLine(line);
 
     if (!parsed) continue;
-    if (parsed.file === "src/core/errors/error-reporter.js" && options.file) continue;
+    if (parsed.file === "src/core/errors/error-reporter.ts" && options.file) continue;
 
     return parsed;
   }
@@ -101,7 +101,7 @@ function resolveLocation(stack, options, preferFallback = false) {
 
 function parseStackLine(stackLine) {
   const normalized = stackLine.replace(/\\/g, "/");
-  const srcMatch = normalized.match(/(src\/[^:\s)]+\.js)(?:\?[^:\s)]*)?:(\d+):(\d+)/);
+  const srcMatch = normalized.match(/(src\/[^:\s)]+\.[jt]s)(?:\?[^:\s)]*)?:(\d+):(\d+)/);
 
   if (srcMatch) {
     return {

@@ -4,7 +4,7 @@ import {
   indexFolderFiles,
   indexFolderVariants,
   rebaseFiles
-} from "../../src/adapters/resource-map.js";
+} from "../../src/adapters/resource-map.ts";
 
 test("page files are indexed by nested folder name", () => {
   const homeLoader = () => "home";
@@ -23,19 +23,19 @@ test("page files are indexed by nested folder name", () => {
 
 test("preferred script files override backward-compatible module names", () => {
   const legacy = () => "legacy";
-  const preferred = () => "preferred";
+  const javascript = () => "javascript";
+  const typescript = () => "typescript";
   const indexed = indexFolderVariants({
     "../pages/home/page.js": legacy,
-    "../pages/home/script.js": preferred,
-    "../pages/blog/script.ts": () => "typescript"
+    "../pages/home/script.js": javascript,
+    "../pages/home/script.ts": typescript
   }, "../pages/", [
     "/script.ts",
     "/script.js",
     "/page.js"
   ]);
 
-  assert.equal(indexed.home, preferred);
-  assert.equal(indexed.blog(), "typescript");
+  assert.equal(indexed.home, typescript);
 });
 
 test("style files are rebased without leaking adapter paths", () => {

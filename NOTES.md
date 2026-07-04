@@ -11,8 +11,12 @@
   explicit `next()` pipelines remain an advanced option.
 - Authentication is provider-based. Frontend auth and role checks improve UX
   but never replace backend authorization.
-- The public application import boundary is `src/core/index.js`; other core
-  modules are internal until intentionally promoted.
+- Framework source is TypeScript and passes TypeScript plus ESLint before
+  production builds.
+- Application source may use `script.js` or `script.ts` per folder with no API
+  differences and no JSX/TSX.
+- The public application import boundary is the `velodom` package export backed
+  by `src/core/index.ts`; other core modules are internal until promoted.
 - Backward compatibility is preserved while the preferred `vd-*` compiler
   syntax and folder conventions mature.
 
@@ -20,8 +24,9 @@
 
 - Runtime template expressions still use the legacy evaluator. A safe
   expression parser/AST is the next major compiler-security task.
-- The framework source is still JavaScript. TypeScript migration and generated
-  declarations remain pending.
+- Some internal migration boundaries intentionally use permissive types while
+  public contracts are explicit; tighten these incrementally without changing
+  the JavaScript API.
 - Compiler optimization and tree-shaking extension points are not designed yet.
 - Browser-level DOM tests for every directive and mount/unmount combination
   are still required.

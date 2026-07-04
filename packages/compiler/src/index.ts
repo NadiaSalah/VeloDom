@@ -1,9 +1,17 @@
 import {
   BINDING_DIRECTIVES,
   isPreferredDirective
-} from "../../shared/src/directives.js";
+} from "../../shared/src/directives.ts";
 
-export function compileTemplate(source, options = {}) {
+export interface CompilerOptions {
+  filename?: string;
+  mode?: "development" | "production";
+}
+
+export function compileTemplate(
+  source: string,
+  options: CompilerOptions = {}
+) {
   if (typeof source !== "string") {
     throw new TypeError("VeloDom compiler expected template source to be a string");
   }
