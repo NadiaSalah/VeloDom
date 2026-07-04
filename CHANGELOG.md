@@ -26,16 +26,30 @@ package versions.
 - Extracted request target resolution, automatic status bindings, and
   cross-page write policy from `request-router.ts`.
 - Updated runtime diagnostics to recommend preferred `vd-*` syntax.
+- Replaced dynamic template execution with a tokenizer, parser, expression AST,
+  and safe evaluator.
+- Added compiler-time expression validation with source-aware diagnostics.
+- Component props now use the same safe expression engine as directives.
+
+### Added
+
+- Safe expression support for literals, arrays, objects, operators, ternaries,
+  optional chaining, trusted calls, and an allowlist of standard globals.
+- Compile-time and runtime protection against prototype and constructor member
+  access.
+- Security regression coverage for computed constructor access, host-global
+  traversal, dynamic function construction, and timer entry points.
 
 ### Removed
 
 - Removed the redundant private `packages` source layer.
 - Removed empty `packages` directories left behind after consolidation.
+- Removed all runtime usage of `new Function`.
 
 ### Verification
 
 - TypeScript and ESLint checks pass.
-- `npm test`: 44 tests passing.
+- `npm test`: 53 tests passing.
 - `npm run build`: production build successful.
 
 ## 2026-07-04

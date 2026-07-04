@@ -22,11 +22,11 @@ The repository now includes:
 - a complete blog showcase application
 - Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
 
-Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 44 tests
+Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 53 tests
 pass, declarations are generated, and the Vite production build completes.
 
-The safe expression AST, optimizer, stricter internal typing, and tree-shaking
-extension points remain roadmap work.
+Optimizer hooks, stricter internal typing, tree-shaking extension points, and
+broader DOM integration coverage remain roadmap work.
 
 ## Technologies
 
@@ -49,6 +49,7 @@ src/
       request-bindings.ts target resolution and cross-page write policy
     directives/          expression scope and state path engine
     errors/              framework error reporting and fatal screen
+    expression/          safe tokenizer, parser, AST, and evaluator
     index.ts             public runtime entry and exported types
     types.ts             public application contracts
     router.ts            generic matching, params, query, guards
@@ -253,6 +254,7 @@ The compiler currently provides:
 - `vd-on:event.modifier` transforms
 - `vd-bind:name` transforms
 - unknown-directive validation
+- safe expression parsing and source-aware expression diagnostics
 - serializable directive metadata
 - development and production output modes
 
@@ -381,6 +383,27 @@ Conditional branches suspend dependent directive evaluation while inactive.
 For example, a `vd-bind:href` inside a false `vd-if` can safely reference data
 that will only exist when the condition becomes true. The binding remains
 reactive and evaluates as soon as the branch is activated.
+
+## Safe Template Expressions
+
+Template expressions are parsed into an AST and evaluated without `eval` or
+`new Function`. Supported syntax includes:
+
+- literals, template literals, identifiers, arrays, and object literals
+- arithmetic, comparisons, logical operators, and ternaries
+- property and computed access
+- optional chaining
+- trusted state function and method calls
+- safe globals such as `Boolean`, `Number`, `String`, `Array.isArray`, `Math`,
+  and `JSON`
+
+Expressions are intentionally not full JavaScript. Assignments, `new`, arrow
+functions, and statements are rejected. Use normal
+`script.js` or `script.ts` functions for complex logic. Static access to
+dangerous members such as `constructor`, `prototype`, and `__proto__` fails
+during compilation; dynamic access is checked again at runtime. Host globals
+and dynamic execution entry points including `window`, `document`, `Function`,
+`eval`, timers, and function meta-call methods are unavailable.
 
 ## Components
 
@@ -611,9 +634,12 @@ Files such as `page-router.ts`, `mount.ts`, and `request-router.ts` are internal
 
 ## Security Notes
 
-- Template expressions still use the current runtime expression evaluator.
-- The compiler validates directive structure but does not yet provide the future
-  safe expression AST.
+- Template expressions use the safe AST evaluator and do not invoke dynamic
+  JavaScript compilation.
+- Compiler diagnostics validate expression syntax and statically unsafe
+  members before bundling.
+- Runtime member checks protect computed access that cannot be resolved during
+  compilation.
 - Protected state keys and prototype paths cannot be request write targets.
 - Cross-page writes require explicit target-page config.
 - Frontend role checks improve UX; backend authorization is authoritative.
@@ -622,11 +648,10 @@ Files such as `page-router.ts`, `mount.ts`, and `request-router.ts` are internal
 
 See [todo.md](todo.md). The next architectural priorities are:
 
-1. safe expression parser and evaluator
-2. optimizer and tree-shaking extension points
+1. optimizer and tree-shaking extension points
+2. integration tests for DOM lifecycle and directives
 3. stricter internal types with fewer compatibility `any` boundaries
-4. integration tests for DOM lifecycle and directives
-5. package publishing boundaries and CLI scaffolding
+4. package publishing boundaries and CLI scaffolding
 
 ## Development Handoff
 

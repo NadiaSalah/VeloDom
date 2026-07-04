@@ -17,6 +17,7 @@ import {
   runModuleInit
 } from "./init-runner.ts";
 import { createLifecycleScope } from "./lifecycle.ts";
+import { evaluateExpression } from "./expression/index.ts";
 import { isPlainObject } from "./shared/object.ts";
 import { normalizeFolderPath } from "./shared/path.ts";
 
@@ -257,10 +258,9 @@ function parsePropsObject(expression, state) {
   if (!expression) return {};
 
   try {
-    const result = new Function(
-      "state",
-      `with(state || {}) { return (${expression}); }`
-    )(state);
+    const result = evaluateExpression(expression, {
+      state: state || {}
+    });
 
     if (!result || typeof result !== "object" || Array.isArray(result)) {
       return {};

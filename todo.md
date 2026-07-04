@@ -61,6 +61,19 @@ runtime work.
 - [x] Make typecheck and lint required by the production build
 - [x] Keep tests runnable directly against TypeScript source
 
+### 0.6 Safe Expression Engine
+
+- [x] Add a standalone tokenizer and expression parser
+- [x] Generate an expression AST without browser globals
+- [x] Replace runtime `new Function` usage with a safe evaluator
+- [x] Preserve method receivers and reactive state function calls
+- [x] Support literals, collections, operators, calls, and optional chaining
+- [x] Restrict globals to an explicit safe allowlist
+- [x] Block prototype and function-constructor member access
+- [x] Validate directive expressions during compilation
+- [x] Report expression diagnostics with source offsets
+- [x] Document intentionally unsupported JavaScript syntax
+
 ### Phase 0 Acceptance Criteria
 
 - [x] Preferred `vd-*` syntax works in page and component HTML
@@ -69,6 +82,7 @@ runtime work.
 - [x] Compiler modules run under Node without browser globals
 - [x] Production build uses compiler output and passes all framework tests
 - [x] Framework TypeScript, declarations, and ESLint checks pass
+- [x] Runtime and component props contain no `eval` or `new Function`
 
 ---
 

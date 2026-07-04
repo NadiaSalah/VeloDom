@@ -33,6 +33,12 @@
   reusable behavior: `directives/expression.ts` handles expression state
   access, and `requests/request-bindings.ts` handles request destinations and
   cross-page policy.
+- Template expressions are parsed under `src/core/expression` and evaluated
+  from an AST. The grammar is intentionally expression-only; complex logic
+  belongs in page/component scripts, not templates.
+- The expression security model blocks host-global identifiers, prototype
+  traversal, function constructors, timers, and `call`/`apply`/`bind`; computed
+  member names are revalidated at runtime.
 - Backward compatibility is preserved while the preferred `vd-*` compiler
   syntax and folder conventions mature.
 - Inactive conditional branches suspend dependent directive evaluation.
@@ -44,8 +50,8 @@
 
 ## Known Constraints
 
-- Runtime template expressions still use the legacy evaluator. A safe
-  expression parser/AST is the next major compiler-security task.
+- Assignments, declarations, arrow functions, nested template literals, and
+  `new` are intentionally unsupported inside templates.
 - Some internal migration boundaries intentionally use permissive types while
   public contracts are explicit; tighten these incrementally without changing
   the JavaScript API.

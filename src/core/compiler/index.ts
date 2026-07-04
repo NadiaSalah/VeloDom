@@ -2,6 +2,29 @@ import {
   BINDING_DIRECTIVES,
   isPreferredDirective
 } from "../shared/directives.ts";
+import {
+  ExpressionSyntaxError,
+  parseExpression
+} from "../expression/parser.ts";
+
+const EXPRESSION_DIRECTIVES = new Set([
+  "data-vd-alt",
+  "data-vd-attr",
+  "data-vd-checked",
+  "data-vd-class",
+  "data-vd-disabled",
+  "data-vd-elseif",
+  "data-vd-href",
+  "data-vd-if",
+  "data-vd-params",
+  "data-vd-props",
+  "data-vd-request-config",
+  "data-vd-show",
+  "data-vd-src",
+  "data-vd-style",
+  "data-vd-text",
+  "data-vd-value"
+]);
 
 export interface CompilerOptions {
   filename?: string;
@@ -138,6 +161,32 @@ function compileStartTag(tagSource, sourceOffset, fullSource, filename) {
         compiled.error
       ));
       return;
+    }
+
+    const expression = getDirectiveExpression(
+      compiled.name,
+      attribute.value
+    );
+
+    if (expression !== null) {
+      try {
+        parseExpression(expression);
+      } catch (error) {
+        const syntaxError = error instanceof ExpressionSyntaxError
+          ? error
+          : new ExpressionSyntaxError(
+            error?.message || "Invalid directive expression"
+          );
+
+        diagnostics.push(createDiagnostic(
+          fullSource,
+          filename,
+          attribute.valueStart + syntaxError.offset,
+          "error",
+          syntaxError.code,
+          syntaxError.message
+        ));
+      }
     }
 
     replacements.push({
@@ -309,6 +358,7 @@ function parseStartTag(tagSource, sourceOffset) {
     while (isWhitespace(tagSource[index])) index += 1;
 
     let value = "";
+    let valueStart = index;
 
     if (tagSource[index] === "=") {
       index += 1;
@@ -318,7 +368,7 @@ function parseStartTag(tagSource, sourceOffset) {
 
       if (quote === '"' || quote === "'") {
         index += 1;
-        const valueStart = index;
+        valueStart = index;
 
         while (index < tagSource.length && tagSource[index] !== quote) {
           index += 1;
@@ -327,7 +377,7 @@ function parseStartTag(tagSource, sourceOffset) {
         value = tagSource.slice(valueStart, index);
         if (tagSource[index] === quote) index += 1;
       } else {
-        const valueStart = index;
+        valueStart = index;
 
         while (
           index < tagSource.length
@@ -346,7 +396,8 @@ function parseStartTag(tagSource, sourceOffset) {
       value,
       start: sourceOffset + nameStart,
       nameStart: sourceOffset + nameStart,
-      nameEnd: sourceOffset + nameEnd
+      nameEnd: sourceOffset + nameEnd,
+      valueStart: sourceOffset + valueStart
     });
   }
 
@@ -355,6 +406,26 @@ function parseStartTag(tagSource, sourceOffset) {
     attributes,
     selfClosing: /\/\s*>$/.test(tagSource)
   };
+}
+
+function getDirectiveExpression(name, value) {
+  if (name === "data-vd-for") {
+    const match = String(value || "").match(
+      /^\s*(?:\(\s*[\w$]+\s*,\s*[\w$]+\s*\)|[\w$]+)\s+in\s+(.+)\s*$/
+    );
+
+    return match
+      ? match[1]
+      : null;
+  }
+
+  if (name.startsWith("data-vd-on")) {
+    return String(value || "");
+  }
+
+  return EXPRESSION_DIRECTIVES.has(name)
+    ? String(value || "")
+    : null;
 }
 
 function findTagEnd(source, start) {

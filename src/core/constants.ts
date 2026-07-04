@@ -128,3 +128,29 @@ export const VD_EVENT_KEY_MODIFIERS = Object.freeze([
   "left",
   "right"
 ]);
+
+export const VD_EXPRESSION = Object.freeze({
+  BLOCKED_IDENTIFIERS: Object.freeze([
+    "Function",
+    "document",
+    "eval",
+    "globalThis",
+    "window"
+  ]),
+  BLOCKED_MEMBERS: Object.freeze([
+    "__proto__",
+    "prototype",
+    "constructor",
+    "caller",
+    "callee",
+    "arguments",
+    "apply",
+    "bind",
+    "call",
+    "eval",
+    "Function",
+    "setInterval",
+    "setTimeout",
+    "importScripts"
+  ])
+});

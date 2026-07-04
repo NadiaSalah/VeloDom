@@ -56,3 +56,41 @@ test("quoted greater-than characters do not close a start tag", () => {
   assert.match(result.html, /title="a > b"/);
   assert.match(result.html, /data-vd-show="visible"/);
 });
+
+test("invalid expressions fail with source-aware compiler diagnostics", () => {
+  const result = compileTemplate(
+    '<section vd-if="user &&"></section>',
+    {
+      filename: "broken-expression.html"
+    }
+  );
+  const diagnostic = result.diagnostics[0];
+
+  assert.equal(diagnostic.code, "VD_EXPRESSION_SYNTAX");
+  assert.equal(diagnostic.filename, "broken-expression.html");
+  assert.equal(diagnostic.location.line, 1);
+  assert.ok(diagnostic.location.column > 1);
+});
+
+test("compiler validates object, optional-chain, and event expressions", () => {
+  const result = compileTemplate(`
+    <button
+      vd-if="Boolean(post?.id)"
+      vd-class="{ active: post.id === selectedId }"
+      vd-on:click="select(post.id)"
+    ></button>
+  `);
+
+  assert.deepEqual(result.diagnostics, []);
+});
+
+test("compiler rejects statically unsafe expression members", () => {
+  const result = compileTemplate(
+    '<span vd-text="user.constructor"></span>'
+  );
+
+  assert.equal(
+    result.diagnostics[0].code,
+    "VD_EXPRESSION_MEMBER_BLOCKED"
+  );
+});

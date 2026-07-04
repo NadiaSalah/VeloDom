@@ -3,6 +3,7 @@ import {
   VD_PROTECTED_STATE_KEYS
 } from "../constants.ts";
 import { reportUserActionError } from "../errors/error-reporter.ts";
+import { evaluateExpression } from "../expression/index.ts";
 import { findProtectedStatePathKey } from "../shared/path.ts";
 
 export function createScope(parent, locals) {
@@ -41,15 +42,12 @@ export function evaluate(
   meta: any = {}
 ) {
   try {
-    const fn = new Function(
-      "state",
-      "event",
-      "props",
-      "el",
-      `with(state){ return (${expression}) }`
-    );
-
-    return fn.call(el, state, event, props, el);
+    return evaluateExpression(expression, {
+      state,
+      event,
+      props,
+      el
+    });
   } catch (error) {
     reportUserActionError(error, {
       title: "Expression Evaluation Error",
