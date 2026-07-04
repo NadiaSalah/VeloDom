@@ -23,6 +23,9 @@
 - Source type contracts live in `src/core/types.ts`. Generated declarations
   stay in the ignored root `types` build-output folder, while
   `node_modules/@types` remains npm-managed dependency data.
+- Generic object validation, folder-path normalization, and protected-state
+  path inspection live in `src/core/shared`; runtime modules should not create
+  private copies of these helpers.
 - Backward compatibility is preserved while the preferred `vd-*` compiler
   syntax and folder conventions mature.
 - Inactive conditional branches suspend dependent directive evaluation.

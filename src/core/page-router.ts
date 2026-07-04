@@ -20,6 +20,7 @@ import {
   runNavigationGuards
 } from "./router.ts";
 import { validateResourceAdapter } from "./resource-adapter.ts";
+import { normalizeFolderPath } from "./shared/path.ts";
 
 export function createPageRouter(adapter: any = {}, options: any = {}) {
   const resources = validateResourceAdapter(adapter);
@@ -318,7 +319,7 @@ function getPage(path) {
 }
 
 function resolvePage(path, pagePath) {
-  const custom = sanitizePath(pagePath);
+  const custom = normalizeFolderPath(pagePath);
   const route = getPage(path);
 
   if (!custom) {
@@ -334,17 +335,6 @@ function resolvePage(path, pagePath) {
   }
 
   return `${custom}/${route}`;
-}
-
-function sanitizePath(path) {
-  const value = (path || "").trim();
-
-  if (!value) return "";
-  if (value.includes("..")) return "";
-
-  return value
-    .replace(/^\/+|\/+$/g, "")
-    .replace(/\/{2,}/g, "/");
 }
 
 function attachEventApiToState(state, events) {
@@ -398,7 +388,7 @@ function createLegacyRoute(path, pagePath) {
 }
 
 function getOrCreatePageState(pageName, runtime) {
-  const key = sanitizePath(pageName) || "home";
+  const key = normalizeFolderPath(pageName) || "home";
 
   if (!runtime.pageStateRegistry[key]) {
     const defaults: any = {
@@ -421,7 +411,7 @@ function getOrCreatePageState(pageName, runtime) {
 }
 
 function hasRegisteredPage(pageName, runtime) {
-  const key = sanitizePath(pageName) || "home";
+  const key = normalizeFolderPath(pageName) || "home";
 
   return runtime.availablePages.has(key);
 }

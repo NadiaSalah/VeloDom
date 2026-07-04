@@ -1,3 +1,5 @@
+import { isPlainObject } from "./shared/object.ts";
+
 export function validateResourceAdapter(adapter: any) {
   if (!isPlainObject(adapter)) {
     throw createAdapterError(
@@ -101,14 +103,4 @@ function createAdapterError(message, hint) {
   error.__vdStage = "adapter";
   error.__vdHint = hint;
   return error;
-}
-
-function isPlainObject(value) {
-  if (!value || Object.prototype.toString.call(value) !== "[object Object]") {
-    return false;
-  }
-
-  const prototype = Object.getPrototypeOf(value);
-
-  return prototype === Object.prototype || prototype === null;
 }

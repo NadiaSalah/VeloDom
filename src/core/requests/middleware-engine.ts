@@ -2,6 +2,7 @@ import {
   VD_MIDDLEWARE,
   VD_REQUEST
 } from "../constants.ts";
+import { isPlainObject } from "../shared/object.ts";
 
 export function defineRequestMiddleware(
   handler,
@@ -267,14 +268,4 @@ function createMiddlewareError(message) {
   error.__vdStage = VD_REQUEST.STAGES.MIDDLEWARE;
   error.__vdHint = "Check the middleware names registered through createApp({ middleware }).";
   return error;
-}
-
-function isPlainObject(value) {
-  if (!value || Object.prototype.toString.call(value) !== "[object Object]") {
-    return false;
-  }
-
-  const prototype = Object.getPrototypeOf(value);
-
-  return prototype === Object.prototype || prototype === null;
 }

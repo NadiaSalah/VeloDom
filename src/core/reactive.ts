@@ -1,4 +1,5 @@
 import { VD_PROTECTED_STATE_KEYS } from "./constants.ts";
+import { isPlainObject } from "./shared/object.ts";
 
 export function reactive(obj: any) {
 
@@ -129,14 +130,4 @@ export function mergeExposedMembers(state, expose) {
   });
 
   return state;
-}
-
-function isPlainObject(value) {
-  if (!value || Object.prototype.toString.call(value) !== "[object Object]") {
-    return false;
-  }
-
-  const prototype = Object.getPrototypeOf(value);
-
-  return prototype === Object.prototype || prototype === null;
 }

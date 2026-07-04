@@ -17,6 +17,8 @@ import {
   runModuleInit
 } from "./init-runner.ts";
 import { createLifecycleScope } from "./lifecycle.ts";
+import { isPlainObject } from "./shared/object.ts";
+import { normalizeFolderPath } from "./shared/path.ts";
 
 const loaded = new WeakSet();
 
@@ -298,24 +300,13 @@ function resolveComponentFolder(el, name) {
 
   if (!componentName) return "";
 
-  const base = sanitizePath(
+  const base = normalizeFolderPath(
     el.getAttribute(VD.PATH)
   );
 
   return base
     ? `${base}/${componentName}`
     : componentName;
-}
-
-function sanitizePath(path) {
-  const value = (path || "").trim();
-
-  if (!value) return "";
-  if (value.includes("..")) return "";
-
-  return value
-    .replace(/^\/+|\/+$/g, "")
-    .replace(/\/{2,}/g, "/");
 }
 
 function collectSlots(el) {
@@ -636,10 +627,6 @@ function collectStateFunctions(state) {
       acc[key] = state[key];
       return acc;
     }, {});
-}
-
-function isPlainObject(value) {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
 
 function getComponentKey(el) {

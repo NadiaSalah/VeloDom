@@ -2,6 +2,7 @@ import {
   VD_AUTH,
   VD_REQUEST
 } from "../constants.ts";
+import { isPlainObject } from "../shared/object.ts";
 
 export function createAuthRuntime(config: any = {}) {
   if (!isPlainObject(config)) {
@@ -311,14 +312,4 @@ function createAuthError(message, hint, cause = null) {
   }
 
   return error;
-}
-
-function isPlainObject(value) {
-  if (!value || Object.prototype.toString.call(value) !== "[object Object]") {
-    return false;
-  }
-
-  const prototype = Object.getPrototypeOf(value);
-
-  return prototype === Object.prototype || prototype === null;
 }

@@ -1,10 +1,11 @@
 import {
   VD,
   VD_INTERNAL,
-  VD_PROTECTED_STATE_KEYS,
   VD_REQUEST
 } from "../constants.ts";
 import { reportUserActionError } from "../errors/error-reporter.ts";
+import { isPlainObject } from "../shared/object.ts";
+import { findProtectedStatePathKey } from "../shared/path.ts";
 import {
   createAuthRuntime,
   getDefaultAuthSessionUrl,
@@ -870,14 +871,6 @@ function validateRequestBindingAccess(binding, currentState, context, meta: any 
   return true;
 }
 
-function findProtectedStatePathKey(path) {
-  return String(path || "")
-    .split(/[.[\]]+/)
-    .filter(Boolean)
-    .find(key => key.startsWith("__vd") || VD_PROTECTED_STATE_KEYS.includes(key))
-    || "";
-}
-
 function resolveRouteConfig(routeName, state, el) {
   const raw = apiRoutes?.[routeName];
 
@@ -1098,16 +1091,6 @@ function getRequestErrorTitle(error) {
   }
 
   return "API Request Failed";
-}
-
-function isPlainObject(value) {
-  if (!value || Object.prototype.toString.call(value) !== "[object Object]") {
-    return false;
-  }
-
-  const prototype = Object.getPrototypeOf(value);
-
-  return prototype === Object.prototype || prototype === null;
 }
 
 function hasApiRoute(name) {

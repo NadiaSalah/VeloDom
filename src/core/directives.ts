@@ -5,6 +5,7 @@ import {
 } from "./constants.ts";
 import { reportUserActionError } from "./errors/error-reporter.ts";
 import { applyRequests } from "./requests/request-router.ts";
+import { findProtectedStatePathKey } from "./shared/path.ts";
 
 const invalidConditionalPlacementReported = new WeakSet();
 const invalidConditionalTypeReported = new WeakSet();
@@ -980,16 +981,6 @@ function resolvePathKeys(path, state) {
   }
 
   return parts.slice(1).join(".");
-}
-
-function findProtectedStatePathKey(path) {
-  return String(path || "")
-    .trim()
-    .replace(/\[(\w+)\]/g, ".$1")
-    .split(".")
-    .filter(Boolean)
-    .find(key => VD_PROTECTED_STATE_KEYS.includes(key) || key.startsWith("__vd"))
-    || "";
 }
 
 function reportInvalidConditionalPlacement(el) {

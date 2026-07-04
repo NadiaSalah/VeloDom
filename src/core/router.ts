@@ -1,3 +1,5 @@
+import { isPlainObject } from "./shared/object.ts";
+
 export function createRouteTable(pageNames: string[] = [], configs: any = {}) {
   return pageNames
     .filter(page => page !== "404")
@@ -189,14 +191,4 @@ function decodePathValue(value) {
   } catch {
     return value;
   }
-}
-
-function isPlainObject(value) {
-  if (!value || Object.prototype.toString.call(value) !== "[object Object]") {
-    return false;
-  }
-
-  const prototype = Object.getPrototypeOf(value);
-
-  return prototype === Object.prototype || prototype === null;
 }

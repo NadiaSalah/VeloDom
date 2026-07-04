@@ -43,7 +43,7 @@ src/
   core/                  all framework-owned source
     adapters/            Vite discovery and resource-map adapters
     compiler/            HTML AST, transforms, metadata, diagnostics
-    shared/              shared compiler/runtime contracts
+    shared/              shared contracts and validated object/path utilities
     vite-plugin/         build-time template compilation
     requests/            HTTP, auth, middleware, request directives
     errors/              framework error reporting and fatal screen
@@ -638,6 +638,8 @@ The conditional-directive evaluation regression is covered by
 `test/core/directives.test.js`. Its fix lives in `src/core/directives.ts`.
 The local/public `expose` contract is covered by
 `test/core/reactive.test.js` and integrated by `src/core/mount.ts`.
+Shared object validation, folder normalization, and protected-state path
+detection are covered by `test/core/shared.test.js`.
 
 Important decisions and deferred technical work are recorded in
 [NOTES.md](NOTES.md). Milestone history is recorded in

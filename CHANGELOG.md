@@ -17,6 +17,8 @@ package versions.
 - Kept application-owned `pages`, `components`, `api`, and bootstrap files
   outside the framework folder.
 - Declaration generation now removes stale output before running TypeScript.
+- Consolidated repeated plain-object, folder-path, and protected-state helpers
+  into tested modules under `src/core/shared`.
 
 ### Removed
 

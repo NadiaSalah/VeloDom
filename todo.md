@@ -287,6 +287,7 @@ and `src/api`.
 ### 9. Project Polish
 
 - [x] Review folder naming consistency inside `src/core`
+- [x] Consolidate duplicate object and path helpers under `src/core/shared`
 - [ ] Review internal naming consistency across `pages`, `components`, and `api`
 - [ ] Review demo pages for consistency with final API style
 - [ ] Remove legacy examples that no longer represent the preferred API
