@@ -23,12 +23,12 @@ The repository now includes:
 - Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
 - real DOM integration tests for directives, components, navigation, and requests
 
-Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 72 tests
+Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 77 tests
 pass, declarations are generated, the Vite production build completes, and
 `npm audit` reports zero known vulnerabilities.
 
-Optimizer hooks, stricter internal typing, tree-shaking extension points, and
-package publishing boundaries remain roadmap work.
+Stricter internal typing, runtime feature-module splitting, and package
+publishing boundaries remain roadmap work.
 
 ## Technologies
 
@@ -46,6 +46,8 @@ src/
   core/                  all framework-owned source
     adapters/            Vite discovery and resource-map adapters
     compiler/            HTML AST, transforms, metadata, diagnostics
+      optimizer.ts       optimizer pipeline and runtime feature manifests
+      types.ts           compiler and optimizer public contracts
     shared/              shared contracts and validated object/path utilities
     vite-plugin/         build-time template compilation
     requests/            HTTP, auth, middleware, request directives
@@ -263,7 +265,60 @@ The compiler currently provides:
 - unknown-directive validation
 - safe expression parsing and source-aware expression diagnostics
 - serializable directive metadata
+- deterministic runtime feature manifests
+- synchronous custom optimizer extension points
 - development and production output modes
+
+### Compiler Optimizers and Tree-shaking
+
+Every compiled template now includes a deterministic manifest containing its
+normalized directives and coarse runtime features such as `bindings`,
+`events`, `requests`, and `components`. This is the stable extension point for
+splitting runtime features into independently tree-shakeable modules later.
+
+Production template modules omit development metadata by default. The small
+`__vdManifest` named export remains available to build integrations and can be
+removed naturally by the bundler when only the default HTML export is used.
+Both artifacts can be controlled through Vite plugin options.
+
+Advanced framework/build integrations can register synchronous optimizers:
+
+```js
+// vite.config.js
+import { defineConfig } from "vite";
+import { defineTemplateOptimizer } from "velodom/compiler";
+import { velodom } from "velodom/vite-plugin";
+
+const addBuildMarker = defineTemplateOptimizer(
+  "add-build-marker",
+  (result, context) => {
+    context.addRuntimeFeature("analytics");
+
+    return {
+      html: result.html.replace(
+        "<main",
+        '<main data-build="optimized"'
+      )
+    };
+  }
+);
+
+export default defineConfig({
+  plugins: [
+    velodom({
+      compiler: {
+        optimizers: [addBuildMarker]
+      }
+    })
+  ]
+});
+```
+
+Optimizers run after parsing and validation, receive full compile-time metadata,
+and may update HTML, AST, metadata, or diagnostics. Their output is validated,
+named failures are reported clearly, and asynchronous optimizers are rejected
+so the standalone compiler remains deterministic. Application authors do not
+need to configure optimizers for normal VeloDom usage.
 
 ## Pages
 
@@ -677,8 +732,8 @@ Files such as `page-router.ts`, `mount.ts`, and `request-router.ts` are internal
 
 See [todo.md](todo.md). The next architectural priorities are:
 
-1. optimizer and tree-shaking extension points
-2. stricter internal types with fewer compatibility `any` boundaries
+1. stricter internal types with fewer compatibility `any` boundaries
+2. split runtime directive features using compiler manifests
 3. package publishing boundaries and semantic versioning rules
 4. CLI scaffolding
 
@@ -729,6 +784,12 @@ The error-system step added `test/integration/errors.test.js`. It verifies
 structured console output, fallback and parsed source locations,
 directive-specific context, warning routing, safe text rendering, and the
 single fatal-screen guard. No core behavior change was required by this step.
+
+The compiler optimization step added `src/core/compiler/optimizer.ts` and
+`types.ts`, runtime feature manifests, validated custom optimizer hooks, and
+production metadata pruning in the Vite plugin. Compiler tests cover manifest
+generation, extension hooks, invalid output, and production/development module
+artifacts. `todo.md` now starts with a visible completed/total progress counter.
 
 Important decisions and deferred technical work are recorded in
 [NOTES.md](NOTES.md). Milestone history is recorded in

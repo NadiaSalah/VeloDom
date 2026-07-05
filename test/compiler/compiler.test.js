@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { compileTemplate } from "../../src/core/compiler/index.ts";
+import {
+  compileTemplate,
+  defineTemplateOptimizer
+} from "../../src/core/compiler/index.ts";
+import {
+  createTemplateModule
+} from "../../src/core/vite-plugin/index.ts";
 
 test("preferred directives compile to backward-compatible runtime names", () => {
   const result = compileTemplate(`
@@ -93,4 +99,111 @@ test("compiler rejects statically unsafe expression members", () => {
     result.diagnostics[0].code,
     "VD_EXPRESSION_MEMBER_BLOCKED"
   );
+});
+
+test("compiler creates a deterministic runtime feature manifest", () => {
+  const result = compileTemplate(`
+    <section vd-if="ready">
+      <a
+        vd-bind:href="url"
+        vd-on:click.prevent="open()"
+        vd-request="posts.load"
+      >Open</a>
+    </section>
+  `);
+
+  assert.deepEqual(result.manifest.features, [
+    "bindings",
+    "conditionals",
+    "events",
+    "requests"
+  ]);
+  assert.deepEqual(result.manifest.directives, [
+    "data-vd-href",
+    "data-vd-if",
+    "data-vd-onclick.prevent",
+    "data-vd-request"
+  ]);
+});
+
+test("custom optimizers transform output and extend the feature manifest", () => {
+  const optimizer = defineTemplateOptimizer(
+    "add-test-marker",
+    (result, context) => {
+      context.addRuntimeFeature("analytics");
+
+      return {
+        html: result.html.replace("<main", '<main data-optimized="true"')
+      };
+    }
+  );
+  const result = compileTemplate(
+    '<main vd-text="title"></main>',
+    {
+      filename: "optimized.html",
+      optimizers: [
+        optimizer
+      ]
+    }
+  );
+
+  assert.match(result.html, /data-optimized="true"/);
+  assert.deepEqual(result.manifest.features, [
+    "analytics",
+    "text"
+  ]);
+});
+
+test("compiler rejects invalid optimizer output", () => {
+  const optimizer = defineTemplateOptimizer(
+    "invalid-output",
+    () => ({
+      unknown: true
+    })
+  );
+
+  assert.throws(
+    () => compileTemplate("<main></main>", {
+      optimizers: [
+        optimizer
+      ]
+    }),
+    /unsupported key "unknown"/
+  );
+});
+
+test("production template modules omit development metadata by default", () => {
+  const production = createTemplateModule(
+    '<p vd-text="title"></p>',
+    {
+      filename: "page.html",
+      mode: "production"
+    }
+  );
+  const development = createTemplateModule(
+    '<p vd-text="title"></p>',
+    {
+      filename: "page.html",
+      mode: "development"
+    }
+  );
+
+  assert.doesNotMatch(production.code, /__vdMetadata/);
+  assert.match(production.code, /__vdManifest/);
+  assert.match(development.code, /__vdMetadata/);
+  assert.match(development.code, /__vdManifest/);
+});
+
+test("Vite template modules can explicitly control compiler artifacts", () => {
+  const module = createTemplateModule(
+    '<p vd-text="title"></p>',
+    {
+      emitManifest: false,
+      emitMetadata: true,
+      mode: "production"
+    }
+  );
+
+  assert.match(module.code, /__vdMetadata/);
+  assert.doesNotMatch(module.code, /__vdManifest/);
 });

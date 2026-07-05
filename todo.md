@@ -9,6 +9,18 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ---
 
+## Progress Counter
+
+**158 of 231 tasks completed — 68.4%**
+
+`██████████████░░░░░░`
+
+Remaining tasks: **73**
+
+Update this counter whenever checklist items are added or completed.
+
+---
+
 ## Phase 0: Compiler Foundation
 
 The compiler is the long-term architectural center of VeloDom. New template
@@ -32,7 +44,7 @@ runtime work.
 - [x] Generate serializable directive metadata
 - [x] Add development diagnostics with file and source locations
 - [x] Add production mode with diagnostics stripped
-- [ ] Define optimizer and tree-shaking extension points
+- [x] Define optimizer and tree-shaking extension points
 - [x] Add compiler tests for directives, nested HTML, comments, scripts, and quoted attributes
 
 ### 0.3 Vite Integration
@@ -339,6 +351,7 @@ and `src/api`.
 - [ ] Reduce unnecessary full-block updates where possible
 - [ ] Improve granular updates for large pages
 - [ ] Benchmark common UI cases
+- [ ] Split runtime directive features into manifest-selectable modules
 
 ---
 

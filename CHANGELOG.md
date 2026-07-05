@@ -49,6 +49,17 @@ package versions.
 - Completed error-system integration coverage for structured reports,
   fallback and parsed source locations, directive context, warning output,
   safe fatal-screen rendering, and duplicate-fatal suppression.
+- Added typed, synchronous compiler optimizer extension points with validated
+  output and named failure reporting.
+- Added deterministic directive/runtime feature manifests for future
+  feature-module tree-shaking.
+- Added a visible completed/total progress counter to `todo.md`.
+
+### Optimized
+
+- Production Vite template modules now omit development metadata by default.
+- Compiler optimizers receive full metadata before production-only metadata
+  fields are stripped.
 
 ### Fixed
 
@@ -71,7 +82,7 @@ package versions.
 ### Verification
 
 - TypeScript and ESLint checks pass.
-- `npm test`: 72 tests passing.
+- `npm test`: 77 tests passing.
 - `npm run build`: production build successful.
 - `npm audit`: zero known vulnerabilities.
 

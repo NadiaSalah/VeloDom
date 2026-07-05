@@ -154,3 +154,25 @@ export const VD_EXPRESSION = Object.freeze({
     "importScripts"
   ])
 });
+
+export const VD_COMPILER_FEATURES = Object.freeze({
+  BINDINGS: "bindings",
+  COMPONENTS: "components",
+  CONDITIONALS: "conditionals",
+  EVENTS: "events",
+  LOOPS: "loops",
+  MODEL: "model",
+  NAVIGATION: "navigation",
+  REFS: "refs",
+  REQUESTS: "requests",
+  SLOTS: "slots",
+  TEXT: "text",
+  VISIBILITY: "visibility"
+});
+
+export const VD_COMPILER_OPTIMIZER_RESULT_KEYS = Object.freeze([
+  "html",
+  "ast",
+  "metadata",
+  "diagnostics"
+]);

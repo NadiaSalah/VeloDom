@@ -54,6 +54,15 @@
   both before rerender and during parent teardown.
 - Explicit request loading/error paths inherit the destination of the resolved
   result binding. A local result name must never be reinterpreted as a page.
+- Compiler optimizers are synchronous and run after parse/validation. They may
+  return only HTML, AST, metadata, or diagnostic patches; the compiler
+  validates each result before the next optimizer runs.
+- Every template compile result includes a conservative runtime feature
+  manifest. Optimizers can add custom features, while changes to directive
+  metadata automatically rebuild the built-in feature list.
+- Production template modules omit development metadata unless explicitly
+  requested. The named manifest export is available for build integrations and
+  remains tree-shakeable when consumers import only template HTML.
 
 ## Known Constraints
 
@@ -62,7 +71,8 @@
 - Some internal migration boundaries intentionally use permissive types while
   public contracts are explicit; tighten these incrementally without changing
   the JavaScript API.
-- Compiler optimization and tree-shaking extension points are not designed yet.
+- Runtime directive handlers are not split into manifest-selected modules yet;
+  the compiler/build extension contract now exists for that next optimization.
 - Adapter/user-file source maps still need broader build-tool integration
   coverage beyond runtime stack-location parsing.
 - The showcase still needs reusable form and error-display components before

@@ -6,6 +6,32 @@ import {
   ExpressionSyntaxError,
   parseExpression
 } from "../expression/parser.ts";
+import { runTemplateOptimizers } from "./optimizer.ts";
+import type {
+  CompilerOptions,
+  DirectiveMetadata,
+  TemplateAst
+} from "./types.ts";
+
+export {
+  createRuntimeFeatureManifest,
+  defineTemplateOptimizer,
+  runTemplateOptimizers
+} from "./optimizer.ts";
+
+export type {
+  CompilerDiagnostic,
+  CompilerMode,
+  CompilerOptions,
+  DirectiveMetadata,
+  RuntimeFeatureManifest,
+  SourceLocation,
+  TemplateAst,
+  TemplateCompileResult,
+  TemplateOptimizer,
+  TemplateOptimizerContext,
+  TemplateOptimizerResult
+} from "./types.ts";
 
 const EXPRESSION_DIRECTIVES = new Set([
   "data-vd-alt",
@@ -26,11 +52,6 @@ const EXPRESSION_DIRECTIVES = new Set([
   "data-vd-value"
 ]);
 
-export interface CompilerOptions {
-  filename?: string;
-  mode?: "development" | "production";
-}
-
 export function compileTemplate(
   source: string,
   options: CompilerOptions = {}
@@ -43,7 +64,7 @@ export function compileTemplate(
   const mode = options.mode || "development";
   const diagnostics = [];
   const metadata = [];
-  const ast = {
+  const ast: TemplateAst = {
     type: "Template",
     filename,
     children: []
@@ -130,13 +151,26 @@ export function compileTemplate(
     }
   }
 
-  return {
+  const result = runTemplateOptimizers({
     html: output,
     ast,
-    metadata: mode === "production"
-      ? metadata.map(stripDevelopmentMetadata)
-      : metadata,
+    metadata,
     diagnostics
+  }, {
+    filename,
+    mode,
+    source
+  }, options.optimizers);
+
+  if (mode !== "production") {
+    return result;
+  }
+
+  return {
+    ...result,
+    metadata: result.metadata.map(
+      stripDevelopmentMetadata
+    ) as DirectiveMetadata[]
   };
 }
 
