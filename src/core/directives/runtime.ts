@@ -16,6 +16,7 @@ export type DirectiveRoot = ParentNode & {
 /** Reactive state shape required by directive feature modules. */
 export type DirectiveState = Record<string, unknown> & {
   _subscribe(callback: () => void): () => void;
+  _notify(): void;
 };
 
 /** Shared page/component context passed to directive features. */

@@ -16,43 +16,55 @@ import { reportUserActionError } from "../errors/error-reporter.ts";
 import { evaluateExpression } from "../expression/index.ts";
 import { findProtectedStatePathKey } from "../shared/path.ts";
 
+type ExpressionState = Record<string, unknown> & {
+  _subscribe(callback: () => void): () => void;
+  _notify(): void;
+};
+
+interface ExpressionEvaluationMeta {
+  directive?: string;
+}
+
 /** Creates a loop-local scope that inherits from parent reactive state. */
-export function createScope(parent, locals) {
+export function createScope(
+  parent: ExpressionState,
+  locals: Record<string, unknown>
+): ExpressionState {
   return new Proxy(locals, {
     get(target, key) {
       if (key === "_subscribe") return parent._subscribe;
       if (key === "_notify") return parent._notify;
-      if (key in target) return target[key];
+      if (key in target) return Reflect.get(target, key);
 
-      return parent[key];
+      return Reflect.get(parent, key);
     },
 
     set(target, key, value) {
       if (key in target) {
-        target[key] = value;
+        Reflect.set(target, key, value);
         parent._notify();
         return true;
       }
 
-      parent[key] = value;
+      Reflect.set(parent, key, value);
       return true;
     },
 
     has(target, key) {
       return key in target || key in parent;
     }
-  });
+  }) as ExpressionState;
 }
 
 /** Evaluates a directive expression and reports structured failures. */
 export function evaluate(
-  expression,
-  state,
-  event = null,
-  el = null,
-  props = {},
-  meta: any = {}
-) {
+  expression: string,
+  state: ExpressionState,
+  event: Event | null = null,
+  el: Element | null = null,
+  props: Record<string, unknown> = {},
+  meta: ExpressionEvaluationMeta = {}
+): unknown {
   try {
     return evaluateExpression(expression, {
       state,
@@ -75,18 +87,29 @@ export function evaluate(
 }
 
 /** Reads a nested value from application state. */
-export function readValue(path, state) {
+export function readValue(
+  path: unknown,
+  state: ExpressionState
+): unknown {
   const normalizedPath = resolvePathKeys(path, state);
 
   if (!normalizedPath) return undefined;
 
   return normalizedPath
     .split(".")
-    .reduce((value, key) => value?.[key], state);
+    .reduce<unknown>((value, key) => (
+      value && typeof value === "object"
+        ? (value as Record<string, unknown>)[key]
+        : undefined
+    ), state);
 }
 
 /** Writes a nested state value after validating the path and target. */
-export function writeValue(path, state, value) {
+export function writeValue(
+  path: unknown,
+  state: ExpressionState,
+  value: unknown
+) {
   const protectedKey = findProtectedStatePathKey(path);
 
   if (protectedKey) {
@@ -139,16 +162,26 @@ export function writeValue(path, state, value) {
     return;
   }
 
-  target[last] = value;
+  (target as Record<string, unknown>)[last] = value;
   state._notify();
 }
 
 /** Returns whether a value can be consumed by vd-for. */
-export function isIterable(value) {
-  return Boolean(value && typeof value[Symbol.iterator] === "function");
+export function isIterable(value: unknown): value is Iterable<unknown> {
+  const candidate = value as {
+    [Symbol.iterator]?: unknown;
+  } | null;
+
+  return Boolean(
+    candidate
+    && typeof candidate[Symbol.iterator] === "function"
+  );
 }
 
-function resolvePathKeys(path, state) {
+function resolvePathKeys(
+  path: unknown,
+  state: ExpressionState
+) {
   const cleaned = String(path || "")
     .trim()
     .replace(/\[(\w+)\]/g, ".$1")

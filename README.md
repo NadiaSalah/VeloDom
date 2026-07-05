@@ -24,12 +24,13 @@ The repository now includes:
 - Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
 - real DOM integration tests for directives, components, navigation, and requests
 
-Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 80 tests
-pass, declarations are generated, the Vite production build completes, and
-`npm audit` reports zero known vulnerabilities.
+Latest local verification on 2026-07-06: TypeScript and ESLint checks pass, 80
+tests pass, declarations are generated, and the Vite production build
+completes. The last dependency audit on 2026-07-05 reported zero known
+vulnerabilities.
 
-Remaining dynamic orchestrator typing and package publishing boundaries remain
-roadmap work.
+All explicit `any` annotations have been removed from framework Core. Package
+publishing boundaries remain roadmap work.
 
 ## Technologies
 
@@ -240,12 +241,13 @@ reactive state helpers, lifecycle, plugins, HTTP options, expression tokens,
 and error reporting have explicit types. TypeScript consumers narrow genuinely
 dynamic values while JavaScript consumers keep the same runtime API.
 
-The type-hardening work reduced explicit internal `any` annotations from 62 to
-18 after the directive split. ESLint
-enforces `no-explicit-any` on every migrated boundary so later work cannot
-silently weaken them. The remaining annotations are isolated in the highly
-dynamic mount, page, and request orchestrators and are tracked
-separately in `todo.md`.
+The type-hardening work removed all explicit `any` annotations from
+`src/core`. Dynamic mount, page, expression, middleware, and request
+orchestrators now use focused context interfaces, `unknown`, DOM contracts, and
+generic cleanup types. ESLint enforces `no-explicit-any` across every Core
+TypeScript file so later work cannot silently weaken these boundaries. Generated
+declarations for the public package surface and the migrated orchestrators no
+longer expose `any`; JSON response payloads are intentionally `unknown`.
 
 Type checking also exposed and corrected a declaration mismatch:
 `app.navigate(path, pagePath?)` now matches the existing runtime implementation;
@@ -799,10 +801,9 @@ Files such as `page-router.ts`, `mount.ts`, and `request-router.ts` are internal
 
 See [todo.md](todo.md). The next architectural priorities are:
 
-1. type the remaining dynamic runtime orchestrators
-2. package publishing boundaries and semantic versioning rules
-3. add a minimal external package-consumer example
-4. CLI scaffolding
+1. package publishing boundaries and semantic versioning rules
+2. add a minimal external package-consumer example
+3. CLI scaffolding
 
 ## Development Handoff
 
@@ -863,6 +864,13 @@ The type-hardening step replaced broad public/internal `any` contracts with
 framework boundaries. ESLint now rejects new explicit `any` in migrated files.
 `ApiErrorOptions`, `JsonRequestOptions`, and `UnknownRecord` are exported public
 types, and the `navigate` declaration now matches runtime behavior.
+
+The orchestrator-typing step removed the remaining explicit `any` annotations
+from component mounting, page routing, directive expressions, middleware, and
+request coordination. `no-explicit-any` now guards all of `src/core`, while the
+Vanilla JavaScript and TypeScript application APIs remain unchanged. Public and
+migrated-orchestrator declarations were also checked to prevent inferred `any`
+from leaking through generated types.
 
 The runtime-splitting step moved directive behaviors into lazy feature modules,
 extended page/component resource groups with compiled manifests, and made both

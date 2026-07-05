@@ -14,16 +14,54 @@ import {
   normalizeFolderPath
 } from "../shared/path.ts";
 
+type RequestBindingState = Record<string, unknown> & {
+  __vdPageName?: string;
+  $allowExternalWrite?: string[];
+};
+
+interface RequestBindingContext {
+  page?: string;
+  getPageState?: (pageName: string) => RequestBindingState;
+  hasPage?: (pageName: string) => boolean;
+}
+
+interface RequestBindingProblemOptions {
+  title?: string;
+  directive?: string;
+  expression?: unknown;
+  hint?: string;
+}
+
+interface RequestBindingMeta {
+  directive?: string;
+  ownerState?: RequestBindingState;
+  el?: Element;
+  routeName?: string;
+  report?: (
+    state: RequestBindingState | undefined,
+    el: Element | undefined,
+    routeName: string | undefined,
+    error: unknown,
+    options: RequestBindingProblemOptions
+  ) => null;
+}
+
+interface RequestBinding {
+  state: RequestBindingState | null;
+  path: string;
+  pageName: string;
+}
+
 /** Resolves one declarative request binding to state, path, and page owner. */
 export function resolveRequestBinding(
-  targetAttr,
-  pathAttr,
-  valueAttr,
-  currentState,
-  context,
-  directive,
-  meta: any = {}
-) {
+  targetAttr: unknown,
+  pathAttr: unknown,
+  valueAttr: unknown,
+  currentState: RequestBindingState,
+  context: RequestBindingContext,
+  directive: string,
+  meta: RequestBindingMeta = {}
+): RequestBinding | null {
   const rawTarget = String(targetAttr || "").trim();
   const rawPath = String(pathAttr || "").trim();
   const rawValue = String(valueAttr || "").trim();
@@ -151,7 +189,10 @@ export function resolveRequestBinding(
 }
 
 /** Derives a Loading or Error path from a request result binding. */
-export function createAutoStatusBinding(targetBinding, kind) {
+export function createAutoStatusBinding(
+  targetBinding: RequestBinding | null | undefined,
+  kind: "loading" | "error"
+): RequestBinding {
   if (!targetBinding?.path) {
     return {
       state: targetBinding?.state || null,
@@ -169,11 +210,11 @@ export function createAutoStatusBinding(targetBinding, kind) {
 
 /** Validates protected keys and cross-page write allowlists. */
 export function validateRequestBindingAccess(
-  binding,
-  currentState,
-  context,
-  meta: any = {}
-) {
+  binding: RequestBinding | null | undefined,
+  currentState: RequestBindingState,
+  context: RequestBindingContext,
+  meta: RequestBindingMeta = {}
+): boolean | null {
   if (!binding?.path) return true;
 
   const protectedKey = findProtectedStatePathKey(binding.path);
@@ -250,7 +291,12 @@ export function validateRequestBindingAccess(
   return true;
 }
 
-function resolveRequestPageName(targetAttr, pathAttr, valueAttr, directive) {
+function resolveRequestPageName(
+  targetAttr: unknown,
+  pathAttr: unknown,
+  valueAttr: unknown,
+  directive: string
+) {
   const target = String(targetAttr || "").trim();
   const path = normalizeFolderPath(pathAttr);
   const hasStateName = Boolean(String(valueAttr || "").trim());
@@ -279,7 +325,7 @@ function resolveRequestPageName(targetAttr, pathAttr, valueAttr, directive) {
   return "";
 }
 
-function joinRequestPagePath(path, page) {
+function joinRequestPagePath(path: string, page: string) {
   const pageName = normalizeFolderPath(page);
 
   if (!path) return pageName;
@@ -288,7 +334,12 @@ function joinRequestPagePath(path, page) {
   return `${path}/${pageName}`;
 }
 
-function resolveAbsoluteBinding(binding, currentState, context, meta) {
+function resolveAbsoluteBinding(
+  binding: string,
+  currentState: RequestBindingState,
+  context: RequestBindingContext,
+  meta: RequestBindingMeta
+): RequestBinding | null {
   const parts = String(binding || "")
     .trim()
     .split(".")
@@ -328,7 +379,11 @@ function resolveAbsoluteBinding(binding, currentState, context, meta) {
   };
 }
 
-function getTargetPageState(pageName, currentState, context) {
+function getTargetPageState(
+  pageName: string,
+  currentState: RequestBindingState,
+  context: RequestBindingContext
+) {
   const normalized = String(pageName || "").trim();
 
   if (!normalized || normalized === context.page) {
@@ -338,7 +393,10 @@ function getTargetPageState(pageName, currentState, context) {
   return context.getPageState?.(normalized) || currentState;
 }
 
-function deriveRequestStatusPath(targetPath, kind) {
+function deriveRequestStatusPath(
+  targetPath: string,
+  kind: "loading" | "error"
+) {
   const segments = String(targetPath || "")
     .split(".")
     .filter(Boolean);
@@ -356,7 +414,11 @@ function deriveRequestStatusPath(targetPath, kind) {
   return segments.join(".");
 }
 
-function report(meta, error, options) {
+function report(
+  meta: RequestBindingMeta,
+  error: unknown,
+  options: RequestBindingProblemOptions
+): null {
   if (typeof meta.report !== "function") {
     return null;
   }

@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**163 of 235 tasks completed — 69.4%**
+**165 of 237 tasks completed — 69.6%**
 
 `██████████████░░░░░░`
 
@@ -65,6 +65,8 @@ runtime work.
 - [x] Keep JavaScript and TypeScript identical for application authors
 - [x] Add a typed application page using the same page lifecycle API
 - [x] Tighten permissive internal compatibility types incrementally
+- [x] Remove explicit `any` annotations from dynamic core orchestrators
+- [x] Enforce `no-explicit-any` across every TypeScript file in `src/core`
 
 ### 0.5 Code Quality
 

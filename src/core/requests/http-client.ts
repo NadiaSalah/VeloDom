@@ -59,7 +59,7 @@ export class ApiError extends Error {
 export async function requestJson(
   url: RequestInfo | URL,
   options: JsonRequestOptions = {}
-) {
+): Promise<unknown> {
   const requestUrl = getRequestUrl(url);
   const method = String(options.method || "GET").toUpperCase();
   const headers = {

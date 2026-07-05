@@ -13,13 +13,54 @@ import {
   VD_REQUEST
 } from "../constants.ts";
 import { isPlainObject } from "../shared/object.ts";
+import type {
+  MaybePromise,
+  RequestContext,
+  RequestMiddleware,
+  RouteHandler,
+  StateRecord
+} from "../types.ts";
+
+type MiddlewareMode = "transform" | "pipeline";
+
+interface DefineMiddlewareOptions {
+  mode?: MiddlewareMode;
+}
+
+interface ResolveMiddlewareOptions {
+  custom?: unknown;
+}
+
+interface ExecuteMiddlewareOptions {
+  middleware?: unknown[];
+  params?: unknown;
+  context?: RequestContext;
+  handler?: RouteHandler;
+}
+
+interface MiddlewareDescriptor {
+  name: string;
+  handler: RequestMiddleware;
+  mode: MiddlewareMode;
+}
+
+interface MiddlewareResolution {
+  value?: MiddlewareDescriptor[];
+  error?: string;
+  available?: string[];
+}
+
+interface MiddlewareRegistryResolution {
+  value?: Record<string, RequestMiddleware>;
+  error?: string;
+}
 
 /** Marks a middleware function with an explicit execution mode. */
 export function defineRequestMiddleware(
-  handler,
+  handler: RequestMiddleware,
   {
     mode = VD_MIDDLEWARE.MODES.TRANSFORM
-  } = {}
+  }: DefineMiddlewareOptions = {}
 ) {
   if (typeof handler !== "function") {
     throw new TypeError("Middleware handler must be a function");
@@ -40,7 +81,12 @@ export function defineRequestMiddleware(
 }
 
 /** Resolves middleware names/functions against trusted registries. */
-export function resolveRequestMiddleware(entries = [], { custom = {} } = {}) {
+export function resolveRequestMiddleware(
+  entries: unknown = [],
+  {
+    custom = {}
+  }: ResolveMiddlewareOptions = {}
+): MiddlewareResolution {
   if (!Array.isArray(entries)) {
     return {
       error: "middleware must be an array"
@@ -50,10 +96,13 @@ export function resolveRequestMiddleware(entries = [], { custom = {} } = {}) {
   const registry = normalizeMiddlewareRegistry(custom);
 
   if (registry.error) {
-    return registry;
+    return {
+      error: registry.error
+    };
   }
 
-  const resolved = [];
+  const resolved: MiddlewareDescriptor[] = [];
+  const handlers = registry.value || {};
 
   for (const entry of entries) {
     if (typeof entry === "function") {
@@ -67,20 +116,20 @@ export function resolveRequestMiddleware(entries = [], { custom = {} } = {}) {
     if (typeof entry !== "string" || !entry.trim()) {
       return {
         error: "middleware entries must be non-empty strings or functions",
-        available: listMiddlewareNames(registry.value)
+        available: listMiddlewareNames(handlers)
       };
     }
 
     const name = normalizeMiddlewareName(entry);
 
-    if (!name || !Object.hasOwn(registry.value, name)) {
+    if (!name || !Object.hasOwn(handlers, name)) {
       return {
         error: `unknown middleware "${entry.trim()}"`,
-        available: listMiddlewareNames(registry.value)
+        available: listMiddlewareNames(handlers)
       };
     }
 
-    resolved.push(createMiddlewareDescriptor(name, registry.value[name]));
+    resolved.push(createMiddlewareDescriptor(name, handlers[name]));
   }
 
   return {
@@ -94,7 +143,10 @@ export async function executeRequestMiddleware({
   params = {},
   context = {},
   handler
-}: any = {}) {
+}: ExecuteMiddlewareOptions = {}): Promise<{
+  result: unknown;
+  params: StateRecord;
+}> {
   if (typeof handler !== "function") {
     throw createMiddlewareError(
       "Request middleware pipeline is missing a route handler"
@@ -107,7 +159,10 @@ export async function executeRequestMiddleware({
 
   let effectiveParams = { ...params };
 
-  async function dispatch(index, currentParams) {
+  async function dispatch(
+    index: number,
+    currentParams: StateRecord
+  ): Promise<unknown> {
     if (index >= middleware.length) {
       effectiveParams = { ...currentParams };
       return handler(effectiveParams, context);
@@ -137,9 +192,11 @@ export async function executeRequestMiddleware({
     }
 
     let nextCalled = false;
-    let downstream;
+    let downstream: Promise<unknown> | undefined;
 
-    const next = (updatedParams = nextParams) => {
+    const next = (
+      updatedParams: StateRecord = nextParams
+    ): Promise<unknown> => {
       if (nextCalled) {
         throw createMiddlewareError(
           `Middleware "${descriptor.name}" called next() more than once`
@@ -188,7 +245,9 @@ export async function executeRequestMiddleware({
   };
 }
 
-function normalizeMiddlewareRegistry(registry) {
+function normalizeMiddlewareRegistry(
+  registry: unknown
+): MiddlewareRegistryResolution {
   if (!isPlainObject(registry)) {
     return {
       error: "application middleware registry must be a plain object"
@@ -204,7 +263,7 @@ function normalizeMiddlewareRegistry(registry) {
   }
 
   return {
-    value: registry
+    value: registry as Record<string, RequestMiddleware>
   };
 }
 
@@ -225,33 +284,49 @@ function normalizeMiddlewareName(value) {
   return reference.slice(separatorIndex + 1).trim();
 }
 
-function listMiddlewareNames(registry) {
+function listMiddlewareNames(
+  registry: Record<string, RequestMiddleware>
+) {
   return Object.keys(registry).sort();
 }
 
-function createMiddlewareDescriptor(name, handler) {
+function createMiddlewareDescriptor(
+  name: string,
+  handler: RequestMiddleware
+): MiddlewareDescriptor {
+  const markedHandler = handler as RequestMiddleware & {
+    [VD_MIDDLEWARE.MODE]?: MiddlewareMode;
+  };
+
   return {
     name,
     handler,
-    mode: handler[VD_MIDDLEWARE.MODE] || VD_MIDDLEWARE.MODES.TRANSFORM
+    mode: markedHandler[VD_MIDDLEWARE.MODE]
+      || VD_MIDDLEWARE.MODES.TRANSFORM
   };
 }
 
-function normalizeMiddlewareDescriptor(entry, index) {
+function normalizeMiddlewareDescriptor(
+  entry: unknown,
+  index: number
+): MiddlewareDescriptor {
   if (typeof entry === "function") {
     return createMiddlewareDescriptor(
       entry.name || `middleware${index + 1}`,
-      entry
+      entry as RequestMiddleware
     );
   }
 
   if (
     entry
     && typeof entry === "object"
+    && "handler" in entry
     && typeof entry.handler === "function"
-    && Object.values(VD_MIDDLEWARE.MODES).includes(entry.mode)
+    && "mode" in entry
+    && typeof entry.mode === "string"
+    && (Object.values(VD_MIDDLEWARE.MODES) as string[]).includes(entry.mode)
   ) {
-    return entry;
+    return entry as unknown as MiddlewareDescriptor;
   }
 
   throw createMiddlewareError(
@@ -259,7 +334,10 @@ function normalizeMiddlewareDescriptor(entry, index) {
   );
 }
 
-async function callMiddleware(descriptor, callback) {
+async function callMiddleware<TResult>(
+  descriptor: MiddlewareDescriptor,
+  callback: () => MaybePromise<TResult>
+): Promise<TResult> {
   try {
     return await callback();
   } catch (error) {

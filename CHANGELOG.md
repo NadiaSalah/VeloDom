@@ -6,6 +6,19 @@ package versions.
 
 ## 2026-07-06
 
+### Type Safety
+
+- Removed the remaining explicit `any` annotations from component mounting,
+  page routing, directive expressions, middleware, and request coordination.
+- Added focused contracts for component page context, DOM cleanup ownership,
+  middleware resolution, request bindings, and request error metadata.
+- Expanded `@typescript-eslint/no-explicit-any` enforcement to every
+  TypeScript file under `src/core`.
+- Removed inferred `any` from generated declarations for the public package
+  surface and migrated orchestrators; JSON payloads now resolve as `unknown`.
+- Preserved the same runtime API for Vanilla JavaScript and TypeScript
+  application authors.
+
 ### Documentation
 
 - Added English responsibility headers to all 47 TypeScript files under
@@ -24,6 +37,8 @@ package versions.
 - Core documentation audit covers 47 files.
 - TypeScript, ESLint, all 80 tests, declaration generation, and the production
   build pass after the documentation update.
+- TypeScript, ESLint, and all 80 tests pass after the orchestrator typing
+  update.
 
 ## 2026-07-05
 

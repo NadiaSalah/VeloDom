@@ -49,7 +49,7 @@ export const VD = Object.freeze({
   COMPONENT_TAG_SELECTOR: "vd-component[name], component[name]",
   SLOT_TAG_SELECTOR: "vd-child, child, chiled",
 
-  selector(name) {
+  selector(name: string) {
     return `[${name}]`;
   }
 });

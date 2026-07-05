@@ -65,10 +65,13 @@
   page/component feature selection.
 - Public extensible records use `unknown`, requiring TypeScript consumers to
   narrow unmodelled values instead of receiving unsafe implicit `any`.
-- Migrated internal boundaries are protected by scoped
-  `@typescript-eslint/no-explicit-any`. The remaining dynamic annotations are
-  concentrated in mount/directive/page/request orchestration and should be
-  removed alongside focused context interfaces, not by blind replacement.
+- Every Core TypeScript file is protected by
+  `@typescript-eslint/no-explicit-any`. Dynamic mount, directive, page, and
+  request boundaries use focused context interfaces or `unknown` followed by
+  runtime validation.
+- Public package declarations and migrated orchestrator declarations must not
+  expose inferred `any`; unvalidated JSON payloads intentionally return
+  `unknown`.
 - The public navigation signature is `navigate(path, pagePath?)`, matching the
   folder-routing compatibility argument already implemented by the runtime.
 - Framework-owned TypeScript files require an English module header and
@@ -87,11 +90,9 @@
 
 - Assignments, declarations, arrow functions, nested template literals, and
   `new` are intentionally unsupported inside templates.
-- Some internal migration boundaries intentionally use permissive types while
-  public contracts are explicit; tighten these incrementally without changing
-  the JavaScript API.
-- Mount, page-router, and request-router orchestration still use a
-  small number of compatibility `any` annotations pending dedicated contracts.
+- TypeScript `noImplicitAny` is not yet enabled globally; older internal helper
+  parameters should be tightened incrementally without changing the JavaScript
+  API.
 - Adapter/user-file source maps still need broader build-tool integration
   coverage beyond runtime stack-location parsing.
 - The showcase still needs reusable form and error-display components before

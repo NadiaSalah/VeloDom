@@ -32,6 +32,19 @@ import {
 } from "./router.ts";
 import { validateResourceAdapter } from "./resource-adapter.ts";
 import { normalizeFolderPath } from "./shared/path.ts";
+import type {
+  RouterOptions,
+  StateRecord
+} from "./types.ts";
+
+interface PageRouter {
+  destroy(): Promise<void>;
+  init(): Promise<boolean | void>;
+  navigate(
+    path: string,
+    pagePath?: string
+  ): Promise<boolean | void> | undefined;
+}
 
 /**
  * Creates the browser page router from injected resource maps.
@@ -39,7 +52,10 @@ import { normalizeFolderPath } from "./shared/path.ts";
  * Architecture note: folder discovery remains in adapters; this module only
  * consumes validated logical page names and lazy loaders.
  */
-export function createPageRouter(adapter: any = {}, options: any = {}) {
+export function createPageRouter(
+  adapter: unknown = {},
+  options: RouterOptions = {}
+): PageRouter {
   const resources = validateResourceAdapter(adapter);
   const pageResources = resources.pages;
   const componentResources = resources.components;
@@ -65,11 +81,11 @@ export function createPageRouter(adapter: any = {}, options: any = {}) {
   let removeRouterListeners = null;
 
   async function load(
-    path,
+    path: string,
     pagePath = "",
     historyMode = "",
     redirectDepth = 0
-  ) {
+  ): Promise<boolean | void> {
     const route = pagePath
       ? createLegacyRoute(path, pagePath)
       : resolveRouteLocation(path, routeTable);
@@ -151,7 +167,7 @@ export function createPageRouter(adapter: any = {}, options: any = {}) {
       const lifecycle = createLifecycleScope(
         createPageContext(state, events, runtime, route)
       );
-      const ctx: any = lifecycle.context;
+      const ctx = lifecycle.context;
 
       attachEventApiToState(state, events);
 
@@ -238,7 +254,7 @@ export function createPageRouter(adapter: any = {}, options: any = {}) {
     }
   }
 
-  function navigate(path, pagePath = "") {
+  function navigate(path: string, pagePath = "") {
     if (!path || typeof path !== "string") {
       reportUserActionError("Missing navigation path", {
         title: "Invalid Navigation Path",
@@ -422,7 +438,7 @@ function getOrCreatePageState(pageName, runtime) {
   const key = normalizeFolderPath(pageName) || "home";
 
   if (!runtime.pageStateRegistry[key]) {
-    const defaults: any = {
+    const defaults: StateRecord = {
       __vdPageName: key,
       components: {}
     };

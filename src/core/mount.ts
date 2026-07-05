@@ -31,6 +31,43 @@ import { createLifecycleScope } from "./lifecycle.ts";
 import { evaluateExpression } from "./expression/index.ts";
 import { isPlainObject } from "./shared/object.ts";
 import { normalizeFolderPath } from "./shared/path.ts";
+import type { RuntimeFeatureManifest } from "./compiler/types.ts";
+import type {
+  ReactiveStateMethods
+} from "./reactive.ts";
+import type {
+  ValidatedResourceGroup
+} from "./resource-adapter.ts";
+import type {
+  RouteLocation,
+  StateRecord,
+  UnknownRecord
+} from "./types.ts";
+
+type ComponentCleanup = () => unknown | Promise<unknown>;
+type ComponentState = StateRecord & ReactiveStateMethods;
+type ComponentRoot = ParentNode & {
+  matches?(selector: string): boolean;
+  __vdCleanup?: ComponentCleanup;
+};
+type ComponentElement = HTMLElement & {
+  __vdCleanup?: ComponentCleanup;
+};
+
+interface ComponentPageContext {
+  page?: string;
+  route?: RouteLocation | null;
+  params?: Record<string, string>;
+  query?: Record<string, string | string[]>;
+  meta?: UnknownRecord;
+  components?: UnknownRecord;
+  getPageState?: (pageName: string) => ComponentState;
+  hasPage?: (pageName: string) => boolean;
+  emit?: (...args: unknown[]) => unknown;
+  on?: (...args: unknown[]) => unknown;
+  off?: (...args: unknown[]) => unknown;
+  once?: (...args: unknown[]) => unknown;
+}
 
 const loaded = new WeakSet();
 
@@ -41,12 +78,12 @@ const loaded = new WeakSet();
  * this runtime independent from Vite and application folder discovery.
  */
 export async function mount(
-  root: any = document,
-  parentState: any = null,
+  root: ComponentRoot = document,
+  parentState: ComponentState | null = null,
   ancestry: string[] = [],
-  pageCtx: any = null,
-  resources: any = {}
-) {
+  pageCtx: ComponentPageContext | null = null,
+  resources: Partial<ValidatedResourceGroup> = {}
+): Promise<ComponentCleanup> {
 
   normalizeTemplateSyntax(root);
 
@@ -211,7 +248,9 @@ export async function mount(
   };
 }
 
-function shouldMountChildren(manifest) {
+function shouldMountChildren(
+  manifest: RuntimeFeatureManifest | null | undefined
+) {
   return !manifest || manifest.features.includes(
     VD_COMPILER_FEATURES.COMPONENTS
   );
@@ -498,8 +537,8 @@ function isCustomSlotTag(node) {
 }
 
 /** Disposes every component cleanup callback attached to a DOM subtree. */
-export async function disposeTree(root: any) {
-  const callbacks = new Set<() => unknown | Promise<unknown>>();
+export async function disposeTree(root: ComponentRoot | null) {
+  const callbacks = new Set<ComponentCleanup>();
 
   if (typeof root?.[VD_INTERNAL.CLEANUP_KEY] === "function") {
     callbacks.add(root[VD_INTERNAL.CLEANUP_KEY]);
@@ -507,8 +546,10 @@ export async function disposeTree(root: any) {
 
   root?.querySelectorAll?.("*")
     .forEach(node => {
-      if (typeof node[VD_INTERNAL.CLEANUP_KEY] === "function") {
-        callbacks.add(node[VD_INTERNAL.CLEANUP_KEY]);
+      const owner = node as ComponentElement;
+
+      if (typeof owner[VD_INTERNAL.CLEANUP_KEY] === "function") {
+        callbacks.add(owner[VD_INTERNAL.CLEANUP_KEY]);
       }
     });
 
@@ -517,7 +558,7 @@ export async function disposeTree(root: any) {
   }
 }
 
-function once(fn: (...args: any[]) => any) {
+function once<TResult>(fn: () => TResult) {
   let called = false;
 
   return () => {

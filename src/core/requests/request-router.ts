@@ -30,6 +30,53 @@ import {
   resolveRequestBinding,
   validateRequestBindingAccess
 } from "./request-bindings.ts";
+import type {
+  ErrorReportOptions
+} from "../errors/error-reporter.ts";
+import type {
+  RequestContext
+} from "../types.ts";
+import type {
+  DirectiveCleanup,
+  DirectiveRoot,
+  DirectiveRuntimeContext,
+  DirectiveState
+} from "../directives/runtime.ts";
+
+interface RequestProblemOptions extends ErrorReportOptions {
+  stage?: string;
+  code?: string;
+}
+
+interface RequestRuntimeOptions {
+  routes?: unknown;
+  middleware?: unknown;
+  auth?: unknown;
+}
+
+interface RequestDirectiveState extends DirectiveState {
+  emit?: (eventName: string, payload: unknown) => unknown;
+}
+
+interface RequestDirectiveHelpers {
+  findAll(root: DirectiveRoot, name: string): Element[];
+  isInsideForTemplate(el: Element): boolean;
+  evaluate(
+    expression: string,
+    state: RequestDirectiveState,
+    event?: Event | null,
+    el?: Element | null,
+    props?: Record<string, unknown>,
+    meta?: {
+      directive?: string;
+    }
+  ): unknown;
+  writeValue(
+    path: unknown,
+    state: RequestDirectiveState,
+    value: unknown
+  ): void;
+}
 
 const activeRequests = new WeakMap();
 const activeTargetRequests = new WeakMap();
@@ -42,7 +89,7 @@ export function configureRequestRuntime({
   routes = {},
   middleware = {},
   auth = {}
-} = {}) {
+}: RequestRuntimeOptions = {}) {
   if (!isPlainObject(routes)) {
     throw new TypeError("VeloDom routes must be a plain object");
   }
@@ -57,7 +104,13 @@ export function configureRequestRuntime({
 }
 
 /** Attaches request click/submit listeners beneath a directive root. */
-export function applyRequests(root, state, cleanups, context, helpers) {
+export function applyRequests(
+  root: DirectiveRoot,
+  state: RequestDirectiveState,
+  cleanups: DirectiveCleanup[],
+  context: DirectiveRuntimeContext,
+  helpers: RequestDirectiveHelpers
+) {
   const {
     findAll,
     isInsideForTemplate,
@@ -668,7 +721,7 @@ function normalizeRouteMiddleware(value, routeName, state, el) {
     return [];
   }
 
-  const resolved: any = resolveRequestMiddleware(value, {
+  const resolved = resolveRequestMiddleware(value, {
     custom: appRequestMiddleware
   });
 
@@ -725,7 +778,13 @@ async function authorizeRouteRequest(routeConfig, context) {
   return session;
 }
 
-function reportRequestDirectiveProblem(state, el, routeName, error, options: any = {}) {
+function reportRequestDirectiveProblem(
+  state,
+  el,
+  routeName,
+  error,
+  options: RequestProblemOptions = {}
+) {
   const problem = error instanceof Error
     ? error
     : new Error(String(error || "Invalid request configuration"));
@@ -786,6 +845,10 @@ function listApiRoutes() {
   return Object.keys(apiRoutes || {});
 }
 
-function callApiRoute(routeConfig, params = {}, context: any = {}) {
+function callApiRoute(
+  routeConfig,
+  params = {},
+  context: RequestContext = {}
+) {
   return routeConfig.handler(params, context);
 }
