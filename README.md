@@ -23,12 +23,12 @@ The repository now includes:
 - Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
 - real DOM integration tests for directives, components, navigation, and requests
 
-Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 61 tests
+Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 67 tests
 pass, declarations are generated, the Vite production build completes, and
 `npm audit` reports zero known vulnerabilities.
 
 Optimizer hooks, stricter internal typing, tree-shaking extension points, and
-the remaining request/error integration cases remain roadmap work.
+the remaining structured/fatal error integration cases remain roadmap work.
 
 ## Technologies
 
@@ -525,6 +525,8 @@ system rather than isolated fake elements. It currently verifies:
   inheritance, local overrides, and lifecycle teardown
 - page navigation, dynamic route context, page-state persistence, and cleanup
 - request result/loading/error writes, success events, and abort-on-unmount
+- request-config/request-state automation, explicit cross-page state writes,
+  allowlist enforcement, invalid configuration, and request error events
 
 `happy-dom` is a test-only dependency and is not included in application
 runtime bundles.
@@ -674,7 +676,7 @@ Files such as `page-router.ts`, `mount.ts`, and `request-router.ts` are internal
 See [todo.md](todo.md). The next architectural priorities are:
 
 1. optimizer and tree-shaking extension points
-2. remaining request-config, request-state, error, and fatal-screen tests
+2. structured runtime error and fatal-screen integration tests
 3. stricter internal types with fewer compatibility `any` boundaries
 4. package publishing boundaries and CLI scaffolding
 
@@ -714,6 +716,12 @@ The current integration milestone changed:
 The integration tests exposed both runtime fixes above. Vite was also upgraded
 from the vulnerable 8.0.x range after an npm security audit; no automated
 major-version migration or external push was performed.
+
+The latest request-hardening step added
+`test/integration/request-directives.test.js`. It verifies declarative request
+config, automatic status names, explicit cross-page bindings, page allowlists,
+blocked writes, request failures, and invalid configuration. No core behavior
+change was required by this step.
 
 Important decisions and deferred technical work are recorded in
 [NOTES.md](NOTES.md). Milestone history is recorded in

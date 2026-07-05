@@ -63,8 +63,8 @@
   public contracts are explicit; tighten these incrementally without changing
   the JavaScript API.
 - Compiler optimization and tree-shaking extension points are not designed yet.
-- Request-config/request-state, request error, and fatal-screen DOM paths still
-  need dedicated integration coverage.
+- Structured error formatting, source locations, directive-specific messages,
+  and fatal-screen DOM behavior still need dedicated integration coverage.
 - The showcase still needs reusable form and error-display components before
   every Phase H item can be marked complete.
 

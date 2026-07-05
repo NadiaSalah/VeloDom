@@ -162,7 +162,7 @@ different kinds of websites, while keeping application code outside `src/core`.
 
 - [x] Remove remaining application assumptions from core errors and hints
 - [ ] Add source-aware errors for adapters and user files
-- [ ] Complete router, component, directive, request, and lifecycle tests
+- [x] Complete router, component, directive, request, and lifecycle tests
 - [ ] Add package exports and semantic versioning rules
 - [ ] Add a minimal package-consumer example
 - [ ] Benchmark common page and loop rendering cases
@@ -225,19 +225,19 @@ and `src/api`.
 ### 3. Request System Stability
 
 - [x] Add tests for `data-vd-request`
-- [ ] Add tests for `data-vd-request-config`
-- [ ] Add tests for `data-vd-request-state`
-- [ ] Add tests for explicit `state` together with `params`, `target`, `loading`, and `error`
+- [x] Add tests for `data-vd-request-config`
+- [x] Add tests for `data-vd-request-state`
+- [x] Add tests for explicit `state` together with `params`, `target`, `loading`, and `error`
 - [x] Add tests for explicit `params`, `target`, `loading`, and `error`
 - [x] Add tests for current-page request writes
-- [ ] Add tests for cross-page request writes
-- [ ] Add tests for blocked external writes
-- [ ] Add tests for page config `allowExternalWrite`
+- [x] Add tests for cross-page request writes
+- [x] Add tests for blocked external writes
+- [x] Add tests for page config `allowExternalWrite`
 - [x] Add tests for request auth modes
 - [x] Add tests for application middleware resolution
 - [x] Add tests for middleware params transforms
 - [x] Add tests for advanced middleware using `next()`
-- [ ] Add tests for request error events
+- [x] Add tests for request error events
 - [x] Add tests for request success events
 
 ### 4. Error System
@@ -246,8 +246,8 @@ and `src/api`.
 - [ ] Add tests for file/line/column reporting
 - [ ] Add tests for directive-specific error messages
 - [ ] Add tests for fatal error screen behavior
-- [ ] Add tests for invalid request config reporting
-- [ ] Add tests for invalid external write reporting
+- [x] Add tests for invalid request config reporting
+- [x] Add tests for invalid external write reporting
 
 ### 5. Naming and API Freeze
 

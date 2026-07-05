@@ -43,6 +43,9 @@ package versions.
   behavior, loop rerendering, component props/slots/refs/expose, grouped refs,
   state inheritance, page navigation, persistence, requests, and teardown.
 - Added direct event-hub coverage for `on`, `off`, `once`, `emit`, and `clear`.
+- Completed request-directive integration coverage for request config, request
+  state automation, explicit bindings, cross-page allowlists, blocked writes,
+  invalid configuration, success/error events, and cancellation.
 
 ### Fixed
 
@@ -65,7 +68,7 @@ package versions.
 ### Verification
 
 - TypeScript and ESLint checks pass.
-- `npm test`: 61 tests passing.
+- `npm test`: 67 tests passing.
 - `npm run build`: production build successful.
 - `npm audit`: zero known vulnerabilities.
 
