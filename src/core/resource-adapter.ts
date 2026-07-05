@@ -1,6 +1,30 @@
 import { isPlainObject } from "./shared/object.ts";
+import type {
+  PageConfig,
+  ResourceLoader,
+  UnknownRecord
+} from "./types.ts";
 
-export function validateResourceAdapter(adapter: any) {
+interface ResourceGroupValidationOptions {
+  allowConfigs: boolean;
+  requireHtml: boolean;
+}
+
+export interface ValidatedResourceGroup {
+  html: Record<string, ResourceLoader<string>>;
+  modules: Record<string, ResourceLoader<UnknownRecord>>;
+  styles: Record<string, ResourceLoader<string>>;
+  configs: Record<string, PageConfig>;
+}
+
+export interface ValidatedResourceAdapter {
+  pages: ValidatedResourceGroup;
+  components: ValidatedResourceGroup;
+}
+
+export function validateResourceAdapter(
+  adapter: unknown
+): ValidatedResourceAdapter {
   if (!isPlainObject(adapter)) {
     throw createAdapterError(
       "VeloDom requires a resource adapter",
@@ -27,7 +51,11 @@ export function validateResourceAdapter(adapter: any) {
   };
 }
 
-function validateResourceGroup(value, label, options: any) {
+function validateResourceGroup(
+  value: unknown,
+  label: string,
+  options: ResourceGroupValidationOptions
+): ValidatedResourceGroup {
   if (!isPlainObject(value)) {
     throw createAdapterError(
       `Adapter "${label}" resources must be an object`,
@@ -35,9 +63,18 @@ function validateResourceGroup(value, label, options: any) {
     );
   }
 
-  const html = validateLoaderMap(value.html || {}, `${label}.html`);
-  const modules = validateLoaderMap(value.modules || {}, `${label}.modules`);
-  const styles = validateLoaderMap(value.styles || {}, `${label}.styles`);
+  const html = validateLoaderMap<string>(
+    value.html || {},
+    `${label}.html`
+  );
+  const modules = validateLoaderMap<UnknownRecord>(
+    value.modules || {},
+    `${label}.modules`
+  );
+  const styles = validateLoaderMap<string>(
+    value.styles || {},
+    `${label}.styles`
+  );
   const configs = options.allowConfigs
     ? validateConfigMap(value.configs || {}, `${label}.configs`)
     : Object.create(null);
@@ -57,7 +94,10 @@ function validateResourceGroup(value, label, options: any) {
   };
 }
 
-function validateLoaderMap(value, label) {
+function validateLoaderMap<T>(
+  value: unknown,
+  label: string
+): Record<string, ResourceLoader<T>> {
   if (!isPlainObject(value)) {
     throw createAdapterError(
       `Adapter resource map "${label}" must be an object`,
@@ -74,10 +114,13 @@ function validateLoaderMap(value, label) {
     }
   });
 
-  return value;
+  return value as Record<string, ResourceLoader<T>>;
 }
 
-function validateConfigMap(value, label) {
+function validateConfigMap(
+  value: unknown,
+  label: string
+): Record<string, PageConfig> {
   if (!isPlainObject(value)) {
     throw createAdapterError(
       `Adapter resource map "${label}" must be an object`,
@@ -94,10 +137,10 @@ function validateConfigMap(value, label) {
     }
   });
 
-  return value;
+  return value as Record<string, PageConfig>;
 }
 
-function createAdapterError(message, hint) {
+function createAdapterError(message: string, hint: string) {
   const error = new Error(message);
   error.code = "VD_INVALID_ADAPTER";
   error.__vdStage = "adapter";

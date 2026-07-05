@@ -1,16 +1,34 @@
+import { isPlainObject } from "../shared/object.ts";
+
+export interface ApiErrorOptions {
+  status?: number;
+  url?: string;
+  body?: unknown;
+  cause?: unknown;
+}
+
+export interface JsonRequestOptions extends Omit<
+  RequestInit,
+  "body" | "headers" | "method"
+> {
+  method?: string;
+  headers?: Record<string, string>;
+  body?: unknown;
+}
+
 export class ApiError extends Error {
   status: number;
   url: string;
   body: unknown;
 
   constructor(
-    message,
+    message: string,
     {
       status = 0,
       url = "",
       body = null,
       cause
-    }: any = {}
+    }: ApiErrorOptions = {}
   ) {
     super(message);
     this.name = "ApiError";
@@ -24,7 +42,11 @@ export class ApiError extends Error {
   }
 }
 
-export async function requestJson(url, options: any = {}) {
+export async function requestJson(
+  url: RequestInfo | URL,
+  options: JsonRequestOptions = {}
+) {
+  const requestUrl = getRequestUrl(url);
   const method = String(options.method || "GET").toUpperCase();
   const headers = {
     Accept: "application/json",
@@ -52,14 +74,17 @@ export async function requestJson(url, options: any = {}) {
   try {
     response = await fetch(url, requestOptions);
   } catch (error) {
-    if (error?.name === "AbortError") {
+    if (getErrorProperty(error, "name") === "AbortError") {
       throw error;
     }
 
     throw new ApiError(
-      error?.message || `Network request failed for ${url}`,
+      String(
+        getErrorProperty(error, "message")
+        || `Network request failed for ${requestUrl}`
+      ),
       {
-        url,
+        url: requestUrl,
         cause: error
       }
     );
@@ -78,10 +103,10 @@ export async function requestJson(url, options: any = {}) {
     } catch (error) {
       if (!response.ok) {
         throw new ApiError(
-          `Request failed (${response.status}) for ${url}`,
+          `Request failed (${response.status}) for ${requestUrl}`,
           {
             status: response.status,
-            url,
+            url: requestUrl,
             body: text,
             cause: error
           }
@@ -89,10 +114,10 @@ export async function requestJson(url, options: any = {}) {
       }
 
       throw new ApiError(
-        `Expected JSON response from ${url}`,
+        `Expected JSON response from ${requestUrl}`,
         {
           status: response.status,
-          url,
+          url: requestUrl,
           body: text,
           cause: error
         }
@@ -101,16 +126,34 @@ export async function requestJson(url, options: any = {}) {
   }
 
   if (!response.ok) {
-    const message = payload?.message
-      || payload?.error
-      || `Request failed (${response.status}) for ${url}`;
+    const record = isPlainObject(payload)
+      ? payload
+      : null;
+    const message = record?.message
+      || record?.error
+      || `Request failed (${response.status}) for ${requestUrl}`;
 
-    throw new ApiError(message, {
+    throw new ApiError(String(message), {
       status: response.status,
-      url,
+      url: requestUrl,
       body: payload
     });
   }
 
   return payload;
+}
+
+function getRequestUrl(url: RequestInfo | URL) {
+  if (typeof url === "string") return url;
+  if (url instanceof URL) return url.href;
+
+  return url.url;
+}
+
+function getErrorProperty(error: unknown, key: string) {
+  if (!error || typeof error !== "object") {
+    return undefined;
+  }
+
+  return (error as Record<string, unknown>)[key];
 }

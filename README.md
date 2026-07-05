@@ -27,8 +27,8 @@ Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 77 tests
 pass, declarations are generated, the Vite production build completes, and
 `npm audit` reports zero known vulnerabilities.
 
-Stricter internal typing, runtime feature-module splitting, and package
-publishing boundaries remain roadmap work.
+Remaining dynamic orchestrator typing, runtime feature-module splitting, and
+package publishing boundaries remain roadmap work.
 
 ## Technologies
 
@@ -226,6 +226,24 @@ export function init({ state }: PageScriptContext<ExampleState>) {
 The working TypeScript example is available at `/features/typescript`. The
 remaining blog application deliberately uses Vanilla JavaScript, proving that
 TypeScript is not imposed on users.
+
+### Type Safety Boundaries
+
+The framework's public records now use `unknown` instead of leaking `any`.
+Compiler AST contracts, resource adapters, route config, auth providers,
+reactive state helpers, lifecycle, plugins, HTTP options, expression tokens,
+and error reporting have explicit types. TypeScript consumers narrow genuinely
+dynamic values while JavaScript consumers keep the same runtime API.
+
+This pass reduced explicit internal `any` annotations from 62 to 21. ESLint
+enforces `no-explicit-any` on every migrated boundary so later work cannot
+silently weaken them. The remaining annotations are isolated in the highly
+dynamic mount, directive, page, and request orchestrators and are tracked
+separately in `todo.md`.
+
+Type checking also exposed and corrected a declaration mismatch:
+`app.navigate(path, pagePath?)` now matches the existing runtime implementation;
+the second argument was previously and incorrectly declared as an object.
 
 ## Compiler and Directive Syntax
 
@@ -732,8 +750,8 @@ Files such as `page-router.ts`, `mount.ts`, and `request-router.ts` are internal
 
 See [todo.md](todo.md). The next architectural priorities are:
 
-1. stricter internal types with fewer compatibility `any` boundaries
-2. split runtime directive features using compiler manifests
+1. split runtime directive features using compiler manifests
+2. type the remaining dynamic runtime orchestrators
 3. package publishing boundaries and semantic versioning rules
 4. CLI scaffolding
 
@@ -790,6 +808,12 @@ The compiler optimization step added `src/core/compiler/optimizer.ts` and
 production metadata pruning in the Vite plugin. Compiler tests cover manifest
 generation, extension hooks, invalid output, and production/development module
 artifacts. `todo.md` now starts with a visible completed/total progress counter.
+
+The type-hardening step replaced broad public/internal `any` contracts with
+`unknown`, generics, discriminated tokens, and focused interfaces across 13
+framework boundaries. ESLint now rejects new explicit `any` in migrated files.
+`ApiErrorOptions`, `JsonRequestOptions`, and `UnknownRecord` are exported public
+types, and the `navigate` declaration now matches runtime behavior.
 
 Important decisions and deferred technical work are recorded in
 [NOTES.md](NOTES.md). Milestone history is recorded in

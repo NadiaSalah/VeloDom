@@ -1,7 +1,17 @@
 import { VD_PROTECTED_STATE_KEYS } from "./constants.ts";
 import { isPlainObject } from "./shared/object.ts";
 
-export function reactive(obj: any) {
+export interface ReactiveStateMethods {
+  _subscribe(callback: () => void): () => void;
+  _notify(): void;
+  _dispose?(): void;
+}
+
+export type ReactiveState<T extends object> = T & ReactiveStateMethods;
+
+export function reactive<T extends object>(
+  obj: T
+): ReactiveState<T> {
 
   const listeners = new Set<() => void>();
 
@@ -9,7 +19,7 @@ export function reactive(obj: any) {
 
     set(target, key, value) {
 
-      target[key] = value;
+      Reflect.set(target, key, value);
 
       listeners.forEach(fn => fn());
 
@@ -23,7 +33,9 @@ export function reactive(obj: any) {
       value(fn) {
         listeners.add(fn);
 
-        return () => listeners.delete(fn);
+        return () => {
+          listeners.delete(fn);
+        };
       }
     },
 
@@ -34,14 +46,22 @@ export function reactive(obj: any) {
     }
   });
 
-  return proxy;
+  return proxy as ReactiveState<T>;
 }
 
-export function createState(defaults: any = {}) {
+export function createState<T extends object = Record<string, unknown>>(
+  defaults: T = {} as T
+) {
   return reactive({ ...defaults });
 }
 
-export function createChildState(parent: any, defaults: any = {}) {
+export function createChildState<
+  TParent extends object,
+  TDefaults extends object = Record<string, unknown>
+>(
+  parent: ReactiveState<TParent> | null,
+  defaults: TDefaults = {} as TDefaults
+): ReactiveState<TParent & TDefaults> {
   const listeners = new Set<() => void>();
   const target = { ...defaults };
 
@@ -54,14 +74,16 @@ export function createChildState(parent: any, defaults: any = {}) {
   const proxy = new Proxy(target, {
     get(target, key) {
       if (key in target) {
-        return target[key];
+        return Reflect.get(target, key);
       }
 
-      return parent?.[key];
+      return parent
+        ? Reflect.get(parent, key)
+        : undefined;
     },
 
     set(target, key, value) {
-      target[key] = value;
+      Reflect.set(target, key, value);
       notify();
 
       return true;
@@ -77,7 +99,9 @@ export function createChildState(parent: any, defaults: any = {}) {
       value(fn) {
         listeners.add(fn);
 
-        return () => listeners.delete(fn);
+        return () => {
+          listeners.delete(fn);
+        };
       }
     },
 
@@ -93,7 +117,7 @@ export function createChildState(parent: any, defaults: any = {}) {
     }
   });
 
-  return proxy;
+  return proxy as ReactiveState<TParent & TDefaults>;
 }
 
 export function mergeState(state, result) {
@@ -108,7 +132,10 @@ export function mergeState(state, result) {
   return state;
 }
 
-export function mergeExposedMembers(state, expose) {
+export function mergeExposedMembers(
+  state: Record<string, unknown>,
+  expose: unknown
+) {
   if (expose === undefined || expose === null) {
     return state;
   }
@@ -125,7 +152,7 @@ export function mergeExposedMembers(state, expose) {
     }
 
     state[name] = typeof value === "function"
-      ? (...args) => value.apply(state, args)
+      ? (...args: unknown[]) => Reflect.apply(value, state, args)
       : value;
   });
 

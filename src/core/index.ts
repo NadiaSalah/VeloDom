@@ -23,6 +23,7 @@ export type {
   RouteLocation,
   RouterOptions,
   StateRecord,
+  UnknownRecord,
   VeloDomApp,
   VeloDomAppOptions,
   VeloDomPlugin
@@ -43,4 +44,9 @@ export {
   VD_AUTH,
   VD_MIDDLEWARE,
   VD_REQUEST
+} from "./requests/index.ts";
+
+export type {
+  ApiErrorOptions,
+  JsonRequestOptions
 } from "./requests/index.ts";

@@ -33,7 +33,7 @@ export interface RuntimeFeatureManifest {
 export interface TemplateAst {
   type: "Template";
   filename: string;
-  children: Array<Record<string, any>>;
+  children: Array<Record<string, unknown>>;
 }
 
 export interface TemplateCompileResult {

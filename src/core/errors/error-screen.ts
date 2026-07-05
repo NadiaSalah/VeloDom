@@ -1,6 +1,14 @@
 let fatalScreenShown = false;
 
-export function renderFatalFrameworkError(error, options: any = {}) {
+export interface FatalErrorScreenOptions {
+  title?: string;
+  details?: string;
+}
+
+export function renderFatalFrameworkError(
+  error: unknown,
+  options: FatalErrorScreenOptions = {}
+) {
   if (fatalScreenShown) return;
 
   fatalScreenShown = true;
@@ -78,12 +86,21 @@ export function renderFatalFrameworkError(error, options: any = {}) {
   document.body.replaceChildren(card);
 }
 
-function sanitizeErrorMessage(error) {
+function sanitizeErrorMessage(error: unknown) {
+  const record = asErrorRecord(error);
   const value =
-    error?.message
-    || error?.reason?.message
-    || error?.reason
+    record?.message
+    || asErrorRecord(record?.reason)?.message
+    || record?.reason
     || "Unexpected framework failure occurred.";
 
   return String(value).slice(0, 800);
+}
+
+function asErrorRecord(
+  value: unknown
+): Record<string, unknown> | null {
+  return value && typeof value === "object"
+    ? value as Record<string, unknown>
+    : null;
 }

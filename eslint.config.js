@@ -46,6 +46,27 @@ export default tseslint.config(
   },
   {
     files: [
+      "src/core/compiler/**/*.ts",
+      "src/core/errors/**/*.ts",
+      "src/core/expression/evaluator.ts",
+      "src/core/expression/parser.ts",
+      "src/core/global.d.ts",
+      "src/core/lifecycle.ts",
+      "src/core/plugins.ts",
+      "src/core/reactive.ts",
+      "src/core/requests/auth.ts",
+      "src/core/requests/http-client.ts",
+      "src/core/resource-adapter.ts",
+      "src/core/router.ts",
+      "src/core/shared/**/*.ts",
+      "src/core/types.ts"
+    ],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "error"
+    }
+  },
+  {
+    files: [
       "src/**/*.js",
       "test/**/*.js",
       "*.js"

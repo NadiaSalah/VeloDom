@@ -3,8 +3,38 @@ import {
   VD_REQUEST
 } from "../constants.ts";
 import { isPlainObject } from "../shared/object.ts";
+import type {
+  AuthProvider,
+  AuthSessionPayload,
+  StateRecord,
+  UnknownRecord
+} from "../types.ts";
 
-export function createAuthRuntime(config: any = {}) {
+interface AuthRuntime {
+  defaultProvider: string;
+  providers: Record<string, AuthProvider>;
+}
+
+interface NormalizedAuthConfig {
+  enabled: boolean;
+  provider: string;
+  options: UnknownRecord;
+}
+
+interface ResolveSessionOptions {
+  runtime?: AuthRuntime;
+  signal?: AbortSignal;
+  routeName?: string;
+  state?: StateRecord | null;
+  el?: Element | null;
+}
+
+interface ServerAuthOptions {
+  credentials: RequestCredentials;
+  sessionUrl: string;
+}
+
+export function createAuthRuntime(config: unknown = {}): AuthRuntime {
   if (!isPlainObject(config)) {
     throw new TypeError("VeloDom auth configuration must be a plain object");
   }
@@ -21,7 +51,7 @@ export function createAuthRuntime(config: any = {}) {
       [VD_AUTH.PROVIDERS.SERVER]: createServerSessionAuthProvider()
     },
     configuredProviders
-  );
+  ) as Record<string, AuthProvider>;
 
   Object.entries(providers).forEach(([name, provider]) => {
     if (!name.trim() || typeof provider !== "function") {
@@ -45,7 +75,10 @@ export function createAuthRuntime(config: any = {}) {
   };
 }
 
-export function normalizeRequestAuthConfig(value, runtime = createAuthRuntime()) {
+export function normalizeRequestAuthConfig(
+  value: unknown,
+  runtime = createAuthRuntime()
+): NormalizedAuthConfig | null {
   if (value === undefined || value === false) {
     return {
       enabled: false,
@@ -55,7 +88,7 @@ export function normalizeRequestAuthConfig(value, runtime = createAuthRuntime())
   }
 
   let provider = runtime.defaultProvider;
-  let options: any = {};
+  let options: UnknownRecord = {};
 
   if (typeof value === "string") {
     provider = value.trim();
@@ -84,14 +117,14 @@ export function normalizeRequestAuthConfig(value, runtime = createAuthRuntime())
 }
 
 export async function resolveRequestSession(
-  authConfig,
+  authConfig: NormalizedAuthConfig | null,
   {
     runtime = createAuthRuntime(),
     signal,
     routeName = "",
     state = null,
     el = null
-  }: any = {}
+  }: ResolveSessionOptions = {}
 ) {
   if (!authConfig?.enabled) {
     return null;
@@ -131,10 +164,12 @@ export async function resolveRequestSession(
   return normalizeAuthSession(payload, authConfig.provider);
 }
 
-export function createServerSessionAuthProvider(defaults: any = {}) {
+export function createServerSessionAuthProvider(
+  defaults: unknown = {}
+): AuthProvider {
   const base = normalizeServerOptions(defaults);
 
-  return async function serverSessionAuthProvider(context: any = {}) {
+  return async function serverSessionAuthProvider(context) {
     const options = normalizeServerOptions({
       ...base,
       ...(context.options || {})
@@ -181,7 +216,15 @@ export function createServerSessionAuthProvider(defaults: any = {}) {
   };
 }
 
-export function createLocalStorageAuthProvider(defaults: any = {}) {
+export function createLocalStorageAuthProvider(
+  defaults: unknown = {}
+): AuthProvider {
+  if (!isPlainObject(defaults)) {
+    throw new TypeError(
+      "localStorage auth provider options must be a plain object"
+    );
+  }
+
   const storageKey = String(
     defaults.storageKey || VD_AUTH.STORAGE_KEY
   ).trim();
@@ -191,7 +234,7 @@ export function createLocalStorageAuthProvider(defaults: any = {}) {
     throw new TypeError("localStorage auth provider requires a storage key");
   }
 
-  return function localStorageAuthProvider(context: any = {}) {
+  return function localStorageAuthProvider(context) {
     if (typeof window === "undefined" || !window.localStorage) {
       throw createAuthError(
         "localStorage is not available",
@@ -208,7 +251,7 @@ export function createLocalStorageAuthProvider(defaults: any = {}) {
       return null;
     }
 
-    let payload;
+    let payload: unknown;
 
     try {
       payload = JSON.parse(raw);
@@ -223,7 +266,11 @@ export function createLocalStorageAuthProvider(defaults: any = {}) {
     if (
       requireToken
       && context.options?.requireToken !== false
-      && !String(payload?.token || "").trim()
+      && !String(
+        isPlainObject(payload)
+          ? payload.token || ""
+          : ""
+      ).trim()
     ) {
       throw createAuthError(
         "Authentication token is missing",
@@ -231,11 +278,11 @@ export function createLocalStorageAuthProvider(defaults: any = {}) {
       );
     }
 
-    return payload;
+    return payload as AuthSessionPayload;
   };
 }
 
-export function normalizeAuthSession(payload, source = "") {
+export function normalizeAuthSession(payload: unknown, source = "") {
   if (payload === null || payload === undefined || payload === false) {
     return null;
   }
@@ -257,8 +304,11 @@ export function normalizeAuthSession(payload, source = "") {
   const directRoles = Array.isArray(payload.roles)
     ? payload.roles
     : [];
-  const nestedRoles = Array.isArray(payload.user?.roles)
-    ? payload.user.roles
+  const user = isPlainObject(payload.user)
+    ? payload.user
+    : null;
+  const nestedRoles = Array.isArray(user?.roles)
+    ? user.roles
     : [];
 
   return {
@@ -278,7 +328,7 @@ export function getDefaultAuthSessionUrl() {
   return VD_AUTH.SESSION_URL;
 }
 
-function normalizeServerOptions(value) {
+function normalizeServerOptions(value: unknown): ServerAuthOptions {
   if (!isPlainObject(value)) {
     throw new TypeError("Server auth provider options must be a plain object");
   }
@@ -286,23 +336,29 @@ function normalizeServerOptions(value) {
   const sessionUrl = String(
     value.sessionUrl || VD_AUTH.SESSION_URL
   ).trim();
-  const credentials = value.credentials || VD_AUTH.DEFAULT_CREDENTIALS;
+  const credentials = String(
+    value.credentials || VD_AUTH.DEFAULT_CREDENTIALS
+  );
 
   if (!sessionUrl) {
     throw new TypeError("Server auth provider requires a session URL");
   }
 
-  if (!VD_AUTH.CREDENTIALS.includes(credentials)) {
+  if (!VD_AUTH.CREDENTIALS.some(value => value === credentials)) {
     throw new TypeError(`Invalid auth credentials mode "${credentials}"`);
   }
 
   return {
     sessionUrl,
-    credentials
+    credentials: credentials as RequestCredentials
   };
 }
 
-function createAuthError(message, hint, cause = null) {
+function createAuthError(
+  message: string,
+  hint: string,
+  cause: unknown = null
+) {
   const error = new Error(message);
   error.__vdStage = VD_REQUEST.STAGES.AUTH;
   error.__vdHint = hint;

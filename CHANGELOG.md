@@ -30,6 +30,13 @@ package versions.
   and safe evaluator.
 - Added compiler-time expression validation with source-aware diagnostics.
 - Component props now use the same safe expression engine as directives.
+- Replaced broad `any` contracts with `unknown`, generics, and focused
+  interfaces across compiler, public records, adapters, router, auth, reactive
+  state, lifecycle, plugins, HTTP, expressions, and errors.
+- Corrected the public `navigate(path, pagePath?)` declaration to match its
+  existing runtime implementation.
+- Added scoped ESLint `no-explicit-any` enforcement to migrated framework
+  boundaries.
 
 ### Added
 
@@ -54,6 +61,8 @@ package versions.
 - Added deterministic directive/runtime feature manifests for future
   feature-module tree-shaking.
 - Added a visible completed/total progress counter to `todo.md`.
+- Exported `UnknownRecord`, `ApiErrorOptions`, and `JsonRequestOptions` for
+  TypeScript consumers.
 
 ### Optimized
 

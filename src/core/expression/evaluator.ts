@@ -1,7 +1,10 @@
 import { VD_EXPRESSION } from "../constants.ts";
 import { parseExpression } from "./parser.ts";
 
-const expressionCache = new Map<string, any>();
+const expressionCache = new Map<
+  string,
+  ReturnType<typeof parseExpression>
+>();
 
 const safeGlobals = Object.freeze({
   Array,
@@ -22,9 +25,9 @@ const safeGlobals = Object.freeze({
 });
 
 export interface ExpressionScope {
-  state?: Record<string, any>;
+  state?: Record<string, unknown>;
   event?: unknown;
-  props?: Record<string, any>;
+  props?: Record<string, unknown>;
   el?: unknown;
 }
 

@@ -1,12 +1,21 @@
-export function createLifecycleScope(baseContext: any = {}) {
+import type {
+  LifecycleContext,
+  MaybePromise
+} from "./types.ts";
+
+export function createLifecycleScope<
+  TContext extends object = Record<string, never>
+>(
+  baseContext: TContext = {} as TContext
+) {
   const controller = new AbortController();
-  const callbacks = [];
+  const callbacks: Array<() => MaybePromise<void>> = [];
   let disposed = false;
 
-  const context = {
+  const context: TContext & LifecycleContext = {
     ...baseContext,
     signal: controller.signal,
-    onCleanup(callback) {
+    onCleanup(callback: () => MaybePromise<void>) {
       if (typeof callback !== "function") {
         throw new TypeError("onCleanup() requires a function");
       }
@@ -26,7 +35,7 @@ export function createLifecycleScope(baseContext: any = {}) {
         }
       };
     }
-  };
+  } as TContext & LifecycleContext;
 
   return {
     context,

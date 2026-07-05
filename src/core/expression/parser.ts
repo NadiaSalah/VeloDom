@@ -36,6 +36,44 @@ const SINGLE_CHARACTER_TOKENS = new Set(
   "+-*/%><!?:.,()[]{}".split("")
 );
 
+interface TokenBase {
+  type: string;
+  value: string;
+  start: number;
+  end: number;
+}
+
+interface LiteralToken extends TokenBase {
+  type: "number" | "string";
+  literal: number | string;
+}
+
+interface TemplateExpressionToken {
+  source: string;
+  start: number;
+  end: number;
+}
+
+interface TemplateToken extends TokenBase {
+  type: "template";
+  quasis: string[];
+  expressions: TemplateExpressionToken[];
+}
+
+interface IdentifierToken extends TokenBase {
+  type: "identifier";
+}
+
+interface PlainToken extends TokenBase {
+  type: "eof" | "punctuator";
+}
+
+type ExpressionToken =
+  | IdentifierToken
+  | LiteralToken
+  | PlainToken
+  | TemplateToken;
+
 export class ExpressionSyntaxError extends SyntaxError {
   override code: string;
   offset: number;
@@ -146,11 +184,11 @@ export function tokenizeExpression(source: string) {
 }
 
 class Parser {
-  tokens: any[];
+  tokens: ExpressionToken[];
   source: string;
   index: number;
 
-  constructor(tokens, source) {
+  constructor(tokens: ExpressionToken[], source: string) {
     this.tokens = tokens;
     this.source = source;
     this.index = 0;
@@ -520,7 +558,7 @@ class Parser {
     return token;
   }
 
-  fail(message) {
+  fail(message: string): never {
     throw new ExpressionSyntaxError(message, this.current().start);
   }
 }

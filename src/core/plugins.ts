@@ -1,13 +1,27 @@
+import type {
+  PluginContext,
+  VeloDomPlugin
+} from "./types.ts";
+
+type PluginCallback<TContext> = (
+  context: TContext
+) => unknown | Promise<unknown>;
+
+interface NormalizedPlugin<TContext> {
+  setup: PluginCallback<TContext>;
+  cleanup: PluginCallback<TContext> | null;
+}
+
 export function createPluginManager(
-  plugins: any[] = [],
-  getContext: () => any = () => ({})
+  plugins: VeloDomPlugin[] = [],
+  getContext: () => PluginContext = () => ({} as PluginContext)
 ) {
   if (!Array.isArray(plugins)) {
     throw new TypeError("VeloDom plugins must be an array");
   }
 
   const records = plugins.map((plugin, index) => normalizePlugin(plugin, index));
-  const cleanups = [];
+  const cleanups: PluginCallback<PluginContext>[] = [];
   let installed = false;
 
   return {
@@ -19,7 +33,11 @@ export function createPluginManager(
       for (const record of records) {
         const result = await record.setup(getContext());
         const cleanup = typeof result === "function"
-          ? result
+          ? (context: PluginContext) => Reflect.apply(
+            result,
+            undefined,
+            [context]
+          )
           : record.cleanup;
 
         if (typeof cleanup === "function") {
@@ -40,10 +58,13 @@ export function createPluginManager(
   };
 }
 
-function normalizePlugin(plugin, index) {
+function normalizePlugin(
+  plugin: unknown,
+  index: number
+): NormalizedPlugin<PluginContext> {
   if (typeof plugin === "function") {
     return {
-      setup: plugin,
+      setup: context => Reflect.apply(plugin, undefined, [context]),
       cleanup: null
     };
   }
@@ -51,12 +72,19 @@ function normalizePlugin(plugin, index) {
   if (
     plugin
     && typeof plugin === "object"
+    && "setup" in plugin
     && typeof plugin.setup === "function"
   ) {
+    const setup = plugin.setup;
+    const cleanup = "cleanup" in plugin
+      && typeof plugin.cleanup === "function"
+      ? plugin.cleanup
+      : null;
+
     return {
-      setup: plugin.setup.bind(plugin),
-      cleanup: typeof plugin.cleanup === "function"
-        ? plugin.cleanup.bind(plugin)
+      setup: context => Reflect.apply(setup, plugin, [context]),
+      cleanup: cleanup
+        ? context => Reflect.apply(cleanup, plugin, [context])
         : null
     };
   }

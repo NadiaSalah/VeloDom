@@ -1,6 +1,10 @@
 import { isPlainObject } from "./shared/object.ts";
+import type { PageConfig } from "./types.ts";
 
-export function createRouteTable(pageNames: string[] = [], configs: any = {}) {
+export function createRouteTable(
+  pageNames: string[] = [],
+  configs: Record<string, PageConfig> = {}
+) {
   return pageNames
     .filter(page => page !== "404")
     .map(page => {

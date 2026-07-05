@@ -63,6 +63,14 @@
 - Production template modules omit development metadata unless explicitly
   requested. The named manifest export is available for build integrations and
   remains tree-shakeable when consumers import only template HTML.
+- Public extensible records use `unknown`, requiring TypeScript consumers to
+  narrow unmodelled values instead of receiving unsafe implicit `any`.
+- Migrated internal boundaries are protected by scoped
+  `@typescript-eslint/no-explicit-any`. The remaining dynamic annotations are
+  concentrated in mount/directive/page/request orchestration and should be
+  removed alongside focused context interfaces, not by blind replacement.
+- The public navigation signature is `navigate(path, pagePath?)`, matching the
+  folder-routing compatibility argument already implemented by the runtime.
 
 ## Known Constraints
 
@@ -73,6 +81,8 @@
   the JavaScript API.
 - Runtime directive handlers are not split into manifest-selected modules yet;
   the compiler/build extension contract now exists for that next optimization.
+- Mount, directive, page-router, and request-router orchestration still use a
+  small number of compatibility `any` annotations pending dedicated contracts.
 - Adapter/user-file source maps still need broader build-tool integration
   coverage beyond runtime stack-location parsing.
 - The showcase still needs reusable form and error-display components before

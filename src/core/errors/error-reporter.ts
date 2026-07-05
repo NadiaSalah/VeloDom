@@ -1,6 +1,22 @@
 import { renderFatalFrameworkError } from "./error-screen.ts";
 
-export function reportUserActionError(error, options: any = {}) {
+export interface ErrorReportOptions {
+  title?: string;
+  directive?: string;
+  hint?: string;
+  expression?: unknown;
+  el?: Element | null;
+  file?: string;
+  line?: number;
+  column?: number;
+  level?: "error" | "warn";
+  fatal?: boolean;
+}
+
+export function reportUserActionError(
+  error: unknown,
+  options: ErrorReportOptions = {}
+) {
   const normalized = normalizeError(error);
   const location = resolveLocation(normalized.stack, options, normalized.__vdSynthetic === true);
   const title = options.title || "Runtime Error";
@@ -51,7 +67,7 @@ export function reportUserActionError(error, options: any = {}) {
   };
 }
 
-function normalizeError(error) {
+function normalizeError(error: unknown) {
   if (error instanceof Error) {
     return error;
   }
@@ -69,7 +85,11 @@ function normalizeError(error) {
   return synthetic;
 }
 
-function resolveLocation(stack, options, preferFallback = false) {
+function resolveLocation(
+  stack: string | undefined,
+  options: ErrorReportOptions,
+  preferFallback = false
+) {
   const fallback = {
     file: options.file || "src/core/unknown.ts",
     line: options.line || 1,
@@ -99,7 +119,7 @@ function resolveLocation(stack, options, preferFallback = false) {
   return fallback;
 }
 
-function parseStackLine(stackLine) {
+function parseStackLine(stackLine: string) {
   const normalized = stackLine.replace(/\\/g, "/");
   const srcMatch = normalized.match(/(src\/[^:\s)]+\.[jt]s)(?:\?[^:\s)]*)?:(\d+):(\d+)/);
 
@@ -124,7 +144,7 @@ function parseStackLine(stackLine) {
   return null;
 }
 
-function getElementSnippet(el) {
+function getElementSnippet(el: Element | null | undefined) {
   if (!el?.outerHTML) return "";
 
   return el.outerHTML
@@ -133,7 +153,7 @@ function getElementSnippet(el) {
     .slice(0, 220);
 }
 
-function safeStringify(value) {
+function safeStringify(value: unknown) {
   try {
     return JSON.stringify(value);
   } catch {

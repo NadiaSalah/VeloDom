@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**158 of 231 tasks completed — 68.4%**
+**159 of 232 tasks completed — 68.5%**
 
 `██████████████░░░░░░`
 
@@ -64,7 +64,7 @@ runtime work.
 - [x] Clear stale declaration output before each generation
 - [x] Keep JavaScript and TypeScript identical for application authors
 - [x] Add a typed application page using the same page lifecycle API
-- [ ] Tighten permissive internal compatibility types incrementally
+- [x] Tighten permissive internal compatibility types incrementally
 
 ### 0.5 Code Quality
 
@@ -352,6 +352,7 @@ and `src/api`.
 - [ ] Improve granular updates for large pages
 - [ ] Benchmark common UI cases
 - [ ] Split runtime directive features into manifest-selectable modules
+- [ ] Type remaining dynamic mount, directive, and request orchestrator boundaries
 
 ---
 

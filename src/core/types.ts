@@ -1,10 +1,11 @@
 export type MaybePromise<T> = T | Promise<T>;
-export type StateRecord = Record<string, any>;
+export type UnknownRecord = Record<string, unknown>;
+export type StateRecord = UnknownRecord;
 export type ResourceLoader<T = unknown> = () => MaybePromise<T>;
 
 export interface ResourceGroup {
   html?: Record<string, ResourceLoader<string>>;
-  modules?: Record<string, ResourceLoader<Record<string, any>>>;
+  modules?: Record<string, ResourceLoader<UnknownRecord>>;
   styles?: Record<string, ResourceLoader<string>>;
   configs?: Record<string, PageConfig>;
 }
@@ -21,7 +22,7 @@ export interface RouteLocation {
   pattern: string;
   params: Record<string, string>;
   query: Record<string, string | string[]>;
-  meta: Record<string, any>;
+  meta: UnknownRecord;
   beforeEnter?: NavigationGuard | null;
 }
 
@@ -37,7 +38,7 @@ export type NavigationGuard = (
 
 export interface PageConfig {
   path?: string;
-  meta?: Record<string, any>;
+  meta?: UnknownRecord;
   beforeEnter?: NavigationGuard;
   allowExternalWrite?: string[];
 }
@@ -52,7 +53,7 @@ export interface AuthProviderContext {
   state: StateRecord | null;
   el: Element | null;
   signal?: AbortSignal;
-  options: Record<string, any>;
+  options: UnknownRecord;
 }
 
 export interface AuthSessionPayload {
@@ -62,9 +63,9 @@ export interface AuthSessionPayload {
   roles?: string[];
   user?: {
     roles?: string[];
-    [key: string]: any;
+    [key: string]: unknown;
   };
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export type AuthProvider = (
@@ -82,7 +83,7 @@ export interface RequestContext {
   state?: StateRecord;
   el?: Element;
   auth?: AuthSessionPayload | null;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export type RouteHandler = (
@@ -98,7 +99,7 @@ export type RequestMiddleware = (
 
 export interface RequestRoute {
   handler: RouteHandler;
-  auth?: boolean | string | Record<string, any>;
+  auth?: boolean | string | UnknownRecord;
   roles?: string[];
   middleware?: Array<string | RequestMiddleware>;
 }
@@ -138,13 +139,13 @@ export interface VeloDomAppOptions {
 export interface VeloDomApp {
   mount(): Promise<unknown>;
   destroy(): Promise<void>;
-  navigate(path: string, options?: Record<string, any>): Promise<unknown>;
+  navigate(path: string, pagePath?: string): Promise<unknown>;
 }
 
 export interface LifecycleContext {
   signal: AbortSignal;
   onCleanup(callback: () => MaybePromise<void>): () => void;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface PageScriptContext<
@@ -159,7 +160,7 @@ export interface PageScriptContext<
     route: RouteLocation;
     params: Record<string, string>;
     query: Record<string, string | string[]>;
-    meta: Record<string, any>;
+    meta: UnknownRecord;
   };
 }
 

@@ -3,6 +3,11 @@ export {
   requestJson
 } from "./http-client.ts";
 
+export type {
+  ApiErrorOptions,
+  JsonRequestOptions
+} from "./http-client.ts";
+
 export {
   defineRequestMiddleware
 } from "./middleware-engine.ts";
