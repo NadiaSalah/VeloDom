@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   indexFolderFiles,
   indexFolderVariants,
+  mapLoaderExports,
   rebaseFiles
 } from "../../src/core/adapters/resource-map.ts";
 
@@ -49,4 +50,29 @@ test("style files are rebased without leaking adapter paths", () => {
     "home/style.css"
   ]);
   assert.equal(rebased["home/style.css"], homeStyle);
+});
+
+test("module export loaders derive values and allow missing manifests", async () => {
+  let loads = 0;
+  const files = {
+    "../pages/home/index.html": async () => {
+      loads += 1;
+
+      return {
+        default: "<main></main>"
+      };
+    }
+  };
+  const html = mapLoaderExports(files, "default");
+  const manifests = mapLoaderExports(files, "__vdManifest");
+
+  assert.equal(
+    await html["../pages/home/index.html"](),
+    "<main></main>"
+  );
+  assert.equal(
+    await manifests["../pages/home/index.html"](),
+    undefined
+  );
+  assert.equal(loads, 2);
 });

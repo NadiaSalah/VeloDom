@@ -1,5 +1,8 @@
 import { isPlainObject } from "./shared/object.ts";
 import type {
+  RuntimeFeatureManifest
+} from "./compiler/types.ts";
+import type {
   PageConfig,
   ResourceLoader,
   UnknownRecord
@@ -15,6 +18,10 @@ export interface ValidatedResourceGroup {
   modules: Record<string, ResourceLoader<UnknownRecord>>;
   styles: Record<string, ResourceLoader<string>>;
   configs: Record<string, PageConfig>;
+  manifests: Record<
+    string,
+    ResourceLoader<RuntimeFeatureManifest | undefined>
+  >;
 }
 
 export interface ValidatedResourceAdapter {
@@ -75,6 +82,12 @@ function validateResourceGroup(
     value.styles || {},
     `${label}.styles`
   );
+  const manifests = validateLoaderMap<
+    RuntimeFeatureManifest | undefined
+  >(
+    value.manifests || {},
+    `${label}.manifests`
+  );
   const configs = options.allowConfigs
     ? validateConfigMap(value.configs || {}, `${label}.configs`)
     : Object.create(null);
@@ -90,7 +103,8 @@ function validateResourceGroup(
     html,
     modules,
     styles,
-    configs
+    configs,
+    manifests
   };
 }
 

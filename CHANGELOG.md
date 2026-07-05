@@ -37,6 +37,9 @@ package versions.
   existing runtime implementation.
 - Added scoped ESLint `no-explicit-any` enforcement to migrated framework
   boundaries.
+- Page and component resource maps now carry compiled runtime manifests.
+- Initial directive setup is asynchronous internally so feature chunks can load
+  before lifecycle `mounted`; reactive updates remain synchronous.
 
 ### Added
 
@@ -63,12 +66,17 @@ package versions.
 - Added a visible completed/total progress counter to `todo.md`.
 - Exported `UnknownRecord`, `ApiErrorOptions`, and `JsonRequestOptions` for
   TypeScript consumers.
+- Split conditionals, text, visibility, bindings, model, events, requests, and
+  loops into manifest-selected runtime modules.
+- Added compiler discovery for custom component and slot tags.
 
 ### Optimized
 
 - Production Vite template modules now omit development metadata by default.
 - Compiler optimizers receive full metadata before production-only metadata
   fields are stripped.
+- Showcase main entry decreased from 78.49 kB to 54.08 kB, and gzip size from
+  25.86 kB to 17.88 kB, after lazy directive feature splitting.
 
 ### Fixed
 
@@ -91,7 +99,7 @@ package versions.
 ### Verification
 
 - TypeScript and ESLint checks pass.
-- `npm test`: 77 tests passing.
+- `npm test`: 80 tests passing.
 - `npm run build`: production build successful.
 - `npm audit`: zero known vulnerabilities.
 

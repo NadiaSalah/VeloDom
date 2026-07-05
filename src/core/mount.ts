@@ -1,5 +1,6 @@
 import {
   VD,
+  VD_COMPILER_FEATURES,
   VD_INTERNAL
 } from "./constants.ts";
 import { getRefs } from "./refs.ts";
@@ -81,7 +82,11 @@ export async function mount(
         }
 
         const slots = collectSlots(el);
-        const html = await loadHtml();
+        const loadManifest = resources.manifests?.[folder];
+        const [html, manifest] = await Promise.all([
+          loadHtml(),
+          loadManifest?.() ?? null
+        ]);
 
         el.innerHTML = html;
         applySlots(el, slots);
@@ -131,21 +136,24 @@ export async function mount(
           moduleResult?.expose
         );
 
-        const directivesCleanup = applyDirectives(el, state, {
+        const directivesCleanup = await applyDirectives(el, state, {
           el,
           props,
           page: pageCtx?.page || "",
           getPageState: pageCtx?.getPageState || null,
-          hasPage: pageCtx?.hasPage || null
+          hasPage: pageCtx?.hasPage || null,
+          features: manifest?.features
         });
 
-        const childrenCleanup = await mount(
-          el,
-          state,
-          [...ancestry, folder],
-          pageCtx,
-          resources
-        );
+        const childrenCleanup = shouldMountChildren(manifest)
+          ? await mount(
+            el,
+            state,
+            [...ancestry, folder],
+            pageCtx,
+            resources
+          )
+          : null;
 
         cleanup = once(async () => {
           await childrenCleanup?.();
@@ -185,6 +193,12 @@ export async function mount(
   return () => {
     return disposeTree(root);
   };
+}
+
+function shouldMountChildren(manifest) {
+  return !manifest || manifest.features.includes(
+    VD_COMPILER_FEATURES.COMPONENTS
+  );
 }
 
 function getProps(el, parentState) {

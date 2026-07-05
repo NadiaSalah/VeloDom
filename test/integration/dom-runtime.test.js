@@ -25,7 +25,7 @@ test.beforeEach(() => {
   configureRequestRuntime();
 });
 
-test("directives react through a real DOM tree", () => {
+test("directives react through a real DOM tree", async () => {
   const root = document.createElement("main");
   root.innerHTML = `
     <p id="if" data-vd-if="mode === 'ready'" data-vd-text="message"></p>
@@ -64,7 +64,7 @@ test("directives react through a real DOM tree", () => {
     title: "Post",
     visible: false
   });
-  const cleanup = applyDirectives(root, state);
+  const cleanup = await applyDirectives(root, state);
 
   assert.equal(root.querySelector("#if").textContent, "Ready");
   assert.equal(root.querySelector("#if").style.display, "");
@@ -110,7 +110,7 @@ test("directives react through a real DOM tree", () => {
   cleanup();
 });
 
-test("model and event modifiers synchronize state and remove listeners", () => {
+test("model and event modifiers synchronize state and remove listeners", async () => {
   const root = document.createElement("div");
   root.innerHTML = `
     <input id="name" data-vd-model="name">
@@ -131,7 +131,7 @@ test("model and event modifiers synchronize state and remove listeners", () => {
   state.submit = () => {
     state.submitted += 1;
   };
-  const cleanup = applyDirectives(root, state);
+  const cleanup = await applyDirectives(root, state);
   const name = root.querySelector("#name");
   const enabled = root.querySelector("#enabled");
   const once = root.querySelector("#once");
@@ -180,7 +180,37 @@ test("model and event modifiers synchronize state and remove listeners", () => {
   assert.equal(state.submitted, 1);
 });
 
-test("loops render scoped state and clean detached event handlers", () => {
+test("runtime manifests activate only selected directive features", async () => {
+  const root = document.createElement("div");
+  root.innerHTML = `
+    <p data-vd-text="message"></p>
+    <a data-vd-href="url">Link</a>
+    <button data-vd-on-click="increment()">Increment</button>
+  `;
+  document.body.append(root);
+  const state = createState({
+    count: 0,
+    message: "Manifest text",
+    url: "/hidden-binding"
+  });
+  state.increment = () => {
+    state.count += 1;
+  };
+  const cleanup = await applyDirectives(root, state, {
+    features: [
+      "text"
+    ]
+  });
+
+  assert.equal(root.querySelector("p").textContent, "Manifest text");
+  assert.equal(root.querySelector("a").hasAttribute("href"), false);
+  root.querySelector("button").click();
+  assert.equal(state.count, 0);
+
+  cleanup();
+});
+
+test("loops render scoped state and clean detached event handlers", async () => {
   const root = document.createElement("ul");
   root.innerHTML = `
     <li data-vd-for="(item, index) in items">
@@ -207,7 +237,7 @@ test("loops render scoped state and clean detached event handlers", () => {
   state.select = id => {
     state.selected = id;
   };
-  const cleanup = applyDirectives(root, state);
+  const cleanup = await applyDirectives(root, state);
   const oldButton = root.querySelector("button");
 
   assert.deepEqual(
@@ -303,6 +333,19 @@ test("components integrate props, slots, refs, expose, and cleanup", async () =>
         }
       })
     },
+    manifests: {
+      "profile-card": async () => ({
+        directives: [
+          "data-vd-onclick",
+          "data-vd-text"
+        ],
+        features: [
+          "events",
+          "slots",
+          "text"
+        ]
+      })
+    },
     styles: {}
   };
   const cleanup = await mount(root, parentState, [], null, resources);
@@ -377,6 +420,16 @@ test("grouped component refs expose all instances and keyed instances", async ()
             }
           };
         }
+      })
+    },
+    manifests: {
+      badge: async () => ({
+        directives: [
+          "data-vd-text"
+        ],
+        features: [
+          "text"
+        ]
       })
     },
     styles: {}
@@ -456,6 +509,28 @@ test("page router drives navigation, route context, persistence, and teardown", 
           }
         }
       },
+      manifests: {
+        home: async () => ({
+          directives: [
+            "data-vd-onclick",
+            "data-vd-text",
+            "data-vd-nav"
+          ],
+          features: [
+            "events",
+            "navigation",
+            "text"
+          ]
+        }),
+        "posts/[id]": async () => ({
+          directives: [
+            "data-vd-text"
+          ],
+          features: [
+            "text"
+          ]
+        })
+      },
       styles: {}
     },
     components: {
@@ -525,7 +600,7 @@ test("request directives update state, emit success, and abort on cleanup", asyn
     postId: 7,
     result: null
   });
-  const cleanup = applyDirectives(root, state);
+  const cleanup = await applyDirectives(root, state);
 
   root.querySelector("button").click();
   await waitFor(() => {

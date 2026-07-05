@@ -1,3 +1,7 @@
+import type {
+  RuntimeFeatureManifest
+} from "./compiler/types.ts";
+
 export type MaybePromise<T> = T | Promise<T>;
 export type UnknownRecord = Record<string, unknown>;
 export type StateRecord = UnknownRecord;
@@ -8,6 +12,10 @@ export interface ResourceGroup {
   modules?: Record<string, ResourceLoader<UnknownRecord>>;
   styles?: Record<string, ResourceLoader<string>>;
   configs?: Record<string, PageConfig>;
+  manifests?: Record<
+    string,
+    ResourceLoader<RuntimeFeatureManifest | undefined>
+  >;
 }
 
 export interface ResourceAdapter {

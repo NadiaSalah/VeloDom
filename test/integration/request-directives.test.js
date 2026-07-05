@@ -50,7 +50,7 @@ test("request config resolves params, target, and automatic status state", async
     postLoading: false,
     postResult: null
   });
-  const cleanup = applyDirectives(root, state);
+  const cleanup = await applyDirectives(root, state);
 
   root.querySelector("button").click();
   await waitFor(() => {
@@ -91,7 +91,7 @@ test("request-state derives loading and error names from a result target", async
     articleLoading: false,
     articleResult: null
   });
-  const cleanup = applyDirectives(root, state);
+  const cleanup = await applyDirectives(root, state);
 
   root.querySelector("button").click();
   await waitFor(() => {
@@ -140,7 +140,7 @@ test("explicit state bindings can write to an opted-in page", async () => {
     externalLoading: false,
     externalResult: null
   });
-  const cleanup = applyDirectives(root, current, createPageOptions({
+  const cleanup = await applyDirectives(root, current, createPageOptions({
     home
   }));
 
@@ -188,7 +188,7 @@ test("external writes are blocked unless the target page opts in", async () => {
   });
 
   await withoutConsoleError(async messages => {
-    const cleanup = applyDirectives(root, current, createPageOptions({
+    const cleanup = await applyDirectives(root, current, createPageOptions({
       home
     }));
 
@@ -236,7 +236,7 @@ test("failed requests write error state and emit a request error event", async (
   });
 
   await withoutConsoleError(async messages => {
-    const cleanup = applyDirectives(root, state);
+    const cleanup = await applyDirectives(root, state);
 
     root.querySelector("button").click();
     await waitFor(() => {
@@ -279,7 +279,7 @@ test("invalid request config reports a configuration error without calling the r
   });
 
   await withoutConsoleError(async messages => {
-    const cleanup = applyDirectives(root, state);
+    const cleanup = await applyDirectives(root, state);
 
     root.querySelector("button").click();
     await waitFor(() => {

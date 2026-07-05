@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**159 of 232 tasks completed — 68.5%**
+**160 of 232 tasks completed — 69.0%**
 
 `██████████████░░░░░░`
 
-Remaining tasks: **73**
+Remaining tasks: **72**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -351,7 +351,7 @@ and `src/api`.
 - [ ] Reduce unnecessary full-block updates where possible
 - [ ] Improve granular updates for large pages
 - [ ] Benchmark common UI cases
-- [ ] Split runtime directive features into manifest-selectable modules
+- [x] Split runtime directive features into manifest-selectable modules
 - [ ] Type remaining dynamic mount, directive, and request orchestrator boundaries
 
 ---

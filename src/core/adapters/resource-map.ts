@@ -18,6 +18,24 @@ export function indexFolderFiles(files, prefix, suffix) {
   return indexed;
 }
 
+export function mapLoaderExports<T = unknown>(
+  files: Record<string, () => Promise<unknown>>,
+  exportName: string
+): Record<string, () => Promise<T>> {
+  return Object.fromEntries(
+    Object.entries(files).map(([filePath, load]) => [
+      filePath,
+      async () => {
+        const module = await load();
+
+        return (module && typeof module === "object"
+          ? (module as Record<string, unknown>)[exportName]
+          : undefined) as T;
+      }
+    ])
+  );
+}
+
 export function rebaseFiles(files, prefix) {
   const rebased = Object.create(null);
 

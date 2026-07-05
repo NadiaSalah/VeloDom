@@ -106,8 +106,8 @@ test("directive expression failures include directive, expression, and element",
   document.body.append(root);
   const state = createState({});
 
-  await captureConsole("error", messages => {
-    const cleanup = applyDirectives(root, state);
+  await captureConsole("error", async messages => {
+    const cleanup = await applyDirectives(root, state);
 
     assert.equal(root.querySelector("p").textContent, "");
     assert.equal(messages.length, 1);

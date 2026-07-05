@@ -23,12 +23,12 @@ The repository now includes:
 - Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
 - real DOM integration tests for directives, components, navigation, and requests
 
-Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 77 tests
+Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 80 tests
 pass, declarations are generated, the Vite production build completes, and
 `npm audit` reports zero known vulnerabilities.
 
-Remaining dynamic orchestrator typing, runtime feature-module splitting, and
-package publishing boundaries remain roadmap work.
+Remaining dynamic orchestrator typing and package publishing boundaries remain
+roadmap work.
 
 ## Technologies
 
@@ -52,7 +52,8 @@ src/
     vite-plugin/         build-time template compilation
     requests/            HTTP, auth, middleware, request directives
       request-bindings.ts target resolution and cross-page write policy
-    directives/          expression scope and state path engine
+    directives/          expression scope, runtime registry, feature modules
+      features/          lazy condition/text/binding/model/event/request/loop code
     errors/              framework error reporting and fatal screen
     expression/          safe tokenizer, parser, AST, and evaluator
     index.ts             public runtime entry and exported types
@@ -235,10 +236,11 @@ reactive state helpers, lifecycle, plugins, HTTP options, expression tokens,
 and error reporting have explicit types. TypeScript consumers narrow genuinely
 dynamic values while JavaScript consumers keep the same runtime API.
 
-This pass reduced explicit internal `any` annotations from 62 to 21. ESLint
+The type-hardening work reduced explicit internal `any` annotations from 62 to
+18 after the directive split. ESLint
 enforces `no-explicit-any` on every migrated boundary so later work cannot
 silently weaken them. The remaining annotations are isolated in the highly
-dynamic mount, directive, page, and request orchestrators and are tracked
+dynamic mount, page, and request orchestrators and are tracked
 separately in `todo.md`.
 
 Type checking also exposed and corrected a declaration mismatch:
@@ -289,15 +291,17 @@ The compiler currently provides:
 
 ### Compiler Optimizers and Tree-shaking
 
-Every compiled template now includes a deterministic manifest containing its
+Every compiled template includes a deterministic manifest containing its
 normalized directives and coarse runtime features such as `bindings`,
-`events`, `requests`, and `components`. This is the stable extension point for
-splitting runtime features into independently tree-shakeable modules later.
+`events`, `requests`, and `components`. The Vite adapter loads this manifest
+alongside template HTML, and the runtime uses it to activate only the directive
+feature modules required by that page or component.
 
 Production template modules omit development metadata by default. The small
-`__vdManifest` named export remains available to build integrations and can be
-removed naturally by the bundler when only the default HTML export is used.
-Both artifacts can be controlled through Vite plugin options.
+`__vdManifest` named export drives the Vite adapter's feature selection.
+Custom adapters may omit manifests and receive the full backward-compatible
+runtime feature set. Both compiler artifacts can be controlled through Vite
+plugin options.
 
 Advanced framework/build integrations can register synchronous optimizers:
 
@@ -337,6 +341,30 @@ and may update HTML, AST, metadata, or diagnostics. Their output is validated,
 named failures are reported clearly, and asynchronous optimizers are rejected
 so the standalone compiler remains deterministic. Application authors do not
 need to configure optimizers for normal VeloDom usage.
+
+### Runtime Feature Loading
+
+Directive execution is split into lazy modules for:
+
+- conditionals
+- text
+- visibility
+- bindings
+- model
+- events
+- requests
+- loops
+
+`applyDirectives()` loads the selected modules once, caches them, and then keeps
+reactive updates and loop rerenders synchronous. Page and component mounting
+await initial directive preparation before calling `mounted`, so application
+lifecycle ordering is unchanged.
+
+On the showcase production build, this reduced the main entry from 78.49 kB to
+54.08 kB and its gzip size from 25.86 kB to 17.88 kB. Feature code is emitted
+as independent chunks and loaded only when a compiled template manifest needs
+it. These figures are local comparison measurements, not cross-device
+benchmarks.
 
 ## Pages
 
@@ -750,9 +778,9 @@ Files such as `page-router.ts`, `mount.ts`, and `request-router.ts` are internal
 
 See [todo.md](todo.md). The next architectural priorities are:
 
-1. split runtime directive features using compiler manifests
-2. type the remaining dynamic runtime orchestrators
-3. package publishing boundaries and semantic versioning rules
+1. type the remaining dynamic runtime orchestrators
+2. package publishing boundaries and semantic versioning rules
+3. add a minimal external package-consumer example
 4. CLI scaffolding
 
 ## Development Handoff
@@ -814,6 +842,12 @@ The type-hardening step replaced broad public/internal `any` contracts with
 framework boundaries. ESLint now rejects new explicit `any` in migrated files.
 `ApiErrorOptions`, `JsonRequestOptions`, and `UnknownRecord` are exported public
 types, and the `navigate` declaration now matches runtime behavior.
+
+The runtime-splitting step moved directive behaviors into lazy feature modules,
+extended page/component resource groups with compiled manifests, and made both
+page and component mounting feature-aware. Custom adapters without manifests
+retain the full compatibility runtime. Tests verify manifest selection, custom
+component-tag feature discovery, resource validation, and fallback behavior.
 
 Important decisions and deferred technical work are recorded in
 [NOTES.md](NOTES.md). Milestone history is recorded in

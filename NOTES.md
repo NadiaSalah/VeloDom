@@ -61,8 +61,8 @@
   manifest. Optimizers can add custom features, while changes to directive
   metadata automatically rebuild the built-in feature list.
 - Production template modules omit development metadata unless explicitly
-  requested. The named manifest export is available for build integrations and
-  remains tree-shakeable when consumers import only template HTML.
+  requested. The Vite adapter consumes the named manifest export for
+  page/component feature selection.
 - Public extensible records use `unknown`, requiring TypeScript consumers to
   narrow unmodelled values instead of receiving unsafe implicit `any`.
 - Migrated internal boundaries are protected by scoped
@@ -71,6 +71,11 @@
   removed alongside focused context interfaces, not by blind replacement.
 - The public navigation signature is `navigate(path, pagePath?)`, matching the
   folder-routing compatibility argument already implemented by the runtime.
+- Directive features are lazy modules selected by compiled manifests. The
+  registry caches loaded modules, while loop clones reuse the already-loaded
+  feature set synchronously.
+- Missing manifests intentionally select every directive feature, preserving
+  compatibility for custom resource adapters and direct runtime usage.
 
 ## Known Constraints
 
@@ -79,9 +84,7 @@
 - Some internal migration boundaries intentionally use permissive types while
   public contracts are explicit; tighten these incrementally without changing
   the JavaScript API.
-- Runtime directive handlers are not split into manifest-selected modules yet;
-  the compiler/build extension contract now exists for that next optimization.
-- Mount, directive, page-router, and request-router orchestration still use a
+- Mount, page-router, and request-router orchestration still use a
   small number of compatibility `any` annotations pending dedicated contracts.
 - Adapter/user-file source maps still need broader build-tool integration
   coverage beyond runtime stack-location parsing.

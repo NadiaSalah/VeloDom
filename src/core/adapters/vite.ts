@@ -1,15 +1,29 @@
 import {
   indexFolderFiles,
   indexFolderVariants,
+  mapLoaderExports,
   rebaseFiles
 } from "./resource-map.ts";
+import type {
+  RuntimeFeatureManifest
+} from "../compiler/types.ts";
+import type { ResourceAdapter } from "../types.ts";
 
-const pageHtmlFiles = import.meta.glob(
+const pageTemplateFiles = import.meta.glob(
   "../../pages/**/index.html",
   {
-    query: "?raw",
-    import: "default"
+    query: "?raw"
   }
+);
+const pageHtmlFiles = mapLoaderExports<string>(
+  pageTemplateFiles,
+  "default"
+);
+const pageManifestFiles = mapLoaderExports<
+  RuntimeFeatureManifest | undefined
+>(
+  pageTemplateFiles,
+  "__vdManifest"
 );
 
 const pageModuleFiles = import.meta.glob([
@@ -35,12 +49,21 @@ const pageStyleFiles = import.meta.glob(
   }
 );
 
-const componentHtmlFiles = import.meta.glob(
+const componentTemplateFiles = import.meta.glob(
   "../../components/**/index.html",
   {
-    query: "?raw",
-    import: "default"
+    query: "?raw"
   }
+);
+const componentHtmlFiles = mapLoaderExports<string>(
+  componentTemplateFiles,
+  "default"
+);
+const componentManifestFiles = mapLoaderExports<
+  RuntimeFeatureManifest | undefined
+>(
+  componentTemplateFiles,
+  "__vdManifest"
 );
 const componentModuleFiles = import.meta.glob([
   "../../components/**/script.ts",
@@ -55,7 +78,7 @@ const componentStyleFiles = import.meta.glob(
   }
 );
 
-export function createViteAdapter() {
+export function createViteAdapter(): ResourceAdapter {
   return {
     pages: {
       html: indexFolderFiles(
@@ -80,6 +103,11 @@ export function createViteAdapter() {
           "/page.config.js"
         ]
       ),
+      manifests: indexFolderFiles(
+        pageManifestFiles,
+        "../../pages/",
+        "/index.html"
+      ),
       styles: rebaseFiles(pageStyleFiles, "../../pages/")
     },
     components: {
@@ -96,6 +124,11 @@ export function createViteAdapter() {
           "/script.js",
           "/component.js"
         ]
+      ),
+      manifests: indexFolderFiles(
+        componentManifestFiles,
+        "../../components/",
+        "/index.html"
       ),
       styles: rebaseFiles(componentStyleFiles, "../../components/")
     }

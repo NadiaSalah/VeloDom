@@ -52,7 +52,7 @@ class FakeElement {
   }
 }
 
-test("bindings wait until their conditional element becomes active", () => {
+test("bindings wait until their conditional element becomes active", async () => {
   const element = new FakeElement({
     [VD.IF]: "Boolean(externalPostResult?.id)",
     [VD.HREF]: "'/blog/posts/' + externalPostResult.id"
@@ -60,7 +60,7 @@ test("bindings wait until their conditional element becomes active", () => {
   const state = createState({
     externalPostResult: null
   });
-  const cleanup = applyDirectives(element, state);
+  const cleanup = await applyDirectives(element, state);
 
   assert.equal(element.style.display, "none");
   assert.equal(element.hasAttribute("href"), false);

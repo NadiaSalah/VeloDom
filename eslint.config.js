@@ -47,6 +47,9 @@ export default tseslint.config(
   {
     files: [
       "src/core/compiler/**/*.ts",
+      "src/core/directives.ts",
+      "src/core/directives/features/**/*.ts",
+      "src/core/directives/runtime.ts",
       "src/core/errors/**/*.ts",
       "src/core/expression/evaluator.ts",
       "src/core/expression/parser.ts",

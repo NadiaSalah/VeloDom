@@ -126,6 +126,19 @@ test("compiler creates a deterministic runtime feature manifest", () => {
   ]);
 });
 
+test("custom component and slot tags contribute runtime features", () => {
+  const result = compileTemplate(`
+    <vd-component name="card">
+      <vd-child name="body">Body</vd-child>
+    </vd-component>
+  `);
+
+  assert.deepEqual(result.manifest.features, [
+    "components",
+    "slots"
+  ]);
+});
+
 test("custom optimizers transform output and extend the feature manifest", () => {
   const optimizer = defineTemplateOptimizer(
     "add-test-marker",

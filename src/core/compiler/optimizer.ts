@@ -45,7 +45,11 @@ export function runTemplateOptimizers(
   const additionalFeatures = new Set<string>();
   let current: TemplateCompileResult = {
     ...initialResult,
-    manifest: createRuntimeFeatureManifest(initialResult.metadata)
+    manifest: createRuntimeFeatureManifest(
+      initialResult.metadata,
+      [],
+      initialResult.ast
+    )
   };
 
   optimizers.forEach((optimizer, index) => {
@@ -100,7 +104,8 @@ export function runTemplateOptimizers(
       ...current,
       manifest: createRuntimeFeatureManifest(
         current.metadata,
-        additionalFeatures
+        additionalFeatures,
+        current.ast
       )
     };
   });
@@ -110,7 +115,8 @@ export function runTemplateOptimizers(
 
 export function createRuntimeFeatureManifest(
   metadata: DirectiveMetadata[],
-  additionalFeatures: Iterable<string> = []
+  additionalFeatures: Iterable<string> = [],
+  ast?: TemplateCompileResult["ast"]
 ): RuntimeFeatureManifest {
   const directives = new Set<string>();
   const features = new Set<string>(additionalFeatures);
@@ -122,6 +128,22 @@ export function createRuntimeFeatureManifest(
 
     if (feature) {
       features.add(feature);
+    }
+  });
+
+  ast?.children.forEach(node => {
+    const tagName = String(node.tagName || "").toLowerCase();
+
+    if (tagName === "vd-component" || tagName === "component") {
+      features.add(VD_COMPILER_FEATURES.COMPONENTS);
+    }
+
+    if (
+      tagName === "vd-child"
+      || tagName === "child"
+      || tagName === "chiled"
+    ) {
+      features.add(VD_COMPILER_FEATURES.SLOTS);
     }
   });
 

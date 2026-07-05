@@ -6,6 +6,7 @@ import { applyScopedFolderStyles } from "./styles.ts";
 import { createPageEventHub } from "./events.ts";
 import {
   VD,
+  VD_COMPILER_FEATURES,
   VD_INTERNAL
 } from "./constants.ts";
 import { reportUserActionError } from "./errors/error-reporter.ts";
@@ -30,6 +31,7 @@ export function createPageRouter(adapter: any = {}, options: any = {}) {
   const pageModules = pageResources.modules || Object.create(null);
   const pageConfigs = pageResources.configs || Object.create(null);
   const pageStyles = pageResources.styles || Object.create(null);
+  const pageManifests = pageResources.manifests || Object.create(null);
   const runtime = {
     availablePages: new Set(Object.keys(pageHtml)),
     pageConfigs,
@@ -113,7 +115,11 @@ export function createPageRouter(adapter: any = {}, options: any = {}) {
         throw error;
       }
 
-      const html = await loadHtml();
+      const loadManifest = pageManifests[page];
+      const [html, manifest] = await Promise.all([
+        loadHtml(),
+        loadManifest?.() ?? null
+      ]);
 
       app.innerHTML = html;
       await applyScopedFolderStyles(
@@ -154,21 +160,24 @@ export function createPageRouter(adapter: any = {}, options: any = {}) {
 
       }
 
-      const directivesCleanup = applyDirectives(app, state, {
+      const directivesCleanup = await applyDirectives(app, state, {
         el: app,
         props: {},
         page: ctx.page,
         getPageState: ctx.getPageState,
-        hasPage: ctx.hasPage
+        hasPage: ctx.hasPage,
+        features: manifest?.features
       });
 
-      const componentsCleanup = await mount(
-        app,
-        state,
-        [],
-        ctx,
-        componentResources
-      );
+      const componentsCleanup = shouldMountComponents(manifest)
+        ? await mount(
+          app,
+          state,
+          [],
+          ctx,
+          componentResources
+        )
+        : null;
 
       activePageCleanup = onceAsync(async () => {
         await componentsCleanup?.();
@@ -294,6 +303,12 @@ export function createPageRouter(adapter: any = {}, options: any = {}) {
     init,
     navigate
   };
+}
+
+function shouldMountComponents(manifest) {
+  return !manifest || manifest.features.includes(
+    VD_COMPILER_FEATURES.COMPONENTS
+  );
 }
 
 function onceAsync(callback) {
