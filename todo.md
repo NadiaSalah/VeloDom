@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**160 of 232 tasks completed — 69.0%**
+**163 of 235 tasks completed — 69.4%**
 
 `██████████████░░░░░░`
 
@@ -85,6 +85,12 @@ runtime work.
 - [x] Validate directive expressions during compilation
 - [x] Report expression diagnostics with source offsets
 - [x] Document intentionally unsupported JavaScript syntax
+
+### 0.7 Code Documentation Standards
+
+- [x] Add an English responsibility header to every TypeScript file in `src/core`
+- [x] Add JSDoc to every exported core function, class, interface, type, and constant
+- [x] Enforce core headers and exported JSDoc through `npm run docs:check`
 
 ### Phase 0 Acceptance Criteria
 

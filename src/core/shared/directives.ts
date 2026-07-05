@@ -1,3 +1,14 @@
+/**
+ * ----------------------------------------
+ * Module: Directive Contracts
+ * ----------------------------------------
+ *
+ * Defines compiler-facing directive names and binding targets shared across
+ * parsing, validation, and runtime normalization.
+ * ----------------------------------------
+ */
+
+/** Preferred HTML-first directive names accepted by the compiler. */
 export const PREFERRED_DIRECTIVES = Object.freeze([
   "alt",
   "attr",
@@ -34,6 +45,7 @@ export const PREFERRED_DIRECTIVES = Object.freeze([
   "error"
 ]);
 
+/** Attribute-style bindings supported by vd-bind. */
 export const BINDING_DIRECTIVES = Object.freeze([
   "alt",
   "attr",
@@ -46,6 +58,7 @@ export const BINDING_DIRECTIVES = Object.freeze([
   "value"
 ]);
 
+/** Returns whether a directive uses a supported preferred name. */
 export function isPreferredDirective(name: string) {
   return PREFERRED_DIRECTIVES.some(directive => (
     directive.endsWith("-")

@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Request Authentication
+ * ----------------------------------------
+ *
+ * Builds provider-based auth runtimes, resolves request sessions and roles,
+ * and supplies optional server-session and localStorage provider helpers.
+ * ----------------------------------------
+ */
+
 import {
   VD_AUTH,
   VD_REQUEST
@@ -34,6 +44,7 @@ interface ServerAuthOptions {
   sessionUrl: string;
 }
 
+/** Creates a validated authentication provider registry. */
 export function createAuthRuntime(config: unknown = {}): AuthRuntime {
   if (!isPlainObject(config)) {
     throw new TypeError("VeloDom auth configuration must be a plain object");
@@ -75,6 +86,7 @@ export function createAuthRuntime(config: unknown = {}): AuthRuntime {
   };
 }
 
+/** Normalizes a route auth declaration against the configured runtime. */
 export function normalizeRequestAuthConfig(
   value: unknown,
   runtime = createAuthRuntime()
@@ -116,6 +128,7 @@ export function normalizeRequestAuthConfig(
   };
 }
 
+/** Resolves and normalizes the authenticated session for one request. */
 export async function resolveRequestSession(
   authConfig: NormalizedAuthConfig | null,
   {
@@ -164,6 +177,7 @@ export async function resolveRequestSession(
   return normalizeAuthSession(payload, authConfig.provider);
 }
 
+/** Creates an auth provider backed by a server session endpoint. */
 export function createServerSessionAuthProvider(
   defaults: unknown = {}
 ): AuthProvider {
@@ -216,6 +230,7 @@ export function createServerSessionAuthProvider(
   };
 }
 
+/** Creates a browser-only localStorage auth provider for demonstrations. */
 export function createLocalStorageAuthProvider(
   defaults: unknown = {}
 ): AuthProvider {
@@ -282,6 +297,7 @@ export function createLocalStorageAuthProvider(
   };
 }
 
+/** Normalizes provider payloads into the session shape used by requests. */
 export function normalizeAuthSession(payload: unknown, source = "") {
   if (payload === null || payload === undefined || payload === false) {
     return null;
@@ -324,6 +340,7 @@ export function normalizeAuthSession(payload: unknown, source = "") {
   };
 }
 
+/** Returns the framework's default server-session endpoint. */
 export function getDefaultAuthSessionUrl() {
   return VD_AUTH.SESSION_URL;
 }

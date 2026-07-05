@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Template Compiler
+ * ----------------------------------------
+ *
+ * Parses HTML start tags, normalizes VeloDom directives, validates template
+ * expressions, emits diagnostics, and invokes optimizer extensions.
+ * ----------------------------------------
+ */
+
 import {
   BINDING_DIRECTIVES,
   isPreferredDirective
@@ -13,12 +23,14 @@ import type {
   TemplateAst
 } from "./types.ts";
 
+/** Public optimizer utilities exposed through the compiler package entry. */
 export {
   createRuntimeFeatureManifest,
   defineTemplateOptimizer,
   runTemplateOptimizers
 } from "./optimizer.ts";
 
+/** Public compiler contracts exposed to build-tool integrations. */
 export type {
   CompilerDiagnostic,
   CompilerMode,
@@ -52,6 +64,9 @@ const EXPRESSION_DIRECTIVES = new Set([
   "data-vd-value"
 ]);
 
+/**
+ * Compiles one HTML template into normalized runtime HTML and metadata.
+ */
 export function compileTemplate(
   source: string,
   options: CompilerOptions = {}

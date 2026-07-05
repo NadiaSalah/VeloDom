@@ -1,11 +1,24 @@
+/**
+ * ----------------------------------------
+ * Module: Directive Runtime Contracts
+ * ----------------------------------------
+ *
+ * Defines feature-module contracts and shared DOM helpers used by the lazy
+ * directive registry without coupling feature implementations together.
+ * ----------------------------------------
+ */
+
+/** DOM root accepted by directive discovery. */
 export type DirectiveRoot = ParentNode & {
   matches?(selector: string): boolean;
 };
 
+/** Reactive state shape required by directive feature modules. */
 export type DirectiveState = Record<string, unknown> & {
   _subscribe(callback: () => void): () => void;
 };
 
+/** Shared page/component context passed to directive features. */
 export interface DirectiveRuntimeContext {
   props: Record<string, unknown>;
   root: Element | DirectiveRoot;
@@ -14,6 +27,7 @@ export interface DirectiveRuntimeContext {
   hasPage: ((pageName: string) => boolean) | null;
 }
 
+/** Options accepted while preparing directives for one DOM subtree. */
 export interface DirectiveRuntimeOptions {
   el?: Element;
   props?: Record<string, unknown>;
@@ -23,8 +37,10 @@ export interface DirectiveRuntimeOptions {
   features?: string[];
 }
 
+/** Cleanup callback owned by a directive or rendered loop item. */
 export type DirectiveCleanup = () => unknown;
 
+/** Complete execution context supplied to one directive feature module. */
 export interface DirectiveFeatureRuntime {
   root: DirectiveRoot;
   state: DirectiveState;
@@ -37,12 +53,15 @@ export interface DirectiveFeatureRuntime {
   ): DirectiveCleanup;
 }
 
+/** Synchronous applicator exported by a lazy directive feature module. */
 export type DirectiveFeature = (
   runtime: DirectiveFeatureRuntime
 ) => void;
 
+/** Visibility state shared between conditionals and dependent features. */
 export const conditionalVisibility = new WeakMap<Element, boolean>();
 
+/** Finds elements carrying one normalized runtime directive. */
 export function findAll(root: DirectiveRoot, name: string) {
   const selector = `[${name}]`;
   const nodes: Element[] = [];
@@ -56,10 +75,12 @@ export function findAll(root: DirectiveRoot, name: string) {
   return nodes;
 }
 
+/** Returns whether an element belongs to an unrendered loop template. */
 export function isInsideForTemplate(el: Element, forDirective: string) {
   return Boolean(el.closest(`[${forDirective}]`));
 }
 
+/** Returns whether an element is suspended by an inactive conditional. */
 export function isConditionallyInactive(el: Element) {
   return (
     conditionalVisibility.get(el) === false
@@ -67,6 +88,7 @@ export function isConditionallyInactive(el: Element) {
   );
 }
 
+/** Returns whether an ancestor conditional currently hides an element. */
 export function hasInactiveConditionalAncestor(el: Element) {
   let parent = el.parentElement;
 

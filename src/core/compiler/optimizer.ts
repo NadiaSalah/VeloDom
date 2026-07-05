@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Template Optimizer Pipeline
+ * ----------------------------------------
+ *
+ * Validates and runs compiler optimizer extensions, then creates conservative
+ * runtime feature manifests used for lazy directive feature loading.
+ * ----------------------------------------
+ */
+
 import {
   VD_COMPILER_FEATURES,
   VD_COMPILER_OPTIMIZER_RESULT_KEYS
@@ -11,6 +21,7 @@ import type {
   TemplateOptimizerResult
 } from "./types.ts";
 
+/** Creates a validated named optimizer definition. */
 export function defineTemplateOptimizer(
   name: string,
   optimize: TemplateOptimizer["optimize"]
@@ -33,6 +44,12 @@ export function defineTemplateOptimizer(
   });
 }
 
+/**
+ * Runs optimizers in registration order.
+ *
+ * Architecture note: optimizers remain synchronous so standalone compilation
+ * is deterministic across Node, Vite, tests, and future CLI integrations.
+ */
 export function runTemplateOptimizers(
   initialResult: Omit<TemplateCompileResult, "manifest">,
   context: Omit<TemplateOptimizerContext, "addRuntimeFeature">,
@@ -113,6 +130,7 @@ export function runTemplateOptimizers(
   return current;
 }
 
+/** Builds a deterministic runtime manifest from metadata and template tags. */
 export function createRuntimeFeatureManifest(
   metadata: DirectiveMetadata[],
   additionalFeatures: Iterable<string> = [],

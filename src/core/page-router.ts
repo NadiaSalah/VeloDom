@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Page Runtime Router
+ * ----------------------------------------
+ *
+ * Coordinates browser navigation, route guards, lazy page resources, reactive
+ * page persistence, directives, components, lifecycle, and cleanup.
+ * ----------------------------------------
+ */
+
 import { disposeTree, mount } from "./mount.ts";
 import { applyDirectives } from "./directives.ts";
 import { getRefs } from "./refs.ts";
@@ -23,6 +33,12 @@ import {
 import { validateResourceAdapter } from "./resource-adapter.ts";
 import { normalizeFolderPath } from "./shared/path.ts";
 
+/**
+ * Creates the browser page router from injected resource maps.
+ *
+ * Architecture note: folder discovery remains in adapters; this module only
+ * consumes validated logical page names and lazy loaders.
+ */
 export function createPageRouter(adapter: any = {}, options: any = {}) {
   const resources = validateResourceAdapter(adapter);
   const pageResources = resources.pages;

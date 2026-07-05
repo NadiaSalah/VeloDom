@@ -1,8 +1,19 @@
+/**
+ * ----------------------------------------
+ * Module: Lifecycle Scope
+ * ----------------------------------------
+ *
+ * Owns cleanup callbacks and an AbortSignal for one page or component, then
+ * disposes resources once in reverse registration order.
+ * ----------------------------------------
+ */
+
 import type {
   LifecycleContext,
   MaybePromise
 } from "./types.ts";
 
+/** Creates an abortable lifecycle context around an application context. */
 export function createLifecycleScope<
   TContext extends object = Record<string, never>
 >(

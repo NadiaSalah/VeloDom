@@ -1,3 +1,14 @@
+/**
+ * ----------------------------------------
+ * Module: Resource Map Utilities
+ * ----------------------------------------
+ *
+ * Indexes build-tool resource loaders by page or component folder while
+ * preserving lazy loading and preferred filename precedence.
+ * ----------------------------------------
+ */
+
+/** Indexes one canonical file per folder. */
 export function indexFolderFiles(files, prefix, suffix) {
   const indexed = Object.create(null);
 
@@ -18,6 +29,7 @@ export function indexFolderFiles(files, prefix, suffix) {
   return indexed;
 }
 
+/** Creates lazy readers for named exports from discovered modules. */
 export function mapLoaderExports<T = unknown>(
   files: Record<string, () => Promise<unknown>>,
   exportName: string
@@ -36,6 +48,7 @@ export function mapLoaderExports<T = unknown>(
   );
 }
 
+/** Removes an adapter-specific path prefix from resource keys. */
 export function rebaseFiles(files, prefix) {
   const rebased = Object.create(null);
 
@@ -48,6 +61,7 @@ export function rebaseFiles(files, prefix) {
   return rebased;
 }
 
+/** Selects the highest-priority filename variant for each folder. */
 export function indexFolderVariants(files, prefix, suffixes) {
   const indexed = Object.create(null);
   const priorities = new Map(

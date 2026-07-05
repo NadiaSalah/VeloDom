@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Safe Expression Parser
+ * ----------------------------------------
+ *
+ * Tokenizes and parses the intentionally limited template expression grammar
+ * without invoking JavaScript evaluation or exposing browser globals.
+ * ----------------------------------------
+ */
+
 import { VD_EXPRESSION } from "../constants.ts";
 
 const BINARY_PRECEDENCE = Object.freeze({
@@ -74,6 +84,7 @@ type ExpressionToken =
   | PlainToken
   | TemplateToken;
 
+/** Syntax error carrying the precise expression offset and framework code. */
 export class ExpressionSyntaxError extends SyntaxError {
   override code: string;
   offset: number;
@@ -86,6 +97,7 @@ export class ExpressionSyntaxError extends SyntaxError {
   }
 }
 
+/** Parses one safe template expression into an expression AST. */
 export function parseExpression(source: string) {
   if (typeof source !== "string" || !source.trim()) {
     throw new ExpressionSyntaxError(
@@ -101,6 +113,7 @@ export function parseExpression(source: string) {
   return ast;
 }
 
+/** Tokenizes one template expression for parser and diagnostic tooling. */
 export function tokenizeExpression(source: string) {
   const tokens = [];
   let index = 0;

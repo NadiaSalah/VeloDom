@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Event Directives
+ * ----------------------------------------
+ *
+ * Attaches normalized event handlers, enforces modifiers, evaluates safe
+ * handler expressions, and removes listeners during subtree cleanup.
+ * ----------------------------------------
+ */
+
 import {
   VD,
   VD_EVENT_KEY_MODIFIERS
@@ -13,6 +23,7 @@ import type {
   DirectiveRoot
 } from "../runtime.ts";
 
+/** Applies event directives and their keyboard/lifecycle modifiers. */
 export const applyEvents: DirectiveFeature = ({
   root,
   state,

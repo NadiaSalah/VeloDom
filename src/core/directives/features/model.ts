@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Model Directive
+ * ----------------------------------------
+ *
+ * Synchronizes text and checkbox controls with writable application state and
+ * owns input listeners for deterministic teardown.
+ * ----------------------------------------
+ */
+
 import { VD } from "../../constants.ts";
 import {
   readValue,
@@ -11,6 +21,7 @@ import {
 } from "../runtime.ts";
 import type { DirectiveFeature } from "../runtime.ts";
 
+/** Applies two-way model bindings to supported form controls. */
 export const applyModel: DirectiveFeature = ({
   root,
   state,

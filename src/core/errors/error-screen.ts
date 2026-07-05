@@ -1,10 +1,22 @@
+/**
+ * ----------------------------------------
+ * Module: Fatal Error Screen
+ * ----------------------------------------
+ *
+ * Replaces a crashed application with one safe, text-only diagnostic screen
+ * and suppresses duplicate fatal render attempts.
+ * ----------------------------------------
+ */
+
 let fatalScreenShown = false;
 
+/** Options controlling the fatal diagnostic title and details. */
 export interface FatalErrorScreenOptions {
   title?: string;
   details?: string;
 }
 
+/** Renders the first fatal framework failure as escaped text. */
 export function renderFatalFrameworkError(
   error: unknown,
   options: FatalErrorScreenOptions = {}

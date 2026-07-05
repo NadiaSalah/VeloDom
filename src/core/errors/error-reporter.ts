@@ -1,5 +1,16 @@
+/**
+ * ----------------------------------------
+ * Module: Structured Error Reporter
+ * ----------------------------------------
+ *
+ * Normalizes runtime failures, resolves source locations, formats directive
+ * context, selects console severity, and optionally renders a fatal screen.
+ * ----------------------------------------
+ */
+
 import { renderFatalFrameworkError } from "./error-screen.ts";
 
+/** Structured context attached to one runtime error report. */
 export interface ErrorReportOptions {
   title?: string;
   directive?: string;
@@ -13,6 +24,7 @@ export interface ErrorReportOptions {
   fatal?: boolean;
 }
 
+/** Formats and reports a runtime failure without hiding its original cause. */
 export function reportUserActionError(
   error: unknown,
   options: ErrorReportOptions = {}

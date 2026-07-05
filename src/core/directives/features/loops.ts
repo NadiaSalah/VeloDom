@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Loop Directives
+ * ----------------------------------------
+ *
+ * Renders iterable vd-for blocks with local scopes and guarantees that old
+ * nodes, listeners, and subscriptions are disposed before rerender.
+ * ----------------------------------------
+ */
+
 import { VD } from "../../constants.ts";
 import {
   createScope,
@@ -19,6 +29,7 @@ interface RenderedLoopItem {
   cleanup: DirectiveCleanup;
 }
 
+/** Applies loop templates using the feature set already loaded by the parent. */
 export const applyLoops: DirectiveFeature = ({
   root,
   state,

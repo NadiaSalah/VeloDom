@@ -19,6 +19,7 @@ The repository now includes:
 - a Vite folder-discovery adapter
 - generated public declaration files
 - TypeScript type checking and ESLint quality gates
+- enforced English module headers and exported-API JSDoc across all core files
 - a complete blog showcase application
 - Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
 - real DOM integration tests for directives, components, navigation, and requests
@@ -85,14 +86,17 @@ npm run dev
 Production build and tests:
 
 ```bash
+npm run docs:check
 npm run check
 npm test
 npm run build
 ```
 
-`npm run check` runs TypeScript and ESLint. `npm run types` generates public
-declarations under `types/`; it clears stale declarations before generation.
-The production build runs both automatically.
+`npm run docs:check` verifies documentation headers and exported JSDoc for
+every TypeScript file under `src/core`. `npm run check` runs that audit,
+TypeScript, and ESLint. `npm run types` generates public declarations under
+`types/`; it clears stale declarations before generation. The production build
+runs the quality gates automatically.
 
 `src/core/types.ts` is framework source. The root `types/` directory is
 generated output, and `node_modules/@types` contains npm-managed declarations
@@ -246,6 +250,23 @@ separately in `todo.md`.
 Type checking also exposed and corrected a declaration mismatch:
 `app.navigate(path, pagePath?)` now matches the existing runtime implementation;
 the second argument was previously and incorrectly declared as an object.
+
+## Code Documentation Standards
+
+Every framework-owned TypeScript file under `src/core` begins with an English
+JSDoc module header describing its responsibility. Every exported function,
+class, interface, type, constant, and re-export group has adjacent JSDoc.
+
+Comments explain responsibilities, invariants, and architectural reasons rather
+than restating obvious statements. Important decisions—such as synchronous
+compiler optimizers, adapter injection, and asynchronous initial feature
+loading—have focused architecture notes beside their implementation.
+
+The rule is enforced by `scripts/check-core-docs.mjs`; missing headers, missing
+export documentation, or adjacent duplicate JSDoc blocks fail `npm run check`
+and therefore fail the production build.
+Application-owned JavaScript or TypeScript under `src/pages`, `src/components`,
+and `src/api` is not forced to use framework-maintainer documentation rules.
 
 ## Compiler and Directive Syntax
 
@@ -848,6 +869,11 @@ extended page/component resource groups with compiled manifests, and made both
 page and component mounting feature-aware. Custom adapters without manifests
 retain the full compatibility runtime. Tests verify manifest selection, custom
 component-tag feature discovery, resource validation, and fallback behavior.
+
+The documentation-standard step added synchronized English headers and exported
+API JSDoc to all 47 core TypeScript files. A dependency-free audit script now
+guards the rule through `npm run docs:check` and the normal `npm run check`
+pipeline.
 
 Important decisions and deferred technical work are recorded in
 [NOTES.md](NOTES.md). Milestone history is recorded in

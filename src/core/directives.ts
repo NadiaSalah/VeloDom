@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Directive Runtime Registry
+ * ----------------------------------------
+ *
+ * Loads manifest-selected directive feature chunks, caches their applicators,
+ * and coordinates synchronous reactive updates after initial preparation.
+ * ----------------------------------------
+ */
+
 import {
   VD_COMPILER_FEATURES,
   VD_DIRECTIVE_RUNTIME_FEATURES
@@ -13,6 +23,12 @@ import type {
 
 const featureCache = new Map<string, DirectiveFeature>();
 
+/**
+ * Prepares and applies the directive features required by one DOM subtree.
+ *
+ * Architecture note: initial setup is asynchronous for code splitting, while
+ * loaded feature applicators and later reactive updates remain synchronous.
+ */
 export async function applyDirectives(
   root: DirectiveRoot = document,
   state: DirectiveState,

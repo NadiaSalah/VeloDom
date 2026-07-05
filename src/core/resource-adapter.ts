@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Resource Adapter Validation
+ * ----------------------------------------
+ *
+ * Validates injected page/component resource maps so the generic runtime never
+ * depends directly on filesystem or build-tool conventions.
+ * ----------------------------------------
+ */
+
 import { isPlainObject } from "./shared/object.ts";
 import type {
   RuntimeFeatureManifest
@@ -13,6 +23,7 @@ interface ResourceGroupValidationOptions {
   requireHtml: boolean;
 }
 
+/** Fully validated lazy resources for one page/component group. */
 export interface ValidatedResourceGroup {
   html: Record<string, ResourceLoader<string>>;
   modules: Record<string, ResourceLoader<UnknownRecord>>;
@@ -24,11 +35,13 @@ export interface ValidatedResourceGroup {
   >;
 }
 
+/** Validated runtime resource adapter with page and component groups. */
 export interface ValidatedResourceAdapter {
   pages: ValidatedResourceGroup;
   components: ValidatedResourceGroup;
 }
 
+/** Validates an injected adapter and returns normalized resource groups. */
 export function validateResourceAdapter(
   adapter: unknown
 ): ValidatedResourceAdapter {

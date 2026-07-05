@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Vite Compiler Plugin
+ * ----------------------------------------
+ *
+ * Compiles raw page and component HTML during Vite loading and exposes
+ * development metadata plus production runtime feature manifests.
+ * ----------------------------------------
+ */
+
 import { readFile } from "node:fs/promises";
 import type { Plugin } from "vite";
 import { compileTemplate } from "../compiler/index.ts";
@@ -6,17 +16,20 @@ import type {
   CompilerOptions
 } from "../compiler/types.ts";
 
+/** Configuration for VeloDom's Vite template compiler integration. */
 export interface VeloDomVitePluginOptions {
   compiler?: Omit<CompilerOptions, "filename" | "mode">;
   emitManifest?: boolean;
   emitMetadata?: boolean | "development";
 }
 
+/** Options used by the pure template-module generator. */
 export interface TemplateModuleOptions extends VeloDomVitePluginOptions {
   filename?: string;
   mode?: CompilerMode;
 }
 
+/** Creates the Vite plugin that compiles VeloDom raw HTML modules. */
 export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
   let mode: CompilerMode = "development";
 
@@ -71,6 +84,7 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
   };
 }
 
+/** Generates one JavaScript template module without depending on Vite hooks. */
 export function createTemplateModule(
   source: string,
   options: TemplateModuleOptions = {}

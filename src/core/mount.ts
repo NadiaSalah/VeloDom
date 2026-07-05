@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Component Mounting
+ * ----------------------------------------
+ *
+ * Loads component resources, creates inherited reactive state, applies props,
+ * slots, refs, directives, nested components, lifecycle, and expose APIs.
+ * ----------------------------------------
+ */
+
 import {
   VD,
   VD_COMPILER_FEATURES,
@@ -24,6 +34,12 @@ import { normalizeFolderPath } from "./shared/path.ts";
 
 const loaded = new WeakSet();
 
+/**
+ * Mounts every component host under a DOM root.
+ *
+ * Architecture note: component resources are injected by an adapter, keeping
+ * this runtime independent from Vite and application folder discovery.
+ */
 export async function mount(
   root: any = document,
   parentState: any = null,
@@ -481,6 +497,7 @@ function isCustomSlotTag(node) {
     .includes(node.tagName);
 }
 
+/** Disposes every component cleanup callback attached to a DOM subtree. */
 export async function disposeTree(root: any) {
   const callbacks = new Set<() => unknown | Promise<unknown>>();
 

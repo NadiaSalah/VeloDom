@@ -1,5 +1,16 @@
+/**
+ * ----------------------------------------
+ * Module: JSON HTTP Client
+ * ----------------------------------------
+ *
+ * Sends abortable JSON requests, normalizes response parsing, and exposes
+ * structured transport errors without coupling requests to application APIs.
+ * ----------------------------------------
+ */
+
 import { isPlainObject } from "../shared/object.ts";
 
+/** Structured fields accepted by ApiError. */
 export interface ApiErrorOptions {
   status?: number;
   url?: string;
@@ -7,6 +18,7 @@ export interface ApiErrorOptions {
   cause?: unknown;
 }
 
+/** RequestInit-compatible options with JSON-friendly request bodies. */
 export interface JsonRequestOptions extends Omit<
   RequestInit,
   "body" | "headers" | "method"
@@ -16,6 +28,7 @@ export interface JsonRequestOptions extends Omit<
   body?: unknown;
 }
 
+/** Error carrying HTTP status, URL, response body, and original cause. */
 export class ApiError extends Error {
   status: number;
   url: string;
@@ -42,6 +55,7 @@ export class ApiError extends Error {
   }
 }
 
+/** Sends a request and returns its parsed JSON payload or null for HTTP 204. */
 export async function requestJson(
   url: RequestInfo | URL,
   options: JsonRequestOptions = {}

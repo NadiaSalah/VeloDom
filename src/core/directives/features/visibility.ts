@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Visibility Directive
+ * ----------------------------------------
+ *
+ * Toggles visual visibility and pointer interaction without removing the
+ * element or its layout slot from the document.
+ * ----------------------------------------
+ */
+
 import { VD } from "../../constants.ts";
 import { evaluate } from "../expression.ts";
 import {
@@ -7,6 +17,7 @@ import {
 } from "../runtime.ts";
 import type { DirectiveFeature } from "../runtime.ts";
 
+/** Applies reactive vd-show visibility behavior. */
 export const applyVisibility: DirectiveFeature = ({
   root,
   state,

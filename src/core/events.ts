@@ -1,5 +1,16 @@
+/**
+ * ----------------------------------------
+ * Module: Page Event Hub
+ * ----------------------------------------
+ *
+ * Provides page-scoped on/off/once/emit behavior with listener isolation,
+ * cleanup, and structured reporting for invalid or failing handlers.
+ * ----------------------------------------
+ */
+
 import { reportUserActionError } from "./errors/error-reporter.ts";
 
+/** Creates an isolated event hub owned by one mounted page. */
 export function createPageEventHub() {
   const listeners = new Map();
 

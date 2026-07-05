@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Plugin Manager
+ * ----------------------------------------
+ *
+ * Validates plugin contracts, installs plugins in registration order, and
+ * destroys their cleanup hooks in reverse order.
+ * ----------------------------------------
+ */
+
 import type {
   PluginContext,
   VeloDomPlugin
@@ -12,6 +22,7 @@ interface NormalizedPlugin<TContext> {
   cleanup: PluginCallback<TContext> | null;
 }
 
+/** Creates an idempotent manager for application plugin setup and cleanup. */
 export function createPluginManager(
   plugins: VeloDomPlugin[] = [],
   getContext: () => PluginContext = () => ({} as PluginContext)

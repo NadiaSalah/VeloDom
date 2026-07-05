@@ -1,9 +1,20 @@
+/**
+ * ----------------------------------------
+ * Module: Request Middleware Engine
+ * ----------------------------------------
+ *
+ * Resolves built-in and application middleware, then executes transform or
+ * explicit next-based pipelines around request route handlers.
+ * ----------------------------------------
+ */
+
 import {
   VD_MIDDLEWARE,
   VD_REQUEST
 } from "../constants.ts";
 import { isPlainObject } from "../shared/object.ts";
 
+/** Marks a middleware function with an explicit execution mode. */
 export function defineRequestMiddleware(
   handler,
   {
@@ -28,6 +39,7 @@ export function defineRequestMiddleware(
   return handler;
 }
 
+/** Resolves middleware names/functions against trusted registries. */
 export function resolveRequestMiddleware(entries = [], { custom = {} } = {}) {
   if (!Array.isArray(entries)) {
     return {
@@ -76,6 +88,7 @@ export function resolveRequestMiddleware(entries = [], { custom = {} } = {}) {
   };
 }
 
+/** Executes resolved middleware and the final request handler. */
 export async function executeRequestMiddleware({
   middleware = [],
   params = {},

@@ -1,14 +1,27 @@
+/**
+ * ----------------------------------------
+ * Module: Reactive State
+ * ----------------------------------------
+ *
+ * Creates shallow reactive state, inherited child scopes, subscriber cleanup,
+ * and guarded component expose merging without business-specific behavior.
+ * ----------------------------------------
+ */
+
 import { VD_PROTECTED_STATE_KEYS } from "./constants.ts";
 import { isPlainObject } from "./shared/object.ts";
 
+/** Internal subscriber methods attached non-enumerably to reactive state. */
 export interface ReactiveStateMethods {
   _subscribe(callback: () => void): () => void;
   _notify(): void;
   _dispose?(): void;
 }
 
+/** Combines application state with its reactive subscriber methods. */
 export type ReactiveState<T extends object> = T & ReactiveStateMethods;
 
+/** Wraps an object in VeloDom's shallow reactive proxy. */
 export function reactive<T extends object>(
   obj: T
 ): ReactiveState<T> {
@@ -49,12 +62,14 @@ export function reactive<T extends object>(
   return proxy as ReactiveState<T>;
 }
 
+/** Creates independent reactive state from defaults. */
 export function createState<T extends object = Record<string, unknown>>(
   defaults: T = {} as T
 ) {
   return reactive({ ...defaults });
 }
 
+/** Creates local reactive state that inherits reads from a parent scope. */
 export function createChildState<
   TParent extends object,
   TDefaults extends object = Record<string, unknown>
@@ -120,6 +135,7 @@ export function createChildState<
   return proxy as ReactiveState<TParent & TDefaults>;
 }
 
+/** Merges a module initialization result into existing reactive state. */
 export function mergeState(state, result) {
   const next = result?.state ?? result;
 
@@ -132,6 +148,7 @@ export function mergeState(state, result) {
   return state;
 }
 
+/** Adds validated component expose members to local component state. */
 export function mergeExposedMembers(
   state: Record<string, unknown>,
   expose: unknown

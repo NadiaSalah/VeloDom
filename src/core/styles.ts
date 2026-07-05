@@ -1,8 +1,19 @@
+/**
+ * ----------------------------------------
+ * Module: Scoped Folder Styles
+ * ----------------------------------------
+ *
+ * Loads page/component CSS resources and rewrites selectors under a generated
+ * scope attribute while preserving nested at-rules.
+ * ----------------------------------------
+ */
+
 import { VD } from "./constants.ts";
 import { reportUserActionError } from "./errors/error-reporter.ts";
 
 let scopeIndex = 0;
 
+/** Loads and scopes every stylesheet belonging to one resource folder. */
 export async function applyScopedFolderStyles(
   root,
   styleModules: Record<string, () => string | Promise<string>>,

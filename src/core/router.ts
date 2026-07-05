@@ -1,6 +1,17 @@
+/**
+ * ----------------------------------------
+ * Module: Route Matching
+ * ----------------------------------------
+ *
+ * Builds ranked route records, resolves params and query strings, and executes
+ * navigation guards without loading browser resources.
+ * ----------------------------------------
+ */
+
 import { isPlainObject } from "./shared/object.ts";
 import type { PageConfig } from "./types.ts";
 
+/** Builds a specificity-ranked route table from discovered page folders. */
 export function createRouteTable(
   pageNames: string[] = [],
   configs: Record<string, PageConfig> = {}
@@ -32,6 +43,7 @@ export function createRouteTable(
     .sort((a, b) => b.score - a.score);
 }
 
+/** Resolves a URL-like input against a route table. */
 export function resolveRouteLocation(input, routeTable) {
   const url = new URL(
     String(input || "/"),
@@ -71,6 +83,7 @@ export function resolveRouteLocation(input, routeTable) {
   };
 }
 
+/** Runs navigation guards until one blocks or redirects navigation. */
 export async function runNavigationGuards(guards, to, from) {
   for (const guard of guards) {
     if (typeof guard !== "function") continue;

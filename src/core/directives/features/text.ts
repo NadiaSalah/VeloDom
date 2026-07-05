@@ -1,3 +1,12 @@
+/**
+ * ----------------------------------------
+ * Module: Text Directive
+ * ----------------------------------------
+ *
+ * Keeps element text content synchronized with safe reactive expressions.
+ * ----------------------------------------
+ */
+
 import { VD } from "../../constants.ts";
 import { evaluate } from "../expression.ts";
 import {
@@ -7,6 +16,7 @@ import {
 } from "../runtime.ts";
 import type { DirectiveFeature } from "../runtime.ts";
 
+/** Applies reactive text bindings in the current subtree. */
 export const applyText: DirectiveFeature = ({
   root,
   state,

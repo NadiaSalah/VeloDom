@@ -27,11 +27,12 @@
     "build": "npm run check && npm run types && vite build",
     "preview": "vite preview",
     "test": "node --test",
+    "docs:check": "node scripts/check-core-docs.mjs",
     "typecheck": "tsc --noEmit",
     "clean:types": "node -e \"require('node:fs').rmSync('types', { recursive: true, force: true })\"",
     "types": "npm run clean:types && tsc --project tsconfig.types.json",
     "lint": "eslint .",
-    "check": "npm run typecheck && npm run lint"
+    "check": "npm run docs:check && npm run typecheck && npm run lint"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

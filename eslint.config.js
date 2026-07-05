@@ -71,6 +71,7 @@ export default tseslint.config(
   {
     files: [
       "src/**/*.js",
+      "scripts/**/*.mjs",
       "test/**/*.js",
       "*.js"
     ],

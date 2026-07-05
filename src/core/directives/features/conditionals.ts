@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Conditional Directives
+ * ----------------------------------------
+ *
+ * Evaluates vd-if/elseif/else chains, stores branch visibility, and reports
+ * invalid chain placement or non-boolean conditions once per element.
+ * ----------------------------------------
+ */
+
 import { VD } from "../../constants.ts";
 import { evaluate } from "../expression.ts";
 import { reportUserActionError } from "../../errors/error-reporter.ts";
@@ -11,6 +21,7 @@ import type { DirectiveFeature } from "../runtime.ts";
 const invalidPlacementReported = new WeakSet<Element>();
 const invalidTypeReported = new WeakSet<Element>();
 
+/** Applies conditional chains before dependent directive features run. */
 export const applyConditionals: DirectiveFeature = ({
   root,
   state,

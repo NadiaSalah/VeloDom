@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Vite Resource Adapter
+ * ----------------------------------------
+ *
+ * Discovers application-owned pages, components, scripts, styles, configs,
+ * and compiler manifests without leaking Vite APIs into the core runtime.
+ * ----------------------------------------
+ */
+
 import {
   indexFolderFiles,
   indexFolderVariants,
@@ -78,6 +88,9 @@ const componentStyleFiles = import.meta.glob(
   }
 );
 
+/**
+ * Creates the lazy resource adapter consumed by the generic VeloDom runtime.
+ */
 export function createViteAdapter(): ResourceAdapter {
   return {
     pages: {

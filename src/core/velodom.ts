@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Application Factory
+ * ----------------------------------------
+ *
+ * Composes routing, requests, authentication, middleware, plugins, and global
+ * error handling behind VeloDom's public createApp API.
+ * ----------------------------------------
+ */
+
 import { createPageRouter } from "./page-router.ts";
 import { reportUserActionError } from "./errors/error-reporter.ts";
 import { configureRequestRuntime } from "./requests/request-router.ts";
@@ -7,6 +17,7 @@ import type {
   VeloDomAppOptions
 } from "./types.ts";
 
+/** Creates a VeloDom application from injected resources and policies. */
 export function createApp(options: VeloDomAppOptions): VeloDomApp {
 
   configureRequestRuntime({

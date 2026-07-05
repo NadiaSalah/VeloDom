@@ -1,9 +1,20 @@
+/**
+ * ----------------------------------------
+ * Module: Request State Bindings
+ * ----------------------------------------
+ *
+ * Resolves local and cross-page request destinations, derives automatic status
+ * paths, and enforces protected-state and external-write policies.
+ * ----------------------------------------
+ */
+
 import { VD } from "../constants.ts";
 import {
   findProtectedStatePathKey,
   normalizeFolderPath
 } from "../shared/path.ts";
 
+/** Resolves one declarative request binding to state, path, and page owner. */
 export function resolveRequestBinding(
   targetAttr,
   pathAttr,
@@ -139,6 +150,7 @@ export function resolveRequestBinding(
   };
 }
 
+/** Derives a Loading or Error path from a request result binding. */
 export function createAutoStatusBinding(targetBinding, kind) {
   if (!targetBinding?.path) {
     return {
@@ -155,6 +167,7 @@ export function createAutoStatusBinding(targetBinding, kind) {
   };
 }
 
+/** Validates protected keys and cross-page write allowlists. */
 export function validateRequestBindingAccess(
   binding,
   currentState,

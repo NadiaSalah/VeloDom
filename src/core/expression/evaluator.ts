@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Safe Expression Evaluator
+ * ----------------------------------------
+ *
+ * Evaluates parsed template expressions against explicit state, props, event,
+ * and element scopes using a small allowlist of safe standard globals.
+ * ----------------------------------------
+ */
+
 import { VD_EXPRESSION } from "../constants.ts";
 import { parseExpression } from "./parser.ts";
 
@@ -24,6 +34,7 @@ const safeGlobals = Object.freeze({
   parseInt
 });
 
+/** Values explicitly available while evaluating a template expression. */
 export interface ExpressionScope {
   state?: Record<string, unknown>;
   event?: unknown;
@@ -31,6 +42,7 @@ export interface ExpressionScope {
   el?: unknown;
 }
 
+/** Parses, caches, and evaluates a safe expression against a scope. */
 export function evaluateExpression(
   source: string,
   scope: ExpressionScope = {}
@@ -50,6 +62,7 @@ export function evaluateExpression(
   });
 }
 
+/** Evaluates a previously parsed expression AST. */
 export function evaluateAst(ast, scope: Required<ExpressionScope>) {
   switch (ast.type) {
     case "Literal":
@@ -110,6 +123,7 @@ export function evaluateAst(ast, scope: Required<ExpressionScope>) {
   }
 }
 
+/** Clears cached expression ASTs, primarily for tests and development tools. */
 export function clearExpressionCache() {
   expressionCache.clear();
 }

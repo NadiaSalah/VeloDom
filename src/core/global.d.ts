@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Global Error Extensions
+ * ----------------------------------------
+ *
+ * Declares structured VeloDom metadata attached to Error instances across
+ * adapters, middleware, requests, and runtime diagnostics.
+ * ----------------------------------------
+ */
+
 export {};
 
 declare global {

@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Declarative Request Runtime
+ * ----------------------------------------
+ *
+ * Binds request directives to application route handlers, auth providers,
+ * middleware, state destinations, status fields, events, and cancellation.
+ * ----------------------------------------
+ */
+
 import {
   VD,
   VD_INTERNAL,
@@ -27,6 +37,7 @@ let apiRoutes = Object.create(null);
 let appRequestMiddleware = Object.create(null);
 let authRuntime = createAuthRuntime();
 
+/** Replaces the application-owned request routes, middleware, and auth config. */
 export function configureRequestRuntime({
   routes = {},
   middleware = {},
@@ -45,6 +56,7 @@ export function configureRequestRuntime({
   authRuntime = createAuthRuntime(auth);
 }
 
+/** Attaches request click/submit listeners beneath a directive root. */
 export function applyRequests(root, state, cleanups, context, helpers) {
   const {
     findAll,

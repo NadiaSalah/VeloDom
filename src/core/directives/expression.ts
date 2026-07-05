@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Directive Expression Bridge
+ * ----------------------------------------
+ *
+ * Connects directive state scopes and writable paths to the safe expression
+ * engine, including structured runtime diagnostics and protected-key checks.
+ * ----------------------------------------
+ */
+
 import {
   VD,
   VD_PROTECTED_STATE_KEYS
@@ -6,6 +16,7 @@ import { reportUserActionError } from "../errors/error-reporter.ts";
 import { evaluateExpression } from "../expression/index.ts";
 import { findProtectedStatePathKey } from "../shared/path.ts";
 
+/** Creates a loop-local scope that inherits from parent reactive state. */
 export function createScope(parent, locals) {
   return new Proxy(locals, {
     get(target, key) {
@@ -33,6 +44,7 @@ export function createScope(parent, locals) {
   });
 }
 
+/** Evaluates a directive expression and reports structured failures. */
 export function evaluate(
   expression,
   state,
@@ -62,6 +74,7 @@ export function evaluate(
   }
 }
 
+/** Reads a nested value from application state. */
 export function readValue(path, state) {
   const normalizedPath = resolvePathKeys(path, state);
 
@@ -72,6 +85,7 @@ export function readValue(path, state) {
     .reduce((value, key) => value?.[key], state);
 }
 
+/** Writes a nested state value after validating the path and target. */
 export function writeValue(path, state, value) {
   const protectedKey = findProtectedStatePathKey(path);
 
@@ -129,6 +143,7 @@ export function writeValue(path, state, value) {
   state._notify();
 }
 
+/** Returns whether a value can be consumed by vd-for. */
 export function isIterable(value) {
   return Boolean(value && typeof value[Symbol.iterator] === "function");
 }

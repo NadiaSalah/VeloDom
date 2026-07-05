@@ -4,6 +4,27 @@ All important local changes to VeloDom are recorded here. The project is not
 published yet, so entries describe development milestones rather than released
 package versions.
 
+## 2026-07-06
+
+### Documentation
+
+- Added English responsibility headers to all 47 TypeScript files under
+  `src/core`.
+- Added JSDoc to every exported core function, class, interface, type,
+  constant, and re-export group.
+- Added focused architecture notes for compiler determinism, adapter injection,
+  and lazy directive feature preparation.
+- Added a dependency-free `npm run docs:check` audit and included it in the
+  standard `npm run check` and production build gates.
+- The audit also rejects adjacent duplicate JSDoc blocks to keep refactors from
+  accumulating repeated documentation.
+
+### Verification
+
+- Core documentation audit covers 47 files.
+- TypeScript, ESLint, all 80 tests, declaration generation, and the production
+  build pass after the documentation update.
+
 ## 2026-07-05
 
 ### Changed

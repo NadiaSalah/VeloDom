@@ -1,3 +1,14 @@
+/**
+ * ----------------------------------------
+ * Module: Framework Constants
+ * ----------------------------------------
+ *
+ * Centralizes immutable directive names, protected keys, request stages,
+ * compiler features, and internal runtime identifiers used across VeloDom.
+ * ----------------------------------------
+ */
+
+/** Normalized runtime directive and custom-element names. */
 export const VD = Object.freeze({
   REF: "data-vd-ref",
   SCOPE: "data-vd-scope",
@@ -43,6 +54,7 @@ export const VD = Object.freeze({
   }
 });
 
+/** Authentication provider names, defaults, aliases, and valid credentials. */
 export const VD_AUTH = Object.freeze({
   STORAGE_KEY: "vd-user-session",
   SESSION_URL: "/api/auth/session",
@@ -71,6 +83,7 @@ export const VD_AUTH = Object.freeze({
   ])
 });
 
+/** Middleware execution modes and their internal marker. */
 export const VD_MIDDLEWARE = Object.freeze({
   MODE: Symbol("vdMiddlewareMode"),
   MODES: Object.freeze({
@@ -79,12 +92,14 @@ export const VD_MIDDLEWARE = Object.freeze({
   })
 });
 
+/** Private runtime keys and sentinel values. */
 export const VD_INTERNAL = Object.freeze({
   CLEANUP_KEY: "__vdCleanup",
   REQUEST_ABORT: Symbol("VD_REQUEST_ABORT"),
   PAGE_NOT_FOUND_CODE: "VD_PAGE_NOT_FOUND"
 });
 
+/** Request event names, stages, and public error codes. */
 export const VD_REQUEST = Object.freeze({
   EVENTS: Object.freeze({
     SUCCESS: "vd:request:success",
@@ -101,6 +116,7 @@ export const VD_REQUEST = Object.freeze({
   })
 });
 
+/** State keys that application bindings and expose APIs may not replace. */
 export const VD_PROTECTED_STATE_KEYS = Object.freeze([
   "__proto__",
   "prototype",
@@ -117,6 +133,7 @@ export const VD_PROTECTED_STATE_KEYS = Object.freeze([
   "__vdPageName"
 ]);
 
+/** Keyboard modifiers recognized by event directives. */
 export const VD_EVENT_KEY_MODIFIERS = Object.freeze([
   "enter",
   "tab",
@@ -129,6 +146,7 @@ export const VD_EVENT_KEY_MODIFIERS = Object.freeze([
   "right"
 ]);
 
+/** Identifiers and members blocked by the safe expression evaluator. */
 export const VD_EXPRESSION = Object.freeze({
   BLOCKED_IDENTIFIERS: Object.freeze([
     "Function",
@@ -155,6 +173,7 @@ export const VD_EXPRESSION = Object.freeze({
   ])
 });
 
+/** Coarse compiler feature names used by runtime manifests. */
 export const VD_COMPILER_FEATURES = Object.freeze({
   BINDINGS: "bindings",
   COMPONENTS: "components",
@@ -170,6 +189,7 @@ export const VD_COMPILER_FEATURES = Object.freeze({
   VISIBILITY: "visibility"
 });
 
+/** Compile-result fields that optimizer extensions may replace. */
 export const VD_COMPILER_OPTIMIZER_RESULT_KEYS = Object.freeze([
   "html",
   "ast",
@@ -177,6 +197,7 @@ export const VD_COMPILER_OPTIMIZER_RESULT_KEYS = Object.freeze([
   "diagnostics"
 ]);
 
+/** Manifest features implemented by lazy directive runtime modules. */
 export const VD_DIRECTIVE_RUNTIME_FEATURES = Object.freeze([
   VD_COMPILER_FEATURES.CONDITIONALS,
   VD_COMPILER_FEATURES.TEXT,

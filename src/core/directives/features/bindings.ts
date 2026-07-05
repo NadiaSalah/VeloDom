@@ -1,3 +1,13 @@
+/**
+ * ----------------------------------------
+ * Module: Binding Directives
+ * ----------------------------------------
+ *
+ * Applies reactive attribute, value, boolean, class, style, and generic
+ * attribute bindings while respecting inactive conditional branches.
+ * ----------------------------------------
+ */
+
 import { VD } from "../../constants.ts";
 import { evaluate } from "../expression.ts";
 import {
@@ -11,6 +21,7 @@ import type {
   DirectiveState
 } from "../runtime.ts";
 
+/** Applies every normalized binding directive in one runtime subtree. */
 export function applyBindings(runtime: DirectiveFeatureRuntime) {
   const {
     root,
