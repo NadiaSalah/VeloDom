@@ -46,6 +46,9 @@ package versions.
 - Completed request-directive integration coverage for request config, request
   state automation, explicit bindings, cross-page allowlists, blocked writes,
   invalid configuration, success/error events, and cancellation.
+- Completed error-system integration coverage for structured reports,
+  fallback and parsed source locations, directive context, warning output,
+  safe fatal-screen rendering, and duplicate-fatal suppression.
 
 ### Fixed
 
@@ -68,7 +71,7 @@ package versions.
 ### Verification
 
 - TypeScript and ESLint checks pass.
-- `npm test`: 67 tests passing.
+- `npm test`: 72 tests passing.
 - `npm run build`: production build successful.
 - `npm audit`: zero known vulnerabilities.
 

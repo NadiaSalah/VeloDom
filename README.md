@@ -23,12 +23,12 @@ The repository now includes:
 - Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
 - real DOM integration tests for directives, components, navigation, and requests
 
-Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 67 tests
+Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 72 tests
 pass, declarations are generated, the Vite production build completes, and
 `npm audit` reports zero known vulnerabilities.
 
 Optimizer hooks, stricter internal typing, tree-shaking extension points, and
-the remaining structured/fatal error integration cases remain roadmap work.
+package publishing boundaries remain roadmap work.
 
 ## Technologies
 
@@ -527,6 +527,8 @@ system rather than isolated fake elements. It currently verifies:
 - request result/loading/error writes, success events, and abort-on-unmount
 - request-config/request-state automation, explicit cross-page state writes,
   allowlist enforcement, invalid configuration, and request error events
+- structured error formatting, Windows/source stack locations,
+  directive-specific diagnostics, warnings, and the one-time fatal screen
 
 `happy-dom` is a test-only dependency and is not included in application
 runtime bundles.
@@ -676,9 +678,9 @@ Files such as `page-router.ts`, `mount.ts`, and `request-router.ts` are internal
 See [todo.md](todo.md). The next architectural priorities are:
 
 1. optimizer and tree-shaking extension points
-2. structured runtime error and fatal-screen integration tests
-3. stricter internal types with fewer compatibility `any` boundaries
-4. package publishing boundaries and CLI scaffolding
+2. stricter internal types with fewer compatibility `any` boundaries
+3. package publishing boundaries and semantic versioning rules
+4. CLI scaffolding
 
 ## Development Handoff
 
@@ -722,6 +724,11 @@ The latest request-hardening step added
 config, automatic status names, explicit cross-page bindings, page allowlists,
 blocked writes, request failures, and invalid configuration. No core behavior
 change was required by this step.
+
+The error-system step added `test/integration/errors.test.js`. It verifies
+structured console output, fallback and parsed source locations,
+directive-specific context, warning routing, safe text rendering, and the
+single fatal-screen guard. No core behavior change was required by this step.
 
 Important decisions and deferred technical work are recorded in
 [NOTES.md](NOTES.md). Milestone history is recorded in

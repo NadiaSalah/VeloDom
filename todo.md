@@ -242,10 +242,10 @@ and `src/api`.
 
 ### 4. Error System
 
-- [ ] Add tests for structured runtime error formatting
-- [ ] Add tests for file/line/column reporting
-- [ ] Add tests for directive-specific error messages
-- [ ] Add tests for fatal error screen behavior
+- [x] Add tests for structured runtime error formatting
+- [x] Add tests for file/line/column reporting
+- [x] Add tests for directive-specific error messages
+- [x] Add tests for fatal error screen behavior
 - [x] Add tests for invalid request config reporting
 - [x] Add tests for invalid external write reporting
 
