@@ -172,10 +172,16 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
   const autoErrorBinding = !errorAttr && requestStateEnabled
     ? createAutoStatusBinding(targetBinding, "error")
     : null;
+  const statusTargetAttr = targetBinding.state === state
+    ? ""
+    : targetAttr;
+  const statusPathAttr = targetBinding.state === state
+    ? ""
+    : pathAttr;
 
   const loadingBinding = autoLoadingBinding || resolveRequestBinding(
-    targetAttr,
-    pathAttr,
+    statusTargetAttr,
+    statusPathAttr,
     loadingAttr,
     state,
     context,
@@ -192,8 +198,8 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
   })) return;
 
   const errorBinding = autoErrorBinding || resolveRequestBinding(
-    targetAttr,
-    pathAttr,
+    statusTargetAttr,
+    statusPathAttr,
     errorAttr,
     state,
     context,

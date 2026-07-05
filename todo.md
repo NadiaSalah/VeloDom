@@ -194,41 +194,42 @@ and `src/api`.
 
 ### 1. Core Stability
 
-- [ ] Add tests for page routing
-- [ ] Add tests for component mounting and unmount cleanup
-- [ ] Add tests for refs collection
-- [ ] Add tests for grouped component refs with `data-vd-key`
-- [ ] Add tests for event bus behavior: `on`, `off`, `once`, `emit`
-- [ ] Add tests for page state persistence
-- [ ] Add tests for child state inheritance and local override behavior
+- [x] Add tests for page routing
+- [x] Add tests for component mounting and unmount cleanup
+- [x] Add tests for refs collection
+- [x] Add tests for grouped component refs with `data-vd-key`
+- [x] Add tests for event bus behavior: `on`, `off`, `once`, `emit`
+- [x] Add tests for page state persistence
+- [x] Add tests for child state inheritance and local override behavior
 
 ### 2. Directives Coverage
 
 - [x] Add tests for `data-vd-if`
-- [ ] Add tests for `data-vd-elseif`
-- [ ] Add tests for `data-vd-else`
-- [ ] Add tests for `data-vd-show`
-- [ ] Add tests for `data-vd-text`
-- [ ] Add tests for `data-vd-model`
-- [ ] Add tests for `data-vd-class`
-- [ ] Add tests for `data-vd-style`
-- [ ] Add tests for `data-vd-attr`
-- [ ] Add tests for `data-vd-value`
-- [ ] Add tests for `data-vd-src`
+- [x] Add tests for `data-vd-elseif`
+- [x] Add tests for `data-vd-else`
+- [x] Add tests for `data-vd-show`
+- [x] Add tests for `data-vd-text`
+- [x] Add tests for `data-vd-model`
+- [x] Add tests for `data-vd-class`
+- [x] Add tests for `data-vd-style`
+- [x] Add tests for `data-vd-attr`
+- [x] Add tests for `data-vd-value`
+- [x] Add tests for `data-vd-src`
 - [x] Add tests for `data-vd-href`
-- [ ] Add tests for `data-vd-alt`
-- [ ] Add tests for `data-vd-disabled`
-- [ ] Add tests for `data-vd-checked`
-- [ ] Add tests for `data-vd-for`
-- [ ] Add tests for event directives and modifiers
+- [x] Add tests for `data-vd-alt`
+- [x] Add tests for `data-vd-disabled`
+- [x] Add tests for `data-vd-checked`
+- [x] Add tests for `data-vd-for`
+- [x] Add tests for event directives and modifiers
 
 ### 3. Request System Stability
 
-- [ ] Add tests for `data-vd-request`
+- [x] Add tests for `data-vd-request`
 - [ ] Add tests for `data-vd-request-config`
 - [ ] Add tests for `data-vd-request-state`
-- [ ] Add tests for explicit `params`, `target`, `state`, `loading`, `error`
-- [ ] Add tests for current-page request writes
+- [ ] Add tests for explicit `state` together with `params`, `target`, `loading`, and `error`
+- [x] Add tests for explicit `params`, `target`, `loading`, and `error`
+- [x] Add tests for current-page request writes
 - [ ] Add tests for cross-page request writes
 - [ ] Add tests for blocked external writes
 - [ ] Add tests for page config `allowExternalWrite`
@@ -237,7 +238,7 @@ and `src/api`.
 - [x] Add tests for middleware params transforms
 - [x] Add tests for advanced middleware using `next()`
 - [ ] Add tests for request error events
-- [ ] Add tests for request success events
+- [x] Add tests for request success events
 
 ### 4. Error System
 

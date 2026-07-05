@@ -505,7 +505,7 @@ function applyFor(root, state, cleanups, context) {
 
       const marker = document.createComment(`vd-for: ${expression}`);
       const template = el.cloneNode(true);
-      let rendered = [];
+      const rendered = [];
 
       template.removeAttribute(VD.FOR);
       el.replaceWith(marker);
@@ -513,12 +513,7 @@ function applyFor(root, state, cleanups, context) {
       const update = () => {
         if (isConditionallyInactive(el)) return;
 
-        rendered.forEach(item => {
-          item.cleanup();
-          item.node.remove();
-        });
-
-        rendered = [];
+        clearRenderedLoop(rendered);
 
         const items = evaluate(config.source, state, null, el, context.props, {
           directive: VD.FOR
@@ -557,9 +552,21 @@ function applyFor(root, state, cleanups, context) {
       };
 
       update();
+      cleanups.push(() => {
+        clearRenderedLoop(rendered);
+      });
       cleanups.push(state._subscribe(update));
 
     });
+}
+
+function clearRenderedLoop(rendered) {
+  rendered.forEach(item => {
+    item.cleanup();
+    item.node.remove();
+  });
+
+  rendered.length = 0;
 }
 
 function findAll(root, name) {

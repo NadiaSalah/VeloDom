@@ -21,18 +21,21 @@ The repository now includes:
 - TypeScript type checking and ESLint quality gates
 - a complete blog showcase application
 - Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
+- real DOM integration tests for directives, components, navigation, and requests
 
-Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 53 tests
-pass, declarations are generated, and the Vite production build completes.
+Latest verification on 2026-07-05: TypeScript and ESLint checks pass, 61 tests
+pass, declarations are generated, the Vite production build completes, and
+`npm audit` reports zero known vulnerabilities.
 
 Optimizer hooks, stricter internal typing, tree-shaking extension points, and
-broader DOM integration coverage remain roadmap work.
+the remaining request/error integration cases remain roadmap work.
 
 ## Technologies
 
 - TypeScript 6 for framework source and declarations
 - ESLint 10 with typescript-eslint
-- Vite 8
+- Vite 8.1.3
+- happy-dom 20 for development-only DOM integration tests
 - Vanilla HTML, CSS, and JavaScript or TypeScript for application code
 - Tailwind CSS and daisyUI for the showcase application only
 
@@ -60,6 +63,10 @@ src/
   components/            user-owned application components
   api/                   user-owned routes, handlers, and middleware
   main.js                user-owned application bootstrap
+
+test/
+  integration/           real DOM runtime integration coverage
+test-support/             reusable test environments outside test discovery
 ```
 
 All framework source now lives under `src/core`; application authors should not
@@ -503,6 +510,24 @@ Requests are cancelled automatically when:
 - the owning element is unmounted
 
 The `AbortSignal` reaches auth providers, middleware context, and API handlers.
+Explicit local `loading` and `error` bindings follow the already-resolved local
+result target; the target name is not reinterpreted as an external page.
+
+## Runtime Integration Coverage
+
+The happy-dom integration suite exercises the runtime as one browser-like
+system rather than isolated fake elements. It currently verifies:
+
+- conditional chains, show/text, attributes, values, classes, styles, and
+  boolean bindings
+- model synchronization, event modifiers, loop scope, rerender, and cleanup
+- component props, slots, DOM refs, grouped keyed refs, `expose`, state
+  inheritance, local overrides, and lifecycle teardown
+- page navigation, dynamic route context, page-state persistence, and cleanup
+- request result/loading/error writes, success events, and abort-on-unmount
+
+`happy-dom` is a test-only dependency and is not included in application
+runtime bundles.
 
 ## Middleware
 
@@ -649,7 +674,7 @@ Files such as `page-router.ts`, `mount.ts`, and `request-router.ts` are internal
 See [todo.md](todo.md). The next architectural priorities are:
 
 1. optimizer and tree-shaking extension points
-2. integration tests for DOM lifecycle and directives
+2. remaining request-config, request-state, error, and fatal-screen tests
 3. stricter internal types with fewer compatibility `any` boundaries
 4. package publishing boundaries and CLI scaffolding
 
@@ -673,6 +698,22 @@ Shared object validation, folder normalization, and protected-state path
 detection are covered by `test/core/shared.test.js`.
 Expression/state-path behavior and request binding policies are covered by
 `test/core/expression.test.js` and `test/requests/request-bindings.test.js`.
+The browser-like runtime path is covered by
+`test/integration/dom-runtime.test.js`, using `test-support/dom.js`.
+
+The current integration milestone changed:
+
+- `src/core/directives.ts` to dispose rendered loop nodes and their listeners
+- `src/core/requests/request-router.ts` to keep explicit local status bindings
+  on the resolved local request target
+- `test/integration/dom-runtime.test.js` and `test/core/events.test.js` for
+  regression and lifecycle coverage
+- `package.json`/`package-lock.json` for happy-dom and the secure Vite 8.1.3
+  update
+
+The integration tests exposed both runtime fixes above. Vite was also upgraded
+from the vulnerable 8.0.x range after an npm security audit; no automated
+major-version migration or external push was performed.
 
 Important decisions and deferred technical work are recorded in
 [NOTES.md](NOTES.md). Milestone history is recorded in

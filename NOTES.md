@@ -47,6 +47,13 @@
 - Component `expose` is one explicit contract for both local template methods
   and parent ref APIs. Exposed members are merged into component state before
   directives mount, while protected framework state names are rejected.
+- Browser-like runtime integration uses happy-dom only in tests. The helper
+  lives under `test-support` so Node test discovery does not count it as an
+  empty test file.
+- Loop blocks own the cleanups created for each rendered clone and release them
+  both before rerender and during parent teardown.
+- Explicit request loading/error paths inherit the destination of the resolved
+  result binding. A local result name must never be reinterpreted as a page.
 
 ## Known Constraints
 
@@ -56,8 +63,8 @@
   public contracts are explicit; tighten these incrementally without changing
   the JavaScript API.
 - Compiler optimization and tree-shaking extension points are not designed yet.
-- Browser-level DOM tests for every directive and mount/unmount combination
-  are still required.
+- Request-config/request-state, request error, and fatal-screen DOM paths still
+  need dedicated integration coverage.
 - The showcase still needs reusable form and error-display components before
   every Phase H item can be marked complete.
 

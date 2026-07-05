@@ -39,6 +39,22 @@ package versions.
   access.
 - Security regression coverage for computed constructor access, host-global
   traversal, dynamic function construction, and timer entry points.
+- Added happy-dom integration coverage for reactive directives, model and event
+  behavior, loop rerendering, component props/slots/refs/expose, grouped refs,
+  state inheritance, page navigation, persistence, requests, and teardown.
+- Added direct event-hub coverage for `on`, `off`, `once`, `emit`, and `clear`.
+
+### Fixed
+
+- Loop rerenders and directive cleanup now dispose detached loop nodes and
+  their event/subscription cleanups.
+- Explicit local request loading/error bindings now remain on the current
+  state instead of treating the local result target as an external page name.
+
+### Security
+
+- Upgraded Vite from the vulnerable 8.0.x range to 8.1.3 after npm reported
+  Windows development-server advisories.
 
 ### Removed
 
@@ -49,8 +65,9 @@ package versions.
 ### Verification
 
 - TypeScript and ESLint checks pass.
-- `npm test`: 53 tests passing.
+- `npm test`: 61 tests passing.
 - `npm run build`: production build successful.
+- `npm audit`: zero known vulnerabilities.
 
 ## 2026-07-04
 
