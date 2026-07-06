@@ -145,6 +145,18 @@ try {
     throw new Error("Consumer build did not emit an application asset");
   }
 
+  if (
+    !builtHtml.includes("Installed VeloDom Package")
+    || !builtHtml.includes("data-vd-seo-fallback")
+    || !builtHtml.includes(
+      "This HTML was statically enriched by the installed VeloDom package."
+    )
+  ) {
+    throw new Error(
+      "Consumer build did not render SEO from page config.js"
+    );
+  }
+
   const builtAssets = await readJavaScriptAssets(
     join(consumerRoot, "dist", "assets")
   );

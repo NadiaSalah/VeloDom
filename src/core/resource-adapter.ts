@@ -9,6 +9,7 @@
  */
 
 import { isPlainObject } from "./shared/object.ts";
+import { normalizeSeoConfig } from "./seo.ts";
 import type {
   RuntimeFeatureManifest
 } from "./compiler/types.ts";
@@ -155,16 +156,27 @@ function validateConfigMap(
     );
   }
 
-  Object.entries(value).forEach(([name, config]) => {
-    if (!name.trim() || !isPlainObject(config)) {
-      throw createAdapterError(
-        `Adapter config "${label}.${name}" must be a plain object`,
-        "Export a default object from config.js."
-      );
-    }
-  });
+  return Object.fromEntries(
+    Object.entries(value).map(([name, config]) => {
+      if (!name.trim() || !isPlainObject(config)) {
+        throw createAdapterError(
+          `Adapter config "${label}.${name}" must be a plain object`,
+          "Export a default object from config.js."
+        );
+      }
 
-  return value as Record<string, PageConfig>;
+      return [
+        name,
+        {
+          ...config,
+          seo: normalizeSeoConfig(
+            config.seo,
+            `Adapter config "${label}.${name}".seo`
+          )
+        } as PageConfig
+      ];
+    })
+  );
 }
 
 function createAdapterError(message: string, hint: string) {

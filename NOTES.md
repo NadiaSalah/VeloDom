@@ -96,6 +96,20 @@
   feature set synchronously.
 - Missing manifests intentionally select every directive feature, preserving
   compatibility for custom resource adapters and direct runtime usage.
+- Page SEO is application-owned and declared in each page's existing
+  `config.js`; validation, runtime head synchronization, and static rendering
+  are generic framework responsibilities under `src/core`.
+- Static SEO output is generated after Vite emits the client shell. Each
+  concrete route receives metadata plus a concise visible fallback in `#app`,
+  which the normal page router replaces at mount.
+- Dynamic route content is never fabricated. `seo.entries` provides explicit
+  build-time paths and metadata; a future application-defined data hook may
+  populate those entries from an API or CMS.
+- Sitemap and robots output require an explicit `siteUrl`. Routes marked
+  `noindex` remain buildable for direct navigation but are excluded from the
+  sitemap.
+- Meta keywords remain accepted as supplemental metadata, but they must not be
+  treated as a search-ranking strategy.
 
 ## Known Constraints
 
@@ -108,6 +122,9 @@
   coverage beyond runtime stack-location parsing.
 - The showcase still needs reusable form and error-display components before
   every Phase H item can be marked complete.
+- Static SEO currently provides metadata and concise fallback content rather
+  than full page rendering or hydration. Dynamic API/CMS fetching and
+  full-content pre-rendering remain separate future milestones.
 
 ## Handoff Guidance
 

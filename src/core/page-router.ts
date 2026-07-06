@@ -31,6 +31,7 @@ import {
   runNavigationGuards
 } from "./router.ts";
 import { validateResourceAdapter } from "./resource-adapter.ts";
+import { applyPageSeo } from "./seo.ts";
 import { normalizeFolderPath } from "./shared/path.ts";
 import type {
   RouterOptions,
@@ -153,6 +154,7 @@ export function createPageRouter(
         loadManifest?.() ?? null
       ]);
 
+      applyPageSeo(pageConfigs[page]?.seo, route.path);
       app.innerHTML = html;
       await applyScopedFolderStyles(
         app,
@@ -240,8 +242,13 @@ export function createPageRouter(
       const load404 = pageHtml[notFoundPage];
 
       if (load404) {
+        applyPageSeo(
+          pageConfigs[notFoundPage]?.seo,
+          route.path
+        );
         app.innerHTML = await load404();
       } else {
+        applyPageSeo(undefined, route.path);
         app.innerHTML = `<h1>Page "${page}" not found</h1>`;
       }
 

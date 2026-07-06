@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**172 of 241 tasks completed — 71.4%**
+**184 of 256 tasks completed — 71.9%**
 
-`██████████████░░░░░░`
+`[##############------]`
 
-Remaining tasks: **69**
+Remaining tasks: **72**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -211,6 +211,24 @@ and `src/api`.
 - [x] Add intentional error examples with structured framework reporting
 - [x] Remove legacy demo pages that duplicate or contradict the final API
 - [x] Verify the complete blog with tests and a production build
+
+### Phase I: Server-Delivered SEO
+
+- [x] Add a typed `seo` contract to the existing page `config.js`
+- [x] Validate and normalize page SEO at the resource-adapter boundary
+- [x] Synchronize document head metadata during client-side navigation
+- [x] Restore the base title and language when a page has no SEO declaration
+- [x] Emit route-specific HTML after a Vite production build
+- [x] Include a concise visible page summary in server-delivered HTML
+- [x] Support concrete build-time entries for parameterized routes
+- [x] Support `noindex` for private, action, and development pages
+- [x] Support canonical, Open Graph, Twitter Card, and JSON-LD metadata
+- [x] Generate sitemap and robots artifacts when `siteUrl` is configured
+- [x] Exclude `noindex` routes from generated sitemaps
+- [x] Test runtime, static rendering, and installed-package consumption
+- [ ] Add an application-defined API/CMS data hook for dynamic SEO entries
+- [ ] Add optional full-page static content rendering and hydration
+- [ ] Add structured-data validation fixtures for common content types
 
 ---
 

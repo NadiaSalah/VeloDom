@@ -43,3 +43,23 @@ test("resource adapter fails clearly when pages are missing", () => {
     )
   );
 });
+
+test("resource adapter validates page SEO before runtime mounting", () => {
+  assert.throws(
+    () => validateResourceAdapter({
+      pages: {
+        html: {
+          home: async () => "<main></main>"
+        },
+        configs: {
+          home: {
+            seo: {
+              title: "Home"
+            }
+          }
+        }
+      }
+    }),
+    /description must be a non-empty string/
+  );
+});

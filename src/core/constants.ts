@@ -99,6 +99,15 @@ export const VD_INTERNAL = Object.freeze({
   PAGE_NOT_FOUND_CODE: "VD_PAGE_NOT_FOUND"
 });
 
+/** Attributes and element values owned by the SEO runtime and static renderer. */
+export const VD_SEO = Object.freeze({
+  DEFAULT_LANG_ATTRIBUTE: "data-vd-default-lang",
+  DEFAULT_TITLE_ATTRIBUTE: "data-vd-default-title",
+  FALLBACK_ATTRIBUTE: "data-vd-seo-fallback",
+  MANAGED_ATTRIBUTE: "data-vd-seo",
+  JSON_LD_TYPE: "application/ld+json"
+});
+
 /** Request event names, stages, and public error codes. */
 export const VD_REQUEST = Object.freeze({
   EVENTS: Object.freeze({

@@ -17,6 +17,7 @@ The repository now includes:
   and events
 - request middleware and configurable auth providers
 - a Vite folder-discovery adapter
+- page-owned SEO config with runtime head updates and static route HTML
 - generated public declaration files
 - TypeScript type checking and ESLint quality gates
 - enforced English module headers and exported-API JSDoc across all core files
@@ -24,7 +25,7 @@ The repository now includes:
 - Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
 - real DOM integration tests for directives, components, navigation, and requests
 
-Latest local verification on 2026-07-06: TypeScript and ESLint checks pass, 81
+Latest local verification on 2026-07-06: TypeScript and ESLint checks pass, 87
 tests pass, declarations are generated, and the Vite production build
 completes. The last dependency audit on 2026-07-05 reported zero known
 vulnerabilities.
@@ -53,6 +54,7 @@ src/
       types.ts           compiler and optimizer public contracts
     shared/              shared contracts and validated object/path utilities
     vite-plugin/         build-time template compilation
+      seo-renderer.ts    static route metadata and fallback HTML generation
     requests/            HTTP, auth, middleware, request directives
       request-bindings.ts target resolution and cross-page write policy
     directives/          expression scope, runtime registry, feature modules
@@ -478,6 +480,89 @@ export default {
 
 Config is discovered by the adapter. It can override the folder-generated route,
 provide metadata and guards, and opt into safe cross-page request writes.
+
+### SEO in `config.js`
+
+SEO stays beside each page in its existing `config.js`; application authors do
+not edit Core:
+
+```js
+export default {
+  path: "/articles",
+  seo: {
+    title: "Articles | Example",
+    description: "Practical articles about building web applications.",
+    canonical: "/articles",
+    lang: "en",
+    robots: "index,follow",
+    keywords: ["web applications", "HTML-first"],
+    openGraph: {
+      type: "website",
+      image: "/images/articles-cover.jpg",
+      imageAlt: "Article collection"
+    },
+    twitter: {
+      card: "summary_large_image"
+    },
+    summary: {
+      heading: "Practical articles",
+      text: "A concise server-delivered introduction to this collection."
+    },
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Articles"
+    }
+  }
+};
+```
+
+During client navigation, the Core head manager updates the title, language,
+description, robots, canonical, Open Graph, Twitter Card, and JSON-LD tags. It
+removes metadata owned by the previous page and restores document defaults when
+a page has no SEO config.
+
+After `vite build`, the VeloDom plugin reads page configs and emits an
+`index.html` for every concrete route. That HTML already contains metadata and
+a short visible summary inside `#app`, so visitors and crawlers receive useful
+content before client JavaScript runs. The application router replaces the
+summary when it mounts.
+
+Parameterized folders such as `[id]` are not guessed. Concrete pages can be
+declared when their content is known at build time:
+
+```js
+seo: {
+  title: "Articles",
+  description: "Article archive",
+  entries: [
+    {
+      path: "/articles/hello-velodom",
+      title: "Hello VeloDom",
+      description: "A concise introduction to VeloDom.",
+      canonical: "/articles/hello-velodom"
+    }
+  ]
+}
+```
+
+Set the production origin to turn relative canonicals into absolute URLs and
+generate `sitemap.xml` plus `robots.txt`:
+
+```js
+// vite.config.js
+velodom({
+  seo: {
+    siteUrl: "https://example.com"
+  }
+})
+```
+
+Routes marked `noindex` are excluded from the sitemap. Set `seo: false` in the
+plugin options to disable static SEO generation. `keywords` is supported for
+other consumers and internal classification, but modern Google ranking does
+not use the keywords meta tag; useful page content, titles, descriptions,
+canonical URLs, and structured data remain the priority.
 
 ## Router
 
@@ -927,6 +1012,14 @@ The package-consumer step added `examples/package-consumer` and an isolated
 audit that installs the local tarball into a temporary project. Its strict
 TypeScript check and Vite production build prove that runtime, compiler plugin,
 adapter discovery, and declarations work outside the source workspace.
+
+The SEO step added `src/core/seo.ts` and
+`src/core/vite-plugin/seo-renderer.ts`. Page authors declare metadata in their
+existing `config.js`; Core validates it, updates the head during navigation,
+and emits route-specific HTML after production builds. The blog configs now
+demonstrate indexable public pages and `noindex` private/action pages.
+Parameterized content is supported through explicit `seo.entries`; automatic
+API/CMS data fetching during builds remains a future integration.
 
 Important decisions and deferred technical work are recorded in
 [NOTES.md](NOTES.md). Milestone history is recorded in

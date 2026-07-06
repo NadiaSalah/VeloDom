@@ -64,12 +64,62 @@ export type NavigationGuard = (
   context: NavigationGuardContext
 ) => MaybePromise<NavigationGuardResult>;
 
+/** Plain-text content rendered into the initial static SEO document. */
+export interface SeoSummary {
+  heading: string;
+  text: string;
+}
+
+/** Open Graph metadata used by link previews and supported crawlers. */
+export interface SeoOpenGraph {
+  title?: string;
+  description?: string;
+  type?: string;
+  url?: string;
+  image?: string;
+  imageAlt?: string;
+}
+
+/** Twitter/X card metadata for shared links. */
+export interface SeoTwitterCard {
+  card?: "summary" | "summary_large_image";
+  title?: string;
+  description?: string;
+  image?: string;
+  imageAlt?: string;
+}
+
+/** Shared metadata fields accepted by page and dynamic-entry SEO records. */
+export interface SeoMetadata {
+  title: string;
+  description: string;
+  canonical?: string;
+  robots?: string;
+  keywords?: string[];
+  lang?: string;
+  openGraph?: SeoOpenGraph;
+  twitter?: SeoTwitterCard;
+  jsonLd?: UnknownRecord | UnknownRecord[];
+  summary?: SeoSummary;
+}
+
+/** Concrete dynamic route rendered from a parameterized page folder. */
+export interface SeoRouteEntry extends SeoMetadata {
+  path: string;
+}
+
+/** SEO declaration stored in a page's existing config.js file. */
+export interface SeoConfig extends SeoMetadata {
+  entries?: SeoRouteEntry[];
+}
+
 /** Optional route metadata and cross-page write policy for one page. */
 export interface PageConfig {
   path?: string;
   meta?: UnknownRecord;
   beforeEnter?: NavigationGuard;
   allowExternalWrite?: string[];
+  seo?: SeoConfig;
 }
 
 /** Browser router options accepted by createApp. */

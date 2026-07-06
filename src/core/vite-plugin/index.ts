@@ -9,8 +9,15 @@
  */
 
 import { readFile } from "node:fs/promises";
-import type { Plugin } from "vite";
+import { resolve } from "node:path";
+import type {
+  Plugin,
+  ResolvedConfig
+} from "vite";
 import { compileTemplate } from "../compiler/index.ts";
+import {
+  generateStaticSeoPages
+} from "./seo-renderer.ts";
 import type {
   CompilerMode,
   CompilerOptions
@@ -21,6 +28,14 @@ export interface VeloDomVitePluginOptions {
   compiler?: Omit<CompilerOptions, "filename" | "mode">;
   emitManifest?: boolean;
   emitMetadata?: boolean | "development";
+  seo?: false | VeloDomSeoBuildOptions;
+}
+
+/** Controls static SEO output produced after a successful Vite build. */
+export interface VeloDomSeoBuildOptions {
+  siteUrl?: string;
+  generateSitemap?: boolean;
+  generateRobots?: boolean;
 }
 
 /** Options used by the pure template-module generator. */
@@ -32,12 +47,20 @@ export interface TemplateModuleOptions extends VeloDomVitePluginOptions {
 /** Creates the Vite plugin that compiles VeloDom raw HTML modules. */
 export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
   let mode: CompilerMode = "development";
+  let resolvedConfig: ResolvedConfig | undefined;
+  let shouldGenerateSeo = false;
 
   return {
     name: "velodom",
     enforce: "pre",
 
     configResolved(config) {
+      resolvedConfig = config;
+      shouldGenerateSeo = (
+        config.command === "build"
+        && !config.build.ssr
+        && !config.build.lib
+      );
       mode = config.mode === "production"
         ? "production"
         : "development";
@@ -80,6 +103,29 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
         code: module.code,
         map: null
       };
+    },
+
+    async closeBundle() {
+      if (
+        options.seo === false
+        || !shouldGenerateSeo
+        || !resolvedConfig
+      ) {
+        return;
+      }
+
+      const seo = options.seo || {};
+
+      await generateStaticSeoPages({
+        root: resolvedConfig.root,
+        outDir: resolve(
+          resolvedConfig.root,
+          resolvedConfig.build.outDir
+        ),
+        siteUrl: seo.siteUrl,
+        generateSitemap: seo.generateSitemap,
+        generateRobots: seo.generateRobots
+      });
     }
   };
 }

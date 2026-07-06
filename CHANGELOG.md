@@ -6,6 +6,21 @@ package versions.
 
 ## 2026-07-06
 
+### SEO
+
+- Added a typed page SEO contract stored in each page's existing `config.js`.
+- Added runtime title, language, canonical, meta, Open Graph, Twitter Card,
+  and JSON-LD synchronization across client-side navigation.
+- Added production static HTML generation with concise visible fallback
+  content for concrete routes.
+- Added explicit build-time entries for dynamic routes and optional sitemap
+  plus robots generation when a production `siteUrl` is configured.
+- Excluded `noindex` routes from generated sitemaps.
+- Added SEO declarations to the blog showcase, including `noindex` policies
+  for private, editing, creation, error, and not-found pages.
+- Added runtime/static renderer tests and extended the installed-package
+  consumer to verify SEO generation from application-owned config.
+
 ### Packaging
 
 - Reset the unpublished package line to `0.1.0` and documented Semantic
@@ -63,6 +78,8 @@ package versions.
   test, or workspace configuration files.
 - The installed-package consumer passes strict TypeScript checking and a Vite
   production build using the packaged plugin and adapter.
+- Runtime and static SEO tests bring the suite to 87 passing tests; the
+  installed-package consumer and production build also verify generated SEO.
 
 ## 2026-07-05
 
