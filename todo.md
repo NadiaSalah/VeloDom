@@ -11,13 +11,51 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**184 of 256 tasks completed — 71.9%**
+**184 of 274 tasks completed — 67.2%**
 
-`[##############------]`
+`[#############-------]`
 
-Remaining tasks: **72**
+Remaining tasks: **90**
 
 Update this counter whenever checklist items are added or completed.
+
+---
+
+## Priority Gap Map
+
+This is the practical answer to "what VeloDom still lacks" after comparing its
+current capabilities with mature frontend frameworks. The order protects the
+HTML-first identity: reliability and developer clarity come before adding more
+runtime concepts.
+
+### P0 — Required Before a Public V1
+
+1. Freeze the public API and package naming.
+2. Finish task-oriented documentation and recipes.
+3. Add real-browser E2E coverage and define browser support.
+4. Establish an accessibility baseline for compiler output and navigation.
+5. Add recoverable page/component error boundaries instead of relying only on
+   the fatal application screen.
+6. Complete licensing, package ownership, and release approval checks.
+
+### P1 — Important for Everyday Applications
+
+1. Provide simple optional form validation integrated with requests.
+2. Add declarative request debounce, throttle, retry, caching, and hooks.
+3. Add router scroll restoration, focus management, hash navigation, and
+   opt-in prefetch.
+4. Provide project scaffolding, testing utilities, and route/manifest
+   inspection commands.
+5. Add explicit performance budgets for runtime and generated chunks.
+
+### P2 — Powerful but Intentionally Deferred
+
+1. Load dynamic SEO entries from an application API/CMS hook.
+2. Add optional full static rendering and hydration without changing normal
+   HTML authoring.
+3. Keep shared state, validation extensions, cache providers, and devtools as
+   optional plugins.
+4. Consider broader SSR only after static rendering and hydration are stable.
 
 ---
 
@@ -167,6 +205,9 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [x] Preserve lazy page loading through adapters
 - [x] Keep 404 behavior configurable
 - [x] Add tests for params, query strings, guards, and route matching
+- [ ] Add scroll restoration and hash-fragment navigation
+- [ ] Move focus predictably after navigation for keyboard and screen-reader users
+- [ ] Add opt-in route prefetch without forcing eager page loading
 
 ### Phase F: Optional Plugins
 
@@ -190,6 +231,10 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [x] Type-check a consumer against the installed package declarations
 - [x] Build a consumer through Vite from an installed local tarball
 - [ ] Benchmark common page and loop rendering cases
+- [ ] Choose a project license and confirm npm package-name ownership
+- [ ] Define the supported browser matrix and automated browser targets
+- [ ] Add real-browser E2E tests for routing, forms, requests, and no-JavaScript SEO
+- [ ] Document a release approval checklist without automating publication
 
 ### Phase H: Blog Showcase Application
 
@@ -317,6 +362,8 @@ and `src/api`.
 - [ ] Error Handling
 - [ ] Best Practices
 - [ ] Recipes
+- [ ] Deployment and SPA/static-host rewrite configuration
+- [ ] SEO, static route generation, and dynamic-entry recipes
 
 ### 7. Practical Recipes
 
@@ -375,12 +422,21 @@ and `src/api`.
 - [ ] Add validation error state conventions
 - [ ] Integrate form validation with request flow
 
+### 11.1 Accessibility and Recovery
+
+- [ ] Add compiler accessibility diagnostics for images, controls, labels, and headings
+- [ ] Define an application error-boundary hook with a recoverable fallback
+- [ ] Define an optional component-level error boundary
+- [ ] Support retry or safe navigation from recoverable runtime failures
+- [ ] Add keyboard, focus-order, and semantic-output integration tests
+
 ### 12. Performance
 
 - [ ] Review re-render behavior in loops
 - [ ] Reduce unnecessary full-block updates where possible
 - [ ] Improve granular updates for large pages
 - [ ] Benchmark common UI cases
+- [ ] Enforce agreed runtime and generated-chunk performance budgets
 - [x] Split runtime directive features into manifest-selectable modules
 - [x] Type remaining dynamic mount, directive, and request orchestrator boundaries
 
@@ -396,10 +452,13 @@ and `src/api`.
 
 ### 14. Developer Tooling
 
+- [ ] Create a `create-velodom` project scaffolding command
 - [ ] Create CLI for page scaffolding
 - [ ] Create CLI for component scaffolding
 - [ ] Create CLI for API file scaffolding
 - [ ] Create CLI for demo scaffolding
+- [ ] Add public test utilities for mounting pages and components
+- [ ] Add a development command to inspect discovered routes and feature manifests
 
 ### 15. Framework Identity
 

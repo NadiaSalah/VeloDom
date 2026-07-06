@@ -920,9 +920,11 @@ Files such as `page-router.ts`, `mount.ts`, and `request-router.ts` are internal
 
 See [todo.md](todo.md). The next architectural priorities are:
 
-1. freeze public names before the first release
-2. add source-aware adapter and application diagnostics
-3. CLI scaffolding
+1. freeze public names, licensing, and release boundaries
+2. finish task-oriented documentation and application recipes
+3. add real-browser E2E coverage and a supported-browser matrix
+4. establish accessibility and recoverable error-boundary contracts
+5. complete optional form/request UX before broader hydration or shared state
 
 ## Development Handoff
 

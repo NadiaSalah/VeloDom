@@ -110,6 +110,16 @@
   sitemap.
 - Meta keywords remain accepted as supplemental metadata, but they must not be
   treated as a search-ranking strategy.
+- Feature comparison must not turn VeloDom into a React-like runtime. The
+  priority order is API stability, documentation, browser verification,
+  accessibility, and recovery before optional state, devtools, SSR, or
+  hydration.
+- Accessibility diagnostics should begin at compile time where normal HTML can
+  be checked cheaply; navigation focus and recovery behavior remain runtime
+  responsibilities.
+- Error boundaries should isolate user-code failures and offer recovery while
+  preserving the existing fatal screen for unrecoverable application startup
+  failures.
 
 ## Known Constraints
 
