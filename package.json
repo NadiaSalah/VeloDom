@@ -43,7 +43,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run check && npm run package:build && vite build",
+    "build": "npm run check && npm run package:check && vite build",
     "preview": "vite preview",
     "test": "node --test",
     "docs:check": "node scripts/check-core-docs.mjs",
@@ -52,7 +52,8 @@
     "clean:package": "node -e \"require('node:fs').rmSync('lib', { recursive: true, force: true })\"",
     "types": "npm run clean:types && tsc --project tsconfig.types.json && node scripts/rewrite-declaration-imports.mjs",
     "package:build": "npm run clean:package && tsc --project tsconfig.package.json && npm run types",
-    "package:check": "npm run package:build && node scripts/check-package.mjs",
+    "package:consumer": "npm run package:build && node scripts/check-package-consumer.mjs",
+    "package:check": "npm run package:build && node scripts/check-package.mjs && node scripts/check-package-consumer.mjs",
     "pack:check": "npm pack --dry-run",
     "lint": "eslint .",
     "check": "npm run docs:check && npm run typecheck && npm run lint",

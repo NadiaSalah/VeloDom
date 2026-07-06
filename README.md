@@ -30,8 +30,8 @@ completes. The last dependency audit on 2026-07-05 reported zero known
 vulnerabilities.
 
 All explicit `any` annotations have been removed from framework Core. Built ESM
-and declaration artifacts now have validated package boundaries; an external
-package-consumer fixture remains roadmap work.
+and declaration artifacts have validated package boundaries, including an
+isolated TypeScript and Vite consumer built from an installed local tarball.
 
 ## Technologies
 
@@ -73,6 +73,8 @@ src/
 test/
   integration/           real DOM runtime integration coverage
 test-support/             reusable test environments outside test discovery
+examples/
+  package-consumer/      isolated installed-package TypeScript/Vite fixture
 
 lib/                      generated publishable ESM, ignored by Git
 types/                    generated publishable declarations, ignored by Git
@@ -95,14 +97,17 @@ npm run docs:check
 npm run check
 npm test
 npm run package:check
+npm run package:consumer
 npm run build
 ```
 
 `npm run docs:check` verifies documentation headers and exported JSDoc for
 every TypeScript file under `src/core`. `npm run check` runs that audit,
 TypeScript, and ESLint. `npm run package:check` builds `lib/` and `types/`,
-validates every public export, and rejects unsafe package contents or stale
-`.ts` imports. The production build runs these quality gates automatically.
+validates every public export, rejects unsafe package contents or stale `.ts`
+imports, and verifies an installed consumer. `npm run package:consumer` runs
+that consumer check directly after rebuilding the package. The production
+build runs these quality gates automatically.
 
 `src/core/types.ts` is framework source. The root `types/` directory is
 generated declaration output, `lib/` is generated ESM output, and
@@ -176,6 +181,11 @@ shows the exact npm tarball without publishing it. The package allowlist
 contains only built code, declarations, README, CHANGELOG, and
 `RELEASING.md`—never application pages, components, API handlers, tests, or
 workspace configuration.
+
+`examples/package-consumer` is copied to a temporary directory during
+verification. The audit packs VeloDom, installs that tarball without network
+access, type-checks the consumer against the installed declarations, and runs a
+Vite production build through the installed plugin and adapter.
 
 The repository intentionally keeps `"private": true`. Before the first public
 release, the maintainer must explicitly choose a license, verify ownership of
@@ -825,8 +835,8 @@ Files such as `page-router.ts`, `mount.ts`, and `request-router.ts` are internal
 
 See [todo.md](todo.md). The next architectural priorities are:
 
-1. add a minimal external package-consumer example
-2. freeze public names before the first release
+1. freeze public names before the first release
+2. add source-aware adapter and application diagnostics
 3. CLI scaffolding
 
 ## Development Handoff
@@ -912,6 +922,11 @@ declarations under `types/`, version `0.1.0`, explicit package exports, and a
 strict npm file allowlist. Prepack validation checks all runtime/type targets
 and rewritten import extensions. The dry-run tarball contains no application
 or test files; publication remains blocked by `private: true`.
+
+The package-consumer step added `examples/package-consumer` and an isolated
+audit that installs the local tarball into a temporary project. Its strict
+TypeScript check and Vite production build prove that runtime, compiler plugin,
+adapter discovery, and declarations work outside the source workspace.
 
 Important decisions and deferred technical work are recorded in
 [NOTES.md](NOTES.md). Milestone history is recorded in

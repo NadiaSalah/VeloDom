@@ -30,10 +30,11 @@ assets must never be included in the npm tarball.
 
 1. Update `CHANGELOG.md`, `README.md`, `todo.md`, and the package version.
 2. Run `npm run package:check`.
-3. Run `npm test`.
-4. Run `npm run build`.
-5. Inspect `npm run pack:check`.
-6. Confirm package-name ownership and choose an explicit public license.
-7. Remove the `private` publication guard only after the previous checks pass.
-8. Publish only when explicitly authorized; local release preparation never
+3. Confirm the installed-package consumer check succeeds.
+4. Run `npm test`.
+5. Run `npm run build`.
+6. Inspect `npm run pack:check`.
+7. Confirm package-name ownership and choose an explicit public license.
+8. Remove the `private` publication guard only after the previous checks pass.
+9. Publish only when explicitly authorized; local release preparation never
    implies permission to run `npm publish`.

@@ -15,6 +15,8 @@ package versions.
 - Pointed all supported package exports to built JavaScript and generated
   declarations instead of raw TypeScript source.
 - Added a strict npm file allowlist and automated package-contract audit.
+- Added an isolated TypeScript/Vite consumer that installs and builds from the
+  generated local tarball without network access.
 - Rewrote emitted declaration imports from `.ts` to resolvable `.js`
   specifiers.
 - Changed Vite resource discovery to project-root `/src` globs so adapter
@@ -59,6 +61,8 @@ package versions.
   pass after packaging changes.
 - `npm pack --dry-run` contains 142 allowlisted files, with no application,
   test, or workspace configuration files.
+- The installed-package consumer passes strict TypeScript checking and a Vite
+  production build using the packaged plugin and adapter.
 
 ## 2026-07-05
 

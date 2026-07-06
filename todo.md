@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**169 of 239 tasks completed — 70.7%**
+**172 of 241 tasks completed — 71.4%**
 
 `██████████████░░░░░░`
 
-Remaining tasks: **70**
+Remaining tasks: **69**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -186,7 +186,9 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [x] Add package exports and semantic versioning rules
 - [x] Build publishable ESM and declaration artifacts from `src/core`
 - [x] Validate package entry points and the npm file allowlist before packing
-- [ ] Add a minimal package-consumer example
+- [x] Add a minimal package-consumer example
+- [x] Type-check a consumer against the installed package declarations
+- [x] Build a consumer through Vite from an installed local tarball
 - [ ] Benchmark common page and loop rendering cases
 
 ### Phase H: Blog Showcase Application
