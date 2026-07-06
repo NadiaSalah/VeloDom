@@ -20,6 +20,14 @@
   by `src/core/index.ts`; other core modules are internal until promoted.
 - Build-specific framework features use explicit subpath exports:
   `velodom/vite`, `velodom/vite-plugin`, and `velodom/compiler`.
+- Package exports target generated ESM in `lib` and declarations in `types`;
+  raw framework TypeScript is a development input, not a published runtime.
+- The npm package uses an explicit file allowlist. Application code, tests,
+  assets, and workspace configuration are never package contents.
+- Vite adapter globs are rooted at `/src` so discovery is relative to the
+  consuming Vite project rather than the installed adapter file.
+- The package stays private until name ownership, license, and public API names
+  are explicitly confirmed. Local pack checks never authorize publication.
 - Source type contracts live in `src/core/types.ts`. Generated declarations
   stay in the ignored root `types` build-output folder, while
   `node_modules/@types` remains npm-managed dependency data.
@@ -93,6 +101,8 @@
 - TypeScript `noImplicitAny` is not yet enabled globally; older internal helper
   parameters should be tightened incrementally without changing the JavaScript
   API.
+- The package tarball has not yet been exercised from a separate consumer
+  fixture; that integration is the next release-hardening step.
 - Adapter/user-file source maps still need broader build-tool integration
   coverage beyond runtime stack-location parsing.
 - The showcase still needs reusable form and error-display components before

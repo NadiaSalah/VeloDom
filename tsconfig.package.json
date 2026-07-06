@@ -1,12 +1,15 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "declaration": false,
+    "emitDeclarationOnly": false,
+    "inlineSources": true,
     "noEmit": false,
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "outDir": "types",
+    "outDir": "lib",
+    "rewriteRelativeImportExtensions": true,
     "rootDir": "src/core",
-    "rewriteRelativeImportExtensions": true
+    "sourceMap": true
   },
   "include": [
     "src/core/**/*.ts"

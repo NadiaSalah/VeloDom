@@ -24,13 +24,14 @@ The repository now includes:
 - Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
 - real DOM integration tests for directives, components, navigation, and requests
 
-Latest local verification on 2026-07-06: TypeScript and ESLint checks pass, 80
+Latest local verification on 2026-07-06: TypeScript and ESLint checks pass, 81
 tests pass, declarations are generated, and the Vite production build
 completes. The last dependency audit on 2026-07-05 reported zero known
 vulnerabilities.
 
-All explicit `any` annotations have been removed from framework Core. Package
-publishing boundaries remain roadmap work.
+All explicit `any` annotations have been removed from framework Core. Built ESM
+and declaration artifacts now have validated package boundaries; an external
+package-consumer fixture remains roadmap work.
 
 ## Technologies
 
@@ -72,6 +73,9 @@ src/
 test/
   integration/           real DOM runtime integration coverage
 test-support/             reusable test environments outside test discovery
+
+lib/                      generated publishable ESM, ignored by Git
+types/                    generated publishable declarations, ignored by Git
 ```
 
 All framework source now lives under `src/core`; application authors should not
@@ -90,19 +94,21 @@ Production build and tests:
 npm run docs:check
 npm run check
 npm test
+npm run package:check
 npm run build
 ```
 
 `npm run docs:check` verifies documentation headers and exported JSDoc for
 every TypeScript file under `src/core`. `npm run check` runs that audit,
-TypeScript, and ESLint. `npm run types` generates public declarations under
-`types/`; it clears stale declarations before generation. The production build
-runs the quality gates automatically.
+TypeScript, and ESLint. `npm run package:check` builds `lib/` and `types/`,
+validates every public export, and rejects unsafe package contents or stale
+`.ts` imports. The production build runs these quality gates automatically.
 
 `src/core/types.ts` is framework source. The root `types/` directory is
-generated output, and `node_modules/@types` contains npm-managed declarations
-for external dependencies. Neither generated nor dependency declarations
-should be moved into `src/core`.
+generated declaration output, `lib/` is generated ESM output, and
+`node_modules/@types` contains npm-managed declarations for external
+dependencies. Generated and dependency files must not be moved into
+`src/core`.
 
 ## App Bootstrap
 
@@ -157,6 +163,24 @@ points instead of importing internal files:
 - `velodom/vite` — Vite resource adapter
 - `velodom/vite-plugin` — build plugin
 - `velodom/compiler` — compiler API
+
+## Package and Release Boundaries
+
+The local package version is `0.1.0`. Public imports resolve only through the
+four entry points above; internal files are not reachable through
+`package.json#exports`.
+
+`npm run package:build` creates browser/runtime ESM under `lib/` and
+declarations under `types/`. `npm run pack:check` runs the prepack audit and
+shows the exact npm tarball without publishing it. The package allowlist
+contains only built code, declarations, README, CHANGELOG, and
+`RELEASING.md`—never application pages, components, API handlers, tests, or
+workspace configuration.
+
+The repository intentionally keeps `"private": true`. Before the first public
+release, the maintainer must explicitly choose a license, verify ownership of
+the package name, freeze public names, and authorize publication. Versioning
+and the release checklist are documented in [RELEASING.md](RELEASING.md).
 
 ## Folder-First Convention
 
@@ -801,8 +825,8 @@ Files such as `page-router.ts`, `mount.ts`, and `request-router.ts` are internal
 
 See [todo.md](todo.md). The next architectural priorities are:
 
-1. package publishing boundaries and semantic versioning rules
-2. add a minimal external package-consumer example
+1. add a minimal external package-consumer example
+2. freeze public names before the first release
 3. CLI scaffolding
 
 ## Development Handoff
@@ -882,6 +906,12 @@ The documentation-standard step added synchronized English headers and exported
 API JSDoc to all 47 core TypeScript files. A dependency-free audit script now
 guards the rule through `npm run docs:check` and the normal `npm run check`
 pipeline.
+
+The package-boundary step introduced built ESM under `lib/`, focused
+declarations under `types/`, version `0.1.0`, explicit package exports, and a
+strict npm file allowlist. Prepack validation checks all runtime/type targets
+and rewritten import extensions. The dry-run tarball contains no application
+or test files; publication remains blocked by `private: true`.
 
 Important decisions and deferred technical work are recorded in
 [NOTES.md](NOTES.md). Milestone history is recorded in

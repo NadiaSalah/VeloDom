@@ -6,6 +6,22 @@ package versions.
 
 ## 2026-07-06
 
+### Packaging
+
+- Reset the unpublished package line to `0.1.0` and documented Semantic
+  Versioning rules in `RELEASING.md`.
+- Added publishable ESM output under `lib/` and focused framework declarations
+  under `types/`.
+- Pointed all supported package exports to built JavaScript and generated
+  declarations instead of raw TypeScript source.
+- Added a strict npm file allowlist and automated package-contract audit.
+- Rewrote emitted declaration imports from `.ts` to resolvable `.js`
+  specifiers.
+- Changed Vite resource discovery to project-root `/src` globs so adapter
+  paths do not depend on the installed package location.
+- Kept `private: true` as an intentional publication guard until package-name
+  ownership and licensing are explicitly decided.
+
 ### Type Safety
 
 - Removed the remaining explicit `any` annotations from component mounting,
@@ -39,6 +55,10 @@ package versions.
   build pass after the documentation update.
 - TypeScript, ESLint, and all 80 tests pass after the orchestrator typing
   update.
+- Package contract, ESM entry imports, all 81 tests, and the production build
+  pass after packaging changes.
+- `npm pack --dry-run` contains 142 allowlisted files, with no application,
+  test, or workspace configuration files.
 
 ## 2026-07-05
 

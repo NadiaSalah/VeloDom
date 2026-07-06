@@ -1,0 +1,134 @@
+/**
+ * ----------------------------------------
+ * Module: Package Contract Audit
+ * ----------------------------------------
+ *
+ * Validates the publish allowlist, built ESM entry points, generated
+ * declarations, and rewritten import specifiers before npm creates a tarball.
+ * ----------------------------------------
+ */
+
+import {
+  access,
+  readFile,
+  readdir
+} from "node:fs/promises";
+import { join } from "node:path";
+
+const manifest = JSON.parse(
+  await readFile("package.json", "utf8")
+);
+const violations = [];
+const expectedExports = {
+  ".": [
+    "./lib/index.js",
+    "./types/index.d.ts"
+  ],
+  "./compiler": [
+    "./lib/compiler/index.js",
+    "./types/compiler/index.d.ts"
+  ],
+  "./vite": [
+    "./lib/adapters/vite.js",
+    "./types/adapters/vite.d.ts"
+  ],
+  "./vite-plugin": [
+    "./lib/vite-plugin/index.js",
+    "./types/vite-plugin/index.d.ts"
+  ]
+};
+const allowedPackageFiles = new Set([
+  "CHANGELOG.md",
+  "README.md",
+  "RELEASING.md",
+  "lib",
+  "types"
+]);
+
+if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?$/.test(manifest.version)) {
+  violations.push(`package version "${manifest.version}" is not valid SemVer`);
+}
+
+const packageFiles = new Set(manifest.files || []);
+
+for (const required of allowedPackageFiles) {
+  if (!packageFiles.has(required)) {
+    violations.push(`package files allowlist is missing "${required}"`);
+  }
+}
+
+for (const entry of packageFiles) {
+  if (!allowedPackageFiles.has(entry)) {
+    violations.push(`package files allowlist contains unexpected "${entry}"`);
+  }
+}
+
+for (const [name, targets] of Object.entries(expectedExports)) {
+  const declaration = manifest.exports?.[name]?.types;
+  const runtime = manifest.exports?.[name]?.import;
+
+  if (runtime !== targets[0]) {
+    violations.push(`export "${name}" must import "${targets[0]}"`);
+  }
+
+  if (declaration !== targets[1]) {
+    violations.push(`export "${name}" must use types "${targets[1]}"`);
+  }
+
+  for (const target of targets) {
+    try {
+      await access(target.slice(2));
+    } catch {
+      violations.push(`export "${name}" target is missing: ${target}`);
+    }
+  }
+}
+
+for (const file of await collectFiles("lib", ".js")) {
+  const source = await readFile(file, "utf8");
+
+  if (/(?:from\s+|import\()\s*["'][^"']+\.ts["']/.test(source)) {
+    violations.push(`${file}: emitted JavaScript still imports TypeScript`);
+  }
+}
+
+for (const file of await collectFiles("types", ".d.ts")) {
+  const source = await readFile(file, "utf8");
+
+  if (/(?:from\s+|import\()\s*["'][^"']+\.ts["']/.test(source)) {
+    violations.push(`${file}: declaration still imports TypeScript source`);
+  }
+}
+
+if (violations.length) {
+  console.error([
+    "VeloDom package contract check failed:",
+    ...violations.map(violation => `- ${violation}`)
+  ].join("\n"));
+  process.exitCode = 1;
+} else {
+  console.log(
+    `VeloDom package contract check passed (${manifest.version}).`
+  );
+}
+
+async function collectFiles(directory, extension) {
+  const entries = await readdir(directory, {
+    withFileTypes: true
+  });
+  const nested = await Promise.all(
+    entries.map(entry => {
+      const path = join(directory, entry.name);
+
+      if (entry.isDirectory()) {
+        return collectFiles(path, extension);
+      }
+
+      return entry.isFile() && entry.name.endsWith(extension)
+        ? [path.replaceAll("\\", "/")]
+        : [];
+    })
+  );
+
+  return nested.flat();
+}

@@ -20,7 +20,7 @@ import type {
 import type { ResourceAdapter } from "../types.ts";
 
 const pageTemplateFiles = import.meta.glob(
-  "../../pages/**/index.html",
+  "/src/pages/**/index.html",
   {
     query: "?raw"
   }
@@ -37,14 +37,14 @@ const pageManifestFiles = mapLoaderExports<
 );
 
 const pageModuleFiles = import.meta.glob([
-  "../../pages/**/script.ts",
-  "../../pages/**/script.js",
-  "../../pages/**/page.js"
+  "/src/pages/**/script.ts",
+  "/src/pages/**/script.js",
+  "/src/pages/**/page.js"
 ]);
 const pageConfigFiles = import.meta.glob(
   [
-    "../../pages/**/config.js",
-    "../../pages/**/page.config.js"
+    "/src/pages/**/config.js",
+    "/src/pages/**/page.config.js"
   ],
   {
     eager: true,
@@ -52,7 +52,7 @@ const pageConfigFiles = import.meta.glob(
   }
 );
 const pageStyleFiles = import.meta.glob(
-  "../../pages/**/*.css",
+  "/src/pages/**/*.css",
   {
     query: "?inline",
     import: "default"
@@ -60,7 +60,7 @@ const pageStyleFiles = import.meta.glob(
 );
 
 const componentTemplateFiles = import.meta.glob(
-  "../../components/**/index.html",
+  "/src/components/**/index.html",
   {
     query: "?raw"
   }
@@ -76,12 +76,12 @@ const componentManifestFiles = mapLoaderExports<
   "__vdManifest"
 );
 const componentModuleFiles = import.meta.glob([
-  "../../components/**/script.ts",
-  "../../components/**/script.js",
-  "../../components/**/component.js"
+  "/src/components/**/script.ts",
+  "/src/components/**/script.js",
+  "/src/components/**/component.js"
 ]);
 const componentStyleFiles = import.meta.glob(
-  "../../components/**/*.css",
+  "/src/components/**/*.css",
   {
     query: "?inline",
     import: "default"
@@ -96,12 +96,12 @@ export function createViteAdapter(): ResourceAdapter {
     pages: {
       html: indexFolderFiles(
         pageHtmlFiles,
-        "../../pages/",
+        "/src/pages/",
         "/index.html"
       ),
       modules: indexFolderVariants(
         pageModuleFiles,
-        "../../pages/",
+        "/src/pages/",
         [
           "/script.ts",
           "/script.js",
@@ -110,7 +110,7 @@ export function createViteAdapter(): ResourceAdapter {
       ),
       configs: indexFolderVariants(
         pageConfigFiles,
-        "../../pages/",
+        "/src/pages/",
         [
           "/config.js",
           "/page.config.js"
@@ -118,20 +118,20 @@ export function createViteAdapter(): ResourceAdapter {
       ),
       manifests: indexFolderFiles(
         pageManifestFiles,
-        "../../pages/",
+        "/src/pages/",
         "/index.html"
       ),
-      styles: rebaseFiles(pageStyleFiles, "../../pages/")
+      styles: rebaseFiles(pageStyleFiles, "/src/pages/")
     },
     components: {
       html: indexFolderFiles(
         componentHtmlFiles,
-        "../../components/",
+        "/src/components/",
         "/index.html"
       ),
       modules: indexFolderVariants(
         componentModuleFiles,
-        "../../components/",
+        "/src/components/",
         [
           "/script.ts",
           "/script.js",
@@ -140,10 +140,10 @@ export function createViteAdapter(): ResourceAdapter {
       ),
       manifests: indexFolderFiles(
         componentManifestFiles,
-        "../../components/",
+        "/src/components/",
         "/index.html"
       ),
-      styles: rebaseFiles(componentStyleFiles, "../../components/")
+      styles: rebaseFiles(componentStyleFiles, "/src/components/")
     }
   };
 }

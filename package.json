@@ -1,38 +1,62 @@
 {
   "name": "velodom",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.1.0",
+  "description": "Compiler-first, HTML-first frontend framework with reactive state, routing, components, and requests.",
   "type": "module",
-  "types": "./types/src/core/index.d.ts",
+  "main": "./lib/index.js",
+  "module": "./lib/index.js",
+  "types": "./types/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "lib",
+    "types",
+    "README.md",
+    "CHANGELOG.md",
+    "RELEASING.md"
+  ],
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "exports": {
     ".": {
-      "types": "./src/core/index.ts",
-      "import": "./src/core/index.ts"
+      "types": "./types/index.d.ts",
+      "import": "./lib/index.js",
+      "default": "./lib/index.js"
     },
     "./compiler": {
-      "types": "./src/core/compiler/index.ts",
-      "import": "./src/core/compiler/index.ts"
+      "types": "./types/compiler/index.d.ts",
+      "import": "./lib/compiler/index.js",
+      "default": "./lib/compiler/index.js"
     },
     "./vite": {
-      "types": "./src/core/adapters/vite.ts",
-      "import": "./src/core/adapters/vite.ts"
+      "types": "./types/adapters/vite.d.ts",
+      "import": "./lib/adapters/vite.js",
+      "default": "./lib/adapters/vite.js"
     },
     "./vite-plugin": {
-      "types": "./src/core/vite-plugin/index.ts",
-      "import": "./src/core/vite-plugin/index.ts"
-    }
+      "types": "./types/vite-plugin/index.d.ts",
+      "import": "./lib/vite-plugin/index.js",
+      "default": "./lib/vite-plugin/index.js"
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run check && npm run types && vite build",
+    "build": "npm run check && npm run package:build && vite build",
     "preview": "vite preview",
     "test": "node --test",
     "docs:check": "node scripts/check-core-docs.mjs",
     "typecheck": "tsc --noEmit",
     "clean:types": "node -e \"require('node:fs').rmSync('types', { recursive: true, force: true })\"",
-    "types": "npm run clean:types && tsc --project tsconfig.types.json",
+    "clean:package": "node -e \"require('node:fs').rmSync('lib', { recursive: true, force: true })\"",
+    "types": "npm run clean:types && tsc --project tsconfig.types.json && node scripts/rewrite-declaration-imports.mjs",
+    "package:build": "npm run clean:package && tsc --project tsconfig.package.json && npm run types",
+    "package:check": "npm run package:build && node scripts/check-package.mjs",
+    "pack:check": "npm pack --dry-run",
     "lint": "eslint .",
-    "check": "npm run docs:check && npm run typecheck && npm run lint"
+    "check": "npm run docs:check && npm run typecheck && npm run lint",
+    "prepack": "npm run package:check"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

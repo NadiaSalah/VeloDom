@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**165 of 237 tasks completed — 69.6%**
+**169 of 239 tasks completed — 70.7%**
 
 `██████████████░░░░░░`
 
-Remaining tasks: **72**
+Remaining tasks: **70**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -183,7 +183,9 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [x] Remove remaining application assumptions from core errors and hints
 - [ ] Add source-aware errors for adapters and user files
 - [x] Complete router, component, directive, request, and lifecycle tests
-- [ ] Add package exports and semantic versioning rules
+- [x] Add package exports and semantic versioning rules
+- [x] Build publishable ESM and declaration artifacts from `src/core`
+- [x] Validate package entry points and the npm file allowlist before packing
 - [ ] Add a minimal package-consumer example
 - [ ] Benchmark common page and loop rendering cases
 
@@ -360,7 +362,7 @@ and `src/api`.
 - [ ] Improve granular updates for large pages
 - [ ] Benchmark common UI cases
 - [x] Split runtime directive features into manifest-selectable modules
-- [ ] Type remaining dynamic mount, directive, and request orchestrator boundaries
+- [x] Type remaining dynamic mount, directive, and request orchestrator boundaries
 
 ---
 
