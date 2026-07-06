@@ -54,6 +54,17 @@ package versions.
 
 ### Documentation
 
+- Rebuilt `README.md` as a current user guide instead of a mixed historical
+  handoff log, with copyable examples for pages, routing, state, every
+  directive family, components, slots, refs, events, lifecycle, requests,
+  middleware, auth, SEO, plugins, compiler extensions, and optional TypeScript.
+- Audited documentation claims against the current public exports, adapters,
+  runtime modules, tests, and package metadata.
+- Removed stale bundle-size measurements and outdated documentation-file
+  counts, and made the private pre-release/package limitations explicit.
+- Added a truthful implemented-vs-planned limitations section so validation,
+  request retry/cache, router UX, error boundaries, CLI, devtools, and
+  SSR/hydration are not presented as existing features.
 - Added a prioritized gap map to `todo.md`, separating V1 release blockers,
   everyday application needs, and intentionally deferred framework features.
 - Added concrete roadmap work for browser E2E coverage, accessibility,

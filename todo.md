@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**184 of 274 tasks completed — 67.2%**
+**209 of 274 tasks completed — 76.3%**
 
-`[#############-------]`
+`[###############-----]`
 
-Remaining tasks: **90**
+Remaining tasks: **65**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -350,41 +350,41 @@ and `src/api`.
 
 ### 6. Documentation
 
-- [ ] Split docs into clear sections:
-- [ ] Getting Started
-- [ ] Pages
-- [ ] Components
-- [ ] Refs
-- [ ] Emit vs Ref vs Request
-- [ ] Directives
-- [ ] Request Router
-- [ ] Auth and Middleware
-- [ ] Error Handling
-- [ ] Best Practices
-- [ ] Recipes
+- [x] Split docs into clear sections:
+- [x] Getting Started
+- [x] Pages
+- [x] Components
+- [x] Refs
+- [x] Emit vs Ref vs Request
+- [x] Directives
+- [x] Request Router
+- [x] Auth and Middleware
+- [x] Error Handling
+- [x] Best Practices
+- [x] Recipes
 - [ ] Deployment and SPA/static-host rewrite configuration
-- [ ] SEO, static route generation, and dynamic-entry recipes
+- [x] SEO, static route generation, and dynamic-entry recipes
 
 ### 7. Practical Recipes
 
-- [ ] Add recipe: simple page state
-- [ ] Add recipe: component with `expose`
-- [ ] Add recipe: `ref` group with `key`
-- [ ] Add recipe: component emits event to page
-- [ ] Add recipe: simple request in same page
-- [ ] Add recipe: request using `data-vd-request-config`
-- [ ] Add recipe: request using `data-vd-request-state`
-- [ ] Add recipe: request writing to another page
-- [ ] Add recipe: allowing external page writes safely
-- [ ] Add recipe: auth-protected request
-- [ ] Add recipe: request with application middleware
+- [x] Add recipe: simple page state
+- [x] Add recipe: component with `expose`
+- [x] Add recipe: `ref` group with `key`
+- [x] Add recipe: component emits event to page
+- [x] Add recipe: simple request in same page
+- [x] Add recipe: request using `data-vd-request-config`
+- [x] Add recipe: request using `data-vd-request-state`
+- [x] Add recipe: request writing to another page
+- [x] Add recipe: allowing external page writes safely
+- [x] Add recipe: auth-protected request
+- [x] Add recipe: request with application middleware
 - [ ] Add recipe: form create/update/delete
 - [ ] Add recipe: common framework error examples
 
 ### 8. Lifecycle
 
 - [x] Formalize `destroy` hook
-- [ ] Document `init` object signature as the preferred style
+- [x] Document `init` object signature as the preferred style
 - [x] Add and document the `mounted` hook
 - [x] Expose `onCleanup` and lifecycle `AbortSignal`
 

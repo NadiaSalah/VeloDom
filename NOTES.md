@@ -120,6 +120,15 @@
 - Error boundaries should isolate user-code failures and offer recovery while
   preserving the existing fatal screen for unrecoverable application startup
   failures.
+- README is the current user-facing framework guide, not a milestone archive.
+  Historical implementation detail belongs in CHANGELOG, while deferred
+  architecture decisions belong in NOTES or TODO.
+- Documentation must distinguish supported preferred syntax from compatibility
+  aliases and must label the package as private until publication is actually
+  authorized.
+- Performance numbers should not be kept in README unless they are generated
+  by a repeatable current benchmark; one-off bundle comparisons become stale
+  as framework features change.
 
 ## Known Constraints
 

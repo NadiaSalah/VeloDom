@@ -1,127 +1,181 @@
 # VeloDom
 
-VeloDom is a compiler-first, HTML-first frontend framework for building
-folder-based applications with normal HTML, reactive local state, components,
-requests, and a deliberately small runtime.
+VeloDom is a compiler-first, HTML-first frontend framework for folder-based
+single-page applications. Pages and components use ordinary HTML, reactive
+state, declarative directives, route-aware lifecycle hooks, and an optional
+request layer without JSX or TSX.
 
-The project is evolving without JSX or TSX. Application authors can use
-JavaScript or TypeScript while continuing to write ordinary HTML templates.
+The framework source is TypeScript. Application authors may choose Vanilla
+JavaScript or TypeScript independently for every page and component.
 
-## Current Status
+> Project status: active pre-release development. The package is currently
+> `private` and is not published to npm. Public API names are usable inside this
+> repository but are not frozen for V1 yet.
 
-The repository now includes:
+## Contents
 
-- a standalone TypeScript template compiler
-- a TypeScript VeloDom Vite plugin
-- a TypeScript runtime with router, state, directives, components, lifecycle,
-  and events
-- request middleware and configurable auth providers
-- a Vite folder-discovery adapter
-- page-owned SEO config with runtime head updates and static route HTML
-- generated public declaration files
-- TypeScript type checking and ESLint quality gates
-- enforced English module headers and exported-API JSDoc across all core files
-- a complete blog showcase application
-- Node-based compiler, router, lifecycle, adapter, auth, middleware, and HTTP tests
-- real DOM integration tests for directives, components, navigation, and requests
+- [What Works Today](#what-works-today)
+- [Requirements and Commands](#requirements-and-commands)
+- [Project Structure](#project-structure)
+- [Folder Conventions](#folder-conventions)
+- [Application Bootstrap](#application-bootstrap)
+- [Pages](#pages)
+- [Routing](#routing)
+- [Reactive State](#reactive-state)
+- [Directives](#directives)
+- [Components](#components)
+- [Lifecycle, Refs, and Events](#lifecycle-refs-and-events)
+- [Requests](#requests)
+- [Middleware](#middleware)
+- [Authentication](#authentication)
+- [SEO and Static Route HTML](#seo-and-static-route-html)
+- [Plugins](#plugins)
+- [Compiler and Vite Integration](#compiler-and-vite-integration)
+- [JavaScript and TypeScript](#javascript-and-typescript)
+- [Error and Security Model](#error-and-security-model)
+- [Public Package Boundaries](#public-package-boundaries)
+- [Showcase Routes](#showcase-routes)
+- [Verification](#verification)
+- [Best Practices](#best-practices)
+- [Current Limitations](#current-limitations)
+- [Roadmap and Handoff](#roadmap-and-handoff)
 
-Latest local verification on 2026-07-06: TypeScript and ESLint checks pass, 87
-tests pass, declarations are generated, and the Vite production build
-completes. The last dependency audit on 2026-07-05 reported zero known
-vulnerabilities.
+## What Works Today
 
-All explicit `any` annotations have been removed from framework Core. Built ESM
-and declaration artifacts have validated package boundaries, including an
-isolated TypeScript and Vite consumer built from an installed local tarball.
+VeloDom currently provides:
 
-## Technologies
+- folder-discovered pages and nested components
+- static, nested, and dynamic client-side routes
+- route params, query values, metadata, and navigation guards
+- shallow reactive state with inherited component state
+- conditionals, loops, text, visibility, model, attribute, class, and style
+  directives
+- event directives with lifecycle and keyboard modifiers
+- page and component `init`, `mounted`, `destroy`, cleanup, and abort signals
+- DOM refs, component refs, grouped refs, keyed instances, and `expose`
+- named and unnamed slots plus folder-scoped CSS
+- declarative requests with params, result/loading/error state, events, auth,
+  middleware, and cancellation
+- configurable server-session and demonstration localStorage auth providers
+- runtime head management and static SEO HTML generated from page `config.js`
+- a safe expression parser/evaluator with no `eval` or `new Function`
+- a Vite template compiler, source-aware diagnostics, optimizer hooks, and
+  runtime feature manifests
+- generated ESM and TypeScript declarations for the intended package surface
 
-- TypeScript 6 for framework source and declarations
-- ESLint 10 with typescript-eslint
-- Vite 8.1.3
-- happy-dom 20 for development-only DOM integration tests
-- Vanilla HTML, CSS, and JavaScript or TypeScript for application code
-- Tailwind CSS and daisyUI for the showcase application only
+VeloDom deliberately does not currently provide a mandatory global store,
+virtual DOM, JSX, built-in form-validation system, full SSR/hydration, CLI, or
+browser devtools.
 
-## Architecture
+## Requirements and Commands
+
+Required Node.js version:
 
 ```text
-src/
-  core/                  all framework-owned source
-    adapters/            Vite discovery and resource-map adapters
-    compiler/            HTML AST, transforms, metadata, diagnostics
-      optimizer.ts       optimizer pipeline and runtime feature manifests
-      types.ts           compiler and optimizer public contracts
-    shared/              shared contracts and validated object/path utilities
-    vite-plugin/         build-time template compilation
-      seo-renderer.ts    static route metadata and fallback HTML generation
-    requests/            HTTP, auth, middleware, request directives
-      request-bindings.ts target resolution and cross-page write policy
-    directives/          expression scope, runtime registry, feature modules
-      features/          lazy condition/text/binding/model/event/request/loop code
-    errors/              framework error reporting and fatal screen
-    expression/          safe tokenizer, parser, AST, and evaluator
-    index.ts             public runtime entry and exported types
-    types.ts             public application contracts
-    router.ts            generic matching, params, query, guards
-    page-router.ts       page runtime and navigation lifecycle
-    lifecycle.ts         mounted/destroy/onCleanup/signal
-
-  pages/                 user-owned application pages
-  components/            user-owned application components
-  api/                   user-owned routes, handlers, and middleware
-  main.js                user-owned application bootstrap
-
-test/
-  integration/           real DOM runtime integration coverage
-test-support/             reusable test environments outside test discovery
-examples/
-  package-consumer/      isolated installed-package TypeScript/Vite fixture
-
-lib/                      generated publishable ESM, ignored by Git
-types/                    generated publishable declarations, ignored by Git
+^20.19.0 or >=22.12.0
 ```
 
-All framework source now lives under `src/core`; application authors should not
-edit its internal files. Root configuration files remain at the repository root
-because Vite, TypeScript, ESLint, and npm discover them there.
-
-## Start the Application
+Install the repository dependencies and start development:
 
 ```bash
+npm install
 npm run dev
 ```
 
-Production build and tests:
+Common commands:
 
 ```bash
-npm run docs:check
-npm run check
 npm test
+npm run docs:check
+npm run typecheck
+npm run lint
+npm run check
 npm run package:check
-npm run package:consumer
 npm run build
+npm run preview
 ```
 
-`npm run docs:check` verifies documentation headers and exported JSDoc for
-every TypeScript file under `src/core`. `npm run check` runs that audit,
-TypeScript, and ESLint. `npm run package:check` builds `lib/` and `types/`,
-validates every public export, rejects unsafe package contents or stale `.ts`
-imports, and verifies an installed consumer. `npm run package:consumer` runs
-that consumer check directly after rebuilding the package. The production
-build runs these quality gates automatically.
+What the main checks do:
 
-`src/core/types.ts` is framework source. The root `types/` directory is
-generated declaration output, `lib/` is generated ESM output, and
-`node_modules/@types` contains npm-managed declarations for external
-dependencies. Generated and dependency files must not be moved into
-`src/core`.
+| Command | Purpose |
+| --- | --- |
+| `npm test` | Runs compiler, core, request, package, and DOM integration tests. |
+| `npm run docs:check` | Enforces headers and exported JSDoc under `src/core`. |
+| `npm run check` | Runs documentation, TypeScript, and ESLint checks. |
+| `npm run package:check` | Builds ESM/types and tests an installed local tarball consumer. |
+| `npm run build` | Runs all quality/package gates, then builds the showcase. |
 
-## App Bootstrap
+Generated `dist/`, `lib/`, and `types/` folders are build output and should not
+be edited manually.
 
-Application resources and policies are injected into the public framework API:
+## Project Structure
+
+```text
+src/
+  core/                       framework-owned TypeScript
+    adapters/                 build-tool resource discovery
+    compiler/                 HTML compiler and optimizer contracts
+    directives/features/      lazy directive runtime modules
+    errors/                   structured error reporting
+    expression/               safe expression tokenizer/parser/evaluator
+    requests/                 HTTP, auth, middleware, request runtime
+    shared/                   generic validation and path helpers
+    vite-plugin/              template compilation and static SEO rendering
+
+  pages/                      application-owned pages
+  components/                 application-owned components
+  api/                        application-owned handlers and middleware
+  main.js                     application bootstrap
+
+test/                         automated tests
+test-support/                 reusable test environment helpers
+examples/package-consumer/    installed-package verification fixture
+```
+
+Ownership rule:
+
+- Framework behavior that is generic across sites belongs in `src/core`.
+- Business pages, components, route handlers, and custom middleware stay in
+  `src/pages`, `src/components`, and `src/api`.
+- Build configuration stays at the repository root because npm, Vite,
+  TypeScript, and ESLint discover it there.
+
+## Folder Conventions
+
+Pages:
+
+```text
+src/pages/example/
+  index.html          required
+  script.js           optional, preferred
+  script.ts           optional TypeScript alternative
+  config.js           optional route, policy, and SEO config
+  *.css               optional scoped styles
+```
+
+Components:
+
+```text
+src/components/example/
+  index.html          required
+  script.js           optional, preferred
+  script.ts           optional TypeScript alternative
+  *.css               optional scoped styles
+```
+
+Compatibility filenames `page.js`, `page.config.js`, and `component.js` are
+still discovered, but new application code should prefer `script.js`,
+`config.js`, and `script.ts` where typing is wanted. Page config is currently
+JavaScript (`config.js`), not TypeScript.
+
+## Application Bootstrap
+
+The application injects its adapter, request routes, middleware, auth
+providers, plugins, and router options into `createApp`.
 
 ```js
+// src/main.js
+import "./style.css";
 import {
   createApp,
   createLocalStorageAuthProvider,
@@ -132,609 +186,850 @@ import { createViteAdapter } from "velodom/vite";
 import routes from "./api/routes.js";
 import middleware from "./api/middleware.js";
 
-createApp({
+const app = createApp({
   adapter: createViteAdapter(),
   routes,
   middleware,
   auth: {
     defaultProvider: VD_AUTH.PROVIDERS.SERVER,
     providers: {
-      server: createServerSessionAuthProvider(),
+      server: createServerSessionAuthProvider({
+        sessionUrl: "/api/auth/session",
+        credentials: "include"
+      }),
       demo: createLocalStorageAuthProvider()
     }
   },
-  plugins: [],
   router: {
     notFoundPage: "404",
-    beforeEach: []
+    beforeEach({ to, from }) {
+      console.info("navigation", from?.path, "->", to.path);
+      return true;
+    }
   }
-}).mount();
-```
-
-The core does not import application routes or middleware.
-
-## Source Ownership
-
-Application authors normally edit:
-
-- `src/pages`
-- `src/components`
-- `src/api`
-- `src/main.js`
-- application styles and assets
-
-Framework maintainers edit `src/core`. Consumers use these supported entry
-points instead of importing internal files:
-
-- `velodom` — runtime and public types
-- `velodom/vite` — Vite resource adapter
-- `velodom/vite-plugin` — build plugin
-- `velodom/compiler` — compiler API
-
-## Package and Release Boundaries
-
-The local package version is `0.1.0`. Public imports resolve only through the
-four entry points above; internal files are not reachable through
-`package.json#exports`.
-
-`npm run package:build` creates browser/runtime ESM under `lib/` and
-declarations under `types/`. `npm run pack:check` runs the prepack audit and
-shows the exact npm tarball without publishing it. The package allowlist
-contains only built code, declarations, README, CHANGELOG, and
-`RELEASING.md`—never application pages, components, API handlers, tests, or
-workspace configuration.
-
-`examples/package-consumer` is copied to a temporary directory during
-verification. The audit packs VeloDom, installs that tarball without network
-access, type-checks the consumer against the installed declarations, and runs a
-Vite production build through the installed plugin and adapter.
-
-The repository intentionally keeps `"private": true`. Before the first public
-release, the maintainer must explicitly choose a license, verify ownership of
-the package name, freeze public names, and authorize publication. Versioning
-and the release checklist are documented in [RELEASING.md](RELEASING.md).
-
-## Folder-First Convention
-
-One folder represents one page or component.
-
-```text
-src/pages/blog/posts/[id]/
-  index.html
-  script.js          # or script.ts
-  style.css
-  config.js
-
-src/components/blog/post-card/
-  index.html
-  script.js          # or script.ts
-  style.css
-```
-
-Backward-compatible names remain supported:
-
-- `page.js`
-- `component.js`
-- `page.config.js`
-
-These names are compatibility-only. The bundled application uses the preferred
-`script.js`/`script.ts`, `config.js`, kebab-case folders, and `vd-*` syntax
-throughout.
-
-Preferred names are:
-
-- `script.js` or `script.ts`
-- `config.js`
-
-Nested folders work without manual registration.
-
-## TypeScript Inside, JavaScript Optional
-
-Framework and adapter source is TypeScript and must pass both `tsc` and ESLint.
-Application authors choose the language per page or component:
-
-```text
-src/pages/vanilla-page/script.js
-src/pages/typed-page/script.ts
-```
-
-Both receive the same hooks, state behavior, directives, and runtime API.
-TypeScript is opt-in for application code and does not require JSX or TSX.
-
-Vanilla JavaScript:
-
-```js
-import { requestJson } from "velodom";
-
-export function init({ state }) {
-  state.title = "JavaScript page";
-}
-```
-
-TypeScript:
-
-```ts
-import type { PageScriptContext, StateRecord } from "velodom";
-
-interface ExampleState extends StateRecord {
-  title: string;
-}
-
-export function init({ state }: PageScriptContext<ExampleState>) {
-  state.title = "TypeScript page";
-}
-```
-
-The working TypeScript example is available at `/features/typescript`. The
-remaining blog application deliberately uses Vanilla JavaScript, proving that
-TypeScript is not imposed on users.
-
-### Type Safety Boundaries
-
-The framework's public records now use `unknown` instead of leaking `any`.
-Compiler AST contracts, resource adapters, route config, auth providers,
-reactive state helpers, lifecycle, plugins, HTTP options, expression tokens,
-and error reporting have explicit types. TypeScript consumers narrow genuinely
-dynamic values while JavaScript consumers keep the same runtime API.
-
-The type-hardening work removed all explicit `any` annotations from
-`src/core`. Dynamic mount, page, expression, middleware, and request
-orchestrators now use focused context interfaces, `unknown`, DOM contracts, and
-generic cleanup types. ESLint enforces `no-explicit-any` across every Core
-TypeScript file so later work cannot silently weaken these boundaries. Generated
-declarations for the public package surface and the migrated orchestrators no
-longer expose `any`; JSON response payloads are intentionally `unknown`.
-
-Type checking also exposed and corrected a declaration mismatch:
-`app.navigate(path, pagePath?)` now matches the existing runtime implementation;
-the second argument was previously and incorrectly declared as an object.
-
-## Code Documentation Standards
-
-Every framework-owned TypeScript file under `src/core` begins with an English
-JSDoc module header describing its responsibility. Every exported function,
-class, interface, type, constant, and re-export group has adjacent JSDoc.
-
-Comments explain responsibilities, invariants, and architectural reasons rather
-than restating obvious statements. Important decisions—such as synchronous
-compiler optimizers, adapter injection, and asynchronous initial feature
-loading—have focused architecture notes beside their implementation.
-
-The rule is enforced by `scripts/check-core-docs.mjs`; missing headers, missing
-export documentation, or adjacent duplicate JSDoc blocks fail `npm run check`
-and therefore fail the production build.
-Application-owned JavaScript or TypeScript under `src/pages`, `src/components`,
-and `src/api` is not forced to use framework-maintainer documentation rules.
-
-## Compiler and Directive Syntax
-
-Preferred templates use short `vd-*` attributes:
-
-```html
-<button
-  vd-if="canSave"
-  vd-bind:disabled="saving"
-  vd-on:click.prevent="save()"
->
-  Save
-</button>
-```
-
-The Vite plugin compiles them into the current runtime representation:
-
-```html
-<button
-  data-vd-if="canSave"
-  data-vd-disabled="saving"
-  data-vd-onclick.prevent="save()"
->
-  Save
-</button>
-```
-
-Existing `data-vd-*` templates remain valid.
-
-The compiler currently provides:
-
-- start-tag and attribute AST nodes
-- source offsets and line/column diagnostics
-- `vd-*` normalization
-- `vd-on:event.modifier` transforms
-- `vd-bind:name` transforms
-- unknown-directive validation
-- safe expression parsing and source-aware expression diagnostics
-- serializable directive metadata
-- deterministic runtime feature manifests
-- synchronous custom optimizer extension points
-- development and production output modes
-
-### Compiler Optimizers and Tree-shaking
-
-Every compiled template includes a deterministic manifest containing its
-normalized directives and coarse runtime features such as `bindings`,
-`events`, `requests`, and `components`. The Vite adapter loads this manifest
-alongside template HTML, and the runtime uses it to activate only the directive
-feature modules required by that page or component.
-
-Production template modules omit development metadata by default. The small
-`__vdManifest` named export drives the Vite adapter's feature selection.
-Custom adapters may omit manifests and receive the full backward-compatible
-runtime feature set. Both compiler artifacts can be controlled through Vite
-plugin options.
-
-Advanced framework/build integrations can register synchronous optimizers:
-
-```js
-// vite.config.js
-import { defineConfig } from "vite";
-import { defineTemplateOptimizer } from "velodom/compiler";
-import { velodom } from "velodom/vite-plugin";
-
-const addBuildMarker = defineTemplateOptimizer(
-  "add-build-marker",
-  (result, context) => {
-    context.addRuntimeFeature("analytics");
-
-    return {
-      html: result.html.replace(
-        "<main",
-        '<main data-build="optimized"'
-      )
-    };
-  }
-);
-
-export default defineConfig({
-  plugins: [
-    velodom({
-      compiler: {
-        optimizers: [addBuildMarker]
-      }
-    })
-  ]
 });
+
+await app.mount();
 ```
 
-Optimizers run after parsing and validation, receive full compile-time metadata,
-and may update HTML, AST, metadata, or diagnostics. Their output is validated,
-named failures are reported clearly, and asynchronous optimizers are rejected
-so the standalone compiler remains deterministic. Application authors do not
-need to configure optimizers for normal VeloDom usage.
+Programmatic navigation and teardown:
 
-### Runtime Feature Loading
+```js
+await app.navigate("/features");
+await app.destroy();
+```
 
-Directive execution is split into lazy modules for:
+The page shell must provide the mount element:
 
-- conditionals
-- text
-- visibility
-- bindings
-- model
-- events
-- requests
-- loops
-
-`applyDirectives()` loads the selected modules once, caches them, and then keeps
-reactive updates and loop rerenders synchronous. Page and component mounting
-await initial directive preparation before calling `mounted`, so application
-lifecycle ordering is unchanged.
-
-On the showcase production build, this reduced the main entry from 78.49 kB to
-54.08 kB and its gzip size from 25.86 kB to 17.88 kB. Feature code is emitted
-as independent chunks and loaded only when a compiled template manifest needs
-it. These figures are local comparison measurements, not cross-device
-benchmarks.
+```html
+<div id="app"></div>
+<script type="module" src="/src/main.js"></script>
+```
 
 ## Pages
 
-```js
-// src/pages/example/script.js
-export function init({ state, ctx, refs }) {
-  state.title = "Hello";
+### Minimal Page
 
-  ctx.onCleanup(() => {
-    console.log("page cleanup");
+```html
+<!-- src/pages/counter/index.html -->
+<main>
+  <h1 vd-text="title"></h1>
+  <button type="button" vd-on:click="increment()">
+    Count: <span vd-text="count"></span>
+  </button>
+</main>
+```
+
+```js
+// src/pages/counter/script.js
+export function init({ state }) {
+  state.title = "Counter";
+  state.count = 0;
+  state.increment = () => {
+    state.count += 1;
+  };
+}
+```
+
+The Vite adapter discovers the folder automatically. No route-registration
+array is required.
+
+### Page Hooks and Context
+
+```js
+export function init({ el, refs, state, ctx }) {
+  state.message = `Post ${ctx.params.id}`;
+  state.preview = ctx.query.preview === "true";
+  state.routeTitle = ctx.meta.title || "Post";
+
+  refs.titleInput?.focus();
+
+  const unsubscribe = ctx.on("post:updated", payload => {
+    state.message = payload.message;
   });
+
+  ctx.onCleanup(unsubscribe);
 }
 
 export function mounted({ state, ctx }) {
-  console.log("mounted", ctx.params, ctx.query);
+  state.ready = true;
+
+  ctx.onCleanup(() => {
+    console.info("page cleanup");
+  });
 }
 
-export function destroy({ state }) {
-  console.log("destroyed");
+export async function destroy({ state }) {
+  await saveDraftIfNeeded(state);
 }
 ```
 
-Page context includes:
+Page hook arguments:
 
-- `page`
-- `route`
-- `params`
-- `query`
-- `meta`
-- `components`
-- `on`, `off`, `once`, `emit`
-- `onCleanup(callback)`
-- lifecycle `signal`
+- `el`: the `#app` element
+- `refs`: elements collected from `vd-ref`
+- `state`: the page's persistent reactive state
+- `ctx.page`: logical page folder name
+- `ctx.route`: resolved route record
+- `ctx.params`: dynamic route params
+- `ctx.query`: parsed query values
+- `ctx.meta`: metadata from page config
+- `ctx.components`: mounted component ref groups
+- `ctx.on`, `off`, `once`, `emit`: page-scoped events
+- `ctx.signal`: lifecycle `AbortSignal`
+- `ctx.onCleanup(callback)`: reverse-order cleanup registration
 
-## Page Config
+Page state is preserved when navigating away and returning during the same app
+runtime. Mounted component state is recreated.
+
+### Page Config
 
 ```js
-// config.js
+// src/pages/account/config.js
 export default {
-  path: "/account",
+  path: "/account/profile",
   meta: {
-    auth: true
+    title: "Account",
+    requiresProfile: true
   },
   beforeEnter({ to, from }) {
+    if (!canOpenAccount()) {
+      return "/";
+    }
+
     return true;
   },
   allowExternalWrite: [
-    "externalResult",
-    "externalLoading",
-    "externalError"
+    "profileResult",
+    "profileLoading",
+    "profileError"
   ]
 };
 ```
 
-Config is discovered by the adapter. It can override the folder-generated route,
-provide metadata and guards, and opt into safe cross-page request writes.
+`config.js` may:
 
-### SEO in `config.js`
+- override the folder-generated URL with `path`
+- expose route metadata through `meta`
+- allow, block, or redirect through `beforeEnter`
+- allow named cross-page request destinations with `allowExternalWrite`
+- declare page SEO through `seo`
 
-SEO stays beside each page in its existing `config.js`; application authors do
-not edit Core:
+## Routing
+
+Folders become routes:
+
+```text
+src/pages/home/index.html                    -> /
+src/pages/features/index.html                -> /features
+src/pages/blog/posts/create/index.html       -> /blog/posts/create
+src/pages/blog/posts/[id]/index.html         -> /blog/posts/:id
+src/pages/blog/posts/[id]/edit/index.html    -> /blog/posts/:id/edit
+```
+
+Static routes are ranked ahead of dynamic routes, so `/blog/posts/create` wins
+over `/blog/posts/:id`.
+
+### Navigation Links
+
+```html
+<a href="/" vd-nav>Home</a>
+<a href="/blog/posts/42?preview=true" vd-nav>Preview post</a>
+```
+
+`vd-nav` prevents a full document reload and sends the URL to the VeloDom
+router.
+
+### Params, Query, and Metadata
+
+```js
+export function init({ state, ctx }) {
+  state.postId = ctx.params.id;
+  state.preview = ctx.query.preview === "true";
+  state.title = ctx.meta.title || "Post";
+}
+```
+
+Repeated query keys become arrays; a single key becomes a string.
+
+### Guards
+
+Global guard:
+
+```js
+createApp({
+  adapter,
+  router: {
+    beforeEach({ to, from }) {
+      if (to.meta.requiresLogin && !sessionExists()) {
+        return "/login";
+      }
+
+      return true;
+    }
+  }
+});
+```
+
+Page guard in `config.js`:
 
 ```js
 export default {
-  path: "/articles",
-  seo: {
-    title: "Articles | Example",
-    description: "Practical articles about building web applications.",
-    canonical: "/articles",
-    lang: "en",
-    robots: "index,follow",
-    keywords: ["web applications", "HTML-first"],
-    openGraph: {
-      type: "website",
-      image: "/images/articles-cover.jpg",
-      imageAlt: "Article collection"
-    },
-    twitter: {
-      card: "summary_large_image"
-    },
-    summary: {
-      heading: "Practical articles",
-      text: "A concise server-delivered introduction to this collection."
-    },
-    jsonLd: {
-      "@context": "https://schema.org",
-      "@type": "CollectionPage",
-      name: "Articles"
+  beforeEnter({ to, from }) {
+    if (to.query.blocked === "true") {
+      return false;
     }
   }
 };
 ```
 
-During client navigation, the Core head manager updates the title, language,
-description, robots, canonical, Open Graph, Twitter Card, and JSON-LD tags. It
-removes metadata owned by the previous page and restores document defaults when
-a page has no SEO config.
+Guard results:
 
-After `vite build`, the VeloDom plugin reads page configs and emits an
-`index.html` for every concrete route. That HTML already contains metadata and
-a short visible summary inside `#app`, so visitors and crawlers receive useful
-content before client JavaScript runs. The application router replaces the
-summary when it mounts.
+- `true` or `undefined`: continue
+- `false`: cancel
+- an absolute app path such as `"/login"`: redirect
 
-Parameterized folders such as `[id]` are not guessed. Concrete pages can be
-declared when their content is known at build time:
+Current router limitations such as scroll restoration, hash navigation, focus
+management, and prefetch are tracked in `todo.md`; do not assume they exist.
+
+## Reactive State
+
+VeloDom state is a shallow reactive `Proxy`. Assigning a top-level state key
+notifies dependent directives:
 
 ```js
-seo: {
-  title: "Articles",
-  description: "Article archive",
-  entries: [
-    {
-      path: "/articles/hello-velodom",
-      title: "Hello VeloDom",
-      description: "A concise introduction to VeloDom.",
-      canonical: "/articles/hello-velodom"
-    }
-  ]
+state.count += 1;
+state.user = {
+  ...state.user,
+  name: "Nadia"
+};
+```
+
+For predictable updates, replace a nested object or array instead of mutating
+it directly:
+
+```js
+// Preferred
+state.items = [...state.items, newItem];
+
+// A direct nested mutation is not independently proxied.
+state.user.name = "Nadia";
+```
+
+`vd-model` and VeloDom's state-path writers notify correctly when writing a
+nested path.
+
+Components create local shallow reactive state that inherits missing reads
+from their parent. Component writes remain local unless the component calls a
+parent-owned function or uses another explicit communication API.
+
+## Directives
+
+Write preferred `vd-*` syntax in application HTML. The compiler converts it to
+internal `data-vd-*` attributes. Legacy `data-vd-*` templates continue to run,
+but new examples should use `vd-*`.
+
+### Text
+
+```html
+<h1 vd-text="title"></h1>
+<p vd-text="user?.bio || 'No biography'"></p>
+```
+
+Text is assigned through `textContent`, not HTML injection.
+
+### Conditionals
+
+```html
+<p vd-if="status === 'loading'">Loading…</p>
+<p vd-elseif="status === 'error'">Request failed.</p>
+<p vd-else>Ready.</p>
+```
+
+`vd-if` and `vd-elseif` expressions must return booleans. Follow-up branches
+must be adjacent siblings. Inactive branches suspend dependent expression
+evaluation, so unavailable data is not accessed prematurely.
+
+### Visibility
+
+```html
+<aside vd-show="panelOpen">Settings</aside>
+```
+
+`vd-show` keeps the node mounted and preserves its layout slot by toggling
+`visibility` and pointer events. It does not behave like `display: none`.
+
+### Loops
+
+```html
+<article vd-for="post in posts">
+  <h2 vd-text="post.title"></h2>
+</article>
+
+<li vd-for="(item, index) in items">
+  <span vd-text="index + 1"></span>
+  <span vd-text="item"></span>
+</li>
+```
+
+`$index` is also available when only the item name is declared. Arrays and
+other iterable values are accepted. Loop rerenders dispose old node listeners
+and subscriptions.
+
+### Two-Way Model
+
+```html
+<input type="text" vd-model="profile.name">
+<input type="checkbox" vd-model="accepted">
+```
+
+Text-like controls write strings. Checkboxes write booleans.
+
+### Attribute and Property Bindings
+
+```html
+<img
+  vd-bind:src="avatarUrl"
+  vd-bind:alt="avatarAlt"
+>
+
+<a vd-bind:href="postUrl">Open post</a>
+
+<input
+  vd-bind:value="search"
+  vd-bind:disabled="searching"
+  vd-bind:checked="selected"
+>
+```
+
+Supported `vd-bind:*` targets:
+
+- `src`
+- `href`
+- `alt`
+- `value`
+- `disabled`
+- `checked`
+- `class`
+- `style`
+- `attr`
+
+The shorthand forms `vd-src`, `vd-href`, `vd-alt`, `vd-value`,
+`vd-disabled`, and `vd-checked` are also compiled.
+
+### Class, Style, and Generic Attributes
+
+```html
+<section
+  vd-class="{
+    active: enabled,
+    'opacity-50': disabled
+  }"
+  vd-style="{
+    color: accent,
+    fontSize: size
+  }"
+  vd-attr="{
+    title: tooltip,
+    'aria-busy': loading,
+    'data-kind': kind
+  }"
+></section>
+```
+
+Class bindings accept a string, array, or truthy object map. Style bindings
+accept a CSS string or object. Attribute values of `false`, `null`, or
+`undefined` remove the attribute; `true` creates an empty boolean attribute.
+
+### Event Directives
+
+```html
+<button
+  type="button"
+  vd-on:click.prevent.stop.once="save()"
+>
+  Save once
+</button>
+
+<input vd-on:keydown.enter="submitSearch()">
+<button vd-on:click="select($event)">Select</button>
+```
+
+Supported lifecycle modifiers:
+
+- `.prevent`
+- `.stop`
+- `.once`
+
+Supported key modifiers:
+
+- `.enter`
+- `.tab`
+- `.delete`
+- `.esc`
+- `.space`
+- `.up`
+- `.down`
+- `.left`
+- `.right`
+
+The event is available as `$event`. Handlers and listeners are removed when
+their page/component subtree is disposed.
+
+### Refs
+
+```html
+<input vd-ref="searchInput">
+<button vd-on:click="focusSearch()">Focus</button>
+```
+
+```js
+export function init({ state, refs }) {
+  state.focusSearch = () => {
+    refs.searchInput?.focus();
+  };
 }
 ```
 
-Set the production origin to turn relative canonicals into absolute URLs and
-generate `sitemap.xml` plus `robots.txt`:
+Repeated DOM ref names resolve to arrays.
 
-```js
-// vite.config.js
-velodom({
-  seo: {
-    siteUrl: "https://example.com"
-  }
-})
-```
+### Safe Expression Grammar
 
-Routes marked `noindex` are excluded from the sitemap. Set `seo: false` in the
-plugin options to disable static SEO generation. `keywords` is supported for
-other consumers and internal classification, but modern Google ranking does
-not use the keywords meta tag; useful page content, titles, descriptions,
-canonical URLs, and structured data remain the priority.
+Supported template expression features include:
 
-## Router
+- literals and identifiers
+- arrays and objects
+- member access and optional chaining
+- arithmetic, comparison, logical, nullish, and conditional operators
+- safe function and method calls
+- template literals supported by the parser
 
-Folders generate routes automatically:
+Unsafe prototype members, function constructors, unrestricted host globals,
+`call`, `apply`, and `bind` are blocked.
 
-```text
-pages/home                  -> /
-pages/features              -> /features
-pages/blog/posts/create     -> /blog/posts/create
-pages/blog/posts/[id]       -> /blog/posts/:id
-pages/blog/posts/[id]/edit  -> /blog/posts/:id/edit
-```
-
-Dynamic parameters and query strings are exposed in page context:
-
-```js
-export function init({ ctx }) {
-  console.log(ctx.params.id);
-  console.log(ctx.query.preview);
-}
-```
-
-Guards may:
-
-- return `true` or `undefined` to continue
-- return `false` to block
-- return an application path such as `"/login"` to redirect
-
-Static routes are ranked ahead of dynamic routes.
-
-## Lifecycle
-
-Pages and components support:
-
-1. `init(context)`
-2. DOM/directive/component setup
-3. `mounted(context)`
-4. `destroy(context)`
-5. registered cleanup callbacks
-
-`ctx.signal` aborts before cleanup runs. Component children clean up before their
-parent. Page resources clean up before navigation completes.
-
-## Reactive State and Directives
-
-Supported directives include:
-
-- `vd-text`
-- `vd-if`, `vd-elseif`, `vd-else`
-- `vd-show`
-- `vd-for`
-- `vd-model`
-- `vd-class`
-- `vd-style`
-- `vd-attr`
-- `vd-bind:value`
-- `vd-bind:src`
-- `vd-bind:href`
-- `vd-bind:alt`
-- `vd-bind:disabled`
-- `vd-bind:checked`
-- `vd-on:event`
-- `vd-request`
-
-Legacy `data-vd-*` equivalents are supported.
-
-Conditional branches suspend dependent directive evaluation while inactive.
-For example, a `vd-bind:href` inside a false `vd-if` can safely reference data
-that will only exist when the condition becomes true. The binding remains
-reactive and evaluates as soon as the branch is activated.
-
-## Safe Template Expressions
-
-Template expressions are parsed into an AST and evaluated without `eval` or
-`new Function`. Supported syntax includes:
-
-- literals, template literals, identifiers, arrays, and object literals
-- arithmetic, comparisons, logical operators, and ternaries
-- property and computed access
-- optional chaining
-- trusted state function and method calls
-- safe globals such as `Boolean`, `Number`, `String`, `Array.isArray`, `Math`,
-  and `JSON`
-
-Expressions are intentionally not full JavaScript. Assignments, `new`, arrow
-functions, and statements are rejected. Use normal
-`script.js` or `script.ts` functions for complex logic. Static access to
-dangerous members such as `constructor`, `prototype`, and `__proto__` fails
-during compilation; dynamic access is checked again at runtime. Host globals
-and dynamic execution entry points including `window`, `document`, `Function`,
-`eval`, timers, and function meta-call methods are unavailable.
+Assignments, variable declarations, arrow functions, `new`, statements, and
+complex application logic do not belong in template expressions. Put that
+logic in `script.js` or `script.ts`.
 
 ## Components
 
+### Basic Component
+
+```html
+<!-- src/components/status-badge/index.html -->
+<span
+  vd-text="label"
+  vd-class="{ online: active, offline: !active }"
+></span>
+```
+
+```js
+// src/components/status-badge/script.js
+export function init({ props, state }) {
+  state.label = props.label || "Unknown";
+  state.active = props.active === "true";
+}
+```
+
+Use it from a page or another component:
+
 ```html
 <vd-component
-  name="blog/post-card"
-  vd-props="{ post: featuredPost }"
-  vd-ref="featuredCard"
+  name="status-badge"
+  vd-prop-label="Online"
+  vd-prop-active="true"
 ></vd-component>
 ```
 
-Nested component paths can also use a split path:
+`<vd-component>` is hostless: after mounting, its rendered children replace the
+custom host element.
+
+To preserve a wrapper, use attribute syntax:
 
 ```html
-<vd-component name="post-card" vd-path="blog"></vd-component>
+<section
+  vd-component="status-badge"
+  vd-prop-label="Online"
+></section>
 ```
 
-### Expose API
+### Static and Dynamic Props
+
+Static string props:
+
+```html
+<vd-component
+  name="user-card"
+  vd-prop-title="Editor"
+></vd-component>
+```
+
+Dynamic object props:
+
+```html
+<vd-component
+  name="user-card"
+  vd-props="{
+    title: pageTitle,
+    user: selectedUser
+  }"
+></vd-component>
+```
+
+Component `props` are initial values. Copy values into local state when the
+component needs to change them.
+
+### Nested Component Folders
+
+```text
+src/components/blog/post-card/
+```
+
+```html
+<vd-component name="blog/post-card"></vd-component>
+```
+
+The compatibility `path` form is also supported:
+
+```html
+<vd-component name="post-card" path="blog"></vd-component>
+```
+
+### Expose
+
+An exposed method is available both to the component template and to parent
+component refs:
 
 ```js
+// src/components/modal/script.js
 export function init({ state }) {
+  state.opened = false;
+
   function open() {
     state.opened = true;
+  }
+
+  function close() {
+    state.opened = false;
   }
 
   return {
     state,
     expose: {
-      open
+      open,
+      close
     }
   };
 }
 ```
 
-Members returned through `expose` are available both to the component's own
-template and to its parent. The component can therefore use
-`vd-on:click="open()"` without also assigning `state.open = open`.
-Protected framework state names cannot be replaced through `expose`.
-
-From the page:
-
-```js
-state.components.modal.open();
+```html
+<!-- src/components/modal/index.html -->
+<dialog vd-bind:attr="{ open: opened }">
+  <button type="button" vd-on:click="close()">Close</button>
+</dialog>
 ```
 
-Repeated refs become groups and support `byKey`.
+```html
+<!-- Parent page -->
+<vd-component name="modal" vd-ref="editorModal"></vd-component>
+<button vd-on:click="openEditor()">Open</button>
+```
+
+```js
+export function init({ state }) {
+  state.openEditor = () => {
+    state.components.editorModal?.open?.();
+  };
+}
+```
+
+Protected framework state names cannot be replaced through `expose`.
+
+### Grouped and Keyed Component Refs
+
+```html
+<vd-component
+  name="event-card"
+  vd-ref="cards"
+  vd-key="primary"
+></vd-component>
+
+<vd-component
+  name="event-card"
+  vd-ref="cards"
+  vd-key="secondary"
+></vd-component>
+```
+
+```js
+state.components.cards.open(); // calls open() on every instance
+state.components.cards.first?.open();
+state.components.cards.byKey.primary?.close();
+state.components.cards.all.forEach(card => card.open());
+```
 
 ### Slots
 
+Component template:
+
 ```html
-<vd-component name="shared/demo-panel">
-  <vd-child name="header">Header</vd-child>
-  <vd-child>Body</vd-child>
+<!-- src/components/panel/index.html -->
+<section>
+  <header vd-get-child="header"></header>
+  <div vd-get-child="default"></div>
+  <footer vd-get-child="footer"></footer>
+</section>
+```
+
+Consumer:
+
+```html
+<vd-component name="panel">
+  <vd-child name="header">
+    <h2>Profile</h2>
+  </vd-child>
+
+  <vd-child name="default">
+    <p>Main content</p>
+  </vd-child>
+
+  <vd-child name="footer">
+    <button type="button">Save</button>
+  </vd-child>
 </vd-component>
 ```
 
-The component receives content through `vd-get-child`.
+### Component Lifecycle
+
+Components support the same `init`, `mounted`, `destroy`, `ctx.signal`, and
+`ctx.onCleanup` lifecycle pattern as pages. Component context additionally
+includes:
+
+- `ctx.ref`
+- `ctx.key`
+- page route params/query/meta
+- page event functions
+- access to page component groups
+
+Nested components clean up before their parent.
+
+### Scoped Styles
+
+Any CSS discovered under a mounted page/component folder is loaded lazily and
+prefixed with a generated scope attribute.
+
+```css
+/* src/components/status-badge/style.css */
+:scope {
+  display: inline-flex;
+}
+
+.online {
+  color: green;
+}
+
+@media (width >= 48rem) {
+  .online {
+    font-weight: 700;
+  }
+}
+```
+
+Supported nested at-rules include media, supports, container, and layer blocks.
+
+## Lifecycle, Refs, and Events
+
+Lifecycle order for a normal page:
+
+1. clean up the previous page
+2. load page HTML and compiled feature manifest
+3. apply page SEO and scoped styles
+4. run `init`
+5. mount directives and components
+6. run `mounted`
+7. on navigation, run component cleanup, page `destroy`, lifecycle cleanup,
+   and event cleanup
+
+The lifecycle signal aborts before registered cleanup callbacks execute.
+Cleanup callbacks execute in reverse registration order.
+
+Page-scoped events:
+
+```js
+export function init({ state, ctx }) {
+  const unsubscribe = ctx.on("cart:changed", cart => {
+    state.cart = cart;
+  });
+
+  ctx.once("welcome", message => {
+    state.notice = message;
+  });
+
+  state.notifyCartChanged = cart => {
+    ctx.emit("cart:changed", cart);
+  };
+
+  ctx.onCleanup(unsubscribe);
+}
+```
+
+The event hub is cleared when the page is destroyed. It is useful for
+communication among a page and its mounted components; it is not a global
+application event bus.
+
+### Ref vs Expose vs Emit vs Request
+
+Choose the smallest communication mechanism that matches the relationship:
+
+| Need | Use |
+| --- | --- |
+| Focus/read a DOM element owned by the same template | `vd-ref` and `refs` |
+| Ask a known child component to perform an action | component `vd-ref` and `expose` |
+| Notify a page or multiple listeners about something that happened | `ctx.emit` / `ctx.on` |
+| Run async application/API work with loading/error/auth policy | `vd-request` |
+
+Child component event:
+
+```js
+// src/components/select-card/script.js
+export function init({ props, state, ctx }) {
+  state.select = () => {
+    ctx.emit("card:selected", {
+      id: props.id
+    });
+  };
+}
+```
+
+```html
+<!-- src/components/select-card/index.html -->
+<button type="button" vd-on:click="select()">Select</button>
+```
+
+Page listener:
+
+```js
+export function init({ state, ctx }) {
+  ctx.on("card:selected", ({ id }) => {
+    state.selectedId = id;
+  });
+}
+```
 
 ## Requests
 
-Routes remain application code:
+VeloDom separates:
+
+- application API handlers in `src/api`
+- a named route registry
+- declarative request triggers in HTML
+- generic request/auth/middleware execution in Core
+
+### HTTP Handler
+
+```js
+// src/api/posts.js
+import { requestJson } from "velodom";
+
+export async function getOne({ id }, { signal } = {}) {
+  return requestJson(`/api/posts/${id}`, {
+    signal
+  });
+}
+
+export async function create(payload, { signal } = {}) {
+  return requestJson("/api/posts", {
+    method: "POST",
+    body: payload,
+    signal
+  });
+}
+```
+
+`requestJson`:
+
+- sets `Accept: application/json`
+- adds JSON content type only when a body is present
+- passes `credentials` and `AbortSignal` when supplied
+- returns `null` for HTTP 204
+- throws `ApiError` with `status`, `url`, and parsed `body`
+
+### Route Registry
 
 ```js
 // src/api/routes.js
 import * as posts from "./posts.js";
 
 export default {
-  "posts.getAll": posts.getAll,
   "posts.getOne": posts.getOne,
-  "posts.create": posts.create
+  "posts.create": {
+    handler: posts.create,
+    middleware: ["trimStrings"],
+    auth: true,
+    roles: ["editor", "admin"]
+  }
 };
 ```
 
-HTML request:
+A route is either a handler function or:
+
+```js
+{
+  handler,
+  auth,
+  roles,
+  middleware
+}
+```
+
+### Simple Declarative Request
+
+```html
+<button
+  type="button"
+  vd-request="posts.getOne"
+  vd-params="{ id: selectedId }"
+  vd-target="postResult"
+  vd-loading="postLoading"
+  vd-error="postError"
+>
+  Load post
+</button>
+
+<span vd-show="postLoading">Loading…</span>
+<p vd-if="postError !== ''" vd-text="postError"></p>
+<h2 vd-if="Boolean(postResult)" vd-text="postResult?.title || ''"></h2>
+```
+
+### Request Config and Automatic Status Names
 
 ```html
 <button
   vd-request="posts.getOne"
   vd-request-config="{
-    params: { id: 1 },
-    target: 'post',
+    params: { id: selectedId },
+    target: 'postResult',
     autoState: true
   }"
 >
@@ -742,46 +1037,108 @@ HTML request:
 </button>
 ```
 
-`autoState` derives:
+With target `postResult`, automatic state uses:
 
-- `postLoading`
-- `postError`
+```text
+postResult
+postLoading
+postError
+```
 
-Requests are cancelled automatically when:
+If the target does not end with `Result`, VeloDom appends `Loading` and
+`Error` to the target name.
 
-- a newer request targets the same result binding
-- the owning element is unmounted
+`vd-request-state` is the attribute equivalent of `autoState: true`.
 
-The `AbortSignal` reaches auth providers, middleware context, and API handlers.
-Explicit local `loading` and `error` bindings follow the already-resolved local
-result target; the target name is not reinterpreted as an external page.
+### Forms
 
-## Runtime Integration Coverage
+```html
+<form
+  vd-request="posts.create"
+  vd-request-config="{
+    target: 'createPostResult',
+    autoState: true
+  }"
+>
+  <input name="title" vd-model="draft.title" required>
+  <textarea name="body" vd-model="draft.body"></textarea>
+  <button type="submit" vd-bind:disabled="createPostLoading">
+    Create
+  </button>
+</form>
+```
 
-The happy-dom integration suite exercises the runtime as one browser-like
-system rather than isolated fake elements. It currently verifies:
+Form values are collected with `FormData`. Explicit `params` are merged over
+form values.
 
-- conditional chains, show/text, attributes, values, classes, styles, and
-  boolean bindings
-- model synchronization, event modifiers, loop scope, rerender, and cleanup
-- component props, slots, DOM refs, grouped keyed refs, `expose`, state
-  inheritance, local overrides, and lifecycle teardown
-- page navigation, dynamic route context, page-state persistence, and cleanup
-- request result/loading/error writes, success events, and abort-on-unmount
-- request-config/request-state automation, explicit cross-page state writes,
-  allowlist enforcement, invalid configuration, and request error events
-- structured error formatting, Windows/source stack locations,
-  directive-specific diagnostics, warnings, and the one-time fatal screen
+Browser-native attributes such as `required` still work. A framework-level
+validation API is planned but does not exist yet.
 
-`happy-dom` is a test-only dependency and is not included in application
-runtime bundles.
+### Cross-Page State Writes
+
+Destination page:
+
+```js
+// src/pages/home/config.js
+export default {
+  allowExternalWrite: [
+    "externalPostResult",
+    "externalPostLoading",
+    "externalPostError"
+  ]
+};
+```
+
+Request from another page:
+
+```html
+<button
+  vd-request="posts.getOne"
+  vd-params="{ id: selectedId }"
+  vd-target="home"
+  vd-state="externalPostResult"
+  vd-request-state
+>
+  Load into home state
+</button>
+```
+
+Nested page folders can be addressed through a full target or `vd-path`.
+Prototype keys, framework-owned keys, unknown pages, and destinations missing
+from `allowExternalWrite` are rejected.
+
+### Request Events
+
+```js
+import { VD_REQUEST } from "velodom";
+
+export function init({ state, ctx }) {
+  ctx.on(VD_REQUEST.EVENTS.SUCCESS, payload => {
+    state.lastCompletedRoute = payload.route;
+  });
+
+  ctx.on(VD_REQUEST.EVENTS.ERROR, payload => {
+    state.lastErrorStage = payload.stage;
+  });
+}
+```
+
+Requests are automatically aborted when:
+
+- the same element starts a newer request
+- another request replaces the same result destination
+- the owner page/component is unmounted
 
 ## Middleware
 
-Simple transform middleware:
+Application middleware belongs in `src/api/middleware.js`.
+
+### Transform Middleware
+
+The common form receives params and returns transformed params:
 
 ```js
-export function trimStringFields(params) {
+export function trimStrings(params = {}) {
   return Object.fromEntries(
     Object.entries(params).map(([key, value]) => [
       key,
@@ -789,9 +1146,29 @@ export function trimStringFields(params) {
     ])
   );
 }
+
+export default {
+  trimStrings
+};
 ```
 
-Advanced pipeline middleware is explicit:
+Use it by name:
+
+```js
+export default {
+  "posts.create": {
+    handler: createPost,
+    middleware: ["trimStrings"]
+  }
+};
+```
+
+Transform middleware may return `undefined` to keep the existing params. Any
+other return value must be a plain object.
+
+### Advanced Pipeline Middleware
+
+`next()` is optional and reserved for middleware that wraps downstream work:
 
 ```js
 import {
@@ -799,230 +1176,631 @@ import {
   VD_MIDDLEWARE
 } from "velodom";
 
-export async function requestLogger(params, context, next) {
+async function requestLogger(params, context, next) {
   const startedAt = performance.now();
 
   try {
     return await next(params);
   } finally {
-    console.info(context.routeName, performance.now() - startedAt);
+    console.info(
+      context.routeName,
+      Math.round(performance.now() - startedAt),
+      "ms"
+    );
   }
 }
 
 export default {
-  trimStringFields,
   requestLogger: defineRequestMiddleware(requestLogger, {
     mode: VD_MIDDLEWARE.MODES.PIPELINE
   })
 };
 ```
 
-## Auth Providers
+Pipeline middleware must call `next()` once or return its own response. Calling
+`next()` more than once is rejected.
 
-The core request engine depends on a provider interface rather than a fixed
-application authentication strategy.
+Middleware references accept registered names, `app:name`, or inline
+functions. Unknown names fail with available application middleware names.
 
-```js
-async function customProvider(context) {
-  return {
-    authenticated: true,
-    user: {
-      roles: ["editor"]
-    }
-  };
-}
-```
+## Authentication
 
-Provider context includes:
+Authentication is provider-based and applies to declarative request routes.
+It does not replace backend authorization.
 
-- `routeName`
-- route auth `options`
-- request state and element
-- request `AbortSignal`
-
-Core helpers are available for server-session and localStorage providers.
-localStorage remains demonstration-only and is never a production security
-boundary.
-
-Routes choose providers declaratively:
-
-```js
-"demo.editorPost": {
-  handler: posts.getOne,
-  auth: "demo",
-  roles: ["editor", "admin"]
-}
-```
-
-Backend authorization remains mandatory for real protected operations.
-
-## Plugins
-
-```js
-const analyticsPlugin = {
-  setup({ app, navigate }) {
-    console.log("installed");
-  },
-  cleanup() {
-    console.log("removed");
-  }
-};
-
-createApp({
-  plugins: [analyticsPlugin]
-});
-```
-
-Plugins set up in registration order and clean up in reverse order.
-
-## Blog Showcase
-
-Useful routes:
-
-- `/` — reactive blog home and loops
-- `/blog/posts/1` — dynamic route params and lifecycle
-- `/blog/posts/1/edit` — request update form
-- `/blog/posts/create` — model and create request
-- `/features` — directives, slots, refs, expose, events, requests, cancellation
-- `/features/components` — grouped component refs and page events
-- `/features/errors` — structured error reporting
-- `/account/profile` — configurable auth providers and role checks
-
-## Public API Boundary
-
-Application code imports framework APIs from:
+### Server Session Provider
 
 ```js
 import {
   createApp,
-  createLocalStorageAuthProvider,
-  createServerSessionAuthProvider,
-  defineRequestMiddleware,
-  requestJson
+  createServerSessionAuthProvider
 } from "velodom";
+
+createApp({
+  adapter,
+  auth: {
+    defaultProvider: "server",
+    providers: {
+      server: createServerSessionAuthProvider({
+        sessionUrl: "/api/auth/session",
+        credentials: "include"
+      })
+    }
+  },
+  routes
+});
 ```
 
-Files such as `page-router.ts`, `mount.ts`, and `request-router.ts` are internal.
+The endpoint should return JSON such as:
 
-## Security Notes
+```json
+{
+  "authenticated": true,
+  "user": {
+    "id": 7,
+    "roles": ["editor"]
+  }
+}
+```
 
-- Template expressions use the safe AST evaluator and do not invoke dynamic
-  JavaScript compilation.
-- Compiler diagnostics validate expression syntax and statically unsafe
-  members before bundling.
-- Runtime member checks protect computed access that cannot be resolved during
-  compilation.
-- Protected state keys and prototype paths cannot be request write targets.
-- Cross-page writes require explicit target-page config.
-- Frontend role checks improve UX; backend authorization is authoritative.
+Route policies:
 
-## Roadmap
+```js
+export default {
+  "profile.read": {
+    handler: readProfile,
+    auth: true
+  },
+  "posts.update": {
+    handler: updatePost,
+    auth: "server",
+    roles: ["editor", "admin"]
+  },
+  "reports.read": {
+    handler: readReport,
+    auth: {
+      provider: "server",
+      sessionUrl: "/api/report-session"
+    }
+  }
+};
+```
 
-See [todo.md](todo.md). The next architectural priorities are:
+When roles are configured, authentication is enabled automatically.
 
-1. freeze public names, licensing, and release boundaries
-2. finish task-oriented documentation and application recipes
-3. add real-browser E2E coverage and a supported-browser matrix
+### Custom Provider
+
+```js
+async function customAuthProvider({ signal, routeName, options }) {
+  const response = await fetch(options.url, {
+    signal,
+    credentials: "include"
+  });
+
+  if (!response.ok) return null;
+
+  return response.json();
+}
+```
+
+A provider returns an object containing `authenticated`/`loggedIn`, `token`,
+`roles`, or `user.roles`; alternatively it returns `null`/`false`.
+
+### localStorage Demonstration Provider
+
+```js
+createLocalStorageAuthProvider({
+  storageKey: "vd-user-session",
+  requireToken: true
+});
+```
+
+This helper is for demonstrations and local prototypes. Secure applications
+must use server-controlled sessions/tokens and enforce authorization on the
+backend.
+
+## SEO and Static Route HTML
+
+SEO is declared in each page's existing `config.js`:
+
+```js
+export default {
+  seo: {
+    title: "Articles | Example",
+    description: "Practical articles built with VeloDom.",
+    canonical: "/articles",
+    lang: "en",
+    robots: "index,follow",
+    keywords: ["VeloDom", "HTML-first"],
+    openGraph: {
+      type: "website",
+      title: "Articles",
+      image: "/images/articles.jpg",
+      imageAlt: "Article collection"
+    },
+    twitter: {
+      card: "summary_large_image"
+    },
+    summary: {
+      heading: "Practical articles",
+      text: "A concise server-delivered introduction for visitors and crawlers."
+    },
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Articles"
+    }
+  }
+};
+```
+
+At runtime, VeloDom updates:
+
+- document title and language
+- description and robots meta tags
+- optional keywords
+- canonical link
+- Open Graph metadata
+- Twitter Card metadata
+- JSON-LD structured data
+
+On production build, the Vite plugin creates route-specific `index.html`
+documents containing the metadata and a visible concise summary in `#app`.
+Client mounting replaces that summary with the interactive page.
+
+### Dynamic Routes
+
+VeloDom never invents dynamic content. Known build-time entries are explicit:
+
+```js
+export default {
+  seo: {
+    title: "Articles",
+    description: "Article archive",
+    entries: [
+      {
+        path: "/articles/hello-velodom",
+        title: "Hello VeloDom",
+        description: "A concise introduction.",
+        canonical: "/articles/hello-velodom",
+        summary: {
+          heading: "Hello VeloDom",
+          text: "A concise introduction."
+        }
+      }
+    ]
+  }
+};
+```
+
+Parameterized folders without entries are handled by the client router but are
+not emitted as fake static paths.
+
+### Sitemap and Robots
+
+Set the production site origin:
+
+```js
+// vite.config.js
+import { velodom } from "velodom/vite-plugin";
+
+export default {
+  plugins: [
+    velodom({
+      seo: {
+        siteUrl: "https://example.com",
+        generateSitemap: true,
+        generateRobots: true
+      }
+    })
+  ]
+};
+```
+
+Routes marked `robots: "noindex,nofollow"` are excluded from the sitemap.
+Static SEO generation can be disabled with `seo: false`.
+
+Meta keywords are supported as supplemental metadata, but they should not be
+treated as a modern ranking strategy.
+
+Current SEO output is static metadata plus a concise fallback, not full page
+SSR or hydration. API/CMS entry hooks and full static rendering remain roadmap
+items.
+
+## Plugins
+
+Function plugin:
+
+```js
+function analyticsPlugin({ app, navigate }) {
+  const onVisibilityChange = () => {
+    console.info(document.visibilityState);
+  };
+
+  document.addEventListener("visibilitychange", onVisibilityChange);
+
+  return () => {
+    document.removeEventListener(
+      "visibilitychange",
+      onVisibilityChange
+    );
+  };
+}
+```
+
+Object plugin:
+
+```js
+const monitoringPlugin = {
+  setup({ app, navigate }) {
+    console.info("monitoring installed");
+  },
+  cleanup() {
+    console.info("monitoring removed");
+  }
+};
+```
+
+```js
+createApp({
+  adapter,
+  plugins: [
+    analyticsPlugin,
+    monitoringPlugin
+  ]
+});
+```
+
+Plugins set up in registration order and clean up in reverse order. Shared
+state, validation, cache, and devtools are not silently installed; future
+implementations should remain optional plugins.
+
+## Compiler and Vite Integration
+
+### Vite Plugin
+
+The repository development config imports the source plugin directly because
+the package is not published:
+
+```js
+import { defineConfig } from "vite";
+import { velodom } from "./src/core/vite-plugin/index.ts";
+
+export default defineConfig({
+  plugins: [
+    velodom()
+  ]
+});
+```
+
+An installed/package consumer uses:
+
+```js
+import { velodom } from "velodom/vite-plugin";
+```
+
+The plugin:
+
+- compiles raw page/component HTML
+- converts preferred directive names
+- reports compiler errors through Vite
+- emits development metadata by default in development
+- emits deterministic runtime feature manifests
+- lets the runtime load only required directive feature modules
+- generates static SEO route documents after a normal client production build
+
+### Standalone Compiler
+
+```js
+import { compileTemplate } from "velodom/compiler";
+
+const result = compileTemplate(
+  '<button vd-on:click="save()">Save</button>',
+  {
+    filename: "save-button.html",
+    mode: "development"
+  }
+);
+
+console.log(result.html);
+console.log(result.diagnostics);
+console.log(result.manifest.features);
+```
+
+Compile result:
+
+```js
+{
+  html,
+  ast,
+  metadata,
+  diagnostics,
+  manifest
+}
+```
+
+### Optimizers
+
+Optimizers are synchronous and run in registration order:
+
+```js
+import {
+  defineTemplateOptimizer
+} from "velodom/compiler";
+import { velodom } from "velodom/vite-plugin";
+
+const addProjectFeature = defineTemplateOptimizer(
+  "project-feature",
+  (result, context) => {
+    context.addRuntimeFeature("project:analytics");
+
+    return {
+      html: result.html.replaceAll("data-track", "data-project-track")
+    };
+  }
+);
+
+export default {
+  plugins: [
+    velodom({
+      compiler: {
+        optimizers: [addProjectFeature]
+      }
+    })
+  ]
+};
+```
+
+An optimizer may patch only `html`, `ast`, `metadata`, or `diagnostics`.
+Returning a Promise or unsupported field is rejected.
+
+## JavaScript and TypeScript
+
+Vanilla JavaScript page:
+
+```js
+// src/pages/example/script.js
+export function init({ state }) {
+  state.message = "JavaScript page";
+}
+```
+
+Typed page with the same HTML/lifecycle API:
+
+```ts
+// src/pages/example/script.ts
+import type {
+  PageScriptContext,
+  StateRecord
+} from "velodom";
+
+interface ExampleState extends StateRecord {
+  message: string;
+  count: number;
+}
+
+export function init({
+  state,
+  ctx
+}: PageScriptContext<ExampleState>) {
+  state.message = "TypeScript page";
+  state.count = 0;
+
+  ctx.onCleanup(() => {
+    console.info("typed page cleaned");
+  });
+}
+```
+
+Typed component:
+
+```ts
+import type {
+  ComponentScriptContext,
+  StateRecord
+} from "velodom";
+
+interface BadgeState extends StateRecord {
+  label: string;
+}
+
+interface BadgeProps extends StateRecord {
+  label?: string;
+}
+
+export function init({
+  props,
+  state
+}: ComponentScriptContext<BadgeState, BadgeProps>) {
+  state.label = props.label || "Badge";
+}
+```
+
+Framework Core enforces `@typescript-eslint/no-explicit-any`. Application
+authors are not forced to use TypeScript.
+
+## Error and Security Model
+
+VeloDom provides:
+
+- compiler diagnostics with filename, offset, line, and column
+- structured runtime errors with directive/expression/element context
+- request errors with request/auth/middleware stages
+- safe text rendering in the fatal error screen
+- a single fatal-screen guard
+- automatic cleanup of listeners, subscriptions, and request abort controllers
+
+Security invariants:
+
+- template expressions do not use dynamic JavaScript compilation
+- unsafe object members and prototype traversal are blocked
+- request destinations reject protected state keys
+- cross-page writes require target-page permission
+- middleware names resolve only from owned application registries
+- auth provider results are normalized before role checks
+
+The current global `error` and `unhandledrejection` handlers treat unexpected
+failures as fatal. Recoverable page/component error boundaries are planned but
+do not exist yet.
+
+Frontend auth and roles improve application UX only. A backend must enforce
+real access control.
+
+## Public Package Boundaries
+
+Intended public imports:
+
+### `velodom`
+
+Runtime:
+
+- `createApp`
+- `createPluginManager`
+- `requestJson`
+- `ApiError`
+- `defineRequestMiddleware`
+- `createAuthRuntime`
+- `createServerSessionAuthProvider`
+- `createLocalStorageAuthProvider`
+- `normalizeAuthSession`
+- `VD_AUTH`
+- `VD_MIDDLEWARE`
+- `VD_REQUEST`
+
+Public types include page/component contexts, route/auth/request/plugin
+contracts, SEO contracts, application options, and HTTP options.
+
+### `velodom/vite`
+
+- `createViteAdapter`
+
+### `velodom/vite-plugin`
+
+- `velodom`
+- `createTemplateModule`
+- plugin option types
+
+### `velodom/compiler`
+
+- `compileTemplate`
+- `defineTemplateOptimizer`
+- `runTemplateOptimizers`
+- `createRuntimeFeatureManifest`
+- compiler/optimizer result types
+
+Modules such as `page-router.ts`, `mount.ts`, `directives.ts`, and
+`request-router.ts` are internal. Application code should not import them.
+
+Package publishing remains intentionally blocked by `private: true` until the
+license, npm name ownership, and public API freeze are decided.
+
+## Showcase Routes
+
+The repository includes a blog-style showcase:
+
+| Route | Demonstrates |
+| --- | --- |
+| `/` | reactive post lists, loops, requests, nested components |
+| `/blog/posts/1` | dynamic params, loading, lifecycle |
+| `/blog/posts/1/edit` | model binding and update request |
+| `/blog/posts/create` | forms and create request |
+| `/features` | directives, slots, refs, events, requests |
+| `/features/components` | grouped/keyed component refs and page events |
+| `/features/errors` | structured compiler/runtime/request errors |
+| `/features/typescript` | optional typed application page |
+| `/account/profile` | configurable auth providers and roles |
+
+The showcase uses Tailwind CSS and daisyUI. Those libraries are application
+choices, not VeloDom Core dependencies or requirements.
+
+## Verification
+
+Latest local verification on 2026-07-06:
+
+- Core documentation audit passes for 49 TypeScript files
+- TypeScript check passes
+- ESLint passes
+- 87 automated tests pass
+- ESM and declaration generation pass
+- package-contract validation passes
+- an isolated local-tarball TypeScript/Vite consumer passes
+- production showcase build passes
+
+Test coverage includes:
+
+- compiler directives, expressions, diagnostics, manifests, and optimizers
+- resource-map and package boundaries
+- routes, guards, params, and query parsing
+- reactive state, lifecycle, events, refs, and plugins
+- real DOM directives, components, navigation, errors, and requests
+- auth providers, middleware modes, request bindings, and HTTP behavior
+- runtime/static SEO and installed-package SEO generation
+
+Real-browser E2E coverage and a browser support matrix are still roadmap tasks;
+current DOM integration uses happy-dom.
+
+## Best Practices
+
+- Keep templates declarative and move multi-step logic into page/component
+  scripts.
+- Replace nested objects/arrays to trigger shallow reactive updates
+  predictably.
+- Prefer page events for notifications and `expose` for direct child commands.
+- Use transform middleware by default; use `next()` only when wrapping
+  downstream work.
+- Keep request handlers and business middleware in `src/api`, not Core.
+- Give every async request an explicit or automatic result/loading/error
+  destination.
+- Pass lifecycle `ctx.signal` to owned async work and register other cleanup
+  through `ctx.onCleanup`.
+- Mark private/action/error routes `noindex` and provide concrete SEO entries
+  only for real dynamic content.
+- Treat localStorage auth as a demo and enforce authorization on the server.
+- Import only documented package entry points from application code.
+
+## Current Limitations
+
+These features are not implemented and should not be described as available:
+
+- public V1 API/name freeze
+- npm publication and final license
+- built-in form validation
+- declarative request debounce, throttle, retry, or cache
+- router scroll restoration, hash navigation, focus management, or prefetch
+- recoverable page/component error boundaries
+- mandatory/shared global store
+- project/page/component scaffolding CLI
+- official test-utility package
+- browser devtools
+- full page SSR, full static content rendering, or hydration
+- automatic API/CMS discovery for dynamic SEO entries
+- real-browser E2E matrix and published browser-support policy
+
+The current reactive state is shallow. Static SEO emits metadata and concise
+fallback content, not the complete interactive page.
+
+## Roadmap and Handoff
+
+The prioritized roadmap and progress counter live in [todo.md](todo.md).
+Important milestone history lives in [CHANGELOG.md](CHANGELOG.md). Architecture
+decisions and deferred ideas live in [NOTES.md](NOTES.md). Release rules live
+in [RELEASING.md](RELEASING.md).
+
+Current roadmap order:
+
+1. freeze public names, licensing, and package boundaries
+2. finish task-oriented documentation and recipes
+3. add real-browser E2E coverage and a browser matrix
 4. establish accessibility and recoverable error-boundary contracts
-5. complete optional form/request UX before broader hydration or shared state
+5. complete optional form/request UX
+6. add tooling and performance budgets
+7. add API/CMS SEO hooks and optional hydration only after runtime stability
 
-## Development Handoff
+When continuing development:
 
-The main files changed in the current architecture milestone are:
-
-- `src/core/compiler/index.ts` and `src/core/vite-plugin/index.ts`
-- `src/core/index.ts`, `src/core/types.ts`, `src/core/router.ts`,
-  `src/core/lifecycle.ts`, and `src/core/plugins.ts`
-- `src/core/requests/auth.ts`, `request-router.ts`, and
-  `middleware-engine.ts`
-- `src/core/adapters/vite.ts` and `src/core/resource-adapter.ts`
-- the blog application under `src/pages`, `src/components`, and `src/api`
-
-The conditional-directive evaluation regression is covered by
-`test/core/directives.test.js`. Its fix lives in `src/core/directives.ts`.
-The local/public `expose` contract is covered by
-`test/core/reactive.test.js` and integrated by `src/core/mount.ts`.
-Shared object validation, folder normalization, and protected-state path
-detection are covered by `test/core/shared.test.js`.
-Expression/state-path behavior and request binding policies are covered by
-`test/core/expression.test.js` and `test/requests/request-bindings.test.js`.
-The browser-like runtime path is covered by
-`test/integration/dom-runtime.test.js`, using `test-support/dom.js`.
-
-The current integration milestone changed:
-
-- `src/core/directives.ts` to dispose rendered loop nodes and their listeners
-- `src/core/requests/request-router.ts` to keep explicit local status bindings
-  on the resolved local request target
-- `test/integration/dom-runtime.test.js` and `test/core/events.test.js` for
-  regression and lifecycle coverage
-- `package.json`/`package-lock.json` for happy-dom and the secure Vite 8.1.3
-  update
-
-The integration tests exposed both runtime fixes above. Vite was also upgraded
-from the vulnerable 8.0.x range after an npm security audit; no automated
-major-version migration or external push was performed.
-
-The latest request-hardening step added
-`test/integration/request-directives.test.js`. It verifies declarative request
-config, automatic status names, explicit cross-page bindings, page allowlists,
-blocked writes, request failures, and invalid configuration. No core behavior
-change was required by this step.
-
-The error-system step added `test/integration/errors.test.js`. It verifies
-structured console output, fallback and parsed source locations,
-directive-specific context, warning routing, safe text rendering, and the
-single fatal-screen guard. No core behavior change was required by this step.
-
-The compiler optimization step added `src/core/compiler/optimizer.ts` and
-`types.ts`, runtime feature manifests, validated custom optimizer hooks, and
-production metadata pruning in the Vite plugin. Compiler tests cover manifest
-generation, extension hooks, invalid output, and production/development module
-artifacts. `todo.md` now starts with a visible completed/total progress counter.
-
-The type-hardening step replaced broad public/internal `any` contracts with
-`unknown`, generics, discriminated tokens, and focused interfaces across 13
-framework boundaries. ESLint now rejects new explicit `any` in migrated files.
-`ApiErrorOptions`, `JsonRequestOptions`, and `UnknownRecord` are exported public
-types, and the `navigate` declaration now matches runtime behavior.
-
-The orchestrator-typing step removed the remaining explicit `any` annotations
-from component mounting, page routing, directive expressions, middleware, and
-request coordination. `no-explicit-any` now guards all of `src/core`, while the
-Vanilla JavaScript and TypeScript application APIs remain unchanged. Public and
-migrated-orchestrator declarations were also checked to prevent inferred `any`
-from leaking through generated types.
-
-The runtime-splitting step moved directive behaviors into lazy feature modules,
-extended page/component resource groups with compiled manifests, and made both
-page and component mounting feature-aware. Custom adapters without manifests
-retain the full compatibility runtime. Tests verify manifest selection, custom
-component-tag feature discovery, resource validation, and fallback behavior.
-
-The documentation-standard step added synchronized English headers and exported
-API JSDoc to all 47 core TypeScript files. A dependency-free audit script now
-guards the rule through `npm run docs:check` and the normal `npm run check`
-pipeline.
-
-The package-boundary step introduced built ESM under `lib/`, focused
-declarations under `types/`, version `0.1.0`, explicit package exports, and a
-strict npm file allowlist. Prepack validation checks all runtime/type targets
-and rewritten import extensions. The dry-run tarball contains no application
-or test files; publication remains blocked by `private: true`.
-
-The package-consumer step added `examples/package-consumer` and an isolated
-audit that installs the local tarball into a temporary project. Its strict
-TypeScript check and Vite production build prove that runtime, compiler plugin,
-adapter discovery, and declarations work outside the source workspace.
-
-The SEO step added `src/core/seo.ts` and
-`src/core/vite-plugin/seo-renderer.ts`. Page authors declare metadata in their
-existing `config.js`; Core validates it, updates the head during navigation,
-and emits route-specific HTML after production builds. The blog configs now
-demonstrate indexable public pages and `noindex` private/action pages.
-Parameterized content is supported through explicit `seo.entries`; automatic
-API/CMS data fetching during builds remains a future integration.
-
-Important decisions and deferred technical work are recorded in
-[NOTES.md](NOTES.md). Milestone history is recorded in
-[CHANGELOG.md](CHANGELOG.md).
+1. Keep generic framework logic under `src/core`.
+2. Keep business examples under `src/pages`, `src/components`, and `src/api`.
+3. Update README, TODO, CHANGELOG, and NOTES after significant work.
+4. Add a regression test for every Core bug or behavior change.
+5. Run `npm test` and `npm run build` before committing important changes.
+6. Do not publish or push externally without explicit authorization.
