@@ -65,6 +65,9 @@ package versions.
 - Added a truthful implemented-vs-planned limitations section so validation,
   request retry/cache, router UX, error boundaries, CLI, devtools, and
   SSR/hydration are not presented as existing features.
+- Added deployment guidance for VeloDom's SPA fallback, generated static SEO
+  routes, hosting rewrites, Vite base paths, cache headers, and no-JavaScript
+  SEO checks.
 - Added a prioritized gap map to `todo.md`, separating V1 release blockers,
   everyday application needs, and intentionally deferred framework features.
 - Added concrete roadmap work for browser E2E coverage, accessibility,

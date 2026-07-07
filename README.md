@@ -29,6 +29,7 @@ JavaScript or TypeScript independently for every page and component.
 - [Middleware](#middleware)
 - [Authentication](#authentication)
 - [SEO and Static Route HTML](#seo-and-static-route-html)
+- [Deployment and Static Hosting](#deployment-and-static-hosting)
 - [Plugins](#plugins)
 - [Compiler and Vite Integration](#compiler-and-vite-integration)
 - [JavaScript and TypeScript](#javascript-and-typescript)
@@ -1406,6 +1407,151 @@ treated as a modern ranking strategy.
 Current SEO output is static metadata plus a concise fallback, not full page
 SSR or hydration. API/CMS entry hooks and full static rendering remain roadmap
 items.
+
+## Deployment and Static Hosting
+
+Build the application with:
+
+```bash
+npm run build
+```
+
+The production output is written to `dist/`. VeloDom emits the normal SPA shell
+as `dist/index.html` and, when SEO generation is enabled, extra route-specific
+documents such as:
+
+```text
+dist/index.html
+dist/features/index.html
+dist/blog/posts/create/index.html
+dist/404/index.html
+dist/sitemap.xml
+dist/robots.txt
+```
+
+The hosting rule is simple:
+
+1. Serve real files and generated route directories first.
+2. Fall back unknown client routes to `/index.html`.
+
+That lets direct visits to generated SEO routes receive their static metadata,
+while non-generated dynamic routes still load through the client router.
+
+### Local Preview
+
+```bash
+npm run preview
+```
+
+For route-specific SEO, open a generated route directly and inspect the HTML
+source before JavaScript runs.
+
+### Vite Base Path
+
+If the site is deployed under a subpath, configure Vite's `base` option:
+
+```js
+// vite.config.js
+import { velodom } from "velodom/vite-plugin";
+
+export default {
+  base: "/docs/",
+  plugins: [
+    velodom({
+      seo: {
+        siteUrl: "https://example.com/docs"
+      }
+    })
+  ]
+};
+```
+
+Use app-relative route paths in VeloDom navigation, such as `/features`; Vite
+handles asset URLs through `base`.
+
+### Netlify and Cloudflare Pages
+
+Create a `_redirects` file in the published output or public assets:
+
+```text
+/* /index.html 200
+```
+
+Static files and generated directories are served before the fallback on these
+hosts, so `/features/` can still resolve to `dist/features/index.html`.
+
+### Vercel
+
+Use a fallback rewrite:
+
+```json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+Vercel serves static assets before rewrites. Verify direct generated routes
+after deployment because project-level settings can affect clean URLs.
+
+### Nginx
+
+```nginx
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+
+This tries real files, then generated route directories, then the SPA fallback.
+
+### Apache
+
+```apache
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
+```
+
+### GitHub Pages
+
+GitHub Pages does not provide server rewrite rules for SPA routes. For a simple
+deployment, copy the built `index.html` to `404.html` after build so unknown
+client routes can recover:
+
+```bash
+cp dist/index.html dist/404.html
+```
+
+Generated SEO route folders still work when visited exactly, but unknown
+dynamic routes will use the 404 fallback shell.
+
+### Cache Headers
+
+Prefer long-lived immutable caching for hashed assets and no-cache behavior for
+HTML:
+
+```text
+/assets/*  Cache-Control: public, max-age=31536000, immutable
+/*.html    Cache-Control: no-cache
+```
+
+Generated `sitemap.xml` and `robots.txt` can be cached, but keep the cache short
+while content is changing often.
+
+### Deployment SEO Checklist
+
+- Set `velodom({ seo: { siteUrl } })` for canonical, sitemap, and robots output.
+- Add `seo.entries` for dynamic routes that must be crawlable at build time.
+- Mark private/action pages with `robots: "noindex,nofollow"`.
+- Confirm direct route HTML contains the expected title, description, canonical,
+  and visible summary before the app hydrates.
+- Confirm unknown routes load the SPA fallback instead of returning a server
+  404 page.
 
 ## Plugins
 

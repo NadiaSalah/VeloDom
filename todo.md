@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**209 of 274 tasks completed — 76.3%**
+**210 of 274 tasks completed — 76.6%**
 
 `[###############-----]`
 
-Remaining tasks: **65**
+Remaining tasks: **64**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -362,7 +362,7 @@ and `src/api`.
 - [x] Error Handling
 - [x] Best Practices
 - [x] Recipes
-- [ ] Deployment and SPA/static-host rewrite configuration
+- [x] Deployment and SPA/static-host rewrite configuration
 - [x] SEO, static route generation, and dynamic-entry recipes
 
 ### 7. Practical Recipes

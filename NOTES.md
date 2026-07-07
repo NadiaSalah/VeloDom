@@ -110,6 +110,11 @@
   sitemap.
 - Meta keywords remain accepted as supplemental metadata, but they must not be
   treated as a search-ranking strategy.
+- Static hosting must serve existing generated route files before applying the
+  SPA fallback to `/index.html`; otherwise direct SEO routes lose their
+  server-delivered metadata. Hosts without rewrites, such as GitHub Pages,
+  need a `404.html` fallback copy and still only expose generated metadata for
+  exact static route folders.
 - Feature comparison must not turn VeloDom into a React-like runtime. The
   priority order is API stability, documentation, browser verification,
   accessibility, and recovery before optional state, devtools, SSR, or
