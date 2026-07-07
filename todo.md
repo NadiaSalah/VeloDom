@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**210 of 274 tasks completed — 76.6%**
+**210 of 313 tasks completed — 67.1%**
 
-`[###############-----]`
+`[#############-------]`
 
-Remaining tasks: **64**
+Remaining tasks: **103**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -459,6 +459,107 @@ and `src/api`.
 - [ ] Create CLI for demo scaffolding
 - [ ] Add public test utilities for mounting pages and components
 - [ ] Add a development command to inspect discovered routes and feature manifests
+
+### 14.1 Future DX Acceptance Rules
+
+Modern developer experience work is allowed only when it strengthens VeloDom's
+identity instead of copying larger frameworks. DX tooling should prefer static
+analysis, compiler metadata, build reports, and optional providers. It must not
+add mandatory runtime state, JSX/TSX authoring, virtual-DOM concepts, or hidden
+configuration-heavy behavior.
+
+- [ ] Define a DX feature rubric before implementation — Fit: protects HTML-first/compiler-first decisions; Value: prevents feature bloat; Complexity: low; Target: V1.x
+- [ ] Keep every DX feature usable without AI or cloud services — Fit: preserves Vanilla Friendly and offline workflows; Value: predictable local development; Complexity: low; Target: V1.x
+- [ ] Keep DX analysis outside the browser runtime by default — Fit: preserves Runtime Lightweight; Value: safer diagnostics without app-size cost; Complexity: medium; Target: V1.x
+
+### 14.2 Project Intelligence
+
+Static project intelligence fits VeloDom because folders, templates,
+directives, route configs, and compiler metadata already describe most project
+relationships. The first version should be static, local, and deterministic.
+
+- [ ] Design a project analyzer manifest that reads pages, components, API routes, middleware, CSS, refs, events, and SEO configs — Fit: compiler/folder-first; Value: one source of project truth; Complexity: medium; Target: V1.x
+- [ ] Add `vd inspect` to list discovered pages, components, routes, request routes, middleware, and compiler features — Fit: convention over configuration; Value: explains automatic discovery; Complexity: medium; Target: V1.x
+- [ ] Add `vd doctor` to detect missing components, broken component paths, invalid `vd-*` usage, invalid config shapes, and broken request references — Fit: compile-time validation; Value: catches common mistakes early; Complexity: medium; Target: V1.x
+- [ ] Detect broken refs, duplicate state names used across one template scope, unknown event handlers, and unsafe directive expressions before runtime — Fit: compiler-first; Value: fewer runtime surprises; Complexity: medium; Target: V1.x
+- [ ] Detect unused components, unused routes, unused middleware, dead API handlers, and unreachable showcase files without deleting anything automatically — Fit: static analysis; Value: reduces project clutter; Complexity: medium; Target: V2
+- [ ] Detect circular component dependencies and large page/component folders with actionable warnings — Fit: folder-first maintainability; Value: prevents slow builds and confusing composition; Complexity: medium; Target: V2
+- [ ] Generate `vd stats` project statistics for route count, component count, directive usage, request usage, SEO coverage, and test coverage signals — Fit: build-time metadata; Value: clear project health snapshot; Complexity: low; Target: V1.x
+
+### 14.3 CLI Experience
+
+CLI work should reduce boilerplate around VeloDom's conventions. It should
+scaffold normal `index.html`, `script.js`/`script.ts`, `style.css`, and
+`config.js` files, not introduce a new component authoring model.
+
+- [ ] Extend CLI planning to include `vd middleware` and `vd plugin` scaffolding — Fit: keeps custom code outside core; Value: faster setup for advanced users; Complexity: low; Target: V1.x
+- [ ] Add `vd health` as a summarized wrapper over doctor, stats, SEO, accessibility, and build checks — Fit: local static tooling; Value: one command before release; Complexity: medium; Target: V2
+- [ ] Add `vd graph` to export project relationships as JSON and Mermaid without requiring a browser devtool — Fit: compiler/build-time output; Value: easier onboarding and audits; Complexity: medium; Target: V2
+- [ ] Add `vd benchmark` for repeatable page, loop, request, and component rendering benchmarks — Fit: performance-budget roadmap; Value: prevents anecdotal optimization; Complexity: medium; Target: V2
+- [ ] Add a route explorer command that prints route paths, params, guards, metadata, SEO, and generated static entries — Fit: folder-first router transparency; Value: easier deployment/debugging; Complexity: low; Target: V1.x
+- [ ] Add a build report command or Vite output section for bundle, directive, route, component, and SEO summaries — Fit: build intelligence without runtime cost; Value: clear production feedback; Complexity: medium; Target: V1.x
+
+### 14.4 Visual Project Graph
+
+Visual graphs are useful when generated from source metadata. They should be
+exported artifacts, not a mandatory browser devtools runtime.
+
+- [ ] Generate a pages-to-routes graph — Fit: folder-first; Value: shows navigation surface; Complexity: low; Target: V2
+- [ ] Generate a pages-to-components graph with nested component dependencies — Fit: HTML component discovery; Value: finds coupling and circular usage; Complexity: medium; Target: V2
+- [ ] Generate request and middleware graphs from `src/api` registrations — Fit: request-layer transparency; Value: safer API refactors; Complexity: medium; Target: V2
+- [ ] Generate event, ref, state, and expose relationship graphs where static analysis can prove the connection — Fit: compiler-first where possible; Value: debugs communication patterns; Complexity: high; Target: Future Research
+
+### 14.5 Framework Health Report
+
+A health report fits VeloDom when it is advisory and generated from existing
+compiler/build/test signals. It must not block builds until thresholds are
+explicitly configured by the project.
+
+- [ ] Define a non-blocking health score model covering performance, accessibility, SEO, security, bundle size, dead code, and maintainability — Fit: convention-guided quality; Value: one release-readiness signal; Complexity: medium; Target: V2
+- [ ] Add configurable project thresholds for health checks without hard-coded framework opinions — Fit: convention over configuration with opt-in strictness; Value: adapts to different site types; Complexity: medium; Target: V2
+- [ ] Report security concerns such as unsafe links, risky HTML injection patterns, weak auth demos in production, and external-write policy gaps — Fit: existing structured diagnostics; Value: safer apps; Complexity: medium; Target: V2
+- [ ] Report SEO and accessibility coverage from page configs and compiled templates — Fit: compile-time HTML analysis; Value: fewer missed metadata and semantic issues; Complexity: medium; Target: V1.x
+
+### 14.6 Build Intelligence
+
+Build intelligence should reuse compiler manifests and Vite output. It should
+suggest optimizations rather than silently changing application behavior.
+
+- [ ] Report largest pages, largest components, largest route chunks, and repeated heavy dependencies after production build — Fit: build-time only; Value: practical performance work; Complexity: medium; Target: V1.x
+- [ ] Report unused directives and unused runtime feature modules based on compiler manifests — Fit: compiler-first tree-shaking; Value: keeps runtime small; Complexity: medium; Target: V1.x
+- [ ] Suggest route-level prefetch, component splitting, or template simplification without enabling them automatically — Fit: runtime-lightweight; Value: informed optimization; Complexity: medium; Target: V2
+- [ ] Emit machine-readable build reports for CI dashboards and future tooling — Fit: package/tooling boundary; Value: automation without runtime cost; Complexity: low; Target: V1.x
+
+### 14.7 Documentation Generator
+
+Generated docs fit VeloDom when they document discovered conventions and public
+contracts. They should not replace human-written tutorials in `README.md`.
+
+- [ ] Generate route documentation from folders and `config.js` metadata — Fit: folder-first; Value: always-current route map; Complexity: low; Target: V1.x
+- [ ] Generate component documentation from props, slots, refs, exposed methods, and examples found in templates — Fit: HTML-first components; Value: easier reuse; Complexity: medium; Target: V2
+- [ ] Generate request/API documentation from route handlers, middleware, auth, params, and result conventions — Fit: request-layer clarity; Value: safer backend/frontend coordination; Complexity: medium; Target: V2
+- [ ] Generate event, ref, state, plugin, and SEO documentation where static analysis is reliable — Fit: compiler metadata; Value: searchable project reference; Complexity: high; Target: Future Research
+
+### 14.8 Optional AI-Native Tooling
+
+AI can be valuable, but it must be optional and provider-based like auth. The
+framework should work fully without AI, internet access, API keys, or hosted
+services.
+
+- [ ] Research an optional AI provider interface with OpenAI, OpenRouter, Ollama, Gemini, and custom providers — Fit: provider pattern without mandatory dependency; Value: user choice and local-first options; Complexity: medium; Target: Future Research
+- [ ] Keep AI CLI commands such as `vd ai review`, `vd ai explain`, `vd ai generate`, and `vd ai optimize` outside the runtime package — Fit: runtime-lightweight; Value: assistance without app bloat; Complexity: medium; Target: Future Research
+- [ ] Require AI tools to read compiler/project manifests instead of guessing project structure — Fit: compiler-first; Value: more accurate suggestions; Complexity: medium; Target: Future Research
+- [ ] Treat `vd-ai`, `vd-ai-prompt`, and `vd-ai-target` directives as research-only until security, privacy, offline behavior, and runtime cost are proven acceptable — Fit: protects HTML-first simplicity; Value: prevents premature directive bloat; Complexity: high; Target: Future Research
+- [ ] Add clear privacy controls for files, prompts, secrets, and provider telemetry before any AI integration is considered usable — Fit: safe developer tooling; Value: trust and compliance; Complexity: high; Target: Future Research
+
+### 14.9 Migration Tools
+
+Migration helpers are acceptable only as optional project-conversion assistants.
+They should produce normal VeloDom folders and HTML, not compatibility layers
+that emulate React or Vue at runtime.
+
+- [ ] Research `HTML -> VeloDom` migration helpers that add folder structure, `vd-*` directives, and `script.js` state incrementally — Fit: HTML-first adoption; Value: easiest migration path; Complexity: medium; Target: V2
+- [ ] Research limited `React -> VeloDom` and `Vue -> VeloDom` codemods that generate reviewable VeloDom folders for simple components only — Fit: optional conversion tooling; Value: helps teams experiment; Complexity: high; Target: Future Research
 
 ### 15. Framework Identity
 
