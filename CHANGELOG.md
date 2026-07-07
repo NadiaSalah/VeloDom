@@ -6,6 +6,15 @@ package versions.
 
 ## 2026-07-07
 
+### Public API
+
+- Froze the V1 candidate package boundary with tests for runtime exports,
+  public type export declarations, compiler exports, Vite adapter exports,
+  Vite plugin exports, and package subpaths.
+- Updated README language so public names are no longer described as
+  unfrozen, while package publication remains blocked by license and npm-name
+  ownership decisions.
+
 ### Fixed
 
 - Fixed role-only request routes so automatic auth enablement uses the
@@ -16,7 +25,7 @@ package versions.
 
 - Added direct request-directive coverage for role authorization success and
   missing-role denial before the route handler runs.
-- Full verification passes with 89 automated tests, documentation checks,
+- Full verification passes with 94 automated tests, documentation checks,
   TypeScript, ESLint, package contract checks, installed-package consumer
   validation, and the production showcase build.
 

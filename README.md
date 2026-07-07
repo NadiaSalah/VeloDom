@@ -9,8 +9,8 @@ The framework source is TypeScript. Application authors may choose Vanilla
 JavaScript or TypeScript independently for every page and component.
 
 > Project status: active pre-release development. The package is currently
-> `private` and is not published to npm. Public API names are usable inside this
-> repository but are not frozen for V1 yet.
+> `private` and is not published to npm. Public API names are frozen locally as
+> a V1 candidate and protected by package-boundary tests.
 
 ## Contents
 
@@ -1839,7 +1839,9 @@ Modules such as `page-router.ts`, `mount.ts`, `directives.ts`, and
 `request-router.ts` are internal. Application code should not import them.
 
 Package publishing remains intentionally blocked by `private: true` until the
-license, npm name ownership, and public API freeze are decided.
+license and npm name ownership are explicitly decided. Public API names are
+tracked by package-boundary tests and should change only through an intentional
+architecture decision plus documentation update.
 
 ## Showcase Routes
 
@@ -1867,7 +1869,7 @@ Latest local verification on 2026-07-07:
 - Core documentation audit passes for 49 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 89 automated tests pass
+- 94 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -1883,6 +1885,8 @@ Test coverage includes:
 - auth providers, role checks, middleware modes, request bindings, and HTTP
   behavior
 - runtime/static SEO and installed-package SEO generation
+- frozen public runtime, compiler, Vite adapter, Vite plugin, type, and package
+  subpath exports
 
 Real-browser E2E coverage and a browser support matrix are still roadmap tasks;
 current DOM integration uses happy-dom.

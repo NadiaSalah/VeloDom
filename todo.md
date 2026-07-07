@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**211 of 313 tasks completed — 67.4%**
+**212 of 313 tasks completed — 67.7%**
 
 `[#############-------]`
 
-Remaining tasks: **102**
+Remaining tasks: **101**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -184,7 +184,7 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [x] Export the complete supported public API from one entry file
 - [x] Prevent application code from importing internal core files
 - [x] Document public APIs separately from internal APIs
-- [ ] Freeze public names before publishing the package
+- [x] Freeze public names before publishing the package
 
 ### Phase D: Lifecycle
 
