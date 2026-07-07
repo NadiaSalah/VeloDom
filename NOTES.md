@@ -75,9 +75,10 @@
   lives under `test-support` so Node test discovery does not count it as an
   empty test file.
 - Browser support is documented as an evergreen V1 candidate policy in
-  `BROWSERS.md` and mirrored by `package.json#browserslist`. Real-browser E2E
-  automation is still a separate roadmap item; happy-dom coverage is not a
-  substitute for Chromium, Firefox, WebKit, and mobile WebKit checks.
+  `BROWSERS.md` and mirrored by `package.json#browserslist`. The current
+  Playwright smoke suite runs against local Chrome/Edge; happy-dom coverage is
+  still not a substitute for the future Firefox, WebKit, and mobile WebKit
+  matrix expansion.
 - Loop blocks own the cleanups created for each rendered clone and release them
   both before rerender and during parent teardown.
 - Explicit request loading/error paths inherit the destination of the resolved

@@ -29,13 +29,20 @@ Unsupported by default:
 
 The intended real-browser E2E target set is:
 
-- Chromium: primary routing, directives, components, forms, requests, and SEO
-  smoke coverage
+- Chromium/Chrome/Edge: primary routing, directives, components, forms,
+  requests, and SEO smoke coverage
 - Firefox: routing, form/model behavior, request cancellation, and lifecycle
   cleanup coverage
 - WebKit: Safari-class navigation, focus, form, and no-JavaScript SEO coverage
 - Mobile Safari/WebKit viewport profile: navigation, touch/click behavior,
   forms, and generated static route HTML
+
+Current local automation:
+
+- `npm run test:browser` builds the showcase and runs a Playwright-powered
+  smoke test against a locally installed Chrome or Edge browser.
+- The smoke test intercepts demo API traffic, verifies client navigation,
+  form/model behavior, request fulfillment, and direct static SEO HTML.
 
 `happy-dom` tests remain useful for fast unit and DOM integration checks, but
 they are not considered a replacement for real-browser E2E coverage.
@@ -61,3 +68,5 @@ Before public V1, the browser suite should cover:
   polyfills at the application/tooling layer.
 - Browser support changes require README, TODO, CHANGELOG, NOTES, and this file
   to stay synchronized.
+- Expanding beyond the current Chrome/Edge smoke path to Firefox, WebKit, and
+  mobile WebKit remains a separate automation milestone.

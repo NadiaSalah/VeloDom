@@ -62,6 +62,7 @@ npm run check
 npm run package:check
 npm run build
 npm run pack:check
+npm run test:browser
 ```
 
 The checks must confirm:
@@ -69,8 +70,8 @@ The checks must confirm:
 - the core documentation audit passes;
 - TypeScript and ESLint pass;
 - all automated tests pass;
-- browser support policy is documented and any real-browser E2E suite required
-  for the release has passed;
+- browser support policy is documented and the local real-browser smoke suite
+  passes on an approved Chrome/Edge target;
 - ESM output and declaration files build successfully;
 - package exports point only to allowlisted built artifacts;
 - the installed-package consumer builds from the local tarball;

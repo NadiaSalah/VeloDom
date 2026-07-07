@@ -66,12 +66,14 @@
     "package:consumer": "npm run package:build && node scripts/check-package-consumer.mjs",
     "package:check": "npm run package:build && node scripts/check-package.mjs && node scripts/check-package-consumer.mjs",
     "pack:check": "npm run package:check && node scripts/check-pack-dry-run.mjs",
+    "test:browser": "npm run build && node scripts/check-browser-e2e.mjs",
     "lint": "eslint .",
     "check": "npm run docs:check && npm run typecheck && npm run lint",
     "prepack": "npm run package:check"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/vite": "^4.3.0",
     "@types/node": "^26.1.0",
     "autoprefixer": "^10.5.0",

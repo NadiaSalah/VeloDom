@@ -37,9 +37,14 @@ package versions.
   unsupported legacy browser list, planned real-browser E2E targets, and
   minimum browser coverage expected before public V1.
 - Added a package `browserslist` policy matching the documented evergreen
-  targets without adding browser test dependencies yet.
+  targets.
+- Added `@playwright/test` as a development dependency and introduced
+  `npm run test:browser`, a real local Chrome/Edge smoke test covering client
+  routing, form/model updates, request fulfillment, and no-JavaScript static
+  SEO HTML.
 - Updated README and release guidance to distinguish fast `happy-dom`
-  integration checks from future real-browser E2E coverage.
+  integration checks from real-browser smoke coverage and the future full
+  Firefox/WebKit/mobile matrix expansion.
 
 ### Fixed
 
@@ -53,7 +58,8 @@ package versions.
   missing-role denial before the route handler runs.
 - Full verification passes with 94 automated tests, documentation checks,
   TypeScript, ESLint, package contract checks, installed-package consumer
-  validation, and the production showcase build.
+  validation, the production showcase build, package dry-run checks, and the
+  real-browser Chrome/Edge smoke suite.
 
 ## 2026-07-06
 

@@ -94,6 +94,7 @@ npm run lint
 npm run check
 npm run package:check
 npm run pack:check
+npm run test:browser
 npm run build
 npm run preview
 ```
@@ -107,6 +108,7 @@ What the main checks do:
 | `npm run check` | Runs documentation, TypeScript, and ESLint checks. |
 | `npm run package:check` | Builds ESM/types and tests an installed local tarball consumer. |
 | `npm run pack:check` | Runs package checks and inspects the npm tarball dry-run contents. |
+| `npm run test:browser` | Builds the showcase and runs a real local Chrome/Edge browser smoke test. |
 | `npm run build` | Runs all quality/package gates, then builds the showcase. |
 
 Generated `dist/`, `lib/`, and `types/` folders are build output and should not
@@ -1895,9 +1897,11 @@ Test coverage includes:
 - runtime/static SEO and installed-package SEO generation
 - frozen public runtime, compiler, Vite adapter, Vite plugin, type, and package
   subpath exports
+- a real-browser Chrome/Edge smoke path for routing, form model updates,
+  request fulfillment, and no-JavaScript static SEO HTML
 
-Real-browser E2E automation for the documented browser matrix is still a
-roadmap task; current DOM integration uses happy-dom.
+Full cross-browser E2E automation for the documented browser matrix is still a
+roadmap task; current fast DOM integration uses happy-dom.
 
 ## Browser Support
 
@@ -1913,10 +1917,11 @@ VeloDom targets modern evergreen browsers:
 VeloDom does not target Internet Explorer, legacy EdgeHTML Edge, Opera Mini, or
 browsers without native ES modules.
 
-The intended automated real-browser targets are Chromium, Firefox, WebKit, and
-a mobile Safari/WebKit viewport profile. `happy-dom` remains the fast local DOM
-integration environment; it is not treated as a replacement for real-browser
-E2E coverage.
+`npm run test:browser` currently runs a Playwright-powered smoke test against a
+locally installed Chrome or Edge browser. The wider target set remains
+Chromium, Firefox, WebKit, and a mobile Safari/WebKit viewport profile.
+`happy-dom` remains the fast local DOM integration environment; it is not
+treated as a replacement for real-browser E2E coverage.
 
 ## Best Practices
 
@@ -1953,7 +1958,8 @@ These features are not implemented and should not be described as available:
 - browser devtools
 - full page SSR, full static content rendering, or hydration
 - automatic API/CMS discovery for dynamic SEO entries
-- real-browser E2E automation for the published browser matrix
+- full Firefox/WebKit/mobile real-browser E2E automation for the published
+  browser matrix
 - project intelligence, health reports, visual graphs, build intelligence,
   documentation generation, migration helpers, and optional AI tooling
 
