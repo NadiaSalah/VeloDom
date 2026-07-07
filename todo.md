@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**219 of 314 tasks completed — 69.7%**
+**220 of 314 tasks completed — 70.1%**
 
 `[##############------]`
 
-Remaining tasks: **95**
+Remaining tasks: **94**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -429,7 +429,7 @@ and `src/api`.
 - [x] Define an application error-boundary hook with a recoverable fallback
 - [x] Define an optional component-level error boundary
 - [x] Support retry or safe navigation from recoverable runtime failures
-- [ ] Add keyboard, focus-order, and semantic-output integration tests
+- [x] Add keyboard, focus-order, and semantic-output integration tests
 
 ### 12. Performance
 

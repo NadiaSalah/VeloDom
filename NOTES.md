@@ -153,6 +153,10 @@
   interactive anchors, non-semantic click targets, and skipped heading levels.
   These checks should stay static and cheap unless a future task explicitly
   adds runtime keyboard/focus behavior.
+- Accessibility integration coverage currently verifies keyboard event
+  modifiers, focusable element order after component mounting, and semantic
+  static SEO fallback output. Router-managed focus movement remains a separate
+  runtime UX milestone.
 - Error boundaries should isolate user-code failures and offer recovery while
   preserving the existing fatal screen for unrecoverable application startup
   failures.

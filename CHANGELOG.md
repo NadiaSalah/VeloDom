@@ -20,6 +20,11 @@ package versions.
 - Kept the fatal error screen as the fallback when no boundary is registered,
   the boundary returns `false`, or the boundary itself fails.
 
+### Accessibility Tests
+
+- Added integration coverage for keyboard event modifiers, focusable element
+  order after component mounting, and semantic static SEO fallback output.
+
 ### Architecture Documentation
 
 - Refactored `VeloDom_Master_Architecture_Prompt.md` to match the current
@@ -44,9 +49,9 @@ package versions.
 ### Tests
 
 - Added focused compiler coverage for the new accessibility diagnostics,
-  accessible static/bound patterns, and recoverable page/component error
-  boundaries with retry behavior, bringing the automated suite to 100 passing
-  tests.
+  accessible static/bound patterns, recoverable page/component error
+  boundaries with retry behavior, and accessibility integration behavior,
+  bringing the automated suite to 103 passing tests.
 
 ## 2026-07-07
 

@@ -1928,7 +1928,7 @@ Latest local verification on 2026-07-08:
 - Core documentation audit passes for 50 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 100 automated tests pass
+- 103 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -1943,6 +1943,8 @@ Test coverage includes:
 - reactive state, lifecycle, events, refs, and plugins
 - real DOM directives, components, navigation, errors, and requests
 - recoverable page and component error-boundary fallback and retry behavior
+- keyboard modifier, focusable-order, and semantic fallback output integration
+  checks
 - auth providers, role checks, middleware modes, request bindings, and HTTP
   behavior
 - runtime/static SEO and installed-package SEO generation
@@ -2002,8 +2004,8 @@ These features are not implemented and should not be described as available:
 - built-in form validation
 - declarative request debounce, throttle, retry, or cache
 - router scroll restoration, hash navigation, focus management, or prefetch
-- full keyboard/focus accessibility integration beyond the current static
-  compiler warnings
+- router-managed focus restoration and broader keyboard/focus UX beyond the
+  current integration coverage
 - mandatory/shared global store
 - project/page/component scaffolding CLI
 - official test-utility package
