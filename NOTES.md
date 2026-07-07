@@ -140,6 +140,11 @@
 - Accessibility diagnostics should begin at compile time where normal HTML can
   be checked cheaply; navigation focus and recovery behavior remain runtime
   responsibilities.
+- The first accessibility baseline is intentionally advisory compiler output:
+  warnings cover missing image alt text, unnamed controls, href-less
+  interactive anchors, non-semantic click targets, and skipped heading levels.
+  These checks should stay static and cheap unless a future task explicitly
+  adds runtime keyboard/focus behavior.
 - Error boundaries should isolate user-code failures and offer recovery while
   preserving the existing fatal screen for unrecoverable application startup
   failures.

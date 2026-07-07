@@ -12,6 +12,7 @@ import {
   BINDING_DIRECTIVES,
   isPreferredDirective
 } from "../shared/directives.ts";
+import { VD_ACCESSIBILITY } from "../constants.ts";
 import {
   ExpressionSyntaxError,
   parseExpression
@@ -84,6 +85,7 @@ export function compileTemplate(
     filename,
     children: []
   };
+  const accessibilityContext = createAccessibilityContext(source);
   let output = "";
   let cursor = 0;
 
@@ -145,7 +147,8 @@ export function compileTemplate(
       tagSource,
       open,
       source,
-      filename
+      filename,
+      accessibilityContext
     );
 
     output += compiledTag.html;
@@ -189,11 +192,24 @@ export function compileTemplate(
   };
 }
 
-function compileStartTag(tagSource, sourceOffset, fullSource, filename) {
+function compileStartTag(
+  tagSource,
+  sourceOffset,
+  fullSource,
+  filename,
+  accessibilityContext
+) {
   const parsed = parseStartTag(tagSource, sourceOffset);
   const diagnostics = [];
   const metadata = [];
   const replacements = [];
+
+  diagnostics.push(...createAccessibilityDiagnostics(
+    parsed,
+    fullSource,
+    filename,
+    accessibilityContext
+  ));
 
   parsed.attributes.forEach(attribute => {
     const compiled = compileDirectiveName(attribute.name);
@@ -453,8 +469,223 @@ function parseStartTag(tagSource, sourceOffset) {
   return {
     tagName,
     attributes,
+    offset: sourceOffset,
     selfClosing: /\/\s*>$/.test(tagSource)
   };
+}
+
+function createAccessibilityContext(source) {
+  return {
+    labelTargets: collectLabelTargets(source),
+    lastHeadingLevel: 0
+  };
+}
+
+function createAccessibilityDiagnostics(
+  parsed,
+  source,
+  filename,
+  context
+) {
+  const tagName = parsed.tagName;
+  const attributes = createAttributeLookup(parsed.attributes);
+  const diagnostics = [];
+
+  if (tagName === "img" && !hasAnyAttribute(attributes, [
+    "alt",
+    "data-vd-alt",
+    "vd-alt",
+    "vd-bind:alt"
+  ])) {
+    diagnostics.push(createDiagnostic(
+      source,
+      filename,
+      parsed.offset,
+      "warning",
+      VD_ACCESSIBILITY.CODES.IMG_ALT,
+      "Image elements should provide static or bound alt text"
+    ));
+  }
+
+  if (isFormControl(tagName, attributes) && !hasAccessibleName(attributes, context)) {
+    diagnostics.push(createDiagnostic(
+      source,
+      filename,
+      parsed.offset,
+      "warning",
+      VD_ACCESSIBILITY.CODES.CONTROL_NAME,
+      "Form controls should have a label, aria-label, aria-labelledby, or title"
+    ));
+  }
+
+  if (tagName === "a" && isInteractiveAnchor(attributes) && !hasAnyAttribute(attributes, [
+    "href",
+    "data-vd-href",
+    "vd-href",
+    "vd-bind:href"
+  ])) {
+    diagnostics.push(createDiagnostic(
+      source,
+      filename,
+      parsed.offset,
+      "warning",
+      VD_ACCESSIBILITY.CODES.ANCHOR_HREF,
+      "Interactive anchors should provide static or bound href values"
+    ));
+  }
+
+  if (hasClickHandler(attributes) && isNonSemanticClickTarget(tagName, attributes)) {
+    diagnostics.push(createDiagnostic(
+      source,
+      filename,
+      parsed.offset,
+      "warning",
+      VD_ACCESSIBILITY.CODES.NON_SEMANTIC_CLICK,
+      "Click handlers on non-interactive elements need a semantic role, focus, and keyboard support"
+    ));
+  }
+
+  const headingLevel = getHeadingLevel(tagName);
+
+  if (headingLevel) {
+    if (
+      context.lastHeadingLevel
+      && headingLevel > context.lastHeadingLevel + 1
+    ) {
+      diagnostics.push(createDiagnostic(
+        source,
+        filename,
+        parsed.offset,
+        "warning",
+        VD_ACCESSIBILITY.CODES.HEADING_ORDER,
+        "Heading levels should not skip levels"
+      ));
+    }
+
+    context.lastHeadingLevel = headingLevel;
+  }
+
+  return diagnostics;
+}
+
+function collectLabelTargets(source) {
+  const targets = new Set();
+  const pattern = /<label\b[^>]*\bfor\s*=\s*(["'])(.*?)\1/gi;
+  let match = pattern.exec(source);
+
+  while (match) {
+    if (match[2]) targets.add(match[2]);
+    match = pattern.exec(source);
+  }
+
+  return targets;
+}
+
+function createAttributeLookup(attributes) {
+  const lookup = new Map();
+
+  attributes.forEach(attribute => {
+    lookup.set(attribute.name.toLowerCase(), attribute);
+  });
+
+  return lookup;
+}
+
+function hasAnyAttribute(attributes, names) {
+  return names.some(name => attributes.has(name));
+}
+
+function getAttributeValue(attributes, name) {
+  return attributes.get(name)?.value || "";
+}
+
+function isFormControl(tagName, attributes) {
+  if (!VD_ACCESSIBILITY.FORM_CONTROL_TAGS.includes(tagName)) {
+    return false;
+  }
+
+  return !(
+    tagName === "input"
+    && getAttributeValue(attributes, "type").toLowerCase() === "hidden"
+  );
+}
+
+function hasAccessibleName(attributes, context) {
+  if (hasAnyAttribute(attributes, [
+    "aria-label",
+    "aria-labelledby",
+    "title"
+  ])) {
+    return true;
+  }
+
+  const id = getAttributeValue(attributes, "id");
+
+  return Boolean(id && context.labelTargets.has(id));
+}
+
+function isInteractiveAnchor(attributes) {
+  return (
+    hasAnyAttribute(attributes, [
+      "data-vd-nav",
+      "vd-nav"
+    ])
+    || hasClickHandler(attributes)
+  );
+}
+
+function hasClickHandler(attributes) {
+  for (const name of attributes.keys()) {
+    if (
+      name === "data-vd-onclick"
+      || name === "vd-on:click"
+      || name.startsWith("data-vd-onclick.")
+      || name.startsWith("vd-on:click.")
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function isNonSemanticClickTarget(tagName, attributes) {
+  if (VD_ACCESSIBILITY.INTERACTIVE_TAGS.includes(tagName)) {
+    return false;
+  }
+
+  const role = getAttributeValue(attributes, "role").toLowerCase();
+  const hasValidRole = Boolean(
+    role && !VD_ACCESSIBILITY.PRESENTATIONAL_ROLES.includes(role)
+  );
+
+  return !(
+    hasValidRole
+    && attributes.has("tabindex")
+    && hasKeyboardHandler(attributes)
+  );
+}
+
+function hasKeyboardHandler(attributes) {
+  for (const name of attributes.keys()) {
+    if (
+      VD_ACCESSIBILITY.KEYBOARD_EVENT_PREFIXES.some(prefix => (
+        name === prefix || name.startsWith(`${prefix}.`)
+      ))
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function getHeadingLevel(tagName) {
+  if (!VD_ACCESSIBILITY.HEADING_TAGS.includes(tagName)) {
+    return 0;
+  }
+
+  return Number(tagName.slice(1));
 }
 
 function getDirectiveExpression(name, value) {

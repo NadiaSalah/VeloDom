@@ -4,6 +4,23 @@ All important local changes to VeloDom are recorded here. The project is not
 published yet, so entries describe development milestones rather than released
 package versions.
 
+## 2026-07-08
+
+### Accessibility
+
+- Added compiler-level accessibility warnings for common static template
+  issues: images without alt text, form controls without accessible names,
+  interactive anchors without href values, non-semantic click targets, and
+  skipped heading levels.
+- Kept the new accessibility baseline advisory and compile-time only so it
+  improves developer feedback without increasing the VeloDom browser runtime.
+
+### Tests
+
+- Added focused compiler coverage for the new accessibility diagnostics and
+  accessible static/bound patterns, bringing the automated suite to 96 passing
+  tests.
+
 ## 2026-07-07
 
 ### Public API

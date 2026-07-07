@@ -101,6 +101,52 @@ test("compiler rejects statically unsafe expression members", () => {
   );
 });
 
+test("compiler emits baseline accessibility warnings", () => {
+  const result = compileTemplate(`
+    <img src="/avatar.png">
+    <input id="email" type="email">
+    <a vd-nav>Missing href</a>
+    <div vd-on:click="open()">Open</div>
+    <h2>Section</h2>
+    <h4>Skipped</h4>
+  `, {
+    filename: "accessibility.html"
+  });
+  const codes = result.diagnostics.map(diagnostic => diagnostic.code);
+
+  assert.ok(codes.includes("VD_A11Y_IMG_ALT"));
+  assert.ok(codes.includes("VD_A11Y_CONTROL_NAME"));
+  assert.ok(codes.includes("VD_A11Y_ANCHOR_HREF"));
+  assert.ok(codes.includes("VD_A11Y_NON_SEMANTIC_CLICK"));
+  assert.ok(codes.includes("VD_A11Y_HEADING_ORDER"));
+  assert.equal(
+    result.diagnostics.every(diagnostic => diagnostic.severity === "warning"),
+    true
+  );
+});
+
+test("compiler accepts accessible static and bound template patterns", () => {
+  const result = compileTemplate(`
+    <label for="email">Email</label>
+    <input id="email" type="email">
+    <img vd-bind:alt="avatarAlt" src="/avatar.png">
+    <a vd-bind:href="profileUrl" vd-nav>Profile</a>
+    <div
+      role="button"
+      tabindex="0"
+      vd-on:click="open()"
+      vd-on:keydown.enter="open()"
+    >Open</div>
+  `);
+
+  assert.deepEqual(
+    result.diagnostics.filter(diagnostic => (
+      diagnostic.code.startsWith("VD_A11Y_")
+    )),
+    []
+  );
+});
+
 test("compiler creates a deterministic runtime feature manifest", () => {
   const result = compileTemplate(`
     <section vd-if="ready">

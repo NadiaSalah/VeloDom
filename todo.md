@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**215 of 314 tasks completed — 68.5%**
+**216 of 314 tasks completed — 68.8%**
 
 `[#############-------]`
 
-Remaining tasks: **99**
+Remaining tasks: **98**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -425,7 +425,7 @@ and `src/api`.
 
 ### 11.1 Accessibility and Recovery
 
-- [ ] Add compiler accessibility diagnostics for images, controls, labels, and headings
+- [x] Add compiler accessibility diagnostics for images, controls, labels, and headings
 - [ ] Define an application error-boundary hook with a recoverable fallback
 - [ ] Define an optional component-level error boundary
 - [ ] Support retry or safe navigation from recoverable runtime failures

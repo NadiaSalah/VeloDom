@@ -198,6 +198,49 @@ export const VD_COMPILER_FEATURES = Object.freeze({
   VISIBILITY: "visibility"
 });
 
+/** Static accessibility diagnostics emitted by the template compiler. */
+export const VD_ACCESSIBILITY = Object.freeze({
+  CODES: Object.freeze({
+    ANCHOR_HREF: "VD_A11Y_ANCHOR_HREF",
+    CONTROL_NAME: "VD_A11Y_CONTROL_NAME",
+    HEADING_ORDER: "VD_A11Y_HEADING_ORDER",
+    IMG_ALT: "VD_A11Y_IMG_ALT",
+    NON_SEMANTIC_CLICK: "VD_A11Y_NON_SEMANTIC_CLICK"
+  }),
+  FORM_CONTROL_TAGS: Object.freeze([
+    "input",
+    "select",
+    "textarea"
+  ]),
+  HEADING_TAGS: Object.freeze([
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6"
+  ]),
+  INTERACTIVE_TAGS: Object.freeze([
+    "a",
+    "button",
+    "details",
+    "input",
+    "select",
+    "summary",
+    "textarea"
+  ]),
+  KEYBOARD_EVENT_PREFIXES: Object.freeze([
+    "data-vd-onkeydown",
+    "data-vd-onkeyup",
+    "vd-on:keydown",
+    "vd-on:keyup"
+  ]),
+  PRESENTATIONAL_ROLES: Object.freeze([
+    "none",
+    "presentation"
+  ])
+});
+
 /** Compile-result fields that optimizer extensions may replace. */
 export const VD_COMPILER_OPTIMIZER_RESULT_KEYS = Object.freeze([
   "html",

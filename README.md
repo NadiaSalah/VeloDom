@@ -63,6 +63,8 @@ VeloDom currently provides:
 - a safe expression parser/evaluator with no `eval` or `new Function`
 - a Vite template compiler, source-aware diagnostics, optimizer hooks, and
   runtime feature manifests
+- compiler accessibility warnings for common image, form-control, anchor,
+  click-target, and heading mistakes
 - generated ESM and TypeScript declarations for the intended package surface
 
 VeloDom deliberately does not currently provide a mandatory global store,
@@ -1636,6 +1638,7 @@ The plugin:
 - compiles raw page/component HTML
 - converts preferred directive names
 - reports compiler errors through Vite
+- keeps baseline accessibility diagnostics as non-blocking compiler warnings
 - emits development metadata by default in development
 - emits deterministic runtime feature manifests
 - lets the runtime load only required directive feature modules
@@ -1658,6 +1661,12 @@ console.log(result.html);
 console.log(result.diagnostics);
 console.log(result.manifest.features);
 ```
+
+Accessibility warnings are intentionally static and advisory. The compiler can
+catch cheap HTML-first mistakes such as missing image alt text, unlabeled form
+controls, anchors without static or bound `href`, click handlers on
+non-semantic elements, and skipped heading levels. Runtime focus management and
+keyboard-flow integration remain separate roadmap tasks.
 
 Compile result:
 
@@ -1874,12 +1883,12 @@ choices, not VeloDom Core dependencies or requirements.
 
 ## Verification
 
-Latest local verification on 2026-07-07:
+Latest local verification on 2026-07-08:
 
 - Core documentation audit passes for 49 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 94 automated tests pass
+- 96 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -1888,6 +1897,7 @@ Latest local verification on 2026-07-07:
 Test coverage includes:
 
 - compiler directives, expressions, diagnostics, manifests, and optimizers
+- compiler accessibility warnings for common static template issues
 - resource-map and package boundaries
 - routes, guards, params, and query parsing
 - reactive state, lifecycle, events, refs, and plugins
@@ -1951,6 +1961,8 @@ These features are not implemented and should not be described as available:
 - built-in form validation
 - declarative request debounce, throttle, retry, or cache
 - router scroll restoration, hash navigation, focus management, or prefetch
+- full keyboard/focus accessibility integration beyond the current static
+  compiler warnings
 - recoverable page/component error boundaries
 - mandatory/shared global store
 - project/page/component scaffolding CLI
@@ -1978,7 +1990,7 @@ Current roadmap order:
 1. freeze public names, licensing, and package boundaries
 2. finish task-oriented documentation and recipes
 3. add real-browser E2E coverage for the documented browser matrix
-4. establish accessibility and recoverable error-boundary contracts
+4. finish navigation focus accessibility and recoverable error-boundary contracts
 5. complete optional form/request UX
 6. add tooling and performance budgets
 7. add local Future DX tooling such as project intelligence, doctor/inspect,
