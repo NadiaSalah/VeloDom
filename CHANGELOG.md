@@ -4,6 +4,22 @@ All important local changes to VeloDom are recorded here. The project is not
 published yet, so entries describe development milestones rather than released
 package versions.
 
+## 2026-07-07
+
+### Fixed
+
+- Fixed role-only request routes so automatic auth enablement uses the
+  application-configured auth runtime instead of falling back to a fresh
+  default server-session runtime.
+
+### Tests
+
+- Added direct request-directive coverage for role authorization success and
+  missing-role denial before the route handler runs.
+- Full verification passes with 89 automated tests, documentation checks,
+  TypeScript, ESLint, package contract checks, installed-package consumer
+  validation, and the production showcase build.
+
 ## 2026-07-06
 
 ### SEO

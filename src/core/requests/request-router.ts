@@ -657,7 +657,7 @@ function resolveRouteConfig(routeName, state, el) {
     name: routeName,
     handler: raw.handler,
     auth: roles.length > 0 && !auth.enabled
-      ? normalizeRequestAuthConfig(true)
+      ? normalizeRequestAuthConfig(true, authRuntime)
       : auth,
     roles,
     middleware

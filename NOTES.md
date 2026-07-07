@@ -12,6 +12,9 @@
   explicit `next()` pipelines remain an advanced option.
 - Authentication is provider-based. Frontend auth and role checks improve UX
   but never replace backend authorization.
+- Request routes with `roles` and no explicit `auth` declaration must enable
+  authentication through the current application auth runtime, not a freshly
+  created default runtime. Otherwise custom default providers are bypassed.
 - Framework source is TypeScript and passes TypeScript plus ESLint before
   production builds.
 - Application source may use `script.js` or `script.ts` per folder with no API

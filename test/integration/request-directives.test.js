@@ -254,6 +254,129 @@ test("failed requests write error state and emit a request error event", async (
   });
 });
 
+test("request role checks allow matching authenticated sessions", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.secure"
+      data-vd-target="result"
+      data-vd-loading="loading"
+      data-vd-error="error"
+    >Load</button>
+  `);
+  let handlerCalls = 0;
+  configureRequestRuntime({
+    auth: {
+      defaultProvider: "test",
+      providers: {
+        test() {
+          return {
+            authenticated: true,
+            roles: ["editor"]
+          };
+        }
+      }
+    },
+    routes: {
+      "posts.secure": {
+        handler() {
+          handlerCalls += 1;
+
+          return {
+            ok: true
+          };
+        },
+        roles: ["editor", "admin"]
+      }
+    }
+  });
+  const state = createState({
+    error: "old error",
+    loading: false,
+    result: null
+  });
+  const cleanup = await applyDirectives(root, state);
+
+  root.querySelector("button").click();
+  await waitFor(() => {
+    assert.deepEqual(state.result, {
+      ok: true
+    });
+  });
+
+  assert.equal(handlerCalls, 1);
+  assert.equal(state.loading, false);
+  assert.equal(state.error, "");
+
+  cleanup();
+});
+
+test("request role checks deny missing roles before calling the handler", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.secure"
+      data-vd-target="result"
+      data-vd-loading="loading"
+      data-vd-error="error"
+    >Load</button>
+  `);
+  let handlerCalls = 0;
+  configureRequestRuntime({
+    auth: {
+      defaultProvider: "test",
+      providers: {
+        test() {
+          return {
+            authenticated: true,
+            roles: ["viewer"]
+          };
+        }
+      }
+    },
+    routes: {
+      "posts.secure": {
+        handler() {
+          handlerCalls += 1;
+
+          return {
+            ok: true
+          };
+        },
+        roles: ["admin"]
+      }
+    }
+  });
+  const events = createPageEventHub();
+  const errors = [];
+  events.on(VD_REQUEST.EVENTS.ERROR, event => {
+    errors.push(event);
+  });
+  const state = createState({
+    emit: events.emit,
+    error: "",
+    loading: false,
+    result: null
+  });
+
+  await withoutConsoleError(async messages => {
+    const cleanup = await applyDirectives(root, state);
+
+    root.querySelector("button").click();
+    await waitFor(() => {
+      assert.equal(errors.length, 1);
+    });
+
+    assert.equal(handlerCalls, 0);
+    assert.equal(state.loading, false);
+    assert.equal(state.result, null);
+    assert.match(state.error, /Access denied/);
+    assert.equal(errors[0].stage, VD_REQUEST.STAGES.AUTH);
+    assert.match(errors[0].message, /Required roles: admin/);
+    assert.match(messages[0], /Request Authorization Failed/);
+
+    cleanup();
+  });
+});
+
 test("invalid request config reports a configuration error without calling the route", async () => {
   const root = createRoot(`
     <button

@@ -1267,7 +1267,8 @@ export default {
 };
 ```
 
-When roles are configured, authentication is enabled automatically.
+When roles are configured, authentication is enabled automatically and uses the
+application's configured default auth provider.
 
 ### Custom Provider
 
@@ -1861,12 +1862,12 @@ choices, not VeloDom Core dependencies or requirements.
 
 ## Verification
 
-Latest local verification on 2026-07-06:
+Latest local verification on 2026-07-07:
 
 - Core documentation audit passes for 49 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 87 automated tests pass
+- 89 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -1879,7 +1880,8 @@ Test coverage includes:
 - routes, guards, params, and query parsing
 - reactive state, lifecycle, events, refs, and plugins
 - real DOM directives, components, navigation, errors, and requests
-- auth providers, middleware modes, request bindings, and HTTP behavior
+- auth providers, role checks, middleware modes, request bindings, and HTTP
+  behavior
 - runtime/static SEO and installed-package SEO generation
 
 Real-browser E2E coverage and a browser support matrix are still roadmap tasks;

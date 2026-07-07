@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**210 of 313 tasks completed — 67.1%**
+**211 of 313 tasks completed — 67.4%**
 
 `[#############-------]`
 
-Remaining tasks: **103**
+Remaining tasks: **102**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -176,7 +176,7 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [x] Keep server-session and localStorage providers as optional core helpers
 - [x] Pass request context and `AbortSignal` to auth providers
 - [x] Add tests for custom auth providers
-- [ ] Add direct tests for role checks
+- [x] Add direct tests for role checks
 
 ### Phase C: Public Framework API
 
