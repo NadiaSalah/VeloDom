@@ -53,6 +53,14 @@
 - Application examples use kebab-case folders, preferred `script`/`config`
   filenames, and compiler-facing `vd-*` syntax. Legacy names and
   `data-vd-*` remain framework compatibility inputs, not preferred examples.
+- Application-owned static assets live under `src/assets`. The root favicon
+  duplicates are intentionally removed because `index.html` already references
+  `src/assets/favicon.png`; root-level static duplicates should only return if
+  a deployment target requires them.
+- `VeloDom_Master_Architecture_Prompt.md` is treated as the concise guiding
+  architecture brief. It should mirror current project principles, not preserve
+  outdated package/folder ideas that conflict with the single `src/core`
+  framework source boundary.
 - Large runtime entry modules coordinate features while focused modules own
   reusable behavior: `directives/expression.ts` handles expression state
   access, and `requests/request-bindings.ts` handles request destinations and

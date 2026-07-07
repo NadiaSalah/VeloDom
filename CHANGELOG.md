@@ -6,6 +6,18 @@ package versions.
 
 ## 2026-07-08
 
+### Architecture Documentation
+
+- Refactored `VeloDom_Master_Architecture_Prompt.md` to match the current
+  framework direction: HTML-first authoring, TypeScript core with JavaScript or
+  TypeScript application scripts, compiler diagnostics, static SEO,
+  accessibility baseline, package boundaries, and optional future DX tooling.
+
+### Assets
+
+- Standardized the project favicon source under `src/assets` and removed the
+  stale duplicated root favicon files from the tracked project layout.
+
 ### Accessibility
 
 - Added compiler-level accessibility warnings for common static template

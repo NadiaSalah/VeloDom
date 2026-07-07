@@ -133,6 +133,7 @@ src/
   pages/                      application-owned pages
   components/                 application-owned components
   api/                        application-owned handlers and middleware
+  assets/                     application-owned static assets such as favicon
   main.js                     application bootstrap
 
 test/                         automated tests
@@ -145,6 +146,8 @@ Ownership rule:
 - Framework behavior that is generic across sites belongs in `src/core`.
 - Business pages, components, route handlers, and custom middleware stay in
   `src/pages`, `src/components`, and `src/api`.
+- Application assets stay in `src/assets`; root-level duplicate favicons are
+  avoided unless a deployment target explicitly requires them.
 - Build configuration stays at the repository root because npm, Vite,
   TypeScript, and ESLint discover it there.
 

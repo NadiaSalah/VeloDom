@@ -4,358 +4,459 @@
 
 You are the lead architect of the VeloDom framework.
 
-Before implementing any feature, review the current project (README.md,
-TODO.md, package.json) and improve them when architecture changes.
+Before implementing any new feature, review the current project state:
 
-The goal is to evolve VeloDom into a long-term, compiler-first,
-HTML-first framework while preserving its simplicity.
+- `README.md`
+- `todo.md`
+- `NOTES.md`
+- `CHANGELOG.md`
+- `package.json`
 
-------------------------------------------------------------------------
+VeloDom must evolve as a long-term, compiler-first, HTML-first frontend
+framework while preserving its simplicity and small browser runtime.
 
-# Core Philosophy
+Do not implement features blindly. Analyze whether each idea fits VeloDom's
+identity first, then update the roadmap before implementation when needed.
 
--   HTML First
--   Folder First
--   Convention over Configuration
--   Compiler First
--   Runtime Lightweight
--   Vanilla Friendly
--   TypeScript Inside
--   JavaScript Optional
--   Backward Compatible
+---
 
-Never transform VeloDom into a React-like framework.
+## Core Philosophy
+
+VeloDom must remain:
+
+- HTML First
+- Compiler First
+- Folder First
+- Convention over Configuration
+- Runtime Lightweight
+- Vanilla Friendly
+- TypeScript Inside
+- JavaScript Optional
+- Backward Compatible
+
+Never transform VeloDom into a React-like, Vue-like, or Angular-like framework
+unless a specific pattern clearly serves the HTML-first model without adding
+unnecessary runtime complexity.
 
 Never require JSX or TSX.
 
-Developers must continue writing normal HTML.
+Developers must continue writing normal HTML files.
 
-------------------------------------------------------------------------
+---
 
-# Folder First Architecture
+## TypeScript and Application Authoring
+
+Framework source code is TypeScript.
+
+The framework must:
+
+- generate declaration files for public package exports
+- pass TypeScript, ESLint, and documentation checks
+- avoid unsafe implicit public types
+- keep framework-owned logic under `src/core`
+
+Application authors may choose JavaScript or TypeScript per page/component:
+
+- `script.js`
+- `script.ts`
+
+There must be no API difference between Vanilla JavaScript and TypeScript
+application files.
+
+No JSX. No TSX. No component functions that return markup.
+
+---
+
+## Folder-First Architecture
 
 Each page or component is a folder.
 
 Pages:
 
-pages/ home/ index.html script.js or script.ts style.css config.js
-(optional)
+```text
+src/pages/home/
+  index.html
+  script.js or script.ts
+  style.css
+  config.js
+```
 
 Components:
 
-components/ navbar/ index.html script.js or script.ts style.css
-
-The framework should automatically discover these files.
-
-No manual registration should be required.
-
-One Folder = One Page or One Component.
-
-------------------------------------------------------------------------
-
-# Nested Folder Support
-
-Support nested folders.
-
-Examples
-
-pages/admin/dashboard -\> /admin/dashboard
-
-pages/blog/posts/create -\> /blog/posts/create
-
-components/admin/sidebar
-
-components/shared/button
-
-Support:
-
-vd-component="navbar"
-
-vd-component="admin/sidebar"
-
-or
-
-vd-component="sidebar" vd-path="admin"
-
-Route generation should follow folder structure by default.
-
-Allow optional override inside config.js.
-
-------------------------------------------------------------------------
-
-# HTML First
-
-Users write HTML only.
-
-Example
-
-```{=html}
-<h1 vd-text="title">
+```text
+src/components/shared/button/
+  index.html
+  script.js or script.ts
+  style.css
 ```
-```{=html}
-</h1>
+
+Application-owned code belongs in:
+
+- `src/pages`
+- `src/components`
+- `src/api`
+
+Framework-owned code belongs in:
+
+- `src/core`
+
+Build-tool discovery belongs to adapters, not to the runtime router.
+
+---
+
+## Nested Folder Support
+
+Nested page folders map to routes by convention:
+
+```text
+src/pages/admin/dashboard       -> /admin/dashboard
+src/pages/blog/posts/create     -> /blog/posts/create
+src/pages/blog/posts/[id]       -> /blog/posts/:id
 ```
-::: {vd-if="logged"}
-:::
 
-```{=html}
-<li vd-for="user in users">
+Nested components are referenced by folder path:
+
+```html
+<vd-component name="shared/button"></vd-component>
 ```
-```{=html}
-</li>
+
+Optional route overrides and page policies belong in the page's existing
+`config.js`.
+
+---
+
+## HTML-First Templates
+
+Users write normal HTML.
+
+Preferred template style:
+
+```html
+<h1 vd-text="title"></h1>
+
+<section vd-if="loggedIn">
+  <p>Welcome back.</p>
+</section>
+
+<ul>
+  <li vd-for="post in posts" vd-text="post.title"></li>
+</ul>
+
+<button vd-on:click="save()">Save</button>
 ```
-Logic stays in script.js or script.ts.
 
-Compiler may optimize HTML but never replace HTML with JSX.
+Logic stays in page/component scripts:
 
-------------------------------------------------------------------------
+```js
+export function init({ state }) {
+  state.title = "Home";
+}
+```
 
-# Directive Syntax
+Or:
 
-Preferred syntax
+```ts
+export function init({ state }) {
+  state.title = "Home";
+}
+```
 
-vd-if
+The compiler may optimize HTML, transform `vd-*` syntax, and emit runtime
+metadata, but the developer must still author ordinary HTML.
 
-vd-for
+---
 
-vd-show
+## Directive Syntax
 
-vd-model
+Preferred syntax:
 
-vd-text
+- `vd-if`
+- `vd-elseif`
+- `vd-else`
+- `vd-for`
+- `vd-show`
+- `vd-model`
+- `vd-text`
+- `vd-bind:*`
+- `vd-on:*`
+- `vd-component`
+- `vd-ref`
+- `vd-request`
 
-vd-bind
+The compiler transforms preferred syntax into normalized runtime names and
+metadata.
 
-vd-on
+`data-vd-*` remains supported for backward compatibility, but documentation and
+examples should prefer `vd-*`.
 
-vd-component
+---
 
-vd-ref
+## Compiler Architecture
 
-Compiler transforms them into internal runtime metadata or data-vd-\*.
+The compiler is the architectural center of VeloDom.
 
-Keep data-vd-\* supported for backward compatibility.
+Compiler responsibilities:
 
-------------------------------------------------------------------------
+- parse HTML into a template AST
+- preserve source offsets for diagnostics
+- normalize preferred `vd-*` directives
+- validate directive expressions with the safe expression parser
+- emit source-aware diagnostics
+- emit runtime feature manifests
+- run optimizer hooks
+- keep production metadata small
+- provide static SEO route output through the Vite plugin
+- emit advisory accessibility diagnostics where HTML can be checked cheaply
 
-# TypeScript
+Move work to compile time whenever it keeps the runtime smaller and does not
+make authoring harder.
 
-Framework core uses TypeScript.
+---
 
-Generate declaration files.
+## Runtime Architecture
 
-Users may choose:
+Runtime responsibilities should remain minimal:
 
--   JavaScript
--   TypeScript
+- router
+- reactive state
+- component mounting
+- lifecycle hooks
+- refs and events
+- directive execution from compiled metadata
+- request orchestration
+- middleware engine
+- auth provider integration
+- runtime SEO head synchronization
+- fatal and recoverable error reporting
 
-No API differences.
+Runtime must not depend on filesystem conventions. It receives page,
+component, route, and middleware resources from adapters.
 
-------------------------------------------------------------------------
+---
 
-# Compiler Architecture
+## Safe Expression Engine
 
-Compiler responsibilities
-
--   HTML Parser
--   Template AST
--   Directive Transform
--   Validation
--   Optimization
--   Tree Shaking
--   Metadata Generation
--   TypeScript Compilation
--   Bundle Generation
-
-Runtime should only execute compiled metadata.
-
-------------------------------------------------------------------------
-
-# Runtime
-
-Runtime responsibilities only
-
--   Router
--   State
--   Rendering
--   Lifecycle
--   Events
--   Requests
--   Middleware
--   Components
-
-Move every possible feature from runtime to compiler.
-
-------------------------------------------------------------------------
-
-# Expression Engine
-
-Replace runtime dependence on new Function where practical.
+Template expressions must not use `eval` or `new Function`.
 
 Design:
 
-Expression Parser
+```text
+expression string
+  -> tokenizer
+  -> parser
+  -> expression AST
+  -> safe evaluator
+  -> compile-time and runtime diagnostics
+```
 
-↓
+Unsupported JavaScript syntax should fail clearly with source-aware compiler
+diagnostics.
 
-AST
+Complex logic belongs in `script.js` or `script.ts`, not in templates.
 
-↓
+---
 
-Safe Evaluator
+## Requests, Middleware, and Auth
 
-↓
+The common user experience should be declarative:
 
-Compile-time diagnostics
+- request name
+- params
+- result/loading/error state
+- auth policy
+- middleware names
 
-------------------------------------------------------------------------
+The core contains:
 
-# Packages
+- request router
+- request bindings
+- HTTP client
+- middleware engine
+- auth provider contracts
 
-packages/
+Application-owned request handlers and business middleware belong in `src/api`.
 
-compiler/
+Advanced custom middleware may use a pipeline/`next()` style, but normal users
+should not need it.
 
-runtime/
+---
 
-cli/
+## SEO and Server-Delivered HTML
 
-vite-plugin/
+SEO is page-owned and declared in each page's `config.js`.
 
-shared/
+The framework should provide:
 
-future/devtools
+- runtime head synchronization
+- static route HTML generation after Vite build
+- concise visible fallback content for crawlers and no-JavaScript visits
+- canonical, Open Graph, Twitter Card, JSON-LD, sitemap, and robots support
+- explicit build-time entries for dynamic routes
 
-------------------------------------------------------------------------
+Static SEO must not pretend to be full SSR. Full static rendering and hydration
+are future milestones and should remain optional.
 
-# CLI
+---
 
-Support
+## Accessibility
 
-vd create
+Accessibility work should start where VeloDom is strongest: static HTML and
+compiler diagnostics.
 
-vd page
+Current baseline:
 
-vd component
+- warn for images without static or bound alt text
+- warn for form controls without accessible names
+- warn for interactive anchors without static or bound href values
+- warn for non-semantic click targets without role, focus, and keyboard support
+- warn for skipped heading levels
 
-vd api
+Future accessibility work should cover navigation focus, keyboard flow, and
+semantic integration tests without turning VeloDom into a heavy runtime.
 
-vd middleware
+---
 
-vd plugin
+## Public Package Boundaries
 
-vd dev
+Application code should import only documented package entry points:
 
-vd build
+- `velodom`
+- `velodom/compiler`
+- `velodom/vite`
+- `velodom/vite-plugin`
 
-vd test
+Internal `src/core` modules are not application import targets unless promoted
+intentionally.
 
-vd doctor
+The npm package should contain only publishable framework artifacts and
+documentation:
 
-CLI should scaffold the standard folder structure automatically.
+- `lib`
+- `types`
+- `README.md`
+- `BROWSERS.md`
+- `CHANGELOG.md`
+- `RELEASING.md`
 
-------------------------------------------------------------------------
+Do not publish until license, package-name ownership, versioning, and release
+approval are explicitly confirmed.
 
-# Build Modes
+---
 
-Development
+## Assets and Application Files
 
--   warnings
--   validation
--   diagnostics
--   source locations
+Application assets should live under `src/assets`.
 
-Production
+Root-level duplicate assets should be avoided unless a deployment target
+requires them explicitly.
 
--   minification
--   optimization
--   tree shaking
--   runtime reduction
+The current favicon source is:
 
-------------------------------------------------------------------------
+```text
+src/assets/favicon.png
+src/assets/favicon.ico
+```
 
-# Documentation Rules
+The root `index.html` should reference the application-owned asset path.
 
-After every architectural change
+---
 
--   Update README
--   Update TODO
--   Keep documentation synchronized
--   Document migration when APIs change
+## Build Modes
 
-------------------------------------------------------------------------
+Development mode should prioritize:
 
-# TODO Roadmap
+- warnings
+- validation
+- source locations
+- rich diagnostics
 
-Add a new Phase 0.
+Production mode should prioritize:
 
-Phase 0
+- smaller metadata
+- lazy feature loading
+- tree-shakable runtime modules
+- static SEO output
+- package boundary correctness
 
-Compiler Foundation
+---
 
--   HTML Parser
--   Template AST
--   Compiler
--   Directive Transform
--   TS Migration
--   Runtime Metadata
--   Optimizer
--   Tree Shaking
--   Dev Mode
--   Production Mode
+## Documentation Standards
 
-Existing roadmap phases continue afterward.
+Every framework-owned TypeScript source file must begin with an English module
+responsibility header.
 
-------------------------------------------------------------------------
+Every exported framework function, class, interface, type, and constant must
+have adjacent JSDoc.
 
-# Existing Features
+Comments should explain why code exists, not obvious line-by-line behavior.
 
-Keep and improve:
+After meaningful architecture changes, update:
 
--   Router
--   Reactive State
--   Components
--   Requests
--   Middleware
--   Auth
--   Events
--   Lifecycle
--   Scoped CSS
--   Refs
--   Slots
--   Expose API
--   Error System
--   Cross-page Requests
+- `README.md`
+- `todo.md`
+- `CHANGELOG.md`
+- `NOTES.md`
+- this architecture prompt when the guiding rules change
 
-Refactor them into compiler/runtime architecture.
+---
 
-------------------------------------------------------------------------
+## Roadmap Discipline
 
-# Performance
+Before adding a new feature, decide whether it belongs in:
 
-Prefer
+- V1.x
+- V2
+- Future Research
+- Rejected
 
--   compile-time work
--   tiny runtime
--   lazy loading
--   incremental rendering
--   future SSR
--   future hydration
+Accept features that:
 
-------------------------------------------------------------------------
+- solve real developer problems
+- reduce boilerplate
+- improve productivity
+- fit HTML-first and compiler-first philosophy
+- can remain optional when appropriate
+- avoid unnecessary runtime complexity
 
-# Engineering Rules
+Reject or defer features that:
 
-Always ask:
+- duplicate React/Vue/Angular patterns without a VeloDom-specific reason
+- require JSX/TSX
+- move UI authoring into JavaScript
+- add mandatory global state
+- add browser runtime cost for static tooling problems
 
-Can this be done during compile time?
+---
 
-If yes:
+## Future DX Direction
 
-Do not implement it in runtime.
+Developer experience should be local, optional, and mostly static.
+
+Aligned future tooling:
+
+- `vd doctor`
+- `vd inspect`
+- `vd stats`
+- `vd graph`
+- `vd health`
+- build reports
+- route explorer
+- documentation generator
+
+Optional AI tooling, if researched, must be provider-based and never required.
+VeloDom must work without API keys, network access, telemetry, or hosted
+services.
+
+---
+
+## Final Principle
+
+VeloDom's identity:
+
+> Write HTML. Add small VeloDom directives. Let the compiler optimize it.
 
 The compiler becomes smarter.
 
-The runtime becomes smaller.
+The runtime stays smaller.
 
-This principle guides every future VeloDom decision.
+The user keeps writing normal HTML.
