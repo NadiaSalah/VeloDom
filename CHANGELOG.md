@@ -15,6 +15,22 @@ package versions.
   unfrozen, while package publication remains blocked by license and npm-name
   ownership decisions.
 
+### Release
+
+- Expanded `RELEASING.md` into a human approval checklist covering release
+  scope, versioning, documentation, legal/license gates, npm package-name
+  ownership, verification commands, package-boundary review, and publication
+  authorization.
+- Hardened `npm run pack:check` so it runs package verification explicitly and
+  then inspects the dry-run tarball through an isolated-cache Node helper
+  without recursively triggering `prepack`.
+- Made the installed-package consumer pack step ignore inherited npm dry-run
+  settings so release dry-runs still create the local tarball needed by the
+  isolated consumer fixture.
+- Documented current publication blockers: no selected public license, no
+  `LICENSE` file, unconfirmed npm package-name ownership, and the intentional
+  `private: true` package guard.
+
 ### Fixed
 
 - Fixed role-only request routes so automatic auth enablement uses the

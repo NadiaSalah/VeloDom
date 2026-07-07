@@ -87,6 +87,7 @@ try {
     cwd: projectRoot,
     env: {
       ...process.env,
+      npm_config_dry_run: "false",
       npm_config_cache: cacheRoot
     }
   });

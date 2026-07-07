@@ -92,6 +92,7 @@ npm run typecheck
 npm run lint
 npm run check
 npm run package:check
+npm run pack:check
 npm run build
 npm run preview
 ```
@@ -104,6 +105,7 @@ What the main checks do:
 | `npm run docs:check` | Enforces headers and exported JSDoc under `src/core`. |
 | `npm run check` | Runs documentation, TypeScript, and ESLint checks. |
 | `npm run package:check` | Builds ESM/types and tests an installed local tarball consumer. |
+| `npm run pack:check` | Runs package checks and inspects the npm tarball dry-run contents. |
 | `npm run build` | Runs all quality/package gates, then builds the showcase. |
 
 Generated `dist/`, `lib/`, and `types/` folders are build output and should not
@@ -1843,6 +1845,11 @@ license and npm name ownership are explicitly decided. Public API names are
 tracked by package-boundary tests and should change only through an intentional
 architecture decision plus documentation update.
 
+The release approval process is documented in [RELEASING.md](RELEASING.md).
+It is intentionally a human approval checklist, not an automated publish flow.
+The current publication blockers are the missing public license decision,
+missing `LICENSE` file, and unconfirmed npm package-name ownership.
+
 ## Showcase Routes
 
 The repository includes a blog-style showcase:
@@ -1915,7 +1922,7 @@ current DOM integration uses happy-dom.
 These features are not implemented and should not be described as available:
 
 - public V1 API/name freeze
-- npm publication and final license
+- npm publication, final license, `LICENSE` file, and npm name ownership
 - built-in form validation
 - declarative request debounce, throttle, retry, or cache
 - router scroll restoration, hash navigation, focus management, or prefetch

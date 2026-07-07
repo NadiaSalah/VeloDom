@@ -54,7 +54,7 @@
     "package:build": "npm run clean:package && tsc --project tsconfig.package.json && npm run types",
     "package:consumer": "npm run package:build && node scripts/check-package-consumer.mjs",
     "package:check": "npm run package:build && node scripts/check-package.mjs && node scripts/check-package-consumer.mjs",
-    "pack:check": "npm pack --dry-run",
+    "pack:check": "npm run package:check && node scripts/check-pack-dry-run.mjs",
     "lint": "eslint .",
     "check": "npm run docs:check && npm run typecheck && npm run lint",
     "prepack": "npm run package:check"

@@ -31,6 +31,12 @@
   raw framework TypeScript is a development input, not a published runtime.
 - The npm package uses an explicit file allowlist. Application code, tests,
   assets, and workspace configuration are never package contents.
+- Release preparation is intentionally separated from publication. The
+  checklist in `RELEASING.md` records gates, but only explicit human approval
+  for an exact version can authorize removing `private: true` or publishing.
+- `npm run pack:check` intentionally invokes package verification before an
+  isolated-cache npm dry-run helper; this avoids recursive `prepack` execution
+  and avoids dependence on the user's global npm cache permissions.
 - Vite adapter globs are rooted at `/src` so discovery is relative to the
   consuming Vite project rather than the installed adapter file.
 - The package stays private until name ownership, license, and public API names

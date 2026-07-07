@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**212 of 313 tasks completed — 67.7%**
+**213 of 313 tasks completed — 68.1%**
 
 `[#############-------]`
 
-Remaining tasks: **101**
+Remaining tasks: **100**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -234,7 +234,7 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [ ] Choose a project license and confirm npm package-name ownership
 - [ ] Define the supported browser matrix and automated browser targets
 - [ ] Add real-browser E2E tests for routing, forms, requests, and no-JavaScript SEO
-- [ ] Document a release approval checklist without automating publication
+- [x] Document a release approval checklist without automating publication
 
 ### Phase H: Blog Showcase Application
 
