@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**218 of 314 tasks completed — 69.4%**
+**219 of 314 tasks completed — 69.7%**
 
 `[##############------]`
 
-Remaining tasks: **96**
+Remaining tasks: **95**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -427,7 +427,7 @@ and `src/api`.
 
 - [x] Add compiler accessibility diagnostics for images, controls, labels, and headings
 - [x] Define an application error-boundary hook with a recoverable fallback
-- [ ] Define an optional component-level error boundary
+- [x] Define an optional component-level error boundary
 - [x] Support retry or safe navigation from recoverable runtime failures
 - [ ] Add keyboard, focus-order, and semantic-output integration tests
 

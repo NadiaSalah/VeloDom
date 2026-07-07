@@ -1790,7 +1790,8 @@ VeloDom provides:
 - compiler diagnostics with filename, offset, line, and column
 - structured runtime errors with directive/expression/element context
 - request errors with request/auth/middleware stages
-- an application `errorBoundary` hook for recoverable page navigation crashes
+- an application `errorBoundary` hook for recoverable page and component
+  crashes
 - safe text rendering in the fatal error screen
 - a single fatal-screen guard
 - automatic cleanup of listeners, subscriptions, and request abort controllers
@@ -1804,7 +1805,9 @@ Security invariants:
 - middleware names resolve only from owned application registries
 - auth provider results are normalized before role checks
 
-Application-level recoverable boundaries are configured through `createApp`:
+Application-level recoverable boundaries are configured through `createApp`.
+The same hook receives `phase: "navigation"` for page failures and
+`phase: "component"` for component failures:
 
 ```js
 createApp({
@@ -1833,12 +1836,13 @@ createApp({
 
 Returning a string renders safe text inside a generated `role="alert"`
 fallback. Returning a DOM node lets the application own buttons and recovery
-actions. Returning `false`, throwing inside the hook, or omitting the hook keeps
-the existing fatal error screen behavior.
+actions. For component failures, the fallback is rendered inside the component
+host so the rest of the page remains mounted. Returning `false`, throwing
+inside the hook, or omitting the hook keeps the existing fatal error screen
+behavior.
 
 The current global `error` and `unhandledrejection` handlers still treat
-unexpected failures as fatal. Component-level error boundaries are planned as a
-separate roadmap item.
+unexpected failures as fatal.
 
 Frontend auth and roles improve application UX only. A backend must enforce
 real access control.
@@ -1924,7 +1928,7 @@ Latest local verification on 2026-07-08:
 - Core documentation audit passes for 50 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 98 automated tests pass
+- 100 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -1938,7 +1942,7 @@ Test coverage includes:
 - routes, guards, params, and query parsing
 - reactive state, lifecycle, events, refs, and plugins
 - real DOM directives, components, navigation, errors, and requests
-- recoverable application error-boundary fallback and retry behavior
+- recoverable page and component error-boundary fallback and retry behavior
 - auth providers, role checks, middleware modes, request bindings, and HTTP
   behavior
 - runtime/static SEO and installed-package SEO generation
@@ -2000,7 +2004,6 @@ These features are not implemented and should not be described as available:
 - router scroll restoration, hash navigation, focus management, or prefetch
 - full keyboard/focus accessibility integration beyond the current static
   compiler warnings
-- component-level error boundaries beyond the current application page fallback
 - mandatory/shared global store
 - project/page/component scaffolding CLI
 - official test-utility package

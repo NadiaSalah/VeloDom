@@ -14,6 +14,9 @@ package versions.
   boundary and DOM-node fallback support for application-owned retry or
   navigation controls.
 - Added `retry()` and `navigate(path)` recovery helpers to the boundary context.
+- Extended the same boundary hook to component crashes so a failed component can
+  render a local fallback without replacing the page.
+- Added component retry support that remounts the failed component host.
 - Kept the fatal error screen as the fallback when no boundary is registered,
   the boundary returns `false`, or the boundary itself fails.
 
@@ -41,8 +44,8 @@ package versions.
 ### Tests
 
 - Added focused compiler coverage for the new accessibility diagnostics,
-  accessible static/bound patterns, and recoverable application error
-  boundaries with retry behavior, bringing the automated suite to 98 passing
+  accessible static/bound patterns, and recoverable page/component error
+  boundaries with retry behavior, bringing the automated suite to 100 passing
   tests.
 
 ## 2026-07-07

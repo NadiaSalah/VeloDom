@@ -156,11 +156,11 @@
 - Error boundaries should isolate user-code failures and offer recovery while
   preserving the existing fatal screen for unrecoverable application startup
   failures.
-- The first recoverable boundary is application-level and handles page
-  navigation crashes through `createApp({ errorBoundary })`. It renders safe
-  string fallbacks or application-owned DOM nodes inside the page mount target;
-  the context provides `retry()` and `navigate(path)` recovery helpers.
-  Component-level isolation remains a separate roadmap item.
+- Recoverable boundaries are application-level hooks configured through
+  `createApp({ errorBoundary })`. The same hook handles page navigation
+  crashes and component crashes, renders safe string fallbacks or
+  application-owned DOM nodes at the failed owner, and provides `retry()` plus
+  `navigate(path)` recovery helpers.
 - README is the current user-facing framework guide, not a milestone archive.
   Historical implementation detail belongs in CHANGELOG, while deferred
   architecture decisions belong in NOTES or TODO.

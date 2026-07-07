@@ -225,6 +225,119 @@ test("application error boundary DOM fallback can retry navigation", async () =>
   assert.equal(attempts, 2);
 });
 
+test("component error boundary isolates a failing component", async () => {
+  document.body.innerHTML = '<main id="app"></main>';
+  const contexts = [];
+  const app = createApp({
+    adapter: {
+      pages: {
+        html: {
+          home: async () => `
+            <h1>Stable page</h1>
+            <div data-vd-component="broken-widget"></div>
+          `
+        }
+      },
+      components: {
+        html: {
+          "broken-widget": async () => "<p>Widget shell</p>"
+        },
+        modules: {
+          "broken-widget": async () => ({
+            init() {
+              throw new Error("Widget init failed");
+            }
+          })
+        }
+      }
+    },
+    errorBoundary(context) {
+      contexts.push({
+        component: context.component,
+        page: context.page,
+        phase: context.phase,
+        title: context.title
+      });
+
+      return "Widget fallback";
+    }
+  });
+
+  await captureConsole("error", async messages => {
+    await app.mount();
+
+    assert.equal(messages.length, 1);
+    assert.match(messages[0], /\[VeloDom\] Component Crash: broken-widget/);
+  });
+
+  assert.equal(document.querySelector("h1")?.textContent, "Stable page");
+  assert.equal(
+    document.querySelector("[data-vd-error-boundary]")?.textContent,
+    "Widget fallback"
+  );
+  assert.deepEqual(contexts, [
+    {
+      component: "broken-widget",
+      page: "home",
+      phase: "component",
+      title: "Component Crash: broken-widget"
+    }
+  ]);
+  assert.notEqual(document.body.style.display, "grid");
+});
+
+test("component error boundary DOM fallback can retry the component", async () => {
+  document.body.innerHTML = '<main id="app"></main>';
+  let attempts = 0;
+  const app = createApp({
+    adapter: {
+      pages: {
+        html: {
+          home: async () => '<div data-vd-component="retry-widget"></div>'
+        }
+      },
+      components: {
+        html: {
+          "retry-widget": async () => "<strong>Widget ready</strong>"
+        },
+        modules: {
+          "retry-widget": async () => ({
+            init() {
+              attempts += 1;
+
+              if (attempts === 1) {
+                throw new Error("Retry widget failed once");
+              }
+            }
+          })
+        }
+      }
+    },
+    errorBoundary({ retry }) {
+      const button = document.createElement("button");
+
+      button.type = "button";
+      button.textContent = "Retry widget";
+      button.addEventListener("click", () => {
+        retry();
+      });
+
+      return button;
+    }
+  });
+
+  await captureConsole("error", async () => {
+    await app.mount();
+  });
+
+  document.querySelector("button").click();
+
+  await waitFor(() => {
+    assert.equal(document.querySelector("strong")?.textContent, "Widget ready");
+  });
+  assert.equal(attempts, 2);
+});
+
 test("fatal reports replace the page once and render content as text", async () => {
   document.body.innerHTML = "<main>Application</main>";
   const error = new Error("<script>unsafe()</script>");

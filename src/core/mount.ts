@@ -23,6 +23,7 @@ import {
 } from "./reactive.ts";
 import { applyScopedFolderStyles } from "./styles.ts";
 import { reportUserActionError } from "./errors/error-reporter.ts";
+import { renderRecoverableErrorBoundary } from "./errors/error-boundary.ts";
 import {
   runModuleHook,
   runModuleInit
@@ -39,6 +40,7 @@ import type {
   ValidatedResourceGroup
 } from "./resource-adapter.ts";
 import type {
+  ErrorBoundaryHook,
   RouteLocation,
   StateRecord,
   UnknownRecord
@@ -82,7 +84,8 @@ export async function mount(
   parentState: ComponentState | null = null,
   ancestry: string[] = [],
   pageCtx: ComponentPageContext | null = null,
-  resources: Partial<ValidatedResourceGroup> = {}
+  resources: Partial<ValidatedResourceGroup> = {},
+  errorBoundary: ErrorBoundaryHook | null = null
 ): Promise<ComponentCleanup> {
 
   normalizeTemplateSyntax(root);
@@ -100,6 +103,7 @@ export async function mount(
       const name = getComponentName(el);
       const folder = resolveComponentFolder(el, name);
       const recursive = ancestry.includes(folder);
+      const originalChildren = cloneChildNodes(el);
 
       if (!folder) return;
       if (recursive) {
@@ -204,7 +208,8 @@ export async function mount(
             state,
             [...ancestry, folder],
             pageCtx,
-            resources
+            resources,
+            errorBoundary
           )
           : null;
 
@@ -230,13 +235,45 @@ export async function mount(
         unregisterInstance?.();
         await lifecycle?.dispose();
         state?._dispose?.();
-        reportUserActionError(err, {
-          title: `Component Crash: ${name || "Unknown"}`,
-          file: "src/core/mount.ts",
-          line: 62,
-          hint: "Verify the component folder, script.js/script.ts exports, and template expressions.",
-          fatal: true
-        });
+        loaded.delete(el);
+        delete el[VD_INTERNAL.CLEANUP_KEY];
+
+        const recovered = typeof errorBoundary === "function"
+          ? await renderRecoverableErrorBoundary(err, {
+            title: `Component Crash: ${name || "Unknown"}`,
+            target: el,
+            phase: "component",
+            hook: errorBoundary,
+            file: "src/core/mount.ts",
+            line: 62,
+            page: pageCtx?.page,
+            component: folder || name || "unknown",
+            hint: "Verify the component folder, script.js/script.ts exports, and template expressions.",
+            retry: () => {
+              resetComponentHost(el, originalChildren);
+              loaded.delete(el);
+
+              return mount(
+                el,
+                parentState,
+                ancestry,
+                pageCtx,
+                resources,
+                errorBoundary
+              );
+            }
+          })
+          : false;
+
+        if (!recovered) {
+          reportUserActionError(err, {
+            title: `Component Crash: ${name || "Unknown"}`,
+            file: "src/core/mount.ts",
+            line: 62,
+            hint: "Verify the component folder, script.js/script.ts exports, and template expressions.",
+            fatal: true
+          });
+        }
       }
 
     })
@@ -351,9 +388,16 @@ function parsePropsObject(expression, state) {
 }
 
 function findComponents(root) {
-  return root.querySelectorAll(
-    VD.selector(VD.COMPONENT)
-  );
+  const selector = VD.selector(VD.COMPONENT);
+  const components = [];
+
+  if (root.matches?.(selector)) {
+    components.push(root);
+  }
+
+  components.push(...root.querySelectorAll(selector));
+
+  return components;
 }
 
 function getComponentName(el) {
@@ -707,6 +751,14 @@ function getComponentKey(el) {
   if (raw === null || raw === undefined) return "";
 
   return String(raw).trim();
+}
+
+function cloneChildNodes(el) {
+  return [...el.childNodes].map(node => node.cloneNode(true));
+}
+
+function resetComponentHost(el, children) {
+  el.replaceChildren(...children.map(node => node.cloneNode(true)));
 }
 
 function createComponentContext(el, pageCtx, state) {

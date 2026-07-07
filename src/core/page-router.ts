@@ -207,13 +207,14 @@ export function createPageRouter(
       });
 
       const componentsCleanup = shouldMountComponents(manifest)
-        ? await mount(
-          app,
-          state,
-          [],
-          ctx,
-          componentResources
-        )
+          ? await mount(
+            app,
+            state,
+            [],
+            ctx,
+            componentResources,
+            errorBoundary
+          )
         : null;
 
       activePageCleanup = onceAsync(async () => {
