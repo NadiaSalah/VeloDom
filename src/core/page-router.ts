@@ -17,7 +17,8 @@ import { createPageEventHub } from "./events.ts";
 import {
   VD,
   VD_COMPILER_FEATURES,
-  VD_INTERNAL
+  VD_INTERNAL,
+  VD_ROUTER
 } from "./constants.ts";
 import { reportUserActionError } from "./errors/error-reporter.ts";
 import { renderRecoverableErrorBoundary } from "./errors/error-boundary.ts";
@@ -83,6 +84,7 @@ export function createPageRouter(
   let currentRoute = null;
   let initialized = false;
   let removeRouterListeners = null;
+  const scrollPositions = new Map<string, ScrollPosition>();
 
   async function load(
     path: string,
@@ -90,6 +92,7 @@ export function createPageRouter(
     historyMode = "",
     redirectDepth = 0
   ): Promise<boolean | void> {
+    const previousScrollKey = getCurrentScrollKey();
     const route = pagePath
       ? createLegacyRoute(path, pagePath)
       : resolveRouteLocation(path, routeTable);
@@ -128,6 +131,8 @@ export function createPageRouter(
           return false;
         }
       }
+
+      saveScrollPosition(scrollPositions, previousScrollKey);
 
       if (historyMode === "push") {
         history.pushState({}, "", path);
@@ -227,6 +232,7 @@ export function createPageRouter(
 
       await runModuleHook(pageModule?.mounted, hookArgs);
       currentRoute = route;
+      restoreScrollPosition(route, scrollPositions, historyMode);
 
       return true;
 
@@ -278,6 +284,7 @@ export function createPageRouter(
         page: notFoundPage,
         matched: false
       };
+      restoreScrollPosition(currentRoute, scrollPositions, historyMode);
       return false;
     }
   }
@@ -315,6 +322,7 @@ export function createPageRouter(
     }
 
     initialized = true;
+    setManualScrollRestoration();
 
     const onDocumentClick = (e) => {
 
@@ -334,7 +342,8 @@ export function createPageRouter(
     };
 
     const onPopState = () => {
-      load(`${location.pathname}${location.search}`);
+      saveScrollPosition(scrollPositions, getCurrentScrollKey());
+      load(getCurrentLocationPath(), "", "pop");
     };
 
     document.addEventListener("click", onDocumentClick);
@@ -344,7 +353,7 @@ export function createPageRouter(
       window.removeEventListener("popstate", onPopState);
     };
 
-    return load(`${location.pathname}${location.search}`);
+    return load(getCurrentLocationPath());
   }
 
   async function destroy() {
@@ -450,16 +459,116 @@ function normalizeGuards(value) {
 }
 
 function createLegacyRoute(path, pagePath) {
+  const url = new URL(
+    String(path || "/"),
+    "http://velodom.local"
+  );
+
   return {
     matched: true,
-    page: resolvePage(path, pagePath),
-    path,
+    page: resolvePage(url.pathname, pagePath),
+    path: url.pathname,
     pattern: "",
+    hash: normalizeHash(url.hash),
     params: {},
     query: {},
     meta: {},
     beforeEnter: null
   };
+}
+
+interface ScrollPosition {
+  x: number;
+  y: number;
+}
+
+function setManualScrollRestoration() {
+  if ("scrollRestoration" in history) {
+    history.scrollRestoration = VD_ROUTER.HISTORY_MANUAL;
+  }
+}
+
+function getCurrentLocationPath() {
+  return `${location.pathname}${location.search}${location.hash}`;
+}
+
+function getCurrentScrollKey() {
+  return `${location.pathname}${location.search}${location.hash}`;
+}
+
+function saveScrollPosition(
+  positions: Map<string, ScrollPosition>,
+  key: string
+) {
+  positions.set(key, {
+    x: Number(window.scrollX || 0),
+    y: Number(window.scrollY || 0)
+  });
+}
+
+function restoreScrollPosition(
+  route,
+  positions: Map<string, ScrollPosition>,
+  historyMode: string
+) {
+  if (route.hash && scrollToHashTarget(route.hash)) {
+    return;
+  }
+
+  const key = `${route.path}${location.search}${route.hash ? `#${route.hash}` : ""}`;
+  const saved = historyMode === "pop"
+    ? positions.get(key)
+    : null;
+
+  scrollToPosition(saved || {
+    x: VD_ROUTER.SCROLL_TOP,
+    y: VD_ROUTER.SCROLL_TOP
+  });
+}
+
+function scrollToHashTarget(hash: string) {
+  const target = findHashTarget(hash);
+
+  if (!target) return false;
+
+  if (typeof target.scrollIntoView === "function") {
+    target.scrollIntoView();
+    return true;
+  }
+
+  scrollToPosition({
+    x: VD_ROUTER.SCROLL_TOP,
+    y: target.getBoundingClientRect().top + Number(window.scrollY || 0)
+  });
+  return true;
+}
+
+function findHashTarget(hash: string) {
+  const decoded = decodeHash(hash);
+
+  return (
+    document.getElementById(decoded)
+    || [...document.getElementsByName(decoded)][0]
+    || null
+  );
+}
+
+function decodeHash(hash: string) {
+  try {
+    return decodeURIComponent(hash);
+  } catch {
+    return hash;
+  }
+}
+
+function normalizeHash(hash) {
+  return String(hash || "").replace(/^#/, "");
+}
+
+function scrollToPosition(position: ScrollPosition) {
+  if (typeof window.scrollTo === "function") {
+    window.scrollTo(position.x, position.y);
+  }
 }
 
 function getOrCreatePageState(pageName, runtime) {

@@ -12,11 +12,12 @@ test("folder routes support nested dynamic params and query strings", () => {
     "blog/posts/[id]"
   ]);
   const route = resolveRouteLocation(
-    "/blog/posts/42?preview=true&tag=a&tag=b",
+    "/blog/posts/42?preview=true&tag=a&tag=b#comments",
     table
   );
 
   assert.equal(route.page, "blog/posts/[id]");
+  assert.equal(route.hash, "comments");
   assert.deepEqual(route.params, {
     id: "42"
   });

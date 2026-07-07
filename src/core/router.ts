@@ -51,6 +51,7 @@ export function resolveRouteLocation(input, routeTable) {
   );
   const pathname = normalizePathname(url.pathname);
   const pathSegments = splitPath(pathname);
+  const hash = normalizeHash(url.hash);
 
   for (const route of routeTable) {
     const params = matchSegments(route.segments, pathSegments);
@@ -62,6 +63,7 @@ export function resolveRouteLocation(input, routeTable) {
       page: route.page,
       path: pathname,
       pattern: route.path,
+      hash,
       params,
       query: parseQuery(url.searchParams),
       meta: {
@@ -76,11 +78,16 @@ export function resolveRouteLocation(input, routeTable) {
     page: "",
     path: pathname,
     pattern: "",
+    hash,
     params: {},
     query: parseQuery(url.searchParams),
     meta: {},
     beforeEnter: null
   };
+}
+
+function normalizeHash(hash) {
+  return String(hash || "").replace(/^#/, "");
 }
 
 /** Runs navigation guards until one blocks or redirects navigation. */

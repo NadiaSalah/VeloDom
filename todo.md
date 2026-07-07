@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**220 of 314 tasks completed — 70.1%**
+**221 of 314 tasks completed — 70.4%**
 
 `[##############------]`
 
-Remaining tasks: **94**
+Remaining tasks: **93**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -205,7 +205,7 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [x] Preserve lazy page loading through adapters
 - [x] Keep 404 behavior configurable
 - [x] Add tests for params, query strings, guards, and route matching
-- [ ] Add scroll restoration and hash-fragment navigation
+- [x] Add scroll restoration and hash-fragment navigation
 - [ ] Move focus predictably after navigation for keyboard and screen-reader users
 - [ ] Add opt-in route prefetch without forcing eager page loading
 

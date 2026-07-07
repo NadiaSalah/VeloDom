@@ -561,6 +561,94 @@ test("page router drives navigation, route context, persistence, and teardown", 
   await router.destroy();
 });
 
+test("page router scrolls to hash fragments after navigation", async () => {
+  document.body.innerHTML = '<main id="app"></main>';
+  const calls = [];
+  const router = createPageRouter({
+    pages: {
+      html: {
+        home: async () => `
+          <h1>Home</h1>
+          <section id="details">Details</section>
+        `
+      },
+      styles: {}
+    },
+    components: {
+      html: {},
+      modules: {},
+      styles: {}
+    }
+  });
+  const originalScrollIntoView = Element.prototype.scrollIntoView;
+
+  Element.prototype.scrollIntoView = function scrollIntoView() {
+    calls.push(this.id);
+  };
+
+  try {
+    await router.init();
+    await router.navigate("/#details");
+
+    assert.deepEqual(calls, [
+      "details"
+    ]);
+  } finally {
+    Element.prototype.scrollIntoView = originalScrollIntoView;
+    await router.destroy();
+  }
+});
+
+test("page router restores saved scroll positions on popstate", async () => {
+  document.body.innerHTML = '<main id="app"></main>';
+  const scrollCalls = [];
+  const originalScrollTo = window.scrollTo;
+  const router = createPageRouter({
+    pages: {
+      html: {
+        home: async () => "<h1>Home</h1>",
+        features: async () => "<h1>Features</h1>"
+      },
+      styles: {}
+    },
+    components: {
+      html: {},
+      modules: {},
+      styles: {}
+    }
+  });
+
+  window.scrollTo = (x, y) => {
+    scrollCalls.push([x, y]);
+  };
+
+  Object.defineProperty(window, "scrollX", {
+    configurable: true,
+    value: 4
+  });
+  Object.defineProperty(window, "scrollY", {
+    configurable: true,
+    value: 120
+  });
+
+  try {
+    await router.init();
+    await router.navigate("/features");
+    history.pushState({}, "", "/");
+    window.dispatchEvent(new Event("popstate"));
+
+    await waitFor(() => {
+      assert.deepEqual(scrollCalls.at(-1), [
+        4,
+        120
+      ]);
+    });
+  } finally {
+    window.scrollTo = originalScrollTo;
+    await router.destroy();
+  }
+});
+
 test("request directives update state, emit success, and abort on cleanup", async () => {
   const root = document.createElement("div");
   root.innerHTML = `

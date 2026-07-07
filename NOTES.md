@@ -111,6 +111,9 @@
   `unknown`.
 - The public navigation signature is `navigate(path, pagePath?)`, matching the
   folder-routing compatibility argument already implemented by the runtime.
+- The router owns manual scroll restoration. It saves scroll positions by full
+  path including query and hash, restores them on popstate, and prioritizes
+  hash targets when a route contains a fragment.
 - Framework-owned TypeScript files require an English module header and
   adjacent JSDoc for each exported declaration. The dependency-free
   `scripts/check-core-docs.mjs` audit is part of the normal quality gate and

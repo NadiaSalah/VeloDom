@@ -99,6 +99,13 @@ export const VD_INTERNAL = Object.freeze({
   PAGE_NOT_FOUND_CODE: "VD_PAGE_NOT_FOUND"
 });
 
+/** Router-owned browser history and hash navigation values. */
+export const VD_ROUTER = Object.freeze({
+  HISTORY_AUTO: "auto",
+  HISTORY_MANUAL: "manual",
+  SCROLL_TOP: 0
+});
+
 /** Attributes and element values owned by the SEO runtime and static renderer. */
 export const VD_SEO = Object.freeze({
   DEFAULT_LANG_ATTRIBUTE: "data-vd-default-lang",

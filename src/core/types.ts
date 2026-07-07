@@ -45,6 +45,7 @@ export interface RouteLocation {
   page: string;
   path: string;
   pattern: string;
+  hash: string;
   params: Record<string, string>;
   query: Record<string, string | string[]>;
   meta: UnknownRecord;

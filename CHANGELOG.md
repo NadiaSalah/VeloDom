@@ -6,6 +6,14 @@ package versions.
 
 ## 2026-07-08
 
+### Router UX
+
+- Added hash-fragment navigation support so routes like `/features#requests`
+  scroll to matching `id` or named-anchor targets after page render.
+- Added manual browser scroll restoration for back/forward navigation while
+  keeping normal programmatic navigation at the top of the page.
+- Exposed the current route fragment as `ctx.route.hash`.
+
 ### Error Recovery
 
 - Added an application-level `createApp({ errorBoundary })` hook for
@@ -50,8 +58,9 @@ package versions.
 
 - Added focused compiler coverage for the new accessibility diagnostics,
   accessible static/bound patterns, recoverable page/component error
-  boundaries with retry behavior, and accessibility integration behavior,
-  bringing the automated suite to 103 passing tests.
+  boundaries with retry behavior, accessibility integration behavior, and
+  router scroll/hash behavior, bringing the automated suite to 105 passing
+  tests.
 
 ## 2026-07-07
 

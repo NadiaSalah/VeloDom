@@ -420,8 +420,21 @@ Guard results:
 - `false`: cancel
 - an absolute app path such as `"/login"`: redirect
 
-Current router limitations such as scroll restoration, hash navigation, focus
-management, and prefetch are tracked in `todo.md`; do not assume they exist.
+### Hash Navigation and Scroll Restoration
+
+Routes may include hash fragments:
+
+```html
+<a href="/features#requests" vd-nav>Requests</a>
+```
+
+After navigation, VeloDom scrolls to the matching `id` or named anchor when it
+exists. Browser scroll restoration is managed manually so back/forward
+navigation restores the previous scroll position. `ctx.route.hash` exposes the
+current fragment without the leading `#`.
+
+Router limitations such as focus management and prefetch are still tracked in
+`todo.md`; do not assume they exist yet.
 
 ## Reactive State
 
@@ -1928,7 +1941,7 @@ Latest local verification on 2026-07-08:
 - Core documentation audit passes for 50 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 103 automated tests pass
+- 105 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -1940,6 +1953,7 @@ Test coverage includes:
 - compiler accessibility warnings for common static template issues
 - resource-map and package boundaries
 - routes, guards, params, and query parsing
+- hash-fragment navigation and scroll restoration
 - reactive state, lifecycle, events, refs, and plugins
 - real DOM directives, components, navigation, errors, and requests
 - recoverable page and component error-boundary fallback and retry behavior
@@ -2003,7 +2017,7 @@ These features are not implemented and should not be described as available:
 - npm publication, final license, `LICENSE` file, and npm name ownership
 - built-in form validation
 - declarative request debounce, throttle, retry, or cache
-- router scroll restoration, hash navigation, focus management, or prefetch
+- router focus management or prefetch
 - router-managed focus restoration and broader keyboard/focus UX beyond the
   current integration coverage
 - mandatory/shared global store
