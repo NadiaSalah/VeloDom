@@ -38,6 +38,7 @@ const expectedExports = {
   ]
 };
 const allowedPackageFiles = new Set([
+  "BROWSERS.md",
   "CHANGELOG.md",
   "README.md",
   "RELEASING.md",

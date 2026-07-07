@@ -37,6 +37,7 @@ JavaScript or TypeScript independently for every page and component.
 - [Public Package Boundaries](#public-package-boundaries)
 - [Showcase Routes](#showcase-routes)
 - [Verification](#verification)
+- [Browser Support](#browser-support)
 - [Best Practices](#best-practices)
 - [Current Limitations](#current-limitations)
 - [Roadmap and Handoff](#roadmap-and-handoff)
@@ -1895,8 +1896,27 @@ Test coverage includes:
 - frozen public runtime, compiler, Vite adapter, Vite plugin, type, and package
   subpath exports
 
-Real-browser E2E coverage and a browser support matrix are still roadmap tasks;
-current DOM integration uses happy-dom.
+Real-browser E2E automation for the documented browser matrix is still a
+roadmap task; current DOM integration uses happy-dom.
+
+## Browser Support
+
+The V1 candidate browser policy is documented in [BROWSERS.md](BROWSERS.md).
+VeloDom targets modern evergreen browsers:
+
+- latest two stable versions of Chrome, Edge, Firefox, and Safari
+- latest two stable versions of iOS Safari and Android Chrome
+- browsers with native ES modules and baseline runtime APIs such as `Proxy`,
+  `AbortController`, `URL`, `URLSearchParams`, `fetch`, `history.pushState`,
+  and standard DOM events
+
+VeloDom does not target Internet Explorer, legacy EdgeHTML Edge, Opera Mini, or
+browsers without native ES modules.
+
+The intended automated real-browser targets are Chromium, Firefox, WebKit, and
+a mobile Safari/WebKit viewport profile. `happy-dom` remains the fast local DOM
+integration environment; it is not treated as a replacement for real-browser
+E2E coverage.
 
 ## Best Practices
 
@@ -1933,7 +1953,7 @@ These features are not implemented and should not be described as available:
 - browser devtools
 - full page SSR, full static content rendering, or hydration
 - automatic API/CMS discovery for dynamic SEO entries
-- real-browser E2E matrix and published browser-support policy
+- real-browser E2E automation for the published browser matrix
 - project intelligence, health reports, visual graphs, build intelligence,
   documentation generation, migration helpers, and optional AI tooling
 
@@ -1951,7 +1971,7 @@ Current roadmap order:
 
 1. freeze public names, licensing, and package boundaries
 2. finish task-oriented documentation and recipes
-3. add real-browser E2E coverage and a browser matrix
+3. add real-browser E2E coverage for the documented browser matrix
 4. establish accessibility and recoverable error-boundary contracts
 5. complete optional form/request UX
 6. add tooling and performance budgets

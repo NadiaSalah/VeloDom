@@ -31,6 +31,16 @@ package versions.
   `LICENSE` file, unconfirmed npm package-name ownership, and the intentional
   `private: true` package guard.
 
+### Browser Support
+
+- Added `BROWSERS.md` with the V1 candidate evergreen browser matrix,
+  unsupported legacy browser list, planned real-browser E2E targets, and
+  minimum browser coverage expected before public V1.
+- Added a package `browserslist` policy matching the documented evergreen
+  targets without adding browser test dependencies yet.
+- Updated README and release guidance to distinguish fast `happy-dom`
+  integration checks from future real-browser E2E coverage.
+
 ### Fixed
 
 - Fixed role-only request routes so automatic auth enablement uses the

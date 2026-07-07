@@ -23,6 +23,7 @@ test("published package boundaries use built allowlisted artifacts", () => {
     "lib",
     "types",
     "README.md",
+    "BROWSERS.md",
     "CHANGELOG.md",
     "RELEASING.md"
   ]);

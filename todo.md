@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**213 of 313 tasks completed — 68.1%**
+**214 of 313 tasks completed — 68.4%**
 
 `[#############-------]`
 
-Remaining tasks: **100**
+Remaining tasks: **99**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -32,7 +32,7 @@ runtime concepts.
 
 1. Freeze the public API and package naming.
 2. Finish task-oriented documentation and recipes.
-3. Add real-browser E2E coverage and define browser support.
+3. Add real-browser E2E coverage for the defined browser support policy.
 4. Establish an accessibility baseline for compiler output and navigation.
 5. Add recoverable page/component error boundaries instead of relying only on
    the fatal application screen.
@@ -232,7 +232,7 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [x] Build a consumer through Vite from an installed local tarball
 - [ ] Benchmark common page and loop rendering cases
 - [ ] Choose a project license and confirm npm package-name ownership
-- [ ] Define the supported browser matrix and automated browser targets
+- [x] Define the supported browser matrix and automated browser targets
 - [ ] Add real-browser E2E tests for routing, forms, requests, and no-JavaScript SEO
 - [x] Document a release approval checklist without automating publication
 

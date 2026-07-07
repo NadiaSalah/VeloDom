@@ -37,6 +37,8 @@ Completing local checks never implies permission to publish.
 - Confirm the package version follows the rules above.
 - Confirm `CHANGELOG.md` describes all user-visible changes.
 - Confirm `README.md`, `todo.md`, and `NOTES.md` match the current behavior.
+- Confirm `BROWSERS.md` matches the current browser-support and E2E target
+  policy.
 - Confirm public API changes, if any, were intentional and are reflected in the
   package-boundary tests.
 
@@ -67,6 +69,8 @@ The checks must confirm:
 - the core documentation audit passes;
 - TypeScript and ESLint pass;
 - all automated tests pass;
+- browser support policy is documented and any real-browser E2E suite required
+  for the release has passed;
 - ESM output and declaration files build successfully;
 - package exports point only to allowlisted built artifacts;
 - the installed-package consumer builds from the local tarball;
