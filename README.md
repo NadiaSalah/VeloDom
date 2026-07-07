@@ -1921,6 +1921,8 @@ These features are not implemented and should not be described as available:
 - full page SSR, full static content rendering, or hydration
 - automatic API/CMS discovery for dynamic SEO entries
 - real-browser E2E matrix and published browser-support policy
+- project intelligence, health reports, visual graphs, build intelligence,
+  documentation generation, migration helpers, and optional AI tooling
 
 The current reactive state is shallow. Static SEO emits metadata and concise
 fallback content, not the complete interactive page.
@@ -1940,7 +1942,11 @@ Current roadmap order:
 4. establish accessibility and recoverable error-boundary contracts
 5. complete optional form/request UX
 6. add tooling and performance budgets
-7. add API/CMS SEO hooks and optional hydration only after runtime stability
+7. add local Future DX tooling such as project intelligence, doctor/inspect,
+   build reports, generated docs, and visual graphs
+8. research optional provider-based AI tooling and migration assistants without
+   making them runtime requirements
+9. add API/CMS SEO hooks and optional hydration only after runtime stability
 
 When continuing development:
 

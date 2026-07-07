@@ -134,6 +134,15 @@
 - Performance numbers should not be kept in README unless they are generated
   by a repeatable current benchmark; one-off bundle comparisons become stale
   as framework features change.
+- Future DX tooling should default to static analysis, compiler manifests,
+  Vite/build metadata, and local CLI output. It should improve developer
+  confidence without adding mandatory browser runtime features.
+- AI support, if ever explored, must be optional and provider-based like auth.
+  VeloDom must remain fully usable without AI providers, network access, API
+  keys, telemetry, or hosted services.
+- Migration tools may generate reviewable VeloDom folders from HTML or simple
+  framework examples, but VeloDom Core must not add React/Vue/Angular runtime
+  compatibility layers.
 
 ## Known Constraints
 

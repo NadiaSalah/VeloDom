@@ -73,6 +73,10 @@ package versions.
 - Added concrete roadmap work for browser E2E coverage, accessibility,
   recoverable error boundaries, router UX, test utilities, performance
   budgets, licensing, deployment guidance, and project scaffolding.
+- Added a Future DX roadmap analysis covering local project intelligence,
+  CLI health/inspect/graph commands, build intelligence, generated
+  documentation, optional provider-based AI tooling, and migration research
+  while rejecting runtime-heavy framework imitation.
 - Added English responsibility headers to all 47 TypeScript files under
   `src/core`.
 - Added JSDoc to every exported core function, class, interface, type,
