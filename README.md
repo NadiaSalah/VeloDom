@@ -1790,6 +1790,7 @@ VeloDom provides:
 - compiler diagnostics with filename, offset, line, and column
 - structured runtime errors with directive/expression/element context
 - request errors with request/auth/middleware stages
+- an application `errorBoundary` hook for recoverable page navigation crashes
 - safe text rendering in the fatal error screen
 - a single fatal-screen guard
 - automatic cleanup of listeners, subscriptions, and request abort controllers
@@ -1803,9 +1804,41 @@ Security invariants:
 - middleware names resolve only from owned application registries
 - auth provider results are normalized before role checks
 
-The current global `error` and `unhandledrejection` handlers treat unexpected
-failures as fatal. Recoverable page/component error boundaries are planned but
-do not exist yet.
+Application-level recoverable boundaries are configured through `createApp`:
+
+```js
+createApp({
+  adapter,
+  errorBoundary({ title, page, retry }) {
+    const section = document.createElement("section");
+    const heading = document.createElement("h1");
+    const description = document.createElement("p");
+    const retryButton = document.createElement("button");
+
+    section.setAttribute("role", "alert");
+    heading.textContent = title;
+    description.textContent = `Page ${page || "unknown"} could not be loaded.`;
+    retryButton.type = "button";
+    retryButton.textContent = "Try again";
+    retryButton.addEventListener("click", () => {
+      retry();
+    });
+
+    section.append(heading, description, retryButton);
+
+    return section;
+  }
+});
+```
+
+Returning a string renders safe text inside a generated `role="alert"`
+fallback. Returning a DOM node lets the application own buttons and recovery
+actions. Returning `false`, throwing inside the hook, or omitting the hook keeps
+the existing fatal error screen behavior.
+
+The current global `error` and `unhandledrejection` handlers still treat
+unexpected failures as fatal. Component-level error boundaries are planned as a
+separate roadmap item.
 
 Frontend auth and roles improve application UX only. A backend must enforce
 real access control.
@@ -1888,10 +1921,10 @@ choices, not VeloDom Core dependencies or requirements.
 
 Latest local verification on 2026-07-08:
 
-- Core documentation audit passes for 49 TypeScript files
+- Core documentation audit passes for 50 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 96 automated tests pass
+- 98 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -1905,6 +1938,7 @@ Test coverage includes:
 - routes, guards, params, and query parsing
 - reactive state, lifecycle, events, refs, and plugins
 - real DOM directives, components, navigation, errors, and requests
+- recoverable application error-boundary fallback and retry behavior
 - auth providers, role checks, middleware modes, request bindings, and HTTP
   behavior
 - runtime/static SEO and installed-package SEO generation
@@ -1966,7 +2000,7 @@ These features are not implemented and should not be described as available:
 - router scroll restoration, hash navigation, focus management, or prefetch
 - full keyboard/focus accessibility integration beyond the current static
   compiler warnings
-- recoverable page/component error boundaries
+- component-level error boundaries beyond the current application page fallback
 - mandatory/shared global store
 - project/page/component scaffolding CLI
 - official test-utility package

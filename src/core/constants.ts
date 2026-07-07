@@ -108,6 +108,11 @@ export const VD_SEO = Object.freeze({
   JSON_LD_TYPE: "application/ld+json"
 });
 
+/** Attributes owned by recoverable error-boundary fallback rendering. */
+export const VD_ERROR_BOUNDARY = Object.freeze({
+  ATTRIBUTE: "data-vd-error-boundary"
+});
+
 /** Request event names, stages, and public error codes. */
 export const VD_REQUEST = Object.freeze({
   EVENTS: Object.freeze({

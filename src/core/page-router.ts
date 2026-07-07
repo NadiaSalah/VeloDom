@@ -20,6 +20,7 @@ import {
   VD_INTERNAL
 } from "./constants.ts";
 import { reportUserActionError } from "./errors/error-reporter.ts";
+import { renderRecoverableErrorBoundary } from "./errors/error-boundary.ts";
 import {
   runModuleHook,
   runModuleInit
@@ -34,6 +35,7 @@ import { validateResourceAdapter } from "./resource-adapter.ts";
 import { applyPageSeo } from "./seo.ts";
 import { normalizeFolderPath } from "./shared/path.ts";
 import type {
+  ErrorBoundaryHook,
   RouterOptions,
   StateRecord
 } from "./types.ts";
@@ -55,7 +57,8 @@ interface PageRouter {
  */
 export function createPageRouter(
   adapter: unknown = {},
-  options: RouterOptions = {}
+  options: RouterOptions = {},
+  errorBoundary: ErrorBoundaryHook | null = null
 ): PageRouter {
   const resources = validateResourceAdapter(adapter);
   const pageResources = resources.pages;
@@ -228,13 +231,30 @@ export function createPageRouter(
 
     } catch (err) {
       if (err?.code !== VD_INTERNAL.PAGE_NOT_FOUND_CODE) {
-        reportUserActionError(err, {
-          title: "Navigation Crash",
-          file: "src/core/page-router.ts",
-          line: 28,
-          hint: "Check page path, page module exports, and directive expressions used on the page.",
-          fatal: true
-        });
+        const recovered = typeof errorBoundary === "function"
+          ? await renderRecoverableErrorBoundary(err, {
+            title: "Navigation Crash",
+            target: app,
+            phase: "navigation",
+            hook: errorBoundary,
+            file: "src/core/page-router.ts",
+            line: 28,
+            page,
+            hint: "Check page path, page module exports, and directive expressions used on the page.",
+            retry: () => load(path, pagePath, "replace"),
+            navigate: targetPath => load(targetPath, "", "push")
+          })
+          : false;
+
+        if (!recovered) {
+          reportUserActionError(err, {
+            title: "Navigation Crash",
+            file: "src/core/page-router.ts",
+            line: 28,
+            hint: "Check page path, page module exports, and directive expressions used on the page.",
+            fatal: true
+          });
+        }
 
         return;
       }

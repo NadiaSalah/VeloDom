@@ -6,6 +6,17 @@ package versions.
 
 ## 2026-07-08
 
+### Error Recovery
+
+- Added an application-level `createApp({ errorBoundary })` hook for
+  recoverable page navigation crashes.
+- Added safe string fallback rendering through a generated `role="alert"`
+  boundary and DOM-node fallback support for application-owned retry or
+  navigation controls.
+- Added `retry()` and `navigate(path)` recovery helpers to the boundary context.
+- Kept the fatal error screen as the fallback when no boundary is registered,
+  the boundary returns `false`, or the boundary itself fails.
+
 ### Architecture Documentation
 
 - Refactored `VeloDom_Master_Architecture_Prompt.md` to match the current
@@ -29,8 +40,9 @@ package versions.
 
 ### Tests
 
-- Added focused compiler coverage for the new accessibility diagnostics and
-  accessible static/bound patterns, bringing the automated suite to 96 passing
+- Added focused compiler coverage for the new accessibility diagnostics,
+  accessible static/bound patterns, and recoverable application error
+  boundaries with retry behavior, bringing the automated suite to 98 passing
   tests.
 
 ## 2026-07-07

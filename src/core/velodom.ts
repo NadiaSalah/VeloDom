@@ -27,7 +27,8 @@ export function createApp(options: VeloDomAppOptions): VeloDomApp {
   });
   const router = createPageRouter(
     options.adapter,
-    options.router
+    options.router,
+    options.errorBoundary || null
   );
   registerGlobalErrorHandlers();
   const app = {} as VeloDomApp;

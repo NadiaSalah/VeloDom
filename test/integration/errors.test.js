@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { createApp } from "../../src/core/index.ts";
 import { applyDirectives } from "../../src/core/directives.ts";
 import {
   reportUserActionError
@@ -8,7 +9,10 @@ import {
   renderFatalFrameworkError
 } from "../../src/core/errors/error-screen.ts";
 import { createState } from "../../src/core/reactive.ts";
-import { installDom } from "../../test-support/dom.js";
+import {
+  installDom,
+  waitFor
+} from "../../test-support/dom.js";
 
 const removeDom = installDom();
 
@@ -118,6 +122,107 @@ test("directive expression failures include directive, expression, and element",
 
     cleanup();
   });
+});
+
+test("application error boundary renders a recoverable page fallback", async () => {
+  document.body.innerHTML = '<main id="app"></main>';
+  const contexts = [];
+  const app = createApp({
+    adapter: {
+      pages: {
+        html: {
+          home: async () => "<h1>Home</h1>"
+        },
+        modules: {
+          home: async () => ({
+            init() {
+              throw new Error("Home init failed");
+            }
+          })
+        }
+      }
+    },
+    errorBoundary(context) {
+      contexts.push({
+        page: context.page,
+        phase: context.phase,
+        title: context.title,
+        hasRetry: typeof context.retry === "function",
+        hasNavigate: typeof context.navigate === "function"
+      });
+
+      return "Recovered home page";
+    }
+  });
+
+  await captureConsole("error", async messages => {
+    await app.mount();
+
+    assert.equal(messages.length, 1);
+    assert.match(messages[0], /\[VeloDom\] Navigation Crash/);
+  });
+
+  const fallback = document.querySelector("[data-vd-error-boundary]");
+
+  assert.equal(fallback?.getAttribute("role"), "alert");
+  assert.equal(fallback?.textContent, "Recovered home page");
+  assert.deepEqual(contexts, [
+    {
+      page: "home",
+      phase: "navigation",
+      title: "Navigation Crash",
+      hasRetry: true,
+      hasNavigate: true
+    }
+  ]);
+  assert.notEqual(document.body.style.display, "grid");
+});
+
+test("application error boundary DOM fallback can retry navigation", async () => {
+  document.body.innerHTML = '<main id="app"></main>';
+  let attempts = 0;
+  const app = createApp({
+    adapter: {
+      pages: {
+        html: {
+          home: async () => "<h1>Recovered</h1>"
+        },
+        modules: {
+          home: async () => ({
+            init() {
+              attempts += 1;
+
+              if (attempts === 1) {
+                throw new Error("Temporary page failure");
+              }
+            }
+          })
+        }
+      }
+    },
+    errorBoundary({ retry }) {
+      const button = document.createElement("button");
+
+      button.type = "button";
+      button.textContent = "Retry";
+      button.addEventListener("click", () => {
+        retry();
+      });
+
+      return button;
+    }
+  });
+
+  await captureConsole("error", async () => {
+    await app.mount();
+  });
+
+  document.querySelector("button").click();
+
+  await waitFor(() => {
+    assert.equal(document.querySelector("h1")?.textContent, "Recovered");
+  });
+  assert.equal(attempts, 2);
 });
 
 test("fatal reports replace the page once and render content as text", async () => {

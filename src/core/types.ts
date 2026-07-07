@@ -128,6 +128,38 @@ export interface RouterOptions {
   notFoundPage?: string;
 }
 
+/** Renderable value accepted from an application error-boundary hook. */
+export type ErrorBoundaryFallback =
+  | string
+  | Node
+  | DocumentFragment
+  | null
+  | undefined
+  | false;
+
+/** Context supplied when VeloDom offers an application recoverable fallback. */
+export interface ErrorBoundaryContext {
+  error: unknown;
+  title: string;
+  message: string;
+  location: {
+    file: string;
+    line: number;
+    column: number;
+  };
+  phase: "navigation" | "component" | "runtime";
+  target: HTMLElement;
+  page?: string;
+  component?: string;
+  retry(): MaybePromise<unknown>;
+  navigate(path: string): MaybePromise<unknown>;
+}
+
+/** Application hook that may render a fallback instead of a fatal screen. */
+export type ErrorBoundaryHook = (
+  context: ErrorBoundaryContext
+) => MaybePromise<ErrorBoundaryFallback>;
+
 /** Runtime values supplied to an authentication provider. */
 export interface AuthProviderContext {
   routeName: string;
@@ -228,6 +260,7 @@ export interface VeloDomAppOptions {
   auth?: AuthOptions;
   plugins?: VeloDomPlugin[];
   router?: RouterOptions;
+  errorBoundary?: ErrorBoundaryHook;
 }
 
 /** Mounted VeloDom application control surface. */
