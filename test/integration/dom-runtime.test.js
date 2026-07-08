@@ -564,6 +564,7 @@ test("page router drives navigation, route context, persistence, and teardown", 
 test("page router scrolls to hash fragments after navigation", async () => {
   document.body.innerHTML = '<main id="app"></main>';
   const calls = [];
+  let initCount = 0;
   const router = createPageRouter({
     pages: {
       html: {
@@ -571,6 +572,13 @@ test("page router scrolls to hash fragments after navigation", async () => {
           <h1>Home</h1>
           <section id="details">Details</section>
         `
+      },
+      modules: {
+        home: async () => ({
+          init() {
+            initCount += 1;
+          }
+        })
       },
       styles: {}
     },
@@ -588,11 +596,14 @@ test("page router scrolls to hash fragments after navigation", async () => {
 
   try {
     await router.init();
+    assert.equal(initCount, 1);
+
     await router.navigate("/#details");
 
     assert.deepEqual(calls, [
       "details"
     ]);
+    assert.equal(initCount, 1);
   } finally {
     Element.prototype.scrollIntoView = originalScrollIntoView;
     await router.destroy();

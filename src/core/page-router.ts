@@ -93,6 +93,7 @@ export function createPageRouter(
     redirectDepth = 0
   ): Promise<boolean | void> {
     const previousScrollKey = getCurrentScrollKey();
+    const targetUrl = createRouterUrl(path);
     const route = pagePath
       ? createLegacyRoute(path, pagePath)
       : resolveRouteLocation(path, routeTable);
@@ -103,6 +104,21 @@ export function createPageRouter(
     const app = document.getElementById("app");
 
     try {
+      if (
+        canHandleSamePageHashNavigation(
+          currentRoute,
+          targetUrl,
+          pagePath,
+          historyMode
+        )
+      ) {
+        saveScrollPosition(scrollPositions, previousScrollKey);
+        applyHistoryMode(historyMode, path);
+        currentRoute.hash = route.hash;
+        restoreScrollPosition(currentRoute, scrollPositions, historyMode);
+        return true;
+      }
+
       if (route.matched) {
         const guards = [
           ...globalGuards,
@@ -134,11 +150,7 @@ export function createPageRouter(
 
       saveScrollPosition(scrollPositions, previousScrollKey);
 
-      if (historyMode === "push") {
-        history.pushState({}, "", path);
-      } else if (historyMode === "replace") {
-        history.replaceState({}, "", path);
-      }
+      applyHistoryMode(historyMode, path);
 
       if (activePageCleanup) {
         await activePageCleanup();
@@ -488,6 +500,38 @@ function setManualScrollRestoration() {
   }
 }
 
+function applyHistoryMode(historyMode: string, path: string) {
+  if (historyMode === "push") {
+    history.pushState({}, "", path);
+  } else if (historyMode === "replace") {
+    history.replaceState({}, "", path);
+  }
+}
+
+function canHandleSamePageHashNavigation(
+  route,
+  targetUrl: URL,
+  pagePath: string,
+  historyMode: string
+) {
+  return Boolean(
+    route
+    && !pagePath
+    && historyMode !== "pop"
+    && targetUrl.hash
+    && route.path === normalizeLocationPathname(targetUrl.pathname)
+    && location.pathname === normalizeLocationPathname(targetUrl.pathname)
+    && location.search === targetUrl.search
+  );
+}
+
+function createRouterUrl(path: string) {
+  return new URL(
+    String(path || "/"),
+    "http://velodom.local"
+  );
+}
+
 function getCurrentLocationPath() {
   return `${location.pathname}${location.search}${location.hash}`;
 }
@@ -563,6 +607,14 @@ function decodeHash(hash: string) {
 
 function normalizeHash(hash) {
   return String(hash || "").replace(/^#/, "");
+}
+
+function normalizeLocationPathname(pathname: string) {
+  const normalized = String(pathname || "/").replace(/\/{2,}/g, "/");
+
+  return normalized === ""
+    ? "/"
+    : normalized;
 }
 
 function scrollToPosition(position: ScrollPosition) {

@@ -431,7 +431,9 @@ Routes may include hash fragments:
 After navigation, VeloDom scrolls to the matching `id` or named anchor when it
 exists. Browser scroll restoration is managed manually so back/forward
 navigation restores the previous scroll position. `ctx.route.hash` exposes the
-current fragment without the leading `#`.
+current fragment without the leading `#`. When only the hash changes on the
+current path and query, VeloDom updates browser history and scrolls directly
+without remounting the current page.
 
 Router limitations such as focus management and prefetch are still tracked in
 `todo.md`; do not assume they exist yet.

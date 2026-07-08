@@ -10,6 +10,8 @@ package versions.
 
 - Added hash-fragment navigation support so routes like `/features#requests`
   scroll to matching `id` or named-anchor targets after page render.
+- Optimized same-page hash changes so the router updates history and scrolls
+  directly without remounting the current page.
 - Added manual browser scroll restoration for back/forward navigation while
   keeping normal programmatic navigation at the top of the page.
 - Exposed the current route fragment as `ctx.route.hash`.

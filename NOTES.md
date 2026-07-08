@@ -113,7 +113,8 @@
   folder-routing compatibility argument already implemented by the runtime.
 - The router owns manual scroll restoration. It saves scroll positions by full
   path including query and hash, restores them on popstate, and prioritizes
-  hash targets when a route contains a fragment.
+  hash targets when a route contains a fragment. Same-page hash-only
+  navigation updates history and scrolls without remounting the page.
 - Framework-owned TypeScript files require an English module header and
   adjacent JSDoc for each exported declaration. The dependency-free
   `scripts/check-core-docs.mjs` audit is part of the normal quality gate and
