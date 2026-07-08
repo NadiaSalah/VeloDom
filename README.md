@@ -420,7 +420,7 @@ Guard results:
 - `false`: cancel
 - an absolute app path such as `"/login"`: redirect
 
-### Hash Navigation and Scroll Restoration
+### Hash Navigation, Scroll Restoration, and Focus
 
 Routes may include hash fragments:
 
@@ -435,8 +435,17 @@ current fragment without the leading `#`. When only the hash changes on the
 current path and query, VeloDom updates browser history and scrolls directly
 without remounting the current page.
 
-Router limitations such as focus management and prefetch are still tracked in
-`todo.md`; do not assume they exist yet.
+After route navigation, VeloDom moves keyboard and screen-reader focus to the
+most useful target without changing the current scroll position. Hash routes
+focus the matching `id` or named anchor. Normal route changes prefer
+`data-vd-focus`, then `h1`, then the main page landmark, then `#app`.
+
+```html
+<h1 data-vd-focus>Blog</h1>
+```
+
+Opt-in route prefetch is still tracked in `todo.md`; do not assume it exists
+yet.
 
 ## Reactive State
 
@@ -1683,8 +1692,9 @@ console.log(result.manifest.features);
 Accessibility warnings are intentionally static and advisory. The compiler can
 catch cheap HTML-first mistakes such as missing image alt text, unlabeled form
 controls, anchors without static or bound `href`, click handlers on
-non-semantic elements, and skipped heading levels. Runtime focus management and
-keyboard-flow integration remain separate roadmap tasks.
+non-semantic elements, and skipped heading levels. Router navigation also moves
+runtime focus to hash targets or page-level focus targets after route changes.
+Broader keyboard-flow checks remain intentionally small and roadmap-driven.
 
 Compile result:
 
@@ -1943,7 +1953,7 @@ Latest local verification on 2026-07-08:
 - Core documentation audit passes for 50 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 105 automated tests pass
+- 106 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -1955,7 +1965,7 @@ Test coverage includes:
 - compiler accessibility warnings for common static template issues
 - resource-map and package boundaries
 - routes, guards, params, and query parsing
-- hash-fragment navigation and scroll restoration
+- hash-fragment navigation, scroll restoration, and router-managed focus
 - reactive state, lifecycle, events, refs, and plugins
 - real DOM directives, components, navigation, errors, and requests
 - recoverable page and component error-boundary fallback and retry behavior
@@ -2019,9 +2029,8 @@ These features are not implemented and should not be described as available:
 - npm publication, final license, `LICENSE` file, and npm name ownership
 - built-in form validation
 - declarative request debounce, throttle, retry, or cache
-- router focus management or prefetch
-- router-managed focus restoration and broader keyboard/focus UX beyond the
-  current integration coverage
+- router prefetch
+- broader keyboard/focus UX beyond the current integration coverage
 - mandatory/shared global store
 - project/page/component scaffolding CLI
 - official test-utility package
@@ -2048,7 +2057,7 @@ Current roadmap order:
 1. freeze public names, licensing, and package boundaries
 2. finish task-oriented documentation and recipes
 3. add real-browser E2E coverage for the documented browser matrix
-4. finish navigation focus accessibility and recoverable error-boundary contracts
+4. extend real-browser navigation/accessibility coverage and remaining prefetch contracts
 5. complete optional form/request UX
 6. add tooling and performance budgets
 7. add local Future DX tooling such as project intelligence, doctor/inspect,

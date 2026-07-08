@@ -115,6 +115,10 @@
   path including query and hash, restores them on popstate, and prioritizes
   hash targets when a route contains a fragment. Same-page hash-only
   navigation updates history and scrolls without remounting the page.
+- The router also owns predictable post-navigation focus because it depends on
+  the rendered DOM, not the compiler. Fragment routes focus their hash target;
+  normal route changes prefer `data-vd-focus`, then headings, landmarks, and
+  finally `#app`, using programmatic `tabindex="-1"` only when needed.
 - Framework-owned TypeScript files require an English module header and
   adjacent JSDoc for each exported declaration. The dependency-free
   `scripts/check-core-docs.mjs` audit is part of the normal quality gate and
@@ -150,17 +154,16 @@
   accessibility, and recovery before optional state, devtools, SSR, or
   hydration.
 - Accessibility diagnostics should begin at compile time where normal HTML can
-  be checked cheaply; navigation focus and recovery behavior remain runtime
-  responsibilities.
+  be checked cheaply; navigation focus and recovery behavior remain narrow
+  runtime responsibilities.
 - The first accessibility baseline is intentionally advisory compiler output:
   warnings cover missing image alt text, unnamed controls, href-less
   interactive anchors, non-semantic click targets, and skipped heading levels.
   These checks should stay static and cheap unless a future task explicitly
   adds runtime keyboard/focus behavior.
 - Accessibility integration coverage currently verifies keyboard event
-  modifiers, focusable element order after component mounting, and semantic
-  static SEO fallback output. Router-managed focus movement remains a separate
-  runtime UX milestone.
+  modifiers, focusable element order after component mounting, router-managed
+  navigation focus movement, and semantic static SEO fallback output.
 - Error boundaries should isolate user-code failures and offer recovery while
   preserving the existing fatal screen for unrecoverable application startup
   failures.

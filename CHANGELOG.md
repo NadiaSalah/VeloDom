@@ -14,6 +14,9 @@ package versions.
   directly without remounting the current page.
 - Added manual browser scroll restoration for back/forward navigation while
   keeping normal programmatic navigation at the top of the page.
+- Added router-managed focus after navigation: hash targets are focused for
+  fragment routes, while normal route changes prefer `data-vd-focus`, `h1`,
+  page landmarks, and finally `#app`.
 - Exposed the current route fragment as `ctx.route.hash`.
 
 ### Error Recovery
@@ -61,7 +64,7 @@ package versions.
 - Added focused compiler coverage for the new accessibility diagnostics,
   accessible static/bound patterns, recoverable page/component error
   boundaries with retry behavior, accessibility integration behavior, and
-  router scroll/hash behavior, bringing the automated suite to 105 passing
+  router scroll/hash/focus behavior, bringing the automated suite to 106 passing
   tests.
 
 ## 2026-07-07

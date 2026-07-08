@@ -101,9 +101,38 @@ export const VD_INTERNAL = Object.freeze({
 
 /** Router-owned browser history and hash navigation values. */
 export const VD_ROUTER = Object.freeze({
+  CONTENTEDITABLE_ATTRIBUTE: "contenteditable",
+  DISABLED_ATTRIBUTE: "disabled",
+  FOCUSABLE_CONTROL_TAGS: Object.freeze([
+    "button",
+    "input",
+    "select",
+    "textarea"
+  ]),
+  FOCUSABLE_LINK_TAGS: Object.freeze([
+    "a",
+    "area"
+  ]),
+  FOCUS_TARGET_SELECTORS: Object.freeze([
+    "[data-vd-focus]",
+    "h1",
+    "[role=\"main\"]",
+    "main",
+    "#app"
+  ]),
   HISTORY_AUTO: "auto",
   HISTORY_MANUAL: "manual",
-  SCROLL_TOP: 0
+  HISTORY_POP: "pop",
+  HISTORY_PUSH: "push",
+  HISTORY_REPLACE: "replace",
+  HREF_ATTRIBUTE: "href",
+  MANAGED_FOCUS_ATTRIBUTE: "data-vd-focus-managed",
+  POPSTATE_EVENT: "popstate",
+  PROGRAMMATIC_TABINDEX: "-1",
+  SCROLL_TOP: 0,
+  SUMMARY_TAG: "summary",
+  TABINDEX_ATTRIBUTE: "tabindex",
+  TRUE_VALUE: "true"
 });
 
 /** Attributes and element values owned by the SEO runtime and static renderer. */

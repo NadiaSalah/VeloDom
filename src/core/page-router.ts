@@ -116,6 +116,7 @@ export function createPageRouter(
         applyHistoryMode(historyMode, path);
         currentRoute.hash = route.hash;
         restoreScrollPosition(currentRoute, scrollPositions, historyMode);
+        moveFocusAfterNavigation(currentRoute, historyMode);
         return true;
       }
 
@@ -138,7 +139,7 @@ export function createPageRouter(
           return load(
             guardResult.redirect,
             "",
-            "replace",
+            VD_ROUTER.HISTORY_REPLACE,
             redirectDepth + 1
           );
         }
@@ -245,6 +246,7 @@ export function createPageRouter(
       await runModuleHook(pageModule?.mounted, hookArgs);
       currentRoute = route;
       restoreScrollPosition(route, scrollPositions, historyMode);
+      moveFocusAfterNavigation(route, historyMode);
 
       return true;
 
@@ -260,8 +262,12 @@ export function createPageRouter(
             line: 28,
             page,
             hint: "Check page path, page module exports, and directive expressions used on the page.",
-            retry: () => load(path, pagePath, "replace"),
-            navigate: targetPath => load(targetPath, "", "push")
+            retry: () => load(path, pagePath, VD_ROUTER.HISTORY_REPLACE),
+            navigate: targetPath => load(
+              targetPath,
+              "",
+              VD_ROUTER.HISTORY_PUSH
+            )
           })
           : false;
 
@@ -297,6 +303,7 @@ export function createPageRouter(
         matched: false
       };
       restoreScrollPosition(currentRoute, scrollPositions, historyMode);
+      moveFocusAfterNavigation(currentRoute, historyMode);
       return false;
     }
   }
@@ -325,7 +332,7 @@ export function createPageRouter(
     }
 
 
-    return load(path, pagePath, "push");
+    return load(path, pagePath, VD_ROUTER.HISTORY_PUSH);
   }
 
   function init() {
@@ -347,7 +354,7 @@ export function createPageRouter(
       e.preventDefault();
 
       navigate(
-        link.getAttribute("href"),
+        link.getAttribute(VD_ROUTER.HREF_ATTRIBUTE),
         link.getAttribute(VD.PATH) || ""
       );
 
@@ -355,14 +362,14 @@ export function createPageRouter(
 
     const onPopState = () => {
       saveScrollPosition(scrollPositions, getCurrentScrollKey());
-      load(getCurrentLocationPath(), "", "pop");
+      load(getCurrentLocationPath(), "", VD_ROUTER.HISTORY_POP);
     };
 
     document.addEventListener("click", onDocumentClick);
-    window.addEventListener("popstate", onPopState);
+    window.addEventListener(VD_ROUTER.POPSTATE_EVENT, onPopState);
     removeRouterListeners = () => {
       document.removeEventListener("click", onDocumentClick);
-      window.removeEventListener("popstate", onPopState);
+      window.removeEventListener(VD_ROUTER.POPSTATE_EVENT, onPopState);
     };
 
     return load(getCurrentLocationPath());
@@ -501,9 +508,9 @@ function setManualScrollRestoration() {
 }
 
 function applyHistoryMode(historyMode: string, path: string) {
-  if (historyMode === "push") {
+  if (historyMode === VD_ROUTER.HISTORY_PUSH) {
     history.pushState({}, "", path);
-  } else if (historyMode === "replace") {
+  } else if (historyMode === VD_ROUTER.HISTORY_REPLACE) {
     history.replaceState({}, "", path);
   }
 }
@@ -517,7 +524,7 @@ function canHandleSamePageHashNavigation(
   return Boolean(
     route
     && !pagePath
-    && historyMode !== "pop"
+    && historyMode !== VD_ROUTER.HISTORY_POP
     && targetUrl.hash
     && route.path === normalizeLocationPathname(targetUrl.pathname)
     && location.pathname === normalizeLocationPathname(targetUrl.pathname)
@@ -560,7 +567,7 @@ function restoreScrollPosition(
   }
 
   const key = `${route.path}${location.search}${route.hash ? `#${route.hash}` : ""}`;
-  const saved = historyMode === "pop"
+  const saved = historyMode === VD_ROUTER.HISTORY_POP
     ? positions.get(key)
     : null;
 
@@ -585,6 +592,77 @@ function scrollToHashTarget(hash: string) {
     y: target.getBoundingClientRect().top + Number(window.scrollY || 0)
   });
   return true;
+}
+
+function moveFocusAfterNavigation(route, historyMode: string) {
+  if (!shouldMoveFocusAfterNavigation(route, historyMode)) return;
+
+  const target = route.hash
+    ? findHashTarget(route.hash)
+    : findNavigationFocusTarget();
+
+  if (!target || !(target instanceof HTMLElement)) return;
+
+  ensureProgrammaticFocusTarget(target);
+
+  try {
+    target.focus({
+      preventScroll: true
+    });
+  } catch {
+    target.focus();
+  }
+}
+
+function shouldMoveFocusAfterNavigation(route, historyMode: string) {
+  return Boolean(
+    route?.hash
+    || historyMode === VD_ROUTER.HISTORY_PUSH
+    || historyMode === VD_ROUTER.HISTORY_REPLACE
+    || historyMode === VD_ROUTER.HISTORY_POP
+  );
+}
+
+function findNavigationFocusTarget() {
+  for (const selector of VD_ROUTER.FOCUS_TARGET_SELECTORS) {
+    const target = document.querySelector(selector);
+
+    if (target) return target;
+  }
+
+  return null;
+}
+
+function ensureProgrammaticFocusTarget(target: HTMLElement) {
+  if (isProgrammaticallyFocusable(target)) return;
+
+  target.setAttribute(
+    VD_ROUTER.TABINDEX_ATTRIBUTE,
+    VD_ROUTER.PROGRAMMATIC_TABINDEX
+  );
+  target.setAttribute(VD_ROUTER.MANAGED_FOCUS_ATTRIBUTE, "true");
+}
+
+function isProgrammaticallyFocusable(target: HTMLElement) {
+  const tagName = target.tagName.toLowerCase();
+
+  if (target.hasAttribute(VD_ROUTER.TABINDEX_ATTRIBUTE)) return true;
+  if (
+    target.getAttribute(VD_ROUTER.CONTENTEDITABLE_ATTRIBUTE)
+    === VD_ROUTER.TRUE_VALUE
+  ) {
+    return true;
+  }
+
+  if (VD_ROUTER.FOCUSABLE_CONTROL_TAGS.includes(tagName)) {
+    return !target.hasAttribute(VD_ROUTER.DISABLED_ATTRIBUTE);
+  }
+
+  if (VD_ROUTER.FOCUSABLE_LINK_TAGS.includes(tagName)) {
+    return target.hasAttribute(VD_ROUTER.HREF_ATTRIBUTE);
+  }
+
+  return tagName === VD_ROUTER.SUMMARY_TAG;
 }
 
 function findHashTarget(hash: string) {

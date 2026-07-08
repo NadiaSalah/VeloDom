@@ -561,6 +561,46 @@ test("page router drives navigation, route context, persistence, and teardown", 
   await router.destroy();
 });
 
+test("page router moves focus to the page focus target after navigation", async () => {
+  document.body.innerHTML = '<main id="app"></main>';
+  const router = createPageRouter({
+    pages: {
+      html: {
+        home: async () => "<h1>Home</h1>",
+        about: async () => `
+          <main>
+            <h1 id="about-title" data-vd-focus>About</h1>
+          </main>
+        `
+      },
+      modules: {},
+      styles: {}
+    },
+    components: {
+      html: {},
+      modules: {},
+      styles: {}
+    }
+  });
+
+  await router.init();
+  assert.notEqual(document.activeElement?.id, "about-title");
+
+  await router.navigate("/about");
+
+  assert.equal(document.activeElement?.id, "about-title");
+  assert.equal(
+    document.getElementById("about-title")?.getAttribute("tabindex"),
+    "-1"
+  );
+  assert.equal(
+    document.getElementById("about-title")?.getAttribute("data-vd-focus-managed"),
+    "true"
+  );
+
+  await router.destroy();
+});
+
 test("page router scrolls to hash fragments after navigation", async () => {
   document.body.innerHTML = '<main id="app"></main>';
   const calls = [];
@@ -603,6 +643,11 @@ test("page router scrolls to hash fragments after navigation", async () => {
     assert.deepEqual(calls, [
       "details"
     ]);
+    assert.equal(document.activeElement?.id, "details");
+    assert.equal(
+      document.getElementById("details")?.getAttribute("tabindex"),
+      "-1"
+    );
     assert.equal(initCount, 1);
   } finally {
     Element.prototype.scrollIntoView = originalScrollIntoView;
