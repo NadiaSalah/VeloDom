@@ -203,9 +203,33 @@
   <section class="mt-8 rounded-2xl bg-base-200 p-6">
     <h2 class="text-2xl font-bold">More examples</h2>
     <div class="mt-4 flex flex-wrap gap-3">
-      <a href="/account/profile" vd-nav class="btn btn-outline">Auth provider and route meta</a>
-      <a href="/features/errors" vd-nav class="btn btn-outline">Structured error lab</a>
-      <a href="/blog/posts/create" vd-nav class="btn btn-outline">Form request</a>
+      <a href="/login" vd-nav class="btn btn-outline">Auth login</a>
+      <a href="/studio" vd-nav class="btn btn-outline">CRUD requests</a>
+      <a href="/categories" vd-nav class="btn btn-outline">Categories and loops</a>
+      <a href="/" vd-nav class="btn btn-outline">Blog showcase</a>
     </div>
   </section>
+
+  <section class="mt-8 grid gap-4 md:grid-cols-3">
+    <article class="rounded-2xl border border-slate-200 bg-white p-5">
+      <h3 class="font-bold">HTML-first</h3>
+      <p class="mt-2 text-sm text-slate-600">
+        Pages are ordinary HTML files with small declarative directives.
+      </p>
+    </article>
+    <article class="rounded-2xl border border-slate-200 bg-white p-5">
+      <h3 class="font-bold">Compiler-first</h3>
+      <p class="mt-2 text-sm text-slate-600">
+        Templates are validated and optimized before runtime.
+      </p>
+    </article>
+    <article class="rounded-2xl border border-slate-200 bg-white p-5">
+      <h3 class="font-bold">Runtime-lightweight</h3>
+      <p class="mt-2 text-sm text-slate-600">
+        API calls, auth, validation, and shared state remain optional.
+      </p>
+    </article>
+  </section>
 </main>
+
+<vd-component name="footer"></vd-component>

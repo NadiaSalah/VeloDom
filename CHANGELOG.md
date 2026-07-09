@@ -93,6 +93,18 @@ package versions.
   explicit target selection and strict CI-style matrix enforcement.
 - Added `.gitignore` protection for local npm recovery-code exports.
 
+### DummyJSON Blog Showcase
+
+- Replaced the previous mixed demo application with a VeloDom-branded
+  DummyJSON blog showcase.
+- Added practical pages for post lists, post details, comments, categories,
+  login, and a CRUD studio for create/update/delete post requests.
+- Added reusable application components for navigation, footer, loader,
+  error messages, modal, form shell, and post cards.
+- Removed legacy profile, TypeScript demo, error-lab, emit-demo, create-post,
+  and edit-post routes that duplicated the final showcase.
+- Updated the browser E2E smoke path to validate the new CRUD studio.
+
 ## 2026-07-08
 
 ### Router UX

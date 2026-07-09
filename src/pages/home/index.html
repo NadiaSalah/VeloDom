@@ -1,61 +1,97 @@
-<vd-component name="nav" vd-prop-title="Blog"></vd-component>
+<vd-component name="nav" vd-prop-title="DummyJSON blog"></vd-component>
 
-<main class="mx-auto w-[92%] max-w-6xl py-10">
-  <section class="hero rounded-3xl bg-base-200 px-6 py-12">
-    <div class="hero-content text-center">
-      <div class="max-w-3xl">
-        <div class="badge badge-primary badge-outline mb-4">
-          Compiler-first · HTML-first
+<main class="mx-auto w-[92%] max-w-7xl py-10">
+  <section class="overflow-hidden rounded-[2rem] bg-slate-950 text-white shadow-2xl">
+    <div class="grid gap-8 px-6 py-14 lg:grid-cols-[1.1fr_.9fr] lg:px-12">
+      <div>
+        <div class="badge badge-primary badge-outline mb-5">
+          HTML-first · Compiler-first · DummyJSON powered
         </div>
-        <h1 class="text-4xl font-bold md:text-6xl">VeloDom Blog</h1>
-        <p class="mt-4 text-lg opacity-75">
-          A complete showcase application built with folders, reactive state,
-          directives, requests, nested components, lifecycle hooks, and route metadata.
+        <h1 class="max-w-3xl text-5xl font-black leading-tight md:text-7xl">
+          VeloDom Blog
+        </h1>
+        <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
+          A real application example: login, posts, comments, categories, CRUD
+          requests, reusable components, routing, SEO config, and Tailwind CSS.
         </p>
-        <div class="mt-6 flex flex-wrap justify-center gap-3">
-          <a href="/blog/posts/create" vd-nav class="btn btn-primary">Write a post</a>
-          <a href="/features" vd-nav class="btn btn-outline">Explore framework features</a>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="/studio" vd-nav class="btn btn-primary">Open CRUD studio</a>
+          <a href="/features" vd-nav class="btn border-white/20 bg-white/10 text-white hover:bg-white/20">
+            Learn VeloDom
+          </a>
         </div>
+      </div>
+      <div class="rounded-3xl border border-white/10 bg-white/10 p-5">
+        <p class="text-sm uppercase tracking-[.3em] text-primary">Featured post</p>
+        <h2 vd-text="featuredPost?.title || 'Loading featured post…'" class="mt-4 text-3xl font-bold"></h2>
+        <p vd-text="featuredPost?.body || ''" class="mt-3 line-clamp-4 text-slate-300"></p>
+        <a
+          vd-if="Boolean(featuredPost?.id)"
+          vd-bind:href="'/blog/posts/' + featuredPost.id"
+          vd-nav
+          class="btn btn-primary btn-sm mt-6"
+        >
+          Read featured
+        </a>
       </div>
     </div>
   </section>
 
-  <section class="mt-10 grid gap-8 lg:grid-cols-[1fr_20rem]">
+  <section class="mt-12 grid gap-8 lg:grid-cols-[1fr_22rem]">
     <div>
-      <div class="mb-5 flex items-center justify-between gap-3">
+      <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p class="text-sm font-medium text-primary">Latest writing</p>
-          <h2 class="text-3xl font-bold">Posts</h2>
+          <p class="text-sm font-semibold text-primary">Latest from DummyJSON</p>
+          <h2 class="text-4xl font-black">Posts</h2>
         </div>
-        <span vd-show="postsLoading" class="loading loading-spinner loading-md"></span>
+        <form
+          vd-on:submit.prevent="searchPosts()"
+          class="flex w-full gap-2 md:w-auto"
+        >
+          <input
+            vd-model="query"
+            class="input input-bordered w-full md:w-72"
+            placeholder="Search posts..."
+          />
+          <button class="btn btn-outline" type="submit">Search</button>
+        </form>
       </div>
 
-      <p
-        vd-if="postsError !== ''"
-        vd-text="postsError"
-        class="alert alert-error mb-4"
-      ></p>
+      <vd-component
+        vd-if="postsLoading"
+        name="loader"
+        vd-prop-label="Loading posts from DummyJSON…"
+      ></vd-component>
+      <vd-component
+        name="shared/error-message"
+        vd-props="{ title: 'Posts failed', message: postsError }"
+      ></vd-component>
 
-      <div class="grid gap-5 md:grid-cols-2" vd-if="!postsLoading">
+      <div
+        vd-if="!postsLoading && posts.length > 0"
+        class="grid gap-5 md:grid-cols-2 xl:grid-cols-3"
+      >
         <article
           vd-for="post in posts"
-          vd-class="{ 'border-primary': post.id === featuredPost?.id }"
-          class="card border border-base-300 bg-base-100 shadow-sm"
+          class="card h-full border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
         >
           <div class="card-body">
-            <div class="flex flex-wrap gap-1">
+            <div class="flex flex-wrap gap-2">
               <span
                 vd-for="tag in post.tags"
                 vd-text="tag"
-                class="badge badge-ghost badge-sm"
+                class="badge badge-outline badge-sm"
               ></span>
             </div>
-            <h3 vd-text="post.title" class="card-title"></h3>
-            <p vd-text="post.body.slice(0, 110) + '…'" class="opacity-70"></p>
-            <div class="card-actions mt-3 justify-between">
+            <h3 vd-text="post.title" class="card-title text-slate-950"></h3>
+            <p
+              vd-text="post.body.slice(0, 140) + '…'"
+              class="line-clamp-3 text-sm leading-6 text-slate-600"
+            ></p>
+            <div class="mt-3 flex items-center justify-between">
               <span
-                vd-text="post.views ? post.views + ' views' : 'New post'"
-                class="text-xs opacity-60"
+                vd-text="post.views ? post.views + ' views' : 'Draft'"
+                class="text-xs text-slate-500"
               ></span>
               <a
                 vd-bind:href="'/blog/posts/' + post.id"
@@ -69,63 +105,59 @@
         </article>
       </div>
 
-      <button
-        type="button"
-        vd-on:click="loadMore()"
-        vd-bind:disabled="postsLoading"
-        class="btn btn-outline mt-6 w-full"
-      >
-        Load more posts
-      </button>
+      <div class="mt-8 flex justify-center">
+        <button
+          type="button"
+          vd-on:click="loadMore()"
+          vd-bind:disabled="postsLoading"
+          class="btn btn-primary btn-wide"
+        >
+          Load more
+        </button>
+      </div>
     </div>
 
     <aside class="space-y-5">
-      <section class="card border border-base-300 bg-base-100">
+      <section class="card border border-slate-200 bg-white shadow-sm">
         <div class="card-body">
-          <h2 class="card-title">Popular tags</h2>
+          <h2 class="card-title">Categories</h2>
           <div class="flex flex-wrap gap-2">
-            <span
+            <a
               vd-for="(tag, index) in tags"
-              vd-if="index < 12"
+              vd-if="index < 14"
+              vd-bind:href="'/categories?tag=' + tag"
               vd-text="tag"
-              class="badge badge-outline"
-            ></span>
+              vd-nav
+              class="badge badge-outline hover:badge-primary"
+            ></a>
           </div>
+          <a href="/categories" vd-nav class="link link-primary mt-2">View all categories</a>
         </div>
       </section>
 
-      <section class="card border border-base-300 bg-base-100">
+      <section class="card border border-slate-200 bg-white shadow-sm">
         <div class="card-body">
-          <h2 class="card-title">Featured component</h2>
-          <p class="text-sm opacity-70">
-            This card receives a post through component props and exposes methods.
-          </p>
+          <h2 class="card-title">Framework signals</h2>
+          <ul class="space-y-3 text-sm">
+            <li>✓ Folder routes from <code>src/pages</code></li>
+            <li>✓ Reusable cards from <code>src/components</code></li>
+            <li>✓ DummyJSON calls from <code>src/api</code></li>
+            <li>✓ SEO metadata from <code>config.js</code></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card border border-slate-200 bg-white shadow-sm">
+        <div class="card-body">
+          <h2 class="card-title">Reusable post-card component</h2>
           <vd-component
             name="blog/post-card"
             vd-props="{ post: featuredPost }"
-            vd-ref="featuredCard"
           ></vd-component>
-        </div>
-      </section>
-
-      <section class="card border border-base-300 bg-base-100">
-        <div class="card-body">
-          <h2 class="card-title">Cross-page request result</h2>
-          <p vd-show="externalPostLoading" class="text-sm">Loading…</p>
-          <p
-            vd-if="externalPostError !== ''"
-            vd-text="externalPostError"
-            class="text-error"
-          ></p>
-          <a
-            vd-if="Boolean(externalPostResult?.id)"
-            vd-bind:href="'/blog/posts/' + externalPostResult.id"
-            vd-text="externalPostResult?.title || ''"
-            vd-nav
-            class="link link-primary"
-          ></a>
         </div>
       </section>
     </aside>
   </section>
 </main>
+
+<vd-component name="footer"></vd-component>

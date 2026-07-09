@@ -1,52 +1,115 @@
 <vd-component name="nav" vd-prop-title="Post details"></vd-component>
 
-<main class="mx-auto w-[92%] max-w-3xl py-10">
-  <div class="mb-6 flex items-center justify-between">
+<main class="mx-auto w-[92%] max-w-5xl py-10">
+  <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
     <a href="/" vd-nav class="btn btn-sm btn-ghost">← All posts</a>
-    <div class="flex gap-2">
+    <div class="flex flex-wrap gap-2">
       <button
         vd-request="posts.getOne"
         vd-request-config="{ params: { id: postId }, target: 'post', autoState: true }"
-        class="btn btn-sm btn-ghost"
-      >
-        Reload through request directive
-      </button>
-      <a
-        vd-bind:href="'/blog/posts/' + postId + '/edit'"
-        vd-nav
         class="btn btn-sm btn-outline"
       >
-        Edit example
+        Reload
+      </button>
+      <a vd-bind:href="'/studio?id=' + postId" vd-nav class="btn btn-sm btn-primary">
+        Edit in CRUD studio
       </a>
     </div>
   </div>
 
-  <div vd-show="postLoading" class="flex justify-center py-20">
-    <span class="loading loading-spinner loading-lg"></span>
-  </div>
+  <vd-component
+    vd-if="postLoading"
+    name="loader"
+    vd-prop-label="Loading post…"
+  ></vd-component>
+  <vd-component
+    name="shared/error-message"
+    vd-props="{ title: 'Post failed', message: postError }"
+  ></vd-component>
 
-  <p
-    vd-if="postError !== ''"
-    vd-text="postError"
-    class="alert alert-error"
-  ></p>
-
-  <article vd-if="Boolean(post)" class="prose max-w-none">
-    <div class="mb-4 flex flex-wrap gap-2">
-      <span
+  <article vd-if="Boolean(post)" class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-10">
+    <div class="flex flex-wrap gap-2">
+      <a
         vd-for="tag in post?.tags || []"
+        vd-bind:href="'/categories?tag=' + tag"
         vd-text="tag"
+        vd-nav
         class="badge badge-primary badge-outline"
-      ></span>
+      ></a>
     </div>
-    <h1 vd-text="post?.title || ''"></h1>
-    <p vd-text="post?.body || ''" class="text-lg leading-8"></p>
-    <div class="not-prose mt-8 rounded-xl bg-base-200 p-4">
-      <strong>Dynamic route context</strong>
-      <p class="mt-1 text-sm opacity-70">
-        Folder <code>pages/blog/posts/[id]</code> produced route param:
-        <code vd-text="postId"></code>
-      </p>
+    <h1 vd-text="post?.title || ''" class="mt-5 text-4xl font-black leading-tight md:text-5xl"></h1>
+    <p vd-text="post?.body || ''" class="mt-6 text-lg leading-9 text-slate-700"></p>
+    <div class="mt-8 grid gap-3 text-sm text-slate-500 md:grid-cols-3">
+      <div class="rounded-2xl bg-slate-100 p-4">
+        <strong vd-text="post?.views || 0" class="block text-2xl text-slate-950"></strong>
+        views
+      </div>
+      <div class="rounded-2xl bg-slate-100 p-4">
+        <strong vd-text="post?.reactions?.likes || 0" class="block text-2xl text-slate-950"></strong>
+        likes
+      </div>
+      <div class="rounded-2xl bg-slate-100 p-4">
+        <strong vd-text="postId" class="block text-2xl text-slate-950"></strong>
+        dynamic route id
+      </div>
     </div>
   </article>
+
+  <section class="mt-10 grid gap-6 lg:grid-cols-[1fr_24rem]">
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-3xl font-black">Comments</h2>
+        <span vd-show="commentsLoading" class="loading loading-spinner text-primary"></span>
+      </div>
+      <vd-component
+        name="shared/error-message"
+        vd-props="{ title: 'Comments failed', message: commentsError }"
+      ></vd-component>
+      <article
+        vd-for="comment in comments"
+        class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+      >
+        <p vd-text="comment.body" class="leading-7"></p>
+        <p class="mt-3 text-sm text-slate-500">
+          by <span vd-text="comment.user?.username || 'anonymous'"></span>
+        </p>
+      </article>
+    </div>
+
+    <section class="card border border-slate-200 bg-white shadow-sm">
+      <div class="card-body">
+        <p class="text-sm font-semibold text-primary">Comment CRUD</p>
+        <h2 class="card-title text-2xl">Add comment</h2>
+        <p class="text-sm text-slate-500">Submitted through DummyJSON /comments/add.</p>
+        <form
+          vd-validate
+          vd-request="comments.create"
+          vd-request-config="{ params: { postId: postId, userId: 1, body: commentDraft.body }, target: 'newComment', autoState: true }"
+          class="mt-4 space-y-4"
+        >
+          <textarea
+            vd-model="commentDraft.body"
+            required
+            name="body"
+            class="textarea textarea-bordered min-h-32 w-full"
+            placeholder="Write a useful comment..."
+          ></textarea>
+          <button
+            type="submit"
+            vd-bind:disabled="newCommentLoading"
+            class="btn btn-primary w-full"
+          >
+            Add comment
+          </button>
+          <p vd-show="newCommentLoading" class="text-sm text-slate-500">Sending…</p>
+          <p vd-if="newCommentError !== ''" vd-text="newCommentError" class="text-error"></p>
+          <div vd-if="Boolean(newComment?.id)" class="alert alert-success">
+            <span vd-text="'Created comment #' + newComment.id"></span>
+          </div>
+        </form>
+      </div>
+    </section>
+  </section>
 </main>
+
+<vd-component name="footer"></vd-component>

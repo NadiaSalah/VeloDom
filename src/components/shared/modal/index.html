@@ -8,11 +8,8 @@
     class="card w-full max-w-md bg-base-100 shadow-2xl"
   >
     <div class="card-body">
-      <h2 class="card-title">Expose API modal</h2>
-      <p>
-        The page opened this component through
-        <code>state.components.featureModal.open()</code>.
-      </p>
+      <h2 vd-text="title || 'VeloDom modal'" class="card-title"></h2>
+      <p vd-text="body || 'The page opened this reusable modal through a component ref and expose().'"></p>
       <div class="card-actions justify-end">
         <button vd-on:click="close()" class="btn btn-primary">Close</button>
       </div>

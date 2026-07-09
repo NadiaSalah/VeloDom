@@ -45,7 +45,11 @@ export function init({ state, ctx, refs }) {
 }
 
 export function mounted({ state, ctx }) {
-  state.eventLog = ["features page mounted"];
+  state.eventLog = [
+    "features page mounted",
+    "DummyJSON blog routes are available",
+    "CRUD studio demonstrates request directives"
+  ];
 
   ctx.onCleanup(() => {
     console.info("[VeloDom Blog] Features page destroyed");

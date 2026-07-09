@@ -1,26 +1,26 @@
-<nav class="sticky top-0 z-30 border-b border-base-300 bg-base-100/95 backdrop-blur">
+<nav class="sticky top-0 z-30 border-b border-slate-200 bg-white/90 shadow-sm backdrop-blur">
   <div class="navbar mx-auto max-w-7xl px-4">
     <div class="navbar-start">
-      <a href="/" vd-nav class="btn btn-ghost text-xl font-bold">
+      <a href="/" vd-nav class="btn btn-ghost text-xl font-black tracking-tight text-slate-950">
         VeloDom
       </a>
-      <span class="hidden text-sm opacity-50 md:inline">/</span>
-      <span vd-text="title || 'Blog'" class="hidden text-sm opacity-60 md:inline"></span>
+      <span class="hidden text-sm text-slate-300 md:inline">/</span>
+      <span vd-text="title || 'Blog'" class="hidden text-sm text-slate-500 md:inline"></span>
     </div>
 
     <div class="navbar-center hidden lg:flex">
       <div class="menu menu-horizontal gap-1">
         <a href="/" vd-nav class="btn btn-ghost btn-sm">Posts</a>
-        <a href="/blog/posts/create" vd-nav class="btn btn-ghost btn-sm">Write</a>
-        <a href="/features" vd-nav class="btn btn-ghost btn-sm">Features</a>
-        <a href="/features/typescript" vd-nav class="btn btn-ghost btn-sm">TypeScript</a>
-        <a href="/account/profile" vd-nav class="btn btn-ghost btn-sm">Profile</a>
+        <a href="/categories" vd-nav class="btn btn-ghost btn-sm">Categories</a>
+        <a href="/studio" vd-nav class="btn btn-ghost btn-sm">CRUD Studio</a>
+        <a href="/features" vd-nav class="btn btn-ghost btn-sm">Framework</a>
+        <a href="/login" vd-nav class="btn btn-ghost btn-sm">Login</a>
       </div>
     </div>
 
-    <div class="navbar-end">
-      <a href="/features/errors" vd-nav class="btn btn-outline btn-sm">
-        Error lab
+    <div class="navbar-end gap-2">
+      <a href="/studio" vd-nav class="btn btn-primary btn-sm">
+        Write
       </a>
     </div>
   </div>

@@ -310,20 +310,22 @@ async function assertRouting(page, origin) {
 }
 
 async function assertFormRequest(page, origin) {
-  await page.goto(`${origin}/blog/posts/create`);
-  await waitForPageText(page, "Create a post");
-  await waitForPageText(page, "Untitled post");
+  await page.goto(`${origin}/studio`);
+  await waitForPageText(page, "VeloDom Studio");
+  await waitForPageText(page, "POST /posts/add");
 
   if (debugBrowserE2e) {
-    console.log(await page.locator("form").evaluate(form => form.outerHTML));
+    console.log(await page.locator('form[data-vd-request="posts.create"]').evaluate(form => form.outerHTML));
   }
 
-  await page.locator('[name="title"]').fill("E2E Browser Draft");
-  await page.locator('[name="body"]').fill(
+  const createForm = page.locator('form[data-vd-request="posts.create"]');
+
+  await createForm.locator('[name="title"]').fill("E2E Browser Draft");
+  await createForm.locator('[name="body"]').fill(
     "Created by the real-browser VeloDom smoke test."
   );
-  await page.locator('[name="tags"]').fill("e2e, browser");
-  await page.locator('button[type="submit"]').click();
+  await createForm.locator('[name="tags"]').fill("e2e, browser");
+  await createForm.locator('button[type="submit"]').click();
   await waitForPageText(page, "Created post #101");
 }
 

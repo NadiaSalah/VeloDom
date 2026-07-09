@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**234 of 314 tasks completed — 74.5%**
+**236 of 314 tasks completed — 75.2%**
 
 `[###############-----]`
 
-Remaining tasks: **80**
+Remaining tasks: **78**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -245,11 +245,11 @@ and `src/api`.
 
 - [x] Create a blog home page with reactive post lists and loops
 - [x] Create a post details page using route params and requests
-- [x] Create post create/edit pages using forms and `vd-model`
-- [x] Create an auth/profile page demonstrating auth providers and roles
-- [ ] Create reusable nav, post card, loader, form, modal, and error components
+- [x] Create a CRUD studio page using forms and `vd-model`
+- [x] Create an auth/login page demonstrating auth providers and request state
+- [x] Create reusable nav, post card, loader, form, modal, and error components
 - [x] Demonstrate props, slots, refs, grouped refs, `expose`, and page events
-- [ ] Demonstrate every conditional, binding, model, loop, and event directive
+- [x] Demonstrate every conditional, binding, model, loop, and event directive
 - [x] Demonstrate request result/loading/error state and cancellation
 - [x] Demonstrate application middleware and advanced pipeline middleware
 - [x] Demonstrate safe cross-page writes through `config.js`

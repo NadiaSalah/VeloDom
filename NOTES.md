@@ -57,6 +57,12 @@
 - Application examples use kebab-case folders, preferred `script`/`config`
   filenames, and compiler-facing `vd-*` syntax. Legacy names and
   `data-vd-*` remain framework compatibility inputs, not preferred examples.
+- The showcase application is now a VeloDom-branded DummyJSON blog. It should
+  stay application-owned under `src/pages`, `src/components`, and `src/api`;
+  DummyJSON-specific business logic must not move into `src/core`.
+- Components inside `vd-for` should be used carefully until component props
+  can receive loop scope values reliably. The showcase uses direct HTML cards
+  for repeated posts and keeps the reusable post-card component outside loops.
 - Application-owned static assets live under `src/assets`. The root favicon
   duplicates are intentionally removed because `index.html` already references
   `src/assets/favicon.png`; root-level static duplicates should only return if

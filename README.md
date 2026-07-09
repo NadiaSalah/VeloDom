@@ -328,24 +328,24 @@ runtime. Mounted component state is recreated.
 ### Page Config
 
 ```js
-// src/pages/account/config.js
+// src/pages/login/config.js
 export default {
-  path: "/account/profile",
+  path: "/login",
   meta: {
-    title: "Account",
-    requiresProfile: true
+    title: "Login",
+    requiresGuest: true
   },
   beforeEnter({ to, from }) {
-    if (!canOpenAccount()) {
+    if (!canOpenLogin()) {
       return "/";
     }
 
     return true;
   },
   allowExternalWrite: [
-    "profileResult",
-    "profileLoading",
-    "profileError"
+    "loginResult",
+    "loginLoading",
+    "loginError"
   ]
 };
 ```
@@ -365,13 +365,14 @@ Folders become routes:
 ```text
 src/pages/home/index.html                    -> /
 src/pages/features/index.html                -> /features
-src/pages/blog/posts/create/index.html       -> /blog/posts/create
+src/pages/login/index.html                   -> /login
+src/pages/categories/index.html              -> /categories
+src/pages/studio/index.html                  -> /studio
 src/pages/blog/posts/[id]/index.html         -> /blog/posts/:id
-src/pages/blog/posts/[id]/edit/index.html    -> /blog/posts/:id/edit
 ```
 
-Static routes are ranked ahead of dynamic routes, so `/blog/posts/create` wins
-over `/blog/posts/:id`.
+Static routes are ranked ahead of dynamic routes, so `/studio` and
+`/categories` stay independent from dynamic post routes.
 
 ### Navigation Links
 
@@ -1495,7 +1496,7 @@ documents such as:
 ```text
 dist/index.html
 dist/features/index.html
-dist/blog/posts/create/index.html
+dist/studio/index.html
 dist/404/index.html
 dist/sitemap.xml
 dist/robots.txt
@@ -2058,19 +2059,16 @@ explicit publication approval.
 
 ## Showcase Routes
 
-The repository includes a blog-style showcase:
+The repository includes a DummyJSON-powered blog showcase:
 
 | Route | Demonstrates |
 | --- | --- |
-| `/` | reactive post lists, loops, requests, nested components |
-| `/blog/posts/1` | dynamic params, loading, lifecycle |
-| `/blog/posts/1/edit` | model binding and update request |
-| `/blog/posts/create` | forms and create request |
-| `/features` | directives, slots, refs, events, requests |
-| `/features/components` | grouped/keyed component refs and page events |
-| `/features/errors` | structured compiler/runtime/request errors |
-| `/features/typescript` | optional typed application page |
-| `/account/profile` | configurable auth providers and roles |
+| `/` | DummyJSON post lists, search, tags, loops, requests, and reusable components |
+| `/blog/posts/1` | dynamic params, post details, comments, loading/error state |
+| `/categories` | tag/category filtering and reactive list updates |
+| `/studio` | create, update, and delete post workflows with `vd-model` and `vd-request` |
+| `/login` | DummyJSON auth login, validation, loading/error/result state |
+| `/features` | framework feature documentation with live directive examples |
 
 The showcase uses Tailwind CSS and daisyUI. Those libraries are application
 choices, not VeloDom Core dependencies or requirements.

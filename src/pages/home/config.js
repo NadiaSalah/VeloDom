@@ -4,8 +4,8 @@ export default {
     description: "HTML-first framework showcase"
   },
   seo: {
-    title: "VeloDom Blog | HTML-first Framework Showcase",
-    description: "Explore a working VeloDom blog built with reactive state, routing, components, requests, and compiler-first HTML.",
+    title: "VeloDom Blog | DummyJSON CRUD Framework Showcase",
+    description: "Explore a real VeloDom blog example with login, posts, comments, categories, CRUD requests, reusable components, and Tailwind CSS.",
     canonical: "/",
     lang: "en",
     robots: "index,follow",
@@ -22,7 +22,7 @@ export default {
     },
     summary: {
       heading: "VeloDom Blog",
-      text: "A complete HTML-first framework showcase with reactive pages, requests, routing, and reusable components."
+      text: "A complete HTML-first framework showcase with DummyJSON posts, comments, auth, CRUD requests, routing, and reusable components."
     },
     jsonLd: {
       "@context": "https://schema.org",

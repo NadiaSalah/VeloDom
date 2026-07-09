@@ -1,0 +1,75 @@
+<vd-component name="nav" vd-prop-title="Login"></vd-component>
+
+<main class="mx-auto grid w-[92%] max-w-6xl gap-8 py-10 lg:grid-cols-[1fr_.9fr]">
+  <section class="rounded-[2rem] bg-slate-950 p-8 text-white md:p-12">
+    <p class="text-sm font-semibold text-primary">DummyJSON Auth</p>
+    <h1 class="mt-3 text-5xl font-black">Login demo</h1>
+    <p class="mt-5 max-w-xl text-lg leading-8 text-slate-300">
+      This page demonstrates VeloDom request directives, native validation,
+      model binding, loading/error state, and an application-owned auth route.
+    </p>
+    <div class="mt-6 rounded-2xl border border-white/10 bg-white/10 p-4 text-sm">
+      <p>Demo credentials:</p>
+      <code>username: emilys</code><br />
+      <code>password: emilyspass</code>
+    </div>
+  </section>
+
+  <section class="card border border-slate-200 bg-white shadow-sm">
+    <div class="card-body">
+      <p class="text-sm font-semibold text-primary">Auth provider</p>
+      <h2 class="card-title text-2xl">Sign in</h2>
+      <p class="text-sm text-slate-500">
+        The API route stores a local demo session after DummyJSON login succeeds.
+      </p>
+      <form
+        vd-validate
+        vd-request="auth.login"
+        vd-request-config="{ target: 'loginResult', autoState: true }"
+        class="mt-5 space-y-4"
+      >
+        <label class="form-control">
+          <span class="label-text">Username</span>
+          <input
+            name="username"
+            vd-model="credentials.username"
+            required
+            class="input input-bordered"
+          />
+        </label>
+        <label class="form-control">
+          <span class="label-text">Password</span>
+          <input
+            name="password"
+            vd-model="credentials.password"
+            required
+            type="password"
+            class="input input-bordered"
+          />
+        </label>
+        <button
+          type="submit"
+          vd-bind:disabled="loginLoading"
+          class="btn btn-primary w-full"
+        >
+          Login
+        </button>
+        <p vd-show="loginLoading" class="text-sm text-slate-500">Authenticating…</p>
+        <vd-component
+          name="shared/error-message"
+          vd-props="{ title: 'Login failed', message: loginError }"
+        ></vd-component>
+        <div vd-if="Boolean(loginResult?.accessToken)" class="alert alert-success">
+          <img
+            vd-src="loginResult.image"
+            vd-alt="loginResult.username"
+            class="h-10 w-10 rounded-full"
+          />
+          <span vd-text="'Welcome, ' + loginResult.firstName"></span>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<vd-component name="footer"></vd-component>
