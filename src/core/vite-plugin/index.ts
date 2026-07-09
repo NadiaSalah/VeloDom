@@ -32,7 +32,8 @@ import type {
   CompilerOptions
 } from "../compiler/types.ts";
 import type {
-  SeoEntriesHook
+  SeoEntriesHook,
+  SeoStaticRenderHook
 } from "../types.ts";
 
 /** Configuration for VeloDom's Vite template compiler integration. */
@@ -49,6 +50,7 @@ export interface VeloDomSeoBuildOptions {
   generateSitemap?: boolean;
   generateRobots?: boolean;
   entries?: SeoEntriesHook;
+  renderPage?: SeoStaticRenderHook;
 }
 
 /** Options used by the pure template-module generator. */
@@ -214,7 +216,8 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
         siteUrl: seo.siteUrl,
         generateSitemap: seo.generateSitemap,
         generateRobots: seo.generateRobots,
-        entries: seo.entries
+        entries: seo.entries,
+        renderPage: seo.renderPage
       });
     }
   };

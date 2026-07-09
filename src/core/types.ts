@@ -109,6 +109,33 @@ export interface SeoRouteEntry extends SeoMetadata {
   path: string;
 }
 
+/** Context passed to optional full-content static SEO render hooks. */
+export interface SeoStaticRenderContext {
+  page: string;
+  route: string;
+  root?: string;
+  seo: SeoMetadata;
+}
+
+/** HTML returned by an optional build-time static content renderer. */
+export interface SeoStaticContent {
+  html: string;
+  mode?: "replace" | "append";
+  hydration?: "client-takeover" | false;
+}
+
+/** Values accepted from the optional build-time static content renderer. */
+export type SeoStaticRenderResult =
+  | string
+  | SeoStaticContent
+  | null
+  | undefined;
+
+/** Optional build-time hook for route-specific server-delivered content. */
+export type SeoStaticRenderHook = (
+  context: SeoStaticRenderContext
+) => MaybePromise<SeoStaticRenderResult>;
+
 /** Context passed to build-time SEO entry hooks. */
 export interface SeoEntriesContext {
   page: string;

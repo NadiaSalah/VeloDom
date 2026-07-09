@@ -70,6 +70,22 @@ test("static SEO renderer falls back to title and description summary", () => {
   assert.match(html, /<p>Fallback description<\/p>/);
 });
 
+test("static SEO renderer can replace fallback with static app content", () => {
+  const html = renderSeoDocument(shell, {
+    title: "Static article",
+    description: "Server-delivered article preview"
+  }, {
+    staticContent: {
+      html: "<article><h1>Static article</h1><p>Rendered at build time.</p></article>"
+    }
+  });
+
+  assert.match(html, /data-vd-static-content/);
+  assert.match(html, /data-vd-static-hydration="client-takeover"/);
+  assert.match(html, /<article><h1>Static article<\/h1>/);
+  assert.doesNotMatch(html, /data-vd-seo-fallback/);
+});
+
 test("static SEO renderer resolves async page entry hooks", async () => {
   const root = await mkdtemp(join(tmpdir(), "velodom-seo-hook-"));
 
@@ -120,6 +136,103 @@ test("static SEO renderer resolves async page entry hooks", async () => {
     ]);
     assert.match(html, /<title>CMS post<\/title>/);
     assert.match(html, /Loaded from a hook/);
+  } finally {
+    await rm(root, {
+      recursive: true,
+      force: true
+    });
+  }
+});
+
+test("static SEO renderer invokes optional full-content render hooks", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-seo-content-"));
+
+  try {
+    await mkdir(join(root, "dist"), {
+      recursive: true
+    });
+    await mkdir(join(root, "src", "pages", "docs"), {
+      recursive: true
+    });
+    await writeFile(join(root, "dist", "index.html"), shell);
+    await writeFile(
+      join(root, "src", "pages", "docs", "index.html"),
+      "<main>Docs</main>"
+    );
+    await writeFile(
+      join(root, "src", "pages", "docs", "config.js"),
+      `
+        export default {
+          path: "/docs",
+          seo: {
+            title: "Docs",
+            description: "Documentation page"
+          }
+        };
+      `
+    );
+
+    const result = await generateStaticSeoPages({
+      root,
+      outDir: "dist",
+      renderPage: ({ page, route, seo }) => ({
+        html: "<article><h1>" + seo.title + "</h1><p>" + page + " " + route + "</p></article>"
+      })
+    });
+    const html = await readFile(
+      join(root, "dist", "docs", "index.html"),
+      "utf8"
+    );
+
+    assert.deepEqual(result.routes, [
+      "/docs"
+    ]);
+    assert.match(html, /data-vd-static-content/);
+    assert.match(html, /client-takeover/);
+    assert.match(html, /<p>docs \/docs<\/p>/);
+  } finally {
+    await rm(root, {
+      recursive: true,
+      force: true
+    });
+  }
+});
+
+test("static SEO renderer rejects script tags from content hooks", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-seo-unsafe-"));
+
+  try {
+    await mkdir(join(root, "dist"), {
+      recursive: true
+    });
+    await mkdir(join(root, "src", "pages", "unsafe"), {
+      recursive: true
+    });
+    await writeFile(join(root, "dist", "index.html"), shell);
+    await writeFile(
+      join(root, "src", "pages", "unsafe", "index.html"),
+      "<main>Unsafe</main>"
+    );
+    await writeFile(
+      join(root, "src", "pages", "unsafe", "config.js"),
+      `
+        export default {
+          seo: {
+            title: "Unsafe",
+            description: "Unsafe page"
+          }
+        };
+      `
+    );
+
+    await assert.rejects(
+      generateStaticSeoPages({
+        root,
+        outDir: "dist",
+        renderPage: () => "<script>alert(1)</script>"
+      }),
+      /must not return script tags/
+    );
   } finally {
     await rm(root, {
       recursive: true,

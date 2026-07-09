@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**238 of 315 tasks completed — 75.6%**
+**239 of 315 tasks completed — 75.9%**
 
 `[###############-----]`
 
-Remaining tasks: **77**
+Remaining tasks: **76**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -273,7 +273,7 @@ and `src/api`.
 - [x] Exclude `noindex` routes from generated sitemaps
 - [x] Test runtime, static rendering, and installed-package consumption
 - [x] Add an application-defined API/CMS data hook for dynamic SEO entries
-- [ ] Add optional full-page static content rendering and hydration
+- [x] Add optional full-page static content rendering and hydration
 - [ ] Add structured-data validation fixtures for common content types
 
 ---

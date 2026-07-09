@@ -203,7 +203,9 @@ export const VD_SEO = Object.freeze({
   DEFAULT_TITLE_ATTRIBUTE: "data-vd-default-title",
   FALLBACK_ATTRIBUTE: "data-vd-seo-fallback",
   MANAGED_ATTRIBUTE: "data-vd-seo",
-  JSON_LD_TYPE: "application/ld+json"
+  JSON_LD_TYPE: "application/ld+json",
+  STATIC_CONTENT_ATTRIBUTE: "data-vd-static-content",
+  STATIC_HYDRATION_ATTRIBUTE: "data-vd-static-hydration"
 });
 
 /** Tags and virtual query names used by optional VeloDom single-file modules. */

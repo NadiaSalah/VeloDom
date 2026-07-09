@@ -146,9 +146,10 @@
   runtime does not retry or cache by default; `createRequestCache()` and
   `withRequestRetry()` must be used by application API code, and
   `createDevtoolsPlugin()` is the only helper that installs a browser global.
-- Full page SSR and hydration remain deferred. V1 supports static SEO fallback
-  HTML, but package-boundary tests intentionally reject public SSR/hydration
-  names until the browser core, static rendering, and hydration design are
+- Full page SSR remains deferred. V1 supports static SEO fallback HTML and an
+  optional build-time `seo.renderPage` hook for route-specific static content
+  with client takeover. Package-boundary tests should still reject
+  `renderToString`-style public SSR names until a true hydration design is
   stable enough to avoid changing the HTML-first authoring model.
 - Framework-owned TypeScript files require an English module header and
   adjacent JSDoc for each exported declaration. The dependency-free
@@ -165,8 +166,10 @@
   `config.js`; validation, runtime head synchronization, and static rendering
   are generic framework responsibilities under `src/core`.
 - Static SEO output is generated after Vite emits the client shell. Each
-  concrete route receives metadata plus a concise visible fallback in `#app`,
-  which the normal page router replaces at mount.
+  concrete route receives metadata plus either a concise visible fallback in
+  `#app` or optional application-rendered static content from `seo.renderPage`.
+  The normal page router still replaces this server-delivered content at
+  mount; this is client takeover, not SSR reconciliation.
 - Dynamic route content is never fabricated. `seo.entries` provides explicit
   build-time paths and metadata; a future application-defined data hook may
   populate those entries from an API or CMS.
@@ -246,11 +249,11 @@
   future hardening task.
 - The showcase still needs reusable form and error-display components before
   every Phase H item can be marked complete.
-- Static SEO currently provides metadata and concise fallback content rather
-  than full page rendering or hydration. Application `seo.entries` hooks may
-  fetch API/CMS data at build time to declare concrete dynamic routes, but the
-  hook is intentionally app-owned, optional, and never bundled into the browser
-  runtime. Full-content pre-rendering remains a separate future milestone.
+- Static SEO currently provides metadata, concise fallback content, and an
+  optional `seo.renderPage` hook for build-time static content. Application
+  `seo.entries` and `seo.renderPage` hooks may fetch API/CMS data at build
+  time, but they are intentionally app-owned, optional, and never bundled into
+  the browser runtime. True SSR hydration remains a separate future milestone.
 - Page `.vd` files are currently imported eagerly by the Vite adapter so their
   `<config>` blocks remain synchronously available to the router. Folder pages
   keep lazy chunk behavior; future build work can revisit query-based config

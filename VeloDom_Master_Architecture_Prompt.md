@@ -290,11 +290,13 @@ The framework should provide:
 - runtime head synchronization
 - static route HTML generation after Vite build
 - concise visible fallback content for crawlers and no-JavaScript visits
+- optional build-time static content rendering with client takeover
 - canonical, Open Graph, Twitter Card, JSON-LD, sitemap, and robots support
 - explicit build-time entries for dynamic routes
 
-Static SEO must not pretend to be full SSR. Full static rendering and hydration
-are future milestones and should remain optional.
+Static SEO must not pretend to be full SSR. Build-time static content rendering
+may exist as an optional hook, but true SSR reconciliation and long-lived
+server rendering APIs remain future milestones.
 
 ---
 

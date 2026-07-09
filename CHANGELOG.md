@@ -134,6 +134,18 @@ package versions.
 - Added single-file parser, resource-map, Vite module, and static SEO coverage,
   bringing the automated suite to 131 passing tests.
 
+### Static SEO Content Rendering
+
+- Added optional build-time `seo.renderPage` support for route-specific static
+  content inside generated SEO documents.
+- Marked rendered content with `data-vd-static-content` and
+  `data-vd-static-hydration="client-takeover"` so the behavior stays explicit:
+  VeloDom serves richer initial HTML, then the normal client router takes over.
+- Kept the hook out of browser bundles and rejected script tags from returned
+  static content; structured data remains handled through `seo.jsonLd`.
+- Added renderer and hook coverage, bringing the automated suite to 134 passing
+  tests.
+
 ## 2026-07-08
 
 ### Router UX

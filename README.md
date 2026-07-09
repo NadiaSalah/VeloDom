@@ -1586,17 +1586,54 @@ Static SEO generation can be disabled with `seo: false`.
 Meta keywords are supported as supplemental metadata, but they should not be
 treated as a modern ranking strategy.
 
-Current SEO output is static metadata plus a concise fallback, not full page
-SSR or hydration. Full static rendering remains a separate roadmap item.
+For richer no-JavaScript content, the Vite plugin also accepts an optional
+build-time `seo.renderPage` hook. It can return route-specific HTML for the
+initial `#app` content while the browser runtime still performs normal client
+takeover when JavaScript loads.
+
+```js
+// vite.config.js
+import { velodom } from "velodom/vite-plugin";
+
+export default {
+  plugins: [
+    velodom({
+      seo: {
+        renderPage({ route, seo }) {
+          if (!route.startsWith("/blog/posts/")) return null;
+
+          return {
+            html: `
+              <article>
+                <h1>${seo.title}</h1>
+                <p>${seo.description}</p>
+              </article>
+            `,
+            hydration: "client-takeover"
+          };
+        }
+      }
+    })
+  ]
+};
+```
+
+The hook runs only after production build output exists. It is not bundled into
+the browser runtime. Returned content is wrapped with
+`data-vd-static-content` and `data-vd-static-hydration="client-takeover"`.
+If the hook returns `null`, VeloDom keeps the existing concise
+`seo.summary` fallback. Script tags are rejected from returned content; use
+`seo.jsonLd` for structured data and the application shell for scripts.
 
 ### SSR and Hydration Policy
 
-VeloDom V1 stays browser-first and compiler-first. Full page SSR, hydration,
-and `renderToString`-style APIs are intentionally not part of the public
-package surface yet. Static SEO HTML is the supported V1 server-delivered
-content path. Broader SSR can be reconsidered only after static rendering,
-hydration design, browser coverage, and runtime stability are mature enough to
-protect the HTML-first authoring model.
+VeloDom V1 stays browser-first and compiler-first. `seo.renderPage` provides
+optional build-time static content plus client takeover, not a React/Vue-style
+SSR reconciliation engine. `renderToString`-style APIs and persistent server
+runtime APIs are intentionally not part of the public package surface yet.
+Broader SSR can be reconsidered only after static rendering, hydration design,
+browser coverage, and runtime stability are mature enough to protect the
+HTML-first authoring model.
 
 ## Deployment and Static Hosting
 
@@ -2200,12 +2237,24 @@ Latest local verification on 2026-07-09:
 - Core documentation audit passes for 54 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 131 automated tests pass
+- 134 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
 - local rendering benchmark script passes
 - production showcase build passes
+
+Latest implementation update:
+
+- Added optional static SEO content rendering through `seo.renderPage`.
+- Updated framework contracts, SEO constants, Vite plugin options, and static
+  renderer behavior in `src/core`.
+- Added focused coverage in `test/compiler/seo-renderer.test.js`.
+- Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
+  `VeloDom_Master_Architecture_Prompt.md` to distinguish client takeover from
+  true SSR hydration.
+- Browser E2E passed for Chromium/Chrome/Edge; Firefox/WebKit targets were
+  skipped locally because their Playwright binaries are not installed.
 
 Test coverage includes:
 

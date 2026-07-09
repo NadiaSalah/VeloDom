@@ -42,6 +42,8 @@ import type {
   SeoEntriesHook,
   SeoMetadata,
   SeoRouteEntry,
+  SeoStaticContent,
+  SeoStaticRenderHook,
   UnknownRecord
 } from "../types.ts";
 
@@ -53,6 +55,7 @@ export interface StaticSeoBuildOptions {
   generateSitemap?: boolean;
   generateRobots?: boolean;
   entries?: SeoEntriesHook;
+  renderPage?: SeoStaticRenderHook;
 }
 
 /** Result summary returned by the production SEO renderer. */
@@ -62,6 +65,7 @@ export interface StaticSeoBuildResult {
 }
 
 interface StaticSeoPage {
+  page: string;
   route: string;
   seo: SeoMetadata;
 }
@@ -82,6 +86,7 @@ interface RenderSeoDocumentOptions {
   defaultLang?: string;
   siteUrl?: string;
   route?: string;
+  staticContent?: SeoStaticContent;
 }
 
 /**
@@ -110,6 +115,10 @@ export async function generateStaticSeoPages(
 
   for (const page of uniquePages) {
     const outputPath = resolveRouteOutput(outDir, page.route);
+    const staticContent = await resolveStaticContent(page, {
+      root,
+      renderPage: options.renderPage
+    });
 
     assertInsideRoot(outputPath, outDir, "SEO route output");
     await mkdir(dirname(outputPath), {
@@ -121,7 +130,8 @@ export async function generateStaticSeoPages(
         defaultTitle: readDocumentTitle(baseHtml),
         defaultLang: readDocumentLang(baseHtml),
         siteUrl: options.siteUrl,
-        route: page.route
+        route: page.route,
+        staticContent
       })
     );
     files.push(outputPath);
@@ -198,7 +208,11 @@ export function renderSeoDocument(
     /(<(?:div|main)\b[^>]*\bid=["']app["'][^>]*>)[\s\S]*?(<\/(?:div|main)>)/i,
     [
       "$1",
-      renderSummary(summary.heading, summary.text),
+      renderAppStaticContent(
+        options.staticContent,
+        summary.heading,
+        summary.text
+      ),
       "$2"
     ].join("\n")
   );
@@ -235,6 +249,7 @@ async function discoverStaticSeoPages(
 
       if (route && !isDynamic) {
         pages.push({
+          page: template.folder,
           route,
           seo: resolvePageSeo(seo, route) || seo
         });
@@ -253,6 +268,7 @@ async function discoverStaticSeoPages(
         if (!entryRoute) continue;
 
         pages.push({
+          page: template.folder,
           route: entryRoute,
           seo: entry
         });
@@ -475,6 +491,62 @@ function dedupePages(pages: StaticSeoPage[]) {
   return [...byRoute.values()];
 }
 
+async function resolveStaticContent(
+  page: StaticSeoPage,
+  options: {
+    root: string;
+    renderPage?: SeoStaticRenderHook;
+  }
+): Promise<SeoStaticContent | undefined> {
+  if (!options.renderPage) return undefined;
+
+  const result = await options.renderPage({
+    page: page.page,
+    route: page.route,
+    root: options.root,
+    seo: page.seo
+  });
+
+  if (result === undefined || result === null) return undefined;
+
+  const content = typeof result === "string"
+    ? {
+      html: result
+    }
+    : result;
+
+  if (
+    typeof content !== "object"
+    || typeof content.html !== "string"
+  ) {
+    throw new TypeError(
+      `Static SEO render hook for "${page.route}" must return HTML or a static content object`
+    );
+  }
+
+  if (!content.html.trim()) return undefined;
+
+  if (
+    content.mode !== undefined
+    && content.mode !== "replace"
+    && content.mode !== "append"
+  ) {
+    throw new TypeError(
+      `Static SEO render hook for "${page.route}" returned unsupported mode "${String(content.mode)}"`
+    );
+  }
+
+  assertSafeStaticContent(content.html, page.route);
+
+  return {
+    html: content.html.trim(),
+    mode: content.mode,
+    hydration: content.hydration === false
+      ? false
+      : "client-takeover"
+  };
+}
+
 function normalizeStaticRoute(value: string) {
   const route = String(value || "").trim();
 
@@ -636,6 +708,47 @@ function renderSummary(heading: string, text: string) {
     `  <p>${escapeText(text)}</p>`,
     "</section>"
   ].join("\n");
+}
+
+function renderAppStaticContent(
+  staticContent: SeoStaticContent | undefined,
+  heading: string,
+  text: string
+) {
+  if (!staticContent?.html) {
+    return renderSummary(heading, text);
+  }
+
+  const staticHtml = renderStaticContent(staticContent);
+
+  if (staticContent.mode === "append") {
+    return [
+      renderSummary(heading, text),
+      staticHtml
+    ].join("\n");
+  }
+
+  return staticHtml;
+}
+
+function renderStaticContent(staticContent: SeoStaticContent) {
+  const hydration = staticContent.hydration === false
+    ? ""
+    : ` ${VD_SEO.STATIC_HYDRATION_ATTRIBUTE}="client-takeover"`;
+
+  return [
+    `<section ${VD_SEO.STATIC_CONTENT_ATTRIBUTE}${hydration} aria-label="Static page content">`,
+    staticContent.html,
+    "</section>"
+  ].join("\n");
+}
+
+function assertSafeStaticContent(html: string, route: string) {
+  if (/<\/?script\b/i.test(html)) {
+    throw new Error(
+      `Static SEO render hook for "${route}" must not return script tags; use seo.jsonLd or the application shell instead`
+    );
+  }
 }
 
 function resolveCanonical(
