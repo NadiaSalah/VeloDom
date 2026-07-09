@@ -59,6 +59,7 @@ VeloDom currently provides:
 - optional application-owned shared state through `createSharedState()`
 - declarative requests with params, result/loading/error state, events, auth,
   middleware, and cancellation
+- optional request cache, retry wrapper, and devtools bridge helpers
 - optional native-form validation plugin for `vd-validate` request forms
 - configurable server-session and demonstration localStorage auth providers
 - runtime head management and static SEO HTML generated from page `config.js`
@@ -70,8 +71,8 @@ VeloDom currently provides:
 - generated ESM and TypeScript declarations for the intended package surface
 
 VeloDom deliberately does not currently provide a mandatory global store,
-virtual DOM, JSX, schema-heavy validation system, full SSR/hydration, CLI, or
-browser devtools.
+virtual DOM, JSX, schema-heavy validation system, full SSR/hydration, CLI, or a
+full browser devtools panel.
 
 ## Requirements and Commands
 
@@ -1704,9 +1705,43 @@ Creating the handle does not mutate the app. The state becomes available as
 shared state application-owned instead of turning it into a mandatory global
 store.
 
-Plugins set up in registration order and clean up in reverse order. Cache and
-devtools are not silently installed; future implementations should remain
-optional plugins.
+Optional request cache, retry wrapper, and devtools bridge:
+
+```js
+import {
+  createDevtoolsPlugin,
+  createRequestCache,
+  withRequestRetry
+} from "velodom";
+
+const apiCache = createRequestCache({
+  ttlMs: 30_000
+});
+
+export const routes = {
+  posts: {
+    getOne: withRequestRetry(
+      params => apiCache.requestJson(`/api/posts/${params.id}`),
+      { retries: 2 }
+    )
+  }
+};
+
+createApp({
+  adapter,
+  plugins: [
+    createDevtoolsPlugin()
+  ]
+});
+```
+
+The cache wrapper and retry wrapper are application-owned helpers. They do not
+change declarative request behavior unless the user explicitly uses them in an
+API route or request module. The devtools bridge only installs a browser global
+when its plugin is registered.
+
+Plugins set up in registration order and clean up in reverse order. Future
+devtools should remain optional plugins rather than mandatory runtime behavior.
 
 ## Compiler and Vite Integration
 
@@ -1953,9 +1988,12 @@ Intended public imports:
 Runtime:
 
 - `createApp`
+- `createDevtoolsPlugin`
 - `createPluginManager`
+- `createRequestCache`
 - `createSharedState`
 - `createValidationPlugin`
+- `withRequestRetry`
 - `requestJson`
 - `ApiError`
 - `defineRequestMiddleware`
@@ -1968,8 +2006,8 @@ Runtime:
 - `VD_REQUEST`
 
 Public types include page/component contexts, route/auth/request/plugin
-contracts, shared-state contracts, validation plugin options, SEO contracts,
-application options, and HTTP options.
+contracts, optional cache/retry/devtools contracts, shared-state contracts,
+validation plugin options, SEO contracts, application options, and HTTP options.
 
 ### `velodom/vite`
 
@@ -2025,10 +2063,10 @@ choices, not VeloDom Core dependencies or requirements.
 
 Latest local verification on 2026-07-09:
 
-- Core documentation audit passes for 52 TypeScript files
+- Core documentation audit passes for 53 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 114 automated tests pass
+- 118 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2042,8 +2080,9 @@ Test coverage includes:
 - routes, guards, params, and query parsing
 - hash-fragment navigation, scroll restoration, router-managed focus, and
   opt-in route prefetch
-- reactive state, lifecycle, events, refs, plugins, optional shared state, and
-  optional validation
+- reactive state, lifecycle, events, refs, plugins, optional shared state,
+  optional validation, optional request cache/retry, and optional devtools
+  bridge behavior
 - real DOM directives, components, navigation, errors, and requests
 - recoverable page and component error-boundary fallback and retry behavior
 - keyboard modifier, focusable-order, and semantic fallback output integration
@@ -2112,7 +2151,8 @@ These features are not implemented and should not be described as available:
   helper
 - project/page/component scaffolding CLI
 - official test-utility package
-- browser devtools
+- dedicated browser extension/devtools panel beyond the optional devtools
+  bridge plugin
 - full page SSR, full static content rendering, or hydration
 - automatic API/CMS discovery for dynamic SEO entries
 - full Firefox/WebKit/mobile real-browser E2E automation for the published

@@ -37,6 +37,17 @@ package versions.
 - Added duplicate-name protection, cleanup behavior, public type exports, and
   shared-state coverage, bringing the automated suite to 114 passing tests.
 
+### Optional Request Tools
+
+- Added `createRequestCache()` as an application-owned wrapper around
+  `requestJson()` for GET-like request caching.
+- Added `withRequestRetry()` as an explicit wrapper for application request
+  handlers instead of enabling declarative retries globally.
+- Added `createDevtoolsPlugin()` as an opt-in browser bridge that installs no
+  globals unless registered through `plugins`.
+- Added optional-tools coverage, bringing the automated suite to 118 passing
+  tests.
+
 ## 2026-07-08
 
 ### Router UX

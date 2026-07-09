@@ -19,14 +19,17 @@ test("runtime public exports are frozen for the V1 package boundary", () => {
     "VD_REQUEST",
     "createApp",
     "createAuthRuntime",
+    "createDevtoolsPlugin",
     "createLocalStorageAuthProvider",
     "createPluginManager",
+    "createRequestCache",
     "createServerSessionAuthProvider",
     "createSharedState",
     "createValidationPlugin",
     "defineRequestMiddleware",
     "normalizeAuthSession",
-    "requestJson"
+    "requestJson",
+    "withRequestRetry"
   ]);
 });
 
@@ -37,6 +40,7 @@ test("runtime public type exports are frozen for application authors", () => {
     "AuthProviderContext",
     "AuthSessionPayload",
     "ComponentScriptContext",
+    "DevtoolsPluginOptions",
     "ErrorBoundaryContext",
     "ErrorBoundaryFallback",
     "ErrorBoundaryHook",
@@ -46,7 +50,10 @@ test("runtime public type exports are frozen for application authors", () => {
     "PageScriptContext",
     "PluginContext",
     "RequestContext",
+    "RequestCache",
+    "RequestCacheOptions",
     "RequestMiddleware",
+    "RequestRetryOptions",
     "RequestRoute",
     "RequestRouteRegistry",
     "ResourceAdapter",

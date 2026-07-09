@@ -128,6 +128,10 @@
 - Shared state remains optional through `createSharedState()`. Creating a
   handle does not mutate the app; explicit plugin registration exposes the
   named state under `app.shared` and cleanup removes it again.
+- Cache, retry, and devtools behavior remain optional helpers. The core request
+  runtime does not retry or cache by default; `createRequestCache()` and
+  `withRequestRetry()` must be used by application API code, and
+  `createDevtoolsPlugin()` is the only helper that installs a browser global.
 - Framework-owned TypeScript files require an English module header and
   adjacent JSDoc for each exported declaration. The dependency-free
   `scripts/check-core-docs.mjs` audit is part of the normal quality gate and

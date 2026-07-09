@@ -20,6 +20,7 @@ export type {
   AuthProviderContext,
   AuthSessionPayload,
   ComponentScriptContext,
+  DevtoolsPluginOptions,
   ErrorBoundaryContext,
   ErrorBoundaryFallback,
   ErrorBoundaryHook,
@@ -29,7 +30,10 @@ export type {
   PageScriptContext,
   PluginContext,
   RequestContext,
+  RequestCache,
+  RequestCacheOptions,
   RequestMiddleware,
+  RequestRetryOptions,
   RequestRoute,
   RequestRouteRegistry,
   ResourceAdapter,
@@ -59,6 +63,13 @@ export type {
 export {
   createSharedState
 } from "./shared-state.ts";
+
+/** Optional cache, retry, and devtools helpers. */
+export {
+  createDevtoolsPlugin,
+  createRequestCache,
+  withRequestRetry
+} from "./request-tools.ts";
 
 /** Optional browser-native form validation plugin. */
 export {

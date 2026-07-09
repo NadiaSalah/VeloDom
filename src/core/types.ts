@@ -276,6 +276,41 @@ export interface SharedStateHandle<
   plugin: VeloDomPlugin;
 }
 
+/** Options for the optional request cache wrapper. */
+export interface RequestCacheOptions {
+  ttlMs?: number;
+  key?: (
+    url: RequestInfo | URL,
+    options?: UnknownRecord
+  ) => string;
+}
+
+/** Application-owned request cache wrapper. */
+export interface RequestCache {
+  requestJson(
+    url: RequestInfo | URL,
+    options?: UnknownRecord
+  ): Promise<unknown>;
+  clear(key?: string): void;
+  readonly size: number;
+}
+
+/** Options for wrapping an application request handler with retries. */
+export interface RequestRetryOptions {
+  retries?: number;
+  delayMs?: number;
+  shouldRetry?: (
+    error: unknown,
+    attempt: number
+  ) => boolean;
+}
+
+/** Options for the optional browser devtools bridge. */
+export interface DevtoolsPluginOptions {
+  globalName?: string;
+  enabled?: boolean;
+}
+
 /** Options for the optional native-form validation plugin. */
 export interface ValidationPluginOptions {
   selector?: string;
