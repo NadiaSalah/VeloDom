@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**232 of 314 tasks completed — 73.9%**
+**233 of 314 tasks completed — 74.2%**
 
 `[###############-----]`
 
-Remaining tasks: **82**
+Remaining tasks: **81**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -231,7 +231,7 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [x] Type-check a consumer against the installed package declarations
 - [x] Build a consumer through Vite from an installed local tarball
 - [x] Benchmark common page and loop rendering cases
-- [ ] Choose a project license and confirm npm package-name ownership
+- [x] Choose a project license and confirm npm package-name ownership
 - [x] Define the supported browser matrix and automated browser targets
 - [x] Add real-browser E2E tests for routing, forms, requests, and no-JavaScript SEO
 - [ ] Expand real-browser E2E automation to Firefox, WebKit, and a mobile WebKit viewport profile

@@ -39,8 +39,12 @@
   and avoids dependence on the user's global npm cache permissions.
 - Vite adapter globs are rooted at `/src` so discovery is relative to the
   consuming Vite project rather than the installed adapter file.
-- The package stays private until name ownership, license, and public API names
-  are explicitly confirmed. Local pack checks never authorize publication.
+- The package uses the MIT License, but stays private until npm name ownership,
+  account access, and publication approval are explicitly confirmed. Local pack
+  checks never authorize publication.
+- npm registry returned 404 for `velodom` on 2026-07-09. Treat that as a
+  current availability signal, not ownership; the name is only secured after an
+  approved npm account reserves or publishes it.
 - Package-consumer verification must install the tarball into an isolated
   temporary project; resolving the workspace source would not validate npm
   exports or declaration paths.

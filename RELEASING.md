@@ -44,13 +44,15 @@ Completing local checks never implies permission to publish.
 
 ### 2. Legal and Ownership Gates
 
-- Choose an explicit public license and add the corresponding `LICENSE` file.
+- Confirm the MIT License and the existing `LICENSE` file are still intended
+  for this release.
 - Confirm the license is compatible with all runtime and package
   dependencies.
-- Confirm ownership or availability of the intended npm package name.
+- Re-confirm ownership or availability of the intended npm package name.
 - Confirm the npm publishing account, organization, access level, and 2FA
   requirements.
-- Keep `private: true` until license and npm-name ownership are both decided.
+- Keep `private: true` until npm-name ownership, account access, and release
+  approval are all decided.
 
 ### 3. Local Verification
 
@@ -98,7 +100,9 @@ The checks must confirm:
 
 ## Current Publication Blockers
 
-- No public license has been selected yet.
-- No `LICENSE` file exists yet.
-- npm package-name ownership has not been confirmed in this workspace.
+- npm registry returned 404 for `velodom` on 2026-07-09, so the package name
+  appears available, but it has not been reserved by an approved npm account in
+  this workspace.
+- npm publishing account, organization, access level, and 2FA requirements have
+  not been approved yet.
 - `private: true` is intentionally still enabled in `package.json`.

@@ -2044,15 +2044,17 @@ validation plugin options, SEO contracts, application options, and HTTP options.
 Modules such as `page-router.ts`, `mount.ts`, `directives.ts`, and
 `request-router.ts` are internal. Application code should not import them.
 
-Package publishing remains intentionally blocked by `private: true` until the
-license and npm name ownership are explicitly decided. Public API names are
-tracked by package-boundary tests and should change only through an intentional
+VeloDom uses the MIT License. Package publishing remains intentionally blocked
+by `private: true` until a human approves the exact npm account, access level,
+2FA setup, and package reservation. Public API names are tracked by
+package-boundary tests and should change only through an intentional
 architecture decision plus documentation update.
 
 The release approval process is documented in [RELEASING.md](RELEASING.md).
 It is intentionally a human approval checklist, not an automated publish flow.
-The current publication blockers are the missing public license decision,
-missing `LICENSE` file, and unconfirmed npm package-name ownership.
+The package name `velodom` returned 404 from the npm registry on 2026-07-09,
+so it appears available, but final ownership still requires npm login and
+explicit publication approval.
 
 ## Showcase Routes
 
@@ -2159,7 +2161,7 @@ treated as a replacement for real-browser E2E coverage.
 These features are not implemented and should not be described as available:
 
 - public V1 API/name freeze
-- npm publication, final license, `LICENSE` file, and npm name ownership
+- npm publication and final npm account/package reservation
 - schema-based validation, custom validation rules, and validation error state
   conventions beyond the optional native validation plugin
 - declarative request debounce, throttle, retry, or cache
@@ -2189,7 +2191,7 @@ in [RELEASING.md](RELEASING.md).
 
 Current roadmap order:
 
-1. freeze public names, licensing, and package boundaries
+1. freeze public names and package boundaries
 2. finish task-oriented documentation and recipes
 3. add real-browser E2E coverage for the documented browser matrix
 4. extend real-browser navigation/accessibility coverage

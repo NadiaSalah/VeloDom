@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "description": "Compiler-first, HTML-first frontend framework with reactive state, routing, components, and requests.",
+  "license": "MIT",
   "type": "module",
   "main": "./lib/index.js",
   "module": "./lib/index.js",

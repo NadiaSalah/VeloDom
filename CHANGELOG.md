@@ -72,6 +72,16 @@ package versions.
 - Documented the benchmark as a diagnostic baseline, not a release performance
   budget.
 
+### License and Package Name
+
+- Selected the MIT License and added the root `LICENSE` file.
+- Added `license: "MIT"` to `package.json`.
+- Re-checked the npm registry for `velodom`; the registry returned 404 on
+  2026-07-09, so the name appears available but still requires an approved npm
+  account before publication.
+- Updated release blockers to keep `private: true` until npm account access,
+  package reservation, and publication approval are explicit.
+
 ## 2026-07-08
 
 ### Router UX
