@@ -198,6 +198,9 @@
 - Performance numbers should not be kept in README unless they are generated
   by a repeatable current benchmark; one-off bundle comparisons become stale
   as framework features change.
+- `npm run benchmark:rendering` is a local diagnostic baseline for common page
+  bindings and loop updates. It intentionally uses happy-dom for repeatability
+  and must not be treated as a browser-matrix performance budget.
 - Future DX tooling should default to static analysis, compiler manifests,
   Vite/build metadata, and local CLI output. It should improve developer
   confidence without adding mandatory browser runtime features.

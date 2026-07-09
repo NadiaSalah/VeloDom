@@ -68,6 +68,7 @@ VeloDom currently provides:
   runtime feature manifests
 - source-aware adapter and user-file loader errors for pages, components, and
   page config files
+- a repeatable local rendering benchmark for common page bindings and loops
 - compiler accessibility warnings for common image, form-control, anchor,
   click-target, and heading mistakes
 - generated ESM and TypeScript declarations for the intended package surface
@@ -101,6 +102,7 @@ npm run lint
 npm run check
 npm run package:check
 npm run pack:check
+npm run benchmark:rendering
 npm run test:browser
 npm run build
 npm run preview
@@ -115,6 +117,7 @@ What the main checks do:
 | `npm run check` | Runs documentation, TypeScript, and ESLint checks. |
 | `npm run package:check` | Builds ESM/types and tests an installed local tarball consumer. |
 | `npm run pack:check` | Runs package checks and inspects the npm tarball dry-run contents. |
+| `npm run benchmark:rendering` | Runs local happy-dom page-binding and loop-rendering benchmarks. |
 | `npm run test:browser` | Builds the showcase and runs a real local Chrome/Edge browser smoke test. |
 | `npm run build` | Runs all quality/package gates, then builds the showcase. |
 
@@ -2081,6 +2084,7 @@ Latest local verification on 2026-07-09:
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
+- local rendering benchmark script passes
 - production showcase build passes
 
 Test coverage includes:

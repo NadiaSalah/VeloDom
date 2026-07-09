@@ -66,6 +66,7 @@
     "package:consumer": "npm run package:build && node scripts/check-package-consumer.mjs",
     "package:check": "npm run package:build && node scripts/check-package.mjs && node scripts/check-package-consumer.mjs",
     "pack:check": "npm run package:check && node scripts/check-pack-dry-run.mjs",
+    "benchmark:rendering": "node scripts/benchmark-rendering.mjs",
     "test:browser": "npm run build && node scripts/check-browser-e2e.mjs",
     "lint": "eslint .",
     "check": "npm run docs:check && npm run typecheck && npm run lint",

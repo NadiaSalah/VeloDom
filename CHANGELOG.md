@@ -65,6 +65,13 @@ package versions.
 - Added adapter and reporter coverage, bringing the automated suite to 121
   passing tests.
 
+### Rendering Benchmarks
+
+- Added `npm run benchmark:rendering` for repeatable local happy-dom benchmarks
+  covering common page bindings and loop rendering updates.
+- Documented the benchmark as a diagnostic baseline, not a release performance
+  budget.
+
 ## 2026-07-08
 
 ### Router UX
