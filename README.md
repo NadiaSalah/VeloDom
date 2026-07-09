@@ -118,7 +118,7 @@ What the main checks do:
 | `npm run package:check` | Builds ESM/types and tests an installed local tarball consumer. |
 | `npm run pack:check` | Runs package checks and inspects the npm tarball dry-run contents. |
 | `npm run benchmark:rendering` | Runs local happy-dom page-binding and loop-rendering benchmarks. |
-| `npm run test:browser` | Builds the showcase and runs a real local Chrome/Edge browser smoke test. |
+| `npm run test:browser` | Builds the showcase and runs the Playwright browser matrix. Chromium/Chrome/Edge is required; Firefox, WebKit, and mobile WebKit run when installed. |
 | `npm run build` | Runs all quality/package gates, then builds the showcase. |
 
 Generated `dist/`, `lib/`, and `types/` folders are build output and should not
@@ -2111,11 +2111,13 @@ Test coverage includes:
   subpath exports
 - package-boundary guardrails that keep SSR and hydration APIs deferred
 - source-aware adapter errors and user-file loader failure reporting
-- a real-browser Chrome/Edge smoke path for routing, form model updates,
+- a real-browser Playwright matrix for Chromium/Chrome/Edge plus optional
+  Firefox, WebKit, and mobile WebKit coverage of routing, form model updates,
   request fulfillment, and no-JavaScript static SEO HTML
 
-Full cross-browser E2E automation for the documented browser matrix is still a
-roadmap task; current fast DOM integration uses happy-dom.
+Strict CI execution for every browser target still depends on installing the
+matching Playwright browser binaries. Current fast DOM integration uses
+happy-dom.
 
 ## Browser Support
 
@@ -2131,11 +2133,15 @@ VeloDom targets modern evergreen browsers:
 VeloDom does not target Internet Explorer, legacy EdgeHTML Edge, Opera Mini, or
 browsers without native ES modules.
 
-`npm run test:browser` currently runs a Playwright-powered smoke test against a
-locally installed Chrome or Edge browser. The wider target set remains
-Chromium, Firefox, WebKit, and a mobile Safari/WebKit viewport profile.
-`happy-dom` remains the fast local DOM integration environment; it is not
-treated as a replacement for real-browser E2E coverage.
+`npm run test:browser` runs a Playwright-powered matrix. A local Chrome, Edge,
+or Playwright Chromium target is required. Firefox, WebKit, and a mobile
+Safari/WebKit viewport profile are attempted automatically and reported as
+skipped when their Playwright browser binaries are not installed. Set
+`VELODOM_BROWSER_STRICT=1` to fail instead of skipping missing optional browser
+targets, and set `VELODOM_BROWSER_TARGETS=chromium,firefox,webkit,mobile-webkit`
+to choose targets explicitly. `happy-dom` remains the fast local DOM
+integration environment; it is not treated as a replacement for real-browser
+E2E coverage.
 
 ## Best Practices
 
@@ -2174,8 +2180,8 @@ These features are not implemented and should not be described as available:
   bridge plugin
 - full page SSR, full static content rendering, or hydration
 - automatic API/CMS discovery for dynamic SEO entries
-- full Firefox/WebKit/mobile real-browser E2E automation for the published
-  browser matrix
+- guaranteed strict CI browser availability for every Firefox/WebKit/mobile
+  WebKit target
 - project intelligence, health reports, visual graphs, build intelligence,
   documentation generation, migration helpers, and optional AI tooling
 

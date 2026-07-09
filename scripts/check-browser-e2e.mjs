@@ -3,8 +3,8 @@
  * Module: Browser E2E Smoke Test
  * ----------------------------------------
  *
- * Serves the production build and drives a real local Chrome/Edge browser
- * through VeloDom routing, forms, requests, and static SEO fallback checks.
+ * Serves the production build and drives real local browsers through VeloDom
+ * routing, forms, requests, and static SEO fallback checks.
  * ----------------------------------------
  */
 
@@ -21,56 +21,171 @@ import {
   sep
 } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "@playwright/test";
+import {
+  chromium,
+  devices,
+  firefox,
+  webkit
+} from "@playwright/test";
 
 const projectRoot = resolve(
   fileURLToPath(new URL("..", import.meta.url))
 );
 const distRoot = join(projectRoot, "dist");
+const strictBrowserMatrix = process.env.VELODOM_BROWSER_STRICT === "1";
+const debugBrowserE2e = process.env.VELODOM_BROWSER_E2E_DEBUG === "1";
+const targetRegistry = createTargetRegistry();
+const selectedTargets = getSelectedTargets(targetRegistry);
 
 await access(join(distRoot, "index.html"));
 
 const server = await createStaticServer(distRoot);
-const browser = await launchInstalledBrowser();
+const results = [];
 
 try {
-  const context = await browser.newContext();
+  await assertStaticSeo(server.origin);
 
-  await context.route("https://dummyjson.com/**", route => {
-    if (process.env.VELODOM_BROWSER_E2E_DEBUG === "1") {
-      console.log(`[browser:route] ${route.request().url()}`);
-    }
-
-    route.fulfill({
-      status: 200,
-      contentType: "application/json; charset=utf-8",
-      body: JSON.stringify(createDemoResponse(route.request().url()))
-    });
-  });
-
-  const page = await context.newPage();
-
-  if (process.env.VELODOM_BROWSER_E2E_DEBUG === "1") {
-    page.on("console", message => {
-      console.log(`[browser:${message.type()}] ${message.text()}`);
-    });
-    page.on("pageerror", error => {
-      console.log(`[browser:error] ${error.message}`);
-    });
+  for (const target of selectedTargets) {
+    results.push(await runBrowserTarget(target, server.origin));
   }
 
-  await assertStaticSeo(server.origin);
-  await assertRouting(page, server.origin);
-  await assertFormRequest(page, server.origin);
+  printBrowserSummary(results);
 
-  await context.close();
-  console.log("VeloDom browser E2E smoke check passed.");
+  const failed = results.filter(result => result.status === "failed");
+  const passed = results.filter(result => result.status === "passed");
+
+  if (failed.length > 0) {
+    throw new Error(
+      `VeloDom browser E2E failed for: ${failed.map(result => result.name).join(", ")}`
+    );
+  }
+
+  if (passed.length === 0) {
+    throw new Error(
+      "No browser E2E target ran. Install Chrome/Edge or Playwright browsers."
+    );
+  }
 } finally {
-  await browser.close();
   server.close();
 }
 
-async function launchInstalledBrowser() {
+function createTargetRegistry() {
+  const iphone = devices["iPhone 13"];
+
+  return Object.freeze({
+    chromium: Object.freeze({
+      name: "chromium",
+      label: "Chromium/Chrome/Edge desktop",
+      required: true,
+      launch: launchInstalledChromium,
+      contextOptions: {}
+    }),
+    firefox: Object.freeze({
+      name: "firefox",
+      label: "Firefox desktop",
+      required: false,
+      launch: () => firefox.launch({
+        headless: true
+      }),
+      contextOptions: {}
+    }),
+    webkit: Object.freeze({
+      name: "webkit",
+      label: "WebKit desktop",
+      required: false,
+      launch: () => webkit.launch({
+        headless: true
+      }),
+      contextOptions: {}
+    }),
+    "mobile-webkit": Object.freeze({
+      name: "mobile-webkit",
+      label: "Mobile WebKit viewport",
+      required: false,
+      launch: () => webkit.launch({
+        headless: true
+      }),
+      contextOptions: iphone
+        ? {
+          ...iphone
+        }
+        : {
+          hasTouch: true,
+          isMobile: true,
+          userAgent: "VeloDom Mobile WebKit E2E",
+          viewport: {
+            width: 390,
+            height: 844
+          }
+        }
+    })
+  });
+}
+
+function getSelectedTargets(registry) {
+  const requested = process.env.VELODOM_BROWSER_TARGETS
+    ? process.env.VELODOM_BROWSER_TARGETS.split(",")
+      .map(value => value.trim())
+      .filter(Boolean)
+    : Object.keys(registry);
+
+  const unknown = requested.filter(name => !registry[name]);
+
+  if (unknown.length > 0) {
+    throw new Error([
+      `Unknown browser E2E target(s): ${unknown.join(", ")}`,
+      `Supported targets: ${Object.keys(registry).join(", ")}`
+    ].join("\n"));
+  }
+
+  return requested.map(name => registry[name]);
+}
+
+async function runBrowserTarget(target, origin) {
+  let browser;
+
+  try {
+    browser = await target.launch();
+  } catch (error) {
+    if (!target.required && !strictBrowserMatrix) {
+      return {
+        name: target.name,
+        label: target.label,
+        reason: getLaunchFailureMessage(error),
+        status: "skipped"
+      };
+    }
+
+    return {
+      name: target.name,
+      error,
+      label: target.label,
+      status: "failed"
+    };
+  }
+
+  try {
+    await assertNoJavaScriptSeo(browser, target, origin);
+    await assertInteractiveSmoke(browser, target, origin);
+
+    return {
+      name: target.name,
+      label: target.label,
+      status: "passed"
+    };
+  } catch (error) {
+    return {
+      name: target.name,
+      error,
+      label: target.label,
+      status: "failed"
+    };
+  } finally {
+    await browser.close();
+  }
+}
+
+async function launchInstalledChromium() {
   const errors = [];
 
   if (process.env.VELODOM_BROWSER) {
@@ -98,11 +213,79 @@ async function launchInstalledBrowser() {
     }
   }
 
+  try {
+    return await chromium.launch({
+      headless: true
+    });
+  } catch (error) {
+    errors.push(`playwright chromium: ${error.message}`);
+  }
+
   throw new Error([
-    "No local Chrome or Edge browser could be launched for E2E tests.",
-    "Install Chrome/Edge or set VELODOM_BROWSER to a Chromium-family executable.",
+    "No local Chromium, Chrome, or Edge browser could be launched for E2E tests.",
+    "Install Chrome/Edge, install Playwright browsers, or set VELODOM_BROWSER.",
     ...errors.map(error => `- ${error}`)
   ].join("\n"));
+}
+
+async function assertNoJavaScriptSeo(browser, target, origin) {
+  const context = await browser.newContext({
+    ...target.contextOptions,
+    javaScriptEnabled: false
+  });
+
+  try {
+    const page = await context.newPage();
+
+    await page.goto(`${origin}/features/`);
+    await waitForPageText(page, "VeloDom framework features");
+
+    const fallbackCount = await page.locator("[data-vd-seo-fallback]").count();
+
+    if (fallbackCount < 1) {
+      throw new Error("Expected no-JavaScript SEO fallback content to be visible.");
+    }
+  } finally {
+    await context.close();
+  }
+}
+
+async function assertInteractiveSmoke(browser, target, origin) {
+  const context = await browser.newContext(target.contextOptions);
+
+  try {
+    await installDemoApiRoute(context, target.name);
+
+    const page = await context.newPage();
+
+    if (debugBrowserE2e) {
+      page.on("console", message => {
+        console.log(`[browser:${target.name}:${message.type()}] ${message.text()}`);
+      });
+      page.on("pageerror", error => {
+        console.log(`[browser:${target.name}:error] ${error.message}`);
+      });
+    }
+
+    await assertRouting(page, origin);
+    await assertFormRequest(page, origin);
+  } finally {
+    await context.close();
+  }
+}
+
+async function installDemoApiRoute(context, targetName) {
+  await context.route("https://dummyjson.com/**", route => {
+    if (debugBrowserE2e) {
+      console.log(`[browser:${targetName}:route] ${route.request().url()}`);
+    }
+
+    return route.fulfill({
+      status: 200,
+      contentType: "application/json; charset=utf-8",
+      body: JSON.stringify(createDemoResponse(route.request().url()))
+    });
+  });
 }
 
 async function assertStaticSeo(origin) {
@@ -131,30 +314,16 @@ async function assertFormRequest(page, origin) {
   await waitForPageText(page, "Create a post");
   await waitForPageText(page, "Untitled post");
 
-  if (process.env.VELODOM_BROWSER_E2E_DEBUG === "1") {
+  if (debugBrowserE2e) {
     console.log(await page.locator("form").evaluate(form => form.outerHTML));
   }
 
-  await page.locator("form").evaluate(form => {
-    const title = form.querySelector('[name="title"]');
-    const body = form.querySelector('[name="body"]');
-    const tags = form.querySelector('[name="tags"]');
-
-    title.value = "E2E Browser Draft";
-    body.value = "Created by the real-browser VeloDom smoke test.";
-    tags.value = "e2e, browser";
-
-    for (const input of [
-      title,
-      body,
-      tags
-    ]) {
-      input.dispatchEvent(new Event("input", {
-        bubbles: true
-      }));
-    }
-  });
-  await page.locator("form").dispatchEvent("submit");
+  await page.locator('[name="title"]').fill("E2E Browser Draft");
+  await page.locator('[name="body"]').fill(
+    "Created by the real-browser VeloDom smoke test."
+  );
+  await page.locator('[name="tags"]').fill("e2e, browser");
+  await page.locator('button[type="submit"]').click();
   await waitForPageText(page, "Created post #101");
 }
 
@@ -330,4 +499,29 @@ function assertIncludes(value, expected) {
   if (!value.includes(expected)) {
     throw new Error(`Expected output to include: ${expected}`);
   }
+}
+
+function getLaunchFailureMessage(error) {
+  return error instanceof Error
+    ? error.message.split("\n").at(0)
+    : String(error);
+}
+
+function printBrowserSummary(results) {
+  console.log("VeloDom browser E2E matrix");
+  console.log("==========================");
+
+  results.forEach(result => {
+    if (result.status === "passed") {
+      console.log(`✓ ${result.label}`);
+      return;
+    }
+
+    if (result.status === "skipped") {
+      console.log(`- ${result.label} skipped: ${result.reason}`);
+      return;
+    }
+
+    console.log(`✗ ${result.label}: ${result.error.message}`);
+  });
 }

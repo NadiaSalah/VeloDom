@@ -82,6 +82,17 @@ package versions.
 - Updated release blockers to keep `private: true` until npm account access,
   package reservation, and publication approval are explicit.
 
+### Browser E2E Matrix
+
+- Expanded `npm run test:browser` from a Chrome/Edge-only smoke path to a
+  Playwright matrix covering Chromium/Chrome/Edge, Firefox, WebKit, and a mobile
+  WebKit viewport profile.
+- Kept Chromium/Chrome/Edge required locally while optional Firefox/WebKit
+  targets skip clearly when their Playwright browser binaries are missing.
+- Added `VELODOM_BROWSER_TARGETS` and `VELODOM_BROWSER_STRICT=1` controls for
+  explicit target selection and strict CI-style matrix enforcement.
+- Added `.gitignore` protection for local npm recovery-code exports.
+
 ## 2026-07-08
 
 ### Router UX

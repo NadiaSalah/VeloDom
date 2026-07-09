@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**233 of 314 tasks completed — 74.2%**
+**234 of 314 tasks completed — 74.5%**
 
 `[###############-----]`
 
-Remaining tasks: **81**
+Remaining tasks: **80**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -234,7 +234,7 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [x] Choose a project license and confirm npm package-name ownership
 - [x] Define the supported browser matrix and automated browser targets
 - [x] Add real-browser E2E tests for routing, forms, requests, and no-JavaScript SEO
-- [ ] Expand real-browser E2E automation to Firefox, WebKit, and a mobile WebKit viewport profile
+- [x] Expand real-browser E2E automation to Firefox, WebKit, and a mobile WebKit viewport profile
 - [x] Document a release approval checklist without automating publication
 
 ### Phase H: Blog Showcase Application

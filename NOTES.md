@@ -87,10 +87,14 @@
   lives under `test-support` so Node test discovery does not count it as an
   empty test file.
 - Browser support is documented as an evergreen V1 candidate policy in
-  `BROWSERS.md` and mirrored by `package.json#browserslist`. The current
-  Playwright smoke suite runs against local Chrome/Edge; happy-dom coverage is
-  still not a substitute for the future Firefox, WebKit, and mobile WebKit
-  matrix expansion.
+  `BROWSERS.md` and mirrored by `package.json#browserslist`. The Playwright
+  smoke suite now attempts Chromium/Chrome/Edge, Firefox, WebKit, and a mobile
+  WebKit viewport profile. Chromium remains required locally; optional targets
+  are skipped when their binaries are unavailable unless
+  `VELODOM_BROWSER_STRICT=1` is set.
+- Local npm recovery-code exports are ignored through `.gitignore`. They should
+  remain outside version control and should not be read during routine
+  framework work.
 - Loop blocks own the cleanups created for each rendered clone and release them
   both before rerender and during parent teardown.
 - Explicit request loading/error paths inherit the destination of the resolved

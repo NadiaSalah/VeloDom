@@ -40,9 +40,19 @@ The intended real-browser E2E target set is:
 Current local automation:
 
 - `npm run test:browser` builds the showcase and runs a Playwright-powered
-  smoke test against a locally installed Chrome or Edge browser.
-- The smoke test intercepts demo API traffic, verifies client navigation,
-  form/model behavior, request fulfillment, and direct static SEO HTML.
+  smoke matrix.
+- Chromium/Chrome/Edge is required. The script first tries `VELODOM_BROWSER`,
+  then Chrome, Edge, and finally Playwright Chromium.
+- Firefox, WebKit, and a mobile WebKit viewport profile are attempted
+  automatically when their Playwright browser binaries are installed; otherwise
+  they are reported as skipped.
+- Set `VELODOM_BROWSER_STRICT=1` to fail when an optional browser target is
+  missing, which is useful for CI environments that install the full matrix.
+- Set `VELODOM_BROWSER_TARGETS=chromium,firefox,webkit,mobile-webkit` to run a
+  specific comma-separated target list.
+- The smoke matrix intercepts demo API traffic, verifies client navigation,
+  form/model behavior, request fulfillment, and direct/no-JavaScript static SEO
+  HTML.
 
 `happy-dom` tests remain useful for fast unit and DOM integration checks, but
 they are not considered a replacement for real-browser E2E coverage.
@@ -66,7 +76,8 @@ Before public V1, the browser suite should cover:
 - VeloDom should not add browser polyfills to the core runtime by default.
 - Projects that need older browsers should opt into their own build targets and
   polyfills at the application/tooling layer.
-- Browser support changes require README, TODO, CHANGELOG, NOTES, and this file
-  to stay synchronized.
-- Expanding beyond the current Chrome/Edge smoke path to Firefox, WebKit, and
-  mobile WebKit remains a separate automation milestone.
+- Browser support changes require README, TODO, CHANGELOG, NOTES, and this
+  file to stay synchronized.
+- Optional local skips are acceptable for developer machines. Release or CI
+  environments should use `VELODOM_BROWSER_STRICT=1` after installing the
+  intended Playwright browser binaries.

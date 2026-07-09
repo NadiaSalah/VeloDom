@@ -12,3 +12,6 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# Local npm account recovery material must never be committed.
+npm_recovery_codes.txt
