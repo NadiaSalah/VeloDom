@@ -66,6 +66,8 @@ VeloDom currently provides:
 - a safe expression parser/evaluator with no `eval` or `new Function`
 - a Vite template compiler, source-aware diagnostics, optimizer hooks, and
   runtime feature manifests
+- source-aware adapter and user-file loader errors for pages, components, and
+  page config files
 - compiler accessibility warnings for common image, form-control, anchor,
   click-target, and heading mistakes
 - generated ESM and TypeScript declarations for the intended package surface
@@ -2075,7 +2077,7 @@ Latest local verification on 2026-07-09:
 - Core documentation audit passes for 53 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 119 automated tests pass
+- 121 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2102,6 +2104,7 @@ Test coverage includes:
 - frozen public runtime, compiler, Vite adapter, Vite plugin, type, and package
   subpath exports
 - package-boundary guardrails that keep SSR and hydration APIs deferred
+- source-aware adapter errors and user-file loader failure reporting
 - a real-browser Chrome/Edge smoke path for routing, form model updates,
   request fulfillment, and no-JavaScript static SEO HTML
 

@@ -9,6 +9,7 @@
  */
 
 import { isPlainObject } from "./shared/object.ts";
+import { VD_RESOURCE_ADAPTER } from "./constants.ts";
 import { normalizeSeoConfig } from "./seo.ts";
 import type {
   RuntimeFeatureManifest
@@ -22,6 +23,11 @@ import type {
 interface ResourceGroupValidationOptions {
   allowConfigs: boolean;
   requireHtml: boolean;
+}
+
+interface VeloDomAnnotatedError extends Error {
+  __vdFile?: string;
+  __vdHint?: string;
 }
 
 /** Fully validated lazy resources for one page/component group. */
@@ -137,12 +143,26 @@ function validateLoaderMap<T>(
     if (!name.trim() || typeof loader !== "function") {
       throw createAdapterError(
         `Adapter resource "${label}.${name}" must be a loader function`,
-        "Return lazy loader functions from the build adapter."
+        "Return lazy loader functions from the build adapter.",
+        `${VD_RESOURCE_ADAPTER.STAGE}.${label}.${name || VD_RESOURCE_ADAPTER.EMPTY_NAME}`
       );
     }
   });
 
-  return value as Record<string, ResourceLoader<T>>;
+  return Object.fromEntries(
+    Object.entries(value).map(([name, loader]) => {
+      const file = getResourceSourceFile(label, name);
+
+      return [
+        name,
+        createSourceAwareLoader<T>(
+          loader as ResourceLoader<T>,
+          file,
+          `Check ${file} and its default/named exports.`
+        )
+      ];
+    })
+  );
 }
 
 function validateConfigMap(
@@ -167,22 +187,100 @@ function validateConfigMap(
 
       return [
         name,
-        {
-          ...config,
-          seo: normalizeSeoConfig(
-            config.seo,
-            `Adapter config "${label}.${name}".seo`
-          )
-        } as PageConfig
+        normalizePageConfig(config, label, name)
       ];
     })
   );
 }
 
-function createAdapterError(message: string, hint: string) {
-  const error = new Error(message);
-  error.code = "VD_INVALID_ADAPTER";
-  error.__vdStage = "adapter";
+function normalizePageConfig(
+  config: UnknownRecord,
+  label: string,
+  name: string
+): PageConfig {
+  const file = getResourceSourceFile(label, name);
+
+  try {
+    return {
+      ...config,
+      seo: normalizeSeoConfig(
+        config.seo,
+        `Adapter config "${label}.${name}".seo`
+      )
+    } as PageConfig;
+  } catch (error) {
+    throw attachSourceToError(
+      error,
+      file,
+      `Check the page configuration exported from ${file}.`
+    );
+  }
+}
+
+function createSourceAwareLoader<T>(
+  loader: ResourceLoader<T>,
+  file: string,
+  hint: string
+): ResourceLoader<T> {
+  return async () => {
+    try {
+      return await loader();
+    } catch (error) {
+      throw attachSourceToError(error, file, hint);
+    }
+  };
+}
+
+function attachSourceToError(
+  error: unknown,
+  file: string,
+  hint: string
+) {
+  const normalized = error instanceof Error
+    ? error
+    : new Error(String(error));
+  const annotated = normalized as VeloDomAnnotatedError;
+
+  annotated.__vdFile = annotated.__vdFile || file;
+  annotated.__vdHint = annotated.__vdHint || hint;
+  return annotated;
+}
+
+function getResourceSourceFile(label: string, name: string) {
+  const [group, type] = label.split(".");
+  const root = group === VD_RESOURCE_ADAPTER.GROUPS.COMPONENTS
+    ? VD_RESOURCE_ADAPTER.ROOTS.COMPONENTS
+    : VD_RESOURCE_ADAPTER.ROOTS.PAGES;
+  const folder = name || VD_RESOURCE_ADAPTER.UNKNOWN_FOLDER;
+
+  switch (type) {
+    case VD_RESOURCE_ADAPTER.TYPES.HTML:
+      return `${root}/${folder}/${VD_RESOURCE_ADAPTER.FILES.HTML}`;
+    case VD_RESOURCE_ADAPTER.TYPES.MODULES:
+      return `${root}/${folder}/${VD_RESOURCE_ADAPTER.FILES.MODULE}`;
+    case VD_RESOURCE_ADAPTER.TYPES.STYLES:
+      return `${root}/${folder}/${VD_RESOURCE_ADAPTER.FILES.STYLE}`;
+    case VD_RESOURCE_ADAPTER.TYPES.CONFIGS:
+      return `${root}/${folder}/${VD_RESOURCE_ADAPTER.FILES.CONFIG}`;
+    case VD_RESOURCE_ADAPTER.TYPES.MANIFESTS:
+      return `${root}/${folder}/${VD_RESOURCE_ADAPTER.FILES.HTML}`;
+    default:
+      return `${VD_RESOURCE_ADAPTER.STAGE}.${label}.${folder}`;
+  }
+}
+
+function createAdapterError(
+  message: string,
+  hint: string,
+  file: string = VD_RESOURCE_ADAPTER.CREATE_APP_FILE
+) {
+  const error = new Error(message) as VeloDomAnnotatedError & {
+    code?: string;
+    __vdStage?: string;
+  };
+  error.code = VD_RESOURCE_ADAPTER.CODE;
+  error.__vdStage = VD_RESOURCE_ADAPTER.STAGE;
   error.__vdHint = hint;
+  error.__vdFile = file;
   return error;
 }

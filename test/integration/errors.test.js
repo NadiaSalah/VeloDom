@@ -90,6 +90,36 @@ test("error reporter extracts source locations from Windows stack frames", async
   });
 });
 
+test("error reporter prefers source metadata from adapter loaders", async () => {
+  const error = new Error("Template failed");
+
+  error.stack = "";
+  error.__vdFile = "src/pages/home/index.html";
+  error.__vdHint = "Check src/pages/home/index.html.";
+
+  await captureConsole("error", messages => {
+    const reported = reportUserActionError(error, {
+      title: "Navigation Crash",
+      file: "src/core/page-router.ts",
+      hint: "Fallback hint"
+    });
+
+    assert.deepEqual(reported.location, {
+      file: "src/pages/home/index.html",
+      line: 1,
+      column: 1
+    });
+    assert.match(
+      messages[0],
+      /Location: src\/pages\/home\/index\.html:1:1/
+    );
+    assert.match(
+      messages[0],
+      /Hint: Check src\/pages\/home\/index\.html\./
+    );
+  });
+});
+
 test("warning reports use the warning channel", async () => {
   await captureConsole("warn", messages => {
     const reported = reportUserActionError("Optional listener ignored", {

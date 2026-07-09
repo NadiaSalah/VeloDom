@@ -167,6 +167,36 @@ export const VD_OPTIONAL_TOOLS = Object.freeze({
   GET_METHOD: "GET"
 });
 
+/** Source labels and filenames used by generic resource-adapter diagnostics. */
+export const VD_RESOURCE_ADAPTER = Object.freeze({
+  CODE: "VD_INVALID_ADAPTER",
+  STAGE: "adapter",
+  CREATE_APP_FILE: "createApp({ adapter })",
+  EMPTY_NAME: "<empty>",
+  UNKNOWN_FOLDER: "<unknown>",
+  GROUPS: Object.freeze({
+    COMPONENTS: "components",
+    PAGES: "pages"
+  }),
+  TYPES: Object.freeze({
+    CONFIGS: "configs",
+    HTML: "html",
+    MANIFESTS: "manifests",
+    MODULES: "modules",
+    STYLES: "styles"
+  }),
+  ROOTS: Object.freeze({
+    COMPONENTS: "src/components",
+    PAGES: "src/pages"
+  }),
+  FILES: Object.freeze({
+    CONFIG: "config.js",
+    HTML: "index.html",
+    MODULE: "script.js",
+    STYLE: "style.css"
+  })
+});
+
 /** Attributes and element values owned by the SEO runtime and static renderer. */
 export const VD_SEO = Object.freeze({
   DEFAULT_LANG_ATTRIBUTE: "data-vd-default-lang",

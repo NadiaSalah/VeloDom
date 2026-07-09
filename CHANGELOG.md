@@ -55,6 +55,16 @@ package versions.
 - Documented the browser-first SSR/hydration deferral policy, bringing the
   automated suite to 119 passing tests.
 
+### Source-aware Errors
+
+- Added source metadata to validated adapter loaders so page, component, style,
+  manifest, and config failures can point at the user-owned file that caused
+  the error.
+- Updated the runtime error reporter to prefer adapter-provided file and hint
+  metadata over generic fallback locations.
+- Added adapter and reporter coverage, bringing the automated suite to 121
+  passing tests.
+
 ## 2026-07-08
 
 ### Router UX

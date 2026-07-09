@@ -24,17 +24,32 @@ export interface ErrorReportOptions {
   fatal?: boolean;
 }
 
+interface VeloDomAnnotatedError extends Error {
+  __vdFile?: string;
+  __vdHint?: string;
+  __vdSynthetic?: boolean;
+}
+
 /** Formats and reports a runtime failure without hiding its original cause. */
 export function reportUserActionError(
   error: unknown,
   options: ErrorReportOptions = {}
 ) {
   const normalized = normalizeError(error);
-  const location = resolveLocation(normalized.stack, options, normalized.__vdSynthetic === true);
-  const title = options.title || "Runtime Error";
-  const directive = options.directive || "";
-  const hint = options.hint || "";
-  const element = getElementSnippet(options.el);
+  const reportOptions = {
+    ...options,
+    file: normalized.__vdFile || options.file,
+    hint: normalized.__vdHint || options.hint
+  };
+  const location = resolveLocation(
+    normalized.stack,
+    reportOptions,
+    normalized.__vdSynthetic === true || Boolean(normalized.__vdFile)
+  );
+  const title = reportOptions.title || "Runtime Error";
+  const directive = reportOptions.directive || "";
+  const hint = reportOptions.hint || "";
+  const element = getElementSnippet(reportOptions.el);
   const lines = [
     `[VeloDom] ${title}`,
     `Message: ${normalized.message}`,
@@ -45,8 +60,8 @@ export function reportUserActionError(
     lines.push(`Directive: ${directive}`);
   }
 
-  if (options.expression) {
-    lines.push(`Expression: ${String(options.expression)}`);
+  if (reportOptions.expression) {
+    lines.push(`Expression: ${String(reportOptions.expression)}`);
   }
 
   if (element) {
@@ -58,7 +73,7 @@ export function reportUserActionError(
   }
 
   const formatted = lines.join("\n");
-  const isWarning = options.level === "warn";
+  const isWarning = reportOptions.level === "warn";
 
   if (isWarning) {
     console.warn(formatted);
@@ -66,7 +81,7 @@ export function reportUserActionError(
     console.error(formatted);
   }
 
-  if (options.fatal) {
+  if (reportOptions.fatal) {
     renderFatalFrameworkError(normalized, {
       title,
       details: formatted
@@ -79,9 +94,9 @@ export function reportUserActionError(
   };
 }
 
-function normalizeError(error: unknown) {
+function normalizeError(error: unknown): VeloDomAnnotatedError {
   if (error instanceof Error) {
-    return error;
+    return error as VeloDomAnnotatedError;
   }
 
   const synthetic = new Error(

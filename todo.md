@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**230 of 314 tasks completed — 73.2%**
+**231 of 314 tasks completed — 73.6%**
 
 `[###############-----]`
 
-Remaining tasks: **84**
+Remaining tasks: **83**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -222,7 +222,7 @@ different kinds of websites, while keeping application code outside `src/core`.
 ### Phase G: Release Hardening
 
 - [x] Remove remaining application assumptions from core errors and hints
-- [ ] Add source-aware errors for adapters and user files
+- [x] Add source-aware errors for adapters and user files
 - [x] Complete router, component, directive, request, and lifecycle tests
 - [x] Add package exports and semantic versioning rules
 - [x] Build publishable ESM and declaration artifacts from `src/core`

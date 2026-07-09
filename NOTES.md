@@ -207,6 +207,11 @@
 - Migration tools may generate reviewable VeloDom folders from HTML or simple
   framework examples, but VeloDom Core must not add React/Vue/Angular runtime
   compatibility layers.
+- Resource adapters now annotate user-file loader and page-config failures with
+  source metadata before the router or error boundary reports them. This keeps
+  diagnostics generic in core while pointing developers at application-owned
+  files such as `src/pages/*/index.html`, `script.js`, `style.css`, and
+  `config.js`.
 
 ## Known Constraints
 
@@ -215,8 +220,9 @@
 - TypeScript `noImplicitAny` is not yet enabled globally; older internal helper
   parameters should be tightened incrementally without changing the JavaScript
   API.
-- Adapter/user-file source maps still need broader build-tool integration
-  coverage beyond runtime stack-location parsing.
+- Adapter/user-file source diagnostics are now available for validated lazy
+  resources, but full source-map integration across every build tool remains a
+  future hardening task.
 - The showcase still needs reusable form and error-display components before
   every Phase H item can be marked complete.
 - Static SEO currently provides metadata and concise fallback content rather
