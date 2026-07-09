@@ -56,6 +56,7 @@ VeloDom currently provides:
 - page and component `init`, `mounted`, `destroy`, cleanup, and abort signals
 - DOM refs, component refs, grouped refs, keyed instances, and `expose`
 - named and unnamed slots plus folder-scoped CSS
+- optional application-owned shared state through `createSharedState()`
 - declarative requests with params, result/loading/error state, events, auth,
   middleware, and cancellation
 - optional native-form validation plugin for `vd-validate` request forms
@@ -1675,9 +1676,37 @@ createApp({
 </form>
 ```
 
-Plugins set up in registration order and clean up in reverse order. Shared
-state, cache, and devtools are not silently installed; future implementations
-should remain optional plugins.
+Optional shared state:
+
+```js
+import {
+  createSharedState
+} from "velodom";
+
+export const uiState = createSharedState({
+  theme: "light"
+}, {
+  name: "ui"
+});
+
+createApp({
+  adapter,
+  plugins: [
+    uiState.plugin
+  ]
+});
+
+uiState.state.theme = "dark";
+```
+
+Creating the handle does not mutate the app. The state becomes available as
+`app.shared.ui` only after its plugin is explicitly registered. This keeps
+shared state application-owned instead of turning it into a mandatory global
+store.
+
+Plugins set up in registration order and clean up in reverse order. Cache and
+devtools are not silently installed; future implementations should remain
+optional plugins.
 
 ## Compiler and Vite Integration
 
@@ -1925,6 +1954,7 @@ Runtime:
 
 - `createApp`
 - `createPluginManager`
+- `createSharedState`
 - `createValidationPlugin`
 - `requestJson`
 - `ApiError`
@@ -1938,8 +1968,8 @@ Runtime:
 - `VD_REQUEST`
 
 Public types include page/component contexts, route/auth/request/plugin
-contracts, validation plugin options, SEO contracts, application options, and
-HTTP options.
+contracts, shared-state contracts, validation plugin options, SEO contracts,
+application options, and HTTP options.
 
 ### `velodom/vite`
 
@@ -1995,10 +2025,10 @@ choices, not VeloDom Core dependencies or requirements.
 
 Latest local verification on 2026-07-09:
 
-- Core documentation audit passes for 51 TypeScript files
+- Core documentation audit passes for 52 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 111 automated tests pass
+- 114 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2012,7 +2042,8 @@ Test coverage includes:
 - routes, guards, params, and query parsing
 - hash-fragment navigation, scroll restoration, router-managed focus, and
   opt-in route prefetch
-- reactive state, lifecycle, events, refs, plugins, and optional validation
+- reactive state, lifecycle, events, refs, plugins, optional shared state, and
+  optional validation
 - real DOM directives, components, navigation, errors, and requests
 - recoverable page and component error-boundary fallback and retry behavior
 - keyboard modifier, focusable-order, and semantic fallback output integration
@@ -2077,7 +2108,8 @@ These features are not implemented and should not be described as available:
   conventions beyond the optional native validation plugin
 - declarative request debounce, throttle, retry, or cache
 - broader keyboard/focus UX beyond the current integration coverage
-- mandatory/shared global store
+- advanced shared-state patterns beyond the optional `createSharedState()`
+  helper
 - project/page/component scaffolding CLI
 - official test-utility package
 - browser devtools

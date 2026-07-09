@@ -28,6 +28,15 @@ package versions.
 - Added validation plugin and compiler coverage, bringing the automated suite
   to 111 passing tests.
 
+### Shared State
+
+- Added `createSharedState()` as an optional application-owned shared state
+  handle with explicit plugin registration.
+- Kept shared state out of the default app runtime; the app only receives
+  `app.shared[name]` after the matching plugin is installed.
+- Added duplicate-name protection, cleanup behavior, public type exports, and
+  shared-state coverage, bringing the automated suite to 114 passing tests.
+
 ## 2026-07-08
 
 ### Router UX

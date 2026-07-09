@@ -152,6 +152,12 @@ export const VD_VALIDATION = Object.freeze({
   SUBMIT_EVENT: "submit"
 });
 
+/** Names and app properties used by the optional shared-state plugin. */
+export const VD_SHARED_STATE = Object.freeze({
+  APP_PROPERTY: "shared",
+  DEFAULT_NAME: "default"
+});
+
 /** Attributes and element values owned by the SEO runtime and static renderer. */
 export const VD_SEO = Object.freeze({
   DEFAULT_LANG_ATTRIBUTE: "data-vd-default-lang",

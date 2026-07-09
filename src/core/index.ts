@@ -43,6 +43,10 @@ export type {
   SeoRouteEntry,
   SeoSummary,
   SeoTwitterCard,
+  SharedState,
+  SharedStateHandle,
+  SharedStateMethods,
+  SharedStatePluginOptions,
   StateRecord,
   UnknownRecord,
   ValidationPluginOptions,
@@ -50,6 +54,11 @@ export type {
   VeloDomAppOptions,
   VeloDomPlugin
 } from "./types.ts";
+
+/** Optional application-owned shared state helper. */
+export {
+  createSharedState
+} from "./shared-state.ts";
 
 /** Optional browser-native form validation plugin. */
 export {

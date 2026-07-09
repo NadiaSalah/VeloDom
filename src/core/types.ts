@@ -253,6 +253,29 @@ export type VeloDomPlugin = PluginSetup | {
   cleanup?: PluginCleanup;
 };
 
+/** Reactive methods exposed on optional shared state objects. */
+export interface SharedStateMethods {
+  _subscribe(callback: () => void): () => void;
+  _notify(): void;
+}
+
+/** Optional application-owned shared state. */
+export type SharedState<TState extends StateRecord = StateRecord> =
+  TState & SharedStateMethods;
+
+/** Options for naming an optional shared state plugin registration. */
+export interface SharedStatePluginOptions {
+  name?: string;
+}
+
+/** State and plugin pair returned by createSharedState(). */
+export interface SharedStateHandle<
+  TState extends StateRecord = StateRecord
+> {
+  state: SharedState<TState>;
+  plugin: VeloDomPlugin;
+}
+
 /** Options for the optional native-form validation plugin. */
 export interface ValidationPluginOptions {
   selector?: string;
@@ -276,6 +299,7 @@ export interface VeloDomApp {
   mount(): Promise<unknown>;
   destroy(): Promise<void>;
   navigate(path: string, pagePath?: string): Promise<unknown>;
+  shared?: Record<string, SharedState>;
 }
 
 /** Abortable cleanup scope shared by pages and components. */

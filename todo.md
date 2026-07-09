@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**224 of 314 tasks completed — 71.3%**
+**228 of 314 tasks completed — 72.6%**
 
-`[##############------]`
+`[###############-----]`
 
-Remaining tasks: **90**
+Remaining tasks: **86**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -215,7 +215,7 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [x] Support `createApp({ plugins: [] })`
 - [x] Add plugin setup and cleanup
 - [x] Keep validation optional
-- [ ] Keep shared state optional
+- [x] Keep shared state optional
 - [ ] Keep cache, retry, and devtools optional
 - [ ] Avoid adding SSR until the browser framework core is stable
 
@@ -447,9 +447,9 @@ and `src/api`.
 
 ### 13. Shared State
 
-- [ ] Decide if the framework truly needs a global store
-- [ ] If needed, design the smallest useful shared state API
-- [ ] Keep shared state optional, not mandatory
+- [x] Decide if the framework truly needs a global store
+- [x] If needed, design the smallest useful shared state API
+- [x] Keep shared state optional, not mandatory
 
 ### 14. Developer Tooling
 
