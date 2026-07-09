@@ -239,6 +239,10 @@
   for folder mode. The Vite plugin compiles `.vd` blocks into the same resource
   contract used by folders, and folder resources keep priority when both forms
   declare the same logical page or component name.
+- `src/core/page-router.ts` and `src/core/requests/request-router.ts` are
+  frozen internal filenames. They remain private implementation modules, but
+  keeping the names stable protects diagnostics, runtime wiring, and
+  integration tests from accidental churn.
 
 ## Known Constraints
 

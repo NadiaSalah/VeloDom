@@ -2200,6 +2200,9 @@ validation plugin options, SEO contracts, application options, and HTTP options.
 
 Modules such as `page-router.ts`, `mount.ts`, `directives.ts`, and
 `request-router.ts` are internal. Application code should not import them.
+The internal router filenames `page-router.ts` and
+`requests/request-router.ts` are still intentionally frozen because VeloDom's
+runtime, directive features, tests, and diagnostics refer to them by name.
 
 VeloDom uses the MIT License. Package publishing remains intentionally blocked
 by `private: true` until a human approves the exact npm account, access level,
@@ -2237,7 +2240,7 @@ Latest local verification on 2026-07-09:
 - Core documentation audit passes for 54 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 138 automated tests pass
+- 139 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2252,6 +2255,8 @@ Latest implementation update:
 - Added focused coverage in `test/compiler/seo-renderer.test.js`.
 - Added reusable structured-data fixtures for WebSite, BlogPosting,
   BreadcrumbList, FAQPage, and Product JSON-LD validation coverage.
+- Added an internal naming guard that freezes `page-router.ts` and
+  `requests/request-router.ts` as framework-owned module filenames.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
   `VeloDom_Master_Architecture_Prompt.md` to distinguish client takeover from
   true SSR hydration.

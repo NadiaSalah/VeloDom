@@ -154,6 +154,14 @@ package versions.
   arrays stay valid while invalid JSON-LD shapes fail before rendering.
 - Brought the automated suite to 138 passing tests.
 
+### Internal Naming Freeze
+
+- Froze the internal router module filenames `page-router.ts` and
+  `requests/request-router.ts`.
+- Added a package-level guard so runtime and directive wiring continue to use
+  those internal names intentionally.
+- Brought the automated suite to 139 passing tests.
+
 ## 2026-07-08
 
 ### Router UX
