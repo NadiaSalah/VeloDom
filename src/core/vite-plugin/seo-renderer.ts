@@ -24,11 +24,17 @@ import {
   sep
 } from "node:path";
 import { pathToFileURL } from "node:url";
-import { VD_SEO } from "../constants.ts";
+import {
+  VD_SEO,
+  VD_SINGLE_FILE
+} from "../constants.ts";
 import {
   normalizeSeoConfig,
   resolvePageSeo
 } from "../seo.ts";
+import {
+  parseVeloDomSingleFile
+} from "./single-file.ts";
 import type {
   PageConfig,
   SeoConfig,
@@ -58,6 +64,12 @@ export interface StaticSeoBuildResult {
 interface StaticSeoPage {
   route: string;
   seo: SeoMetadata;
+}
+
+interface StaticSeoSource {
+  folder: string;
+  path: string;
+  type: "folder" | "single-file";
 }
 
 interface DiscoverStaticSeoOptions {
@@ -198,29 +210,25 @@ async function discoverStaticSeoPages(
 ): Promise<StaticSeoPage[]> {
   const templates = await findPageTemplates(pagesRoot);
   const groups = await Promise.all(
-    templates.map(async templatePath => {
-      const pageDirectory = dirname(templatePath);
-      const folder = relative(pagesRoot, pageDirectory)
-        .split(sep)
-        .join("/");
-      const config = await loadPageConfig(pageDirectory);
+    templates.map(async template => {
+      const config = await loadPageConfig(template);
 
       if (!config?.seo) return [];
 
       const seo = normalizeSeoConfig(
         config.seo,
-        `SEO config for page "${folder}"`
+        `SEO config for page "${template.folder}"`
       );
 
       if (!seo) return [];
 
       const pages: StaticSeoPage[] = [];
       const route = normalizeStaticRoute(
-        config.path || folderToRoute(folder)
+        config.path || folderToRoute(template.folder)
       );
-      const isDynamic = /(^|\/)\[[^/]+\](\/|$)/.test(folder);
+      const isDynamic = /(^|\/)\[[^/]+\](\/|$)/.test(template.folder);
       const context = {
-        page: folder,
+        page: template.folder,
         route,
         root: options.root
       };
@@ -321,7 +329,25 @@ async function runSeoEntriesHook(
   return result;
 }
 
-async function findPageTemplates(directory: string): Promise<string[]> {
+async function findPageTemplates(directory: string): Promise<StaticSeoSource[]> {
+  const discovered = await findPageTemplateCandidates(directory, directory);
+  const byFolder = new Map<string, StaticSeoSource>();
+
+  for (const source of discovered) {
+    const existing = byFolder.get(source.folder);
+
+    if (!existing || source.type === "folder") {
+      byFolder.set(source.folder, source);
+    }
+  }
+
+  return [...byFolder.values()];
+}
+
+async function findPageTemplateCandidates(
+  root: string,
+  directory: string
+): Promise<StaticSeoSource[]> {
   let entries;
 
   try {
@@ -345,12 +371,37 @@ async function findPageTemplates(directory: string): Promise<string[]> {
       const path = join(directory, entry.name);
 
       if (entry.isDirectory()) {
-        return findPageTemplates(path);
+        return findPageTemplateCandidates(root, path);
       }
 
-      return entry.isFile() && entry.name === "index.html"
-        ? [path]
-        : [];
+      if (!entry.isFile()) return [];
+
+      if (entry.name === "index.html") {
+        const folder = relative(root, directory)
+          .split(sep)
+          .join("/");
+
+        return [{
+          folder,
+          path,
+          type: "folder" as const
+        }];
+      }
+
+      if (entry.name.endsWith(VD_SINGLE_FILE.EXTENSION)) {
+        const folder = relative(
+          root,
+          path.slice(0, -VD_SINGLE_FILE.EXTENSION.length)
+        ).split(sep).join("/");
+
+        return [{
+          folder,
+          path,
+          type: "single-file" as const
+        }];
+      }
+
+      return [];
     })
   );
 
@@ -358,8 +409,14 @@ async function findPageTemplates(directory: string): Promise<string[]> {
 }
 
 async function loadPageConfig(
-  pageDirectory: string
+  source: StaticSeoSource
 ): Promise<PageConfig | undefined> {
+  if (source.type === "single-file") {
+    return loadSingleFilePageConfig(source.path);
+  }
+
+  const pageDirectory = dirname(source.path);
+
   for (const filename of ["config.js", "page.config.js"]) {
     const path = join(pageDirectory, filename);
 
@@ -385,6 +442,21 @@ async function loadPageConfig(
   }
 
   return undefined;
+}
+
+async function loadSingleFilePageConfig(
+  path: string
+): Promise<PageConfig | undefined> {
+  const source = await readFile(path, "utf8");
+  const descriptor = parseVeloDomSingleFile(source, path);
+
+  if (!descriptor.config) return undefined;
+
+  const module = await import(
+    `data:text/javascript;charset=utf-8,${encodeURIComponent(descriptor.config)}`
+  );
+
+  return module.default as PageConfig | undefined;
 }
 
 function dedupePages(pages: StaticSeoPage[]) {

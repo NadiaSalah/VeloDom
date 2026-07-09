@@ -4,15 +4,20 @@
  * ----------------------------------------
  *
  * Discovers application-owned pages, components, scripts, styles, configs,
- * and compiler manifests without leaking Vite APIs into the core runtime.
+ * optional .vd single-file modules, and compiler manifests without leaking
+ * Vite APIs into the core runtime.
  * ----------------------------------------
  */
 
 import {
   indexFolderFiles,
   indexFolderVariants,
+  indexSingleFiles,
+  mapEagerExports,
+  mapEagerModulesToLoaders,
   mapLoaderExports,
-  rebaseFiles
+  rebaseFiles,
+  rebaseSingleFileStyles
 } from "./resource-map.ts";
 import type {
   RuntimeFeatureManifest
@@ -35,6 +40,25 @@ const pageManifestFiles = mapLoaderExports<
   pageTemplateFiles,
   "__vdManifest"
 );
+const pageSingleFileModules = import.meta.glob(
+  "/src/pages/**/*.vd",
+  {
+    eager: true
+  }
+);
+const pageSingleFileModuleLoaders = mapEagerModulesToLoaders(
+  pageSingleFileModules
+);
+const pageSingleFileHtmlFiles = mapLoaderExports<string>(
+  pageSingleFileModuleLoaders,
+  "default"
+);
+const pageSingleFileManifestFiles = mapLoaderExports<
+  RuntimeFeatureManifest | undefined
+>(
+  pageSingleFileModuleLoaders,
+  "__vdManifest"
+);
 
 const pageModuleFiles = import.meta.glob([
   "/src/pages/**/script.ts",
@@ -51,12 +75,20 @@ const pageConfigFiles = import.meta.glob(
     import: "default"
   }
 );
+const pageSingleFileConfigs = mapEagerExports(
+  pageSingleFileModules,
+  "__vdConfig"
+);
 const pageStyleFiles = import.meta.glob(
   "/src/pages/**/*.css",
   {
     query: "?inline",
     import: "default"
   }
+);
+const pageSingleFileStyles = mapLoaderExports<string>(
+  pageSingleFileModuleLoaders,
+  "__vdStyle"
 );
 
 const componentTemplateFiles = import.meta.glob(
@@ -75,17 +107,40 @@ const componentManifestFiles = mapLoaderExports<
   componentTemplateFiles,
   "__vdManifest"
 );
+const componentSingleFileTemplateFiles = import.meta.glob(
+  "/src/components/**/*.vd"
+);
+const componentSingleFileHtmlFiles = mapLoaderExports<string>(
+  componentSingleFileTemplateFiles,
+  "default"
+);
+const componentSingleFileManifestFiles = mapLoaderExports<
+  RuntimeFeatureManifest | undefined
+>(
+  componentSingleFileTemplateFiles,
+  "__vdManifest"
+);
 const componentModuleFiles = import.meta.glob([
   "/src/components/**/script.ts",
   "/src/components/**/script.js",
   "/src/components/**/component.js"
 ]);
+const componentSingleFileModuleFiles = import.meta.glob(
+  "/src/components/**/*.vd"
+);
 const componentStyleFiles = import.meta.glob(
   "/src/components/**/*.css",
   {
     query: "?inline",
     import: "default"
   }
+);
+const componentSingleFileStyleFiles = import.meta.glob(
+  "/src/components/**/*.vd"
+);
+const componentSingleFileStyles = mapLoaderExports<string>(
+  componentSingleFileStyleFiles,
+  "__vdStyle"
 );
 
 /**
@@ -94,56 +149,83 @@ const componentStyleFiles = import.meta.glob(
 export function createViteAdapter(): ResourceAdapter {
   return {
     pages: {
-      html: indexFolderFiles(
-        pageHtmlFiles,
-        "/src/pages/",
-        "/index.html"
-      ),
-      modules: indexFolderVariants(
-        pageModuleFiles,
-        "/src/pages/",
-        [
-          "/script.ts",
-          "/script.js",
-          "/page.js"
-        ]
-      ),
-      configs: indexFolderVariants(
-        pageConfigFiles,
-        "/src/pages/",
-        [
-          "/config.js",
-          "/page.config.js"
-        ]
-      ),
-      manifests: indexFolderFiles(
-        pageManifestFiles,
-        "/src/pages/",
-        "/index.html"
-      ),
-      styles: rebaseFiles(pageStyleFiles, "/src/pages/")
+      html: {
+        ...indexSingleFiles(pageSingleFileHtmlFiles, "/src/pages/"),
+        ...indexFolderFiles(
+          pageHtmlFiles,
+          "/src/pages/",
+          "/index.html"
+        )
+      },
+      modules: {
+        ...indexSingleFiles(pageSingleFileModuleLoaders, "/src/pages/"),
+        ...indexFolderVariants(
+          pageModuleFiles,
+          "/src/pages/",
+          [
+            "/script.ts",
+            "/script.js",
+            "/page.js"
+          ]
+        )
+      },
+      configs: {
+        ...indexSingleFiles(pageSingleFileConfigs, "/src/pages/"),
+        ...indexFolderVariants(
+          pageConfigFiles,
+          "/src/pages/",
+          [
+            "/config.js",
+            "/page.config.js"
+          ]
+        )
+      },
+      manifests: {
+        ...indexSingleFiles(pageSingleFileManifestFiles, "/src/pages/"),
+        ...indexFolderFiles(
+          pageManifestFiles,
+          "/src/pages/",
+          "/index.html"
+        )
+      },
+      styles: {
+        ...rebaseSingleFileStyles(pageSingleFileStyles, "/src/pages/"),
+        ...rebaseFiles(pageStyleFiles, "/src/pages/")
+      }
     },
     components: {
-      html: indexFolderFiles(
-        componentHtmlFiles,
-        "/src/components/",
-        "/index.html"
-      ),
-      modules: indexFolderVariants(
-        componentModuleFiles,
-        "/src/components/",
-        [
-          "/script.ts",
-          "/script.js",
-          "/component.js"
-        ]
-      ),
-      manifests: indexFolderFiles(
-        componentManifestFiles,
-        "/src/components/",
-        "/index.html"
-      ),
-      styles: rebaseFiles(componentStyleFiles, "/src/components/")
+      html: {
+        ...indexSingleFiles(componentSingleFileHtmlFiles, "/src/components/"),
+        ...indexFolderFiles(
+          componentHtmlFiles,
+          "/src/components/",
+          "/index.html"
+        )
+      },
+      modules: {
+        ...indexSingleFiles(componentSingleFileModuleFiles, "/src/components/"),
+        ...indexFolderVariants(
+          componentModuleFiles,
+          "/src/components/",
+          [
+            "/script.ts",
+            "/script.js",
+            "/component.js"
+          ]
+        )
+      },
+      manifests: {
+        ...indexSingleFiles(componentSingleFileManifestFiles, "/src/components/"),
+        ...indexFolderFiles(
+          componentManifestFiles,
+          "/src/components/",
+          "/index.html"
+        )
+      },
+      styles: {
+        ...rebaseSingleFileStyles(componentSingleFileStyles, "/src/components/"),
+        ...rebaseFiles(componentStyleFiles, "/src/components/")
+      }
     }
   };
 }

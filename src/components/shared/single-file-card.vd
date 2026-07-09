@@ -1,0 +1,36 @@
+<template>
+  <article class="rounded-3xl border border-primary/20 bg-primary/5 p-6">
+    <p class="text-sm font-semibold text-primary" vd-text="eyebrow || 'Single File'"></p>
+    <h2 class="mt-2 text-2xl font-black" vd-text="title || 'VeloDom .vd component'"></h2>
+    <p class="mt-3 text-slate-600" vd-text="description || 'Template, script, and style live together when the app author wants that.'"></p>
+    <button type="button" class="btn btn-primary btn-sm mt-4" vd-on:click="toggle()">
+      <span vd-text="opened ? 'Hide details' : 'Show details'"></span>
+    </button>
+    <p vd-if="opened" class="mt-4 rounded-2xl bg-white p-4 text-sm text-slate-700">
+      This component is loaded from <code>src/components/shared/single-file-card.vd</code>.
+    </p>
+  </article>
+</template>
+
+<script>
+export function init({ state, props }) {
+  state.eyebrow = props.eyebrow || "Optional authoring mode";
+  state.title = props.title || "VeloDom single-file component";
+  state.description = props.description || "Use .vd files when a small component reads better in one place.";
+  state.opened = false;
+  state.toggle = () => {
+    state.opened = !state.opened;
+  };
+}
+</script>
+
+<style>
+article {
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+article:hover {
+  box-shadow: 0 24px 60px rgb(15 23 42 / 0.12);
+  transform: translateY(-2px);
+}
+</style>

@@ -18,6 +18,15 @@ import { compileTemplate } from "../compiler/index.ts";
 import {
   generateStaticSeoPages
 } from "./seo-renderer.ts";
+import {
+  createSingleFileConfigModule,
+  createSingleFileScriptModule,
+  createSingleFileStyleModule,
+  createSingleFileRuntimeModule,
+  parseVeloDomSingleFile,
+  stripBuildOnlySeoEntries
+} from "./single-file.ts";
+import { VD_SINGLE_FILE } from "../constants.ts";
 import type {
   CompilerMode,
   CompilerOptions
@@ -71,6 +80,34 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
     },
 
     transform(code, id) {
+      if (isSingleFileModule(id)) {
+        const descriptor = parseVeloDomSingleFile(code, id);
+        const module = createTemplateModule(descriptor.template, {
+          ...options,
+          filename: `${id}<template>`,
+          mode
+        });
+        const result = module.result;
+        const errors = result.diagnostics.filter(diagnostic => (
+          diagnostic.severity === "error"
+        ));
+
+        if (errors.length) {
+          const diagnostic = errors[0];
+
+          this.error({
+            id,
+            message: `[${diagnostic.code}] ${diagnostic.message}`,
+            pos: diagnostic.offset
+          });
+        }
+
+        return {
+          code: createSingleFileRuntimeModule(descriptor, module.code),
+          map: null
+        };
+      }
+
       if (!isPageConfigFile(id)) return null;
 
       return {
@@ -86,6 +123,45 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
 
       const filename = id.slice(0, queryIndex);
       const query = new URLSearchParams(id.slice(queryIndex + 1));
+
+      if (filename.endsWith(VD_SINGLE_FILE.EXTENSION)) {
+        const source = await readFile(filename, "utf8");
+        const descriptor = parseVeloDomSingleFile(source, filename);
+
+        if (query.has(VD_SINGLE_FILE.QUERIES.TEMPLATE)) {
+          const module = createTemplateModule(descriptor.template, {
+            ...options,
+            filename: `${filename}<template>`,
+            mode
+          });
+
+          return {
+            code: module.code,
+            map: null
+          };
+        }
+
+        if (query.has(VD_SINGLE_FILE.QUERIES.SCRIPT)) {
+          return {
+            code: createSingleFileScriptModule(descriptor),
+            map: null
+          };
+        }
+
+        if (query.has(VD_SINGLE_FILE.QUERIES.STYLE)) {
+          return {
+            code: createSingleFileStyleModule(descriptor),
+            map: null
+          };
+        }
+
+        if (query.has(VD_SINGLE_FILE.QUERIES.CONFIG)) {
+          return {
+            code: createSingleFileConfigModule(descriptor),
+            map: null
+          };
+        }
+      }
 
       if (!filename.endsWith(".html") || !query.has("raw")) {
         return null;
@@ -197,133 +273,8 @@ function isPageConfigFile(filename: string) {
   );
 }
 
-// Build-time SEO hooks may fetch CMS/API data. Remove them from page config
-// modules imported by the browser adapter while preserving normal runtime
-// config such as path, metadata, guards, and route SEO metadata.
-function stripBuildOnlySeoEntries(source: string) {
-  const ranges: Array<{
-    start: number;
-    end: number;
-  }> = [];
-  const propertyPattern = /(?<![\w$])(?:entries|["']entries["'])\s*:/g;
-  let match: RegExpExecArray | null;
-
-  while ((match = propertyPattern.exec(source))) {
-    const propertyStart = match.index;
-    const previous = previousMeaningfulCharacter(source, propertyStart);
-
-    if (previous !== "{" && previous !== ",") continue;
-
-    const colonIndex = propertyStart + match[0].lastIndexOf(":");
-    const valueEnd = findPropertyValueEnd(source, colonIndex + 1);
-
-    if (valueEnd === -1) continue;
-
-    const delimiter = source[valueEnd];
-    const start = previous === ","
-      ? previousMeaningfulCharacterIndex(source, propertyStart)
-      : propertyStart;
-    const end = delimiter === ","
-      ? valueEnd + 1
-      : valueEnd;
-
-    ranges.push({
-      start,
-      end
-    });
-  }
-
-  return removeSourceRanges(source, ranges);
-}
-
-function previousMeaningfulCharacter(source: string, index: number) {
-  const previousIndex = previousMeaningfulCharacterIndex(source, index);
-
-  return previousIndex === -1 ? "" : source[previousIndex];
-}
-
-function previousMeaningfulCharacterIndex(source: string, index: number) {
-  for (let i = index - 1; i >= 0; i -= 1) {
-    if (!/\s/.test(source[i])) return i;
-  }
-
-  return -1;
-}
-
-function findPropertyValueEnd(source: string, start: number) {
-  let depth = 0;
-  let quote = "";
-  let escaped = false;
-
-  for (let i = start; i < source.length; i += 1) {
-    const char = source[i];
-
-    if (quote) {
-      if (escaped) {
-        escaped = false;
-        continue;
-      }
-
-      if (char === "\\") {
-        escaped = true;
-        continue;
-      }
-
-      if (char === quote) {
-        quote = "";
-      }
-
-      continue;
-    }
-
-    if (char === "\"" || char === "'" || char === "`") {
-      quote = char;
-      continue;
-    }
-
-    if (char === "(" || char === "[" || char === "{") {
-      depth += 1;
-      continue;
-    }
-
-    if (char === ")" || char === "]") {
-      depth = Math.max(0, depth - 1);
-      continue;
-    }
-
-    if (char === "}") {
-      if (depth === 0) return i;
-
-      depth -= 1;
-      continue;
-    }
-
-    if (char === "," && depth === 0) {
-      return i;
-    }
-  }
-
-  return -1;
-}
-
-function removeSourceRanges(
-  source: string,
-  ranges: Array<{
-    start: number;
-    end: number;
-  }>
-) {
-  if (!ranges.length) return source;
-
-  let cursor = 0;
-  const chunks: string[] = [];
-
-  for (const range of ranges.sort((a, b) => a.start - b.start)) {
-    chunks.push(source.slice(cursor, range.start));
-    cursor = Math.max(cursor, range.end);
-  }
-
-  chunks.push(source.slice(cursor));
-
-  return chunks.join("");
+function isSingleFileModule(filename: string) {
+  return filename
+    .split("?", 1)[0]
+    .endsWith(VD_SINGLE_FILE.EXTENSION);
 }

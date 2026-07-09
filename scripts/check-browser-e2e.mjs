@@ -270,6 +270,7 @@ async function assertInteractiveSmoke(browser, target, origin) {
     }
 
     await assertRouting(page, origin);
+    await assertSingleFilePage(page, origin);
     await assertFormRequest(page, origin);
   } finally {
     await context.close();
@@ -327,6 +328,24 @@ async function assertRouting(page, origin) {
   await page.click('a[href="/features"]');
   await page.waitForURL(`${origin}/features`);
   await waitForPageText(page, "Framework features");
+}
+
+async function assertSingleFilePage(page, origin) {
+  await page.goto(`${origin}/single-file`);
+  await waitForPageText(page, "One File, VeloDom Style");
+  await waitForPageText(page, "Single-file component");
+
+  await page.click('button:has-text("Count: 0")');
+  await page.waitForFunction(() => {
+    const button = [...document.querySelectorAll("button")].find(candidate => (
+      candidate.innerText.includes("Count:")
+    ));
+
+    return button?.innerText.includes("1");
+  });
+
+  await page.click('button:has-text("Show details")');
+  await waitForPageText(page, "single-file-card.vd");
 }
 
 async function assertFormRequest(page, origin) {

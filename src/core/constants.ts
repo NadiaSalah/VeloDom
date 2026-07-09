@@ -206,6 +206,24 @@ export const VD_SEO = Object.freeze({
   JSON_LD_TYPE: "application/ld+json"
 });
 
+/** Tags and virtual query names used by optional VeloDom single-file modules. */
+export const VD_SINGLE_FILE = Object.freeze({
+  EXTENSION: ".vd",
+  STYLE_FILENAME: "style.css",
+  TAGS: Object.freeze({
+    CONFIG: "config",
+    SCRIPT: "script",
+    STYLE: "style",
+    TEMPLATE: "template"
+  }),
+  QUERIES: Object.freeze({
+    CONFIG: "vd-config",
+    SCRIPT: "vd-script",
+    STYLE: "vd-style",
+    TEMPLATE: "vd-template"
+  })
+});
+
 /** Attributes owned by recoverable error-boundary fallback rendering. */
 export const VD_ERROR_BOUNDARY = Object.freeze({
   ATTRIBUTE: "data-vd-error-boundary"

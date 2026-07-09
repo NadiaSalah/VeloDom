@@ -120,6 +120,20 @@ package versions.
 - Added static SEO renderer and public type export coverage, bringing the
   automated suite to 122 passing tests.
 
+### Optional Single-File Modules
+
+- Added optional `.vd` page and component modules with `<template>`,
+  `<script>`, `<style>`, and `<config>` blocks.
+- Kept folder mode authoritative: folder resources override `.vd` resources
+  with the same logical page or component name.
+- Compiled `.vd` templates through the same compiler, manifest generation, and
+  scoped-style pipeline used by folder `index.html` files.
+- Added static SEO support for page `<config>` blocks.
+- Added `/single-file` and `src/components/shared/single-file-card.vd` to the
+  showcase and browser smoke path.
+- Added single-file parser, resource-map, Vite module, and static SEO coverage,
+  bringing the automated suite to 131 passing tests.
+
 ## 2026-07-08
 
 ### Router UX

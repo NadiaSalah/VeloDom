@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**237 of 314 tasks completed — 75.5%**
+**238 of 315 tasks completed — 75.6%**
 
 `[###############-----]`
 
@@ -91,6 +91,7 @@ runtime work.
 - [x] Keep the runtime free from preferred-syntax normalization
 - [x] Surface compiler diagnostics through Vite
 - [x] Preserve lazy page and component chunks
+- [x] Support optional `.vd` single-file pages and components without replacing folder mode
 
 ### 0.4 TypeScript Migration
 

@@ -1,0 +1,77 @@
+<template>
+  <vd-component name="nav" vd-prop-title="Single File"></vd-component>
+
+  <main class="mx-auto w-[92%] max-w-6xl py-10">
+    <section class="rounded-[2rem] bg-slate-950 p-8 text-white">
+      <p class="text-sm font-semibold text-primary">VeloDom .vd authoring</p>
+      <h1 class="mt-3 text-5xl font-black" vd-text="title"></h1>
+      <p class="mt-4 max-w-3xl text-slate-300">
+        A page can stay folder-first, or collapse into one optional
+        <code>.vd</code> file when that is clearer for the application author.
+      </p>
+      <button type="button" class="btn btn-primary mt-6" vd-on:click="increment()">
+        Count: <span vd-text="count"></span>
+      </button>
+    </section>
+
+    <section class="mt-8 grid gap-6 lg:grid-cols-2">
+      <vd-component
+        name="shared/single-file-card"
+        vd-prop-title="Single-file component"
+        vd-prop-description="Components can also use .vd without replacing folder components."
+      ></vd-component>
+
+      <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="text-2xl font-black">Folder mode still works</h2>
+        <p class="mt-3 text-slate-600">
+          Existing <code>index.html</code>, <code>script.js</code>,
+          <code>style.css</code>, and <code>config.js</code> folders keep the
+          same priority. If a folder page and a <code>.vd</code> page share the
+          same name, the folder page wins.
+        </p>
+        <ul class="mt-4 space-y-2 text-sm text-slate-600">
+          <li>✅ Optional authoring style</li>
+          <li>✅ Same compiler and runtime directives</li>
+          <li>✅ Same router, SEO, scoped styles, and component loader</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+
+  <vd-component name="footer"></vd-component>
+</template>
+
+<script>
+export function init({ state }) {
+  state.title = "One File, VeloDom Style";
+  state.count = 0;
+  state.increment = () => {
+    state.count += 1;
+  };
+}
+</script>
+
+<style>
+main code {
+  border-radius: 0.5rem;
+  background: rgb(15 23 42 / 0.08);
+  padding: 0.1rem 0.35rem;
+}
+</style>
+
+<config>
+export default {
+  path: "/single-file",
+  seo: {
+    title: "Single File Modules | VeloDom",
+    description: "Use optional .vd files for VeloDom pages and components while keeping folder mode available.",
+    canonical: "/single-file",
+    lang: "en",
+    robots: "index,follow",
+    summary: {
+      heading: "VeloDom single-file modules",
+      text: "A .vd page demonstrates template, script, style, and config blocks compiled into normal VeloDom resources."
+    }
+  }
+};
+</config>

@@ -1,9 +1,9 @@
 # VeloDom
 
-VeloDom is a compiler-first, HTML-first frontend framework for folder-based
-single-page applications. Pages and components use ordinary HTML, reactive
-state, declarative directives, route-aware lifecycle hooks, and an optional
-request layer without JSX or TSX.
+VeloDom is a compiler-first, HTML-first frontend framework for folder-first
+single-page applications with optional `.vd` single-file modules. Pages and
+components use ordinary HTML, reactive state, declarative directives,
+route-aware lifecycle hooks, and an optional request layer without JSX or TSX.
 
 The framework source is TypeScript. Application authors may choose Vanilla
 JavaScript or TypeScript independently for every page and component.
@@ -18,6 +18,7 @@ JavaScript or TypeScript independently for every page and component.
 - [Requirements and Commands](#requirements-and-commands)
 - [Project Structure](#project-structure)
 - [Folder Conventions](#folder-conventions)
+- [Optional Single-File Modules](#optional-single-file-modules)
 - [Application Bootstrap](#application-bootstrap)
 - [Pages](#pages)
 - [Routing](#routing)
@@ -47,6 +48,7 @@ JavaScript or TypeScript independently for every page and component.
 VeloDom currently provides:
 
 - folder-discovered pages and nested components
+- optional `.vd` single-file pages and components for small co-located modules
 - static, nested, and dynamic client-side routes
 - route params, query values, metadata, and navigation guards
 - shallow reactive state with inherited component state
@@ -186,6 +188,84 @@ Compatibility filenames `page.js`, `page.config.js`, and `component.js` are
 still discovered, but new application code should prefer `script.js`,
 `config.js`, and `script.ts` where typing is wanted. Page config is currently
 JavaScript (`config.js`), not TypeScript.
+
+## Optional Single-File Modules
+
+Folder mode remains the default and keeps priority. VeloDom also supports an
+optional `.vd` file format for pages and components when a small module reads
+better in one file.
+
+Both forms are valid:
+
+```text
+src/pages/about/
+  index.html
+  script.js
+  style.css
+  config.js
+
+src/pages/about.vd
+```
+
+Example page:
+
+```html
+<template>
+  <main>
+    <h1 vd-text="title"></h1>
+    <button type="button" vd-on:click="increment()">
+      Count: <span vd-text="count"></span>
+    </button>
+  </main>
+</template>
+
+<script>
+export function init({ state }) {
+  state.title = "About";
+  state.count = 0;
+  state.increment = () => {
+    state.count += 1;
+  };
+}
+</script>
+
+<style>
+main {
+  padding: 2rem;
+}
+</style>
+
+<config>
+export default {
+  path: "/about",
+  seo: {
+    title: "About",
+    description: "About this VeloDom application."
+  }
+};
+</config>
+```
+
+Supported blocks:
+
+- `<template>` is required and is compiled by the same VeloDom compiler used for
+  `index.html`.
+- `<script>` is optional. Prefer named exports such as `init`, `mounted`, and
+  `destroy`.
+- `<style>` is optional and is scoped through the existing folder-style engine.
+- `<config>` is optional for pages and follows the same shape as `config.js`.
+
+Components can also use `.vd`:
+
+```text
+src/components/badge.vd
+src/components/shared/card.vd
+```
+
+If `src/pages/about/` and `src/pages/about.vd` both exist, the folder version
+wins. This keeps `.vd` additive instead of replacing the folder-first model.
+The showcase includes `/single-file` and
+`src/components/shared/single-file-card.vd` as working examples.
 
 ## Application Bootstrap
 
@@ -368,6 +448,7 @@ src/pages/features/index.html                -> /features
 src/pages/login/index.html                   -> /login
 src/pages/categories/index.html              -> /categories
 src/pages/studio/index.html                  -> /studio
+src/pages/single-file.vd                     -> /single-file
 src/pages/blog/posts/[id]/index.html         -> /blog/posts/:id
 ```
 
@@ -1821,6 +1902,8 @@ import { velodom } from "velodom/vite-plugin";
 The plugin:
 
 - compiles raw page/component HTML
+- compiles optional `.vd` single-file pages and components into the same
+  internal resource shape
 - converts preferred directive names
 - reports compiler errors through Vite
 - keeps baseline accessibility diagnostics as non-blocking compiler warnings
@@ -2105,6 +2188,7 @@ The repository includes a DummyJSON-powered blog showcase:
 | `/studio` | create, update, and delete post workflows with `vd-model` and `vd-request` |
 | `/login` | DummyJSON auth login, validation, loading/error/result state |
 | `/features` | framework feature documentation with live directive examples |
+| `/single-file` | optional `.vd` page/component authoring with scoped style and config blocks |
 
 The showcase uses Tailwind CSS and daisyUI. Those libraries are application
 choices, not VeloDom Core dependencies or requirements.
@@ -2113,10 +2197,10 @@ choices, not VeloDom Core dependencies or requirements.
 
 Latest local verification on 2026-07-09:
 
-- Core documentation audit passes for 53 TypeScript files
+- Core documentation audit passes for 54 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 122 automated tests pass
+- 131 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2126,6 +2210,8 @@ Latest local verification on 2026-07-09:
 Test coverage includes:
 
 - compiler directives, expressions, diagnostics, manifests, and optimizers
+- optional `.vd` single-file parsing, resource mapping, static SEO config, and
+  runtime-module generation
 - compiler accessibility warnings for common static template issues
 - resource-map and package boundaries
 - routes, guards, params, and query parsing

@@ -127,3 +127,61 @@ test("static SEO renderer resolves async page entry hooks", async () => {
     });
   }
 });
+
+test("static SEO renderer reads single-file page config blocks", async () => {
+  const root = await mkdtemp(join(tmpdir(), "vd-seo-sfc-"));
+
+  try {
+    const shell = "<html><head><title>VeloDom</title></head><body><div id=\"app\"></div></body></html>";
+    await mkdir(join(root, "dist"), {
+      recursive: true
+    });
+    await writeFile(join(root, "dist", "index.html"), shell);
+    await mkdir(join(root, "src", "pages"), {
+      recursive: true
+    });
+    await writeFile(
+      join(root, "src", "pages", "about.vd"),
+      `
+        <template>
+          <main>
+            <h1>About</h1>
+          </main>
+        </template>
+        <config>
+          export default {
+            path: "/about",
+            seo: {
+              title: "About VeloDom",
+              description: "Single-file SEO page.",
+              summary: {
+                heading: "About VeloDom",
+                text: "Generated from a .vd config block."
+              }
+            }
+          };
+        </config>
+      `
+    );
+
+    const result = await generateStaticSeoPages({
+      root,
+      outDir: "dist"
+    });
+    const html = await readFile(
+      join(root, "dist", "about", "index.html"),
+      "utf8"
+    );
+
+    assert.deepEqual(result.routes, [
+      "/about"
+    ]);
+    assert.match(html, /<title>About VeloDom<\/title>/);
+    assert.match(html, /Generated from a \.vd config block\./);
+  } finally {
+    await rm(root, {
+      recursive: true,
+      force: true
+    });
+  }
+});

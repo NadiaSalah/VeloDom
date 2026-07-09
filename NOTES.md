@@ -229,6 +229,10 @@
   diagnostics generic in core while pointing developers at application-owned
   files such as `src/pages/*/index.html`, `script.js`, `style.css`, and
   `config.js`.
+- Optional `.vd` files are an adapter/compiler convenience, not a replacement
+  for folder mode. The Vite plugin compiles `.vd` blocks into the same resource
+  contract used by folders, and folder resources keep priority when both forms
+  declare the same logical page or component name.
 
 ## Known Constraints
 
@@ -247,6 +251,10 @@
   fetch API/CMS data at build time to declare concrete dynamic routes, but the
   hook is intentionally app-owned, optional, and never bundled into the browser
   runtime. Full-content pre-rendering remains a separate future milestone.
+- Page `.vd` files are currently imported eagerly by the Vite adapter so their
+  `<config>` blocks remain synchronously available to the router. Folder pages
+  keep lazy chunk behavior; future build work can revisit query-based config
+  extraction if Vite/Rolldown supports it without duplicate import warnings.
 
 ## Handoff Guidance
 
