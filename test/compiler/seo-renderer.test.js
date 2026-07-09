@@ -17,6 +17,9 @@ import {
   generateStaticSeoPages,
   renderSeoDocument
 } from "../../src/core/vite-plugin/seo-renderer.ts";
+import {
+  structuredDataFixtures
+} from "../../test-support/structured-data-fixtures.js";
 
 const shell = `<!doctype html>
 <html lang="en">
@@ -68,6 +71,22 @@ test("static SEO renderer falls back to title and description summary", () => {
 
   assert.match(html, /<h1>Fallback title<\/h1>/);
   assert.match(html, /<p>Fallback description<\/p>/);
+});
+
+test("static SEO renderer emits structured-data fixture arrays", () => {
+  const jsonLd = structuredDataFixtures.map(fixture => fixture.jsonLd);
+  const html = renderSeoDocument(shell, {
+    title: "Structured content",
+    description: "Page with multiple JSON-LD records",
+    jsonLd
+  });
+
+  assert.match(html, /application\/ld\+json/);
+  assert.match(html, /"@type":"WebSite"/);
+  assert.match(html, /"@type":"BlogPosting"/);
+  assert.match(html, /"@type":"BreadcrumbList"/);
+  assert.match(html, /"@type":"FAQPage"/);
+  assert.match(html, /"@type":"Product"/);
 });
 
 test("static SEO renderer can replace fallback with static app content", () => {

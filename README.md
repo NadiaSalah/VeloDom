@@ -2237,7 +2237,7 @@ Latest local verification on 2026-07-09:
 - Core documentation audit passes for 54 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 134 automated tests pass
+- 138 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2250,6 +2250,8 @@ Latest implementation update:
 - Updated framework contracts, SEO constants, Vite plugin options, and static
   renderer behavior in `src/core`.
 - Added focused coverage in `test/compiler/seo-renderer.test.js`.
+- Added reusable structured-data fixtures for WebSite, BlogPosting,
+  BreadcrumbList, FAQPage, and Product JSON-LD validation coverage.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
   `VeloDom_Master_Architecture_Prompt.md` to distinguish client takeover from
   true SSR hydration.

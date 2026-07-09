@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**239 of 315 tasks completed — 75.9%**
+**240 of 315 tasks completed — 76.2%**
 
 `[###############-----]`
 
-Remaining tasks: **76**
+Remaining tasks: **75**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -274,7 +274,7 @@ and `src/api`.
 - [x] Test runtime, static rendering, and installed-package consumption
 - [x] Add an application-defined API/CMS data hook for dynamic SEO entries
 - [x] Add optional full-page static content rendering and hydration
-- [ ] Add structured-data validation fixtures for common content types
+- [x] Add structured-data validation fixtures for common content types
 
 ---
 

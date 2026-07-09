@@ -178,6 +178,9 @@
   sitemap.
 - Meta keywords remain accepted as supplemental metadata, but they must not be
   treated as a search-ranking strategy.
+- Structured-data fixtures live in tests and cover common JSON-LD content
+  types without turning VeloDom Core into a full schema.org validator. Core
+  validation still guarantees safe top-level JSON-LD object/array shapes.
 - Static hosting must serve existing generated route files before applying the
   SPA fallback to `/index.html`; otherwise direct SEO routes lose their
   server-delivered metadata. Hosts without rewrites, such as GitHub Pages,

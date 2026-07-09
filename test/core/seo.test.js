@@ -5,6 +5,10 @@ import {
   normalizeSeoConfig,
   resolvePageSeo
 } from "../../src/core/seo.ts";
+import {
+  invalidStructuredDataFixtures,
+  structuredDataFixtures
+} from "../../test-support/structured-data-fixtures.js";
 import { installDom } from "../../test-support/dom.js";
 
 const removeDom = installDom();
@@ -79,6 +83,42 @@ test("runtime SEO replaces managed metadata during navigation", () => {
     document.querySelector("[data-vd-seo]"),
     null
   );
+});
+
+test("SEO config accepts common structured-data fixtures", () => {
+  for (const fixture of structuredDataFixtures) {
+    const config = normalizeSeoConfig({
+      title: fixture.name,
+      description: `${fixture.name} structured data`,
+      jsonLd: fixture.jsonLd
+    });
+
+    assert.deepEqual(config.jsonLd, fixture.jsonLd);
+  }
+});
+
+test("SEO config accepts arrays of structured-data fixtures", () => {
+  const jsonLd = structuredDataFixtures.map(fixture => fixture.jsonLd);
+  const config = normalizeSeoConfig({
+    title: "Structured data collection",
+    description: "Multiple JSON-LD blocks for one page",
+    jsonLd
+  });
+
+  assert.deepEqual(config.jsonLd, jsonLd);
+});
+
+test("SEO config rejects invalid structured-data fixtures", () => {
+  for (const fixture of invalidStructuredDataFixtures) {
+    assert.throws(
+      () => normalizeSeoConfig({
+        title: fixture.name,
+        description: "Invalid structured data",
+        jsonLd: fixture.jsonLd
+      }),
+      /jsonLd/
+    );
+  }
 });
 
 test("invalid SEO config fails before a page is mounted", () => {

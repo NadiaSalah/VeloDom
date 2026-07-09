@@ -146,6 +146,14 @@ package versions.
 - Added renderer and hook coverage, bringing the automated suite to 134 passing
   tests.
 
+### Structured Data Fixtures
+
+- Added reusable JSON-LD fixtures for common content types: WebSite,
+  BlogPosting, BreadcrumbList, FAQPage, and Product.
+- Extended SEO normalization and static-renderer coverage so structured-data
+  arrays stay valid while invalid JSON-LD shapes fail before rendering.
+- Brought the automated suite to 138 passing tests.
+
 ## 2026-07-08
 
 ### Router UX
