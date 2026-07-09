@@ -108,6 +108,38 @@ test("request-state derives loading and error names from a result target", async
   cleanup();
 });
 
+test("auto-state alias derives loading and error names from a result target", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.load"
+      data-vd-target="articleResult"
+      data-vd-auto-state
+    >Load</button>
+  `);
+
+  configureRequestRuntime({
+    routes: {
+      "posts.load": () => "loaded"
+    }
+  });
+  const state = createState({
+    articleError: "old error",
+    articleLoading: false,
+    articleResult: null
+  });
+  const cleanup = await applyDirectives(root, state);
+
+  root.querySelector("button").click();
+  await waitFor(() => {
+    assert.equal(state.articleResult, "loaded");
+  });
+
+  assert.equal(state.articleError, "");
+  assert.equal(state.articleLoading, false);
+
+  cleanup();
+});
+
 test("explicit state bindings can write to an opted-in page", async () => {
   const root = createRoot(`
     <button

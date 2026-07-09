@@ -43,6 +43,7 @@ export const VD = Object.freeze({
   REQUEST: "data-vd-request",
   REQUEST_CONFIG: "data-vd-request-config",
   REQUEST_STATE: "data-vd-request-state",
+  AUTO_STATE: "data-vd-auto-state",
   PARAMS: "data-vd-params",
   TARGET: "data-vd-target",
   STATE: "data-vd-state",

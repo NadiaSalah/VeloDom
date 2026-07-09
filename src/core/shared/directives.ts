@@ -12,6 +12,7 @@
 export const PREFERRED_DIRECTIVES = Object.freeze([
   "alt",
   "attr",
+  "auto-state",
   "checked",
   "child",
   "class",

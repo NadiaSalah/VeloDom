@@ -342,6 +342,7 @@ function getProps(el, parentState) {
       VD.REQUEST,
       VD.REQUEST_CONFIG,
       VD.REQUEST_STATE,
+      VD.AUTO_STATE,
       VD.PARAMS,
       VD.TARGET,
       VD.STATE,

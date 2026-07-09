@@ -478,6 +478,7 @@ function getRequestParamsInput(el, requestConfig) {
 
 function hasRequestStateAutomation(el, requestConfig) {
   return el.hasAttribute(VD.REQUEST_STATE)
+    || el.hasAttribute(VD.AUTO_STATE)
     || requestConfig?.autoState === true
     || requestConfig?.requestState === true;
 }

@@ -1188,7 +1188,10 @@ postError
 If the target does not end with `Result`, VeloDom appends `Loading` and
 `Error` to the target name.
 
-`vd-request-state` is the attribute equivalent of `autoState: true`.
+`vd-auto-state` is the preferred attribute equivalent of `autoState: true`.
+It compiles to the stable runtime attribute `data-vd-request-state`.
+`vd-request-state` / `data-vd-request-state` remain supported for existing
+templates and direct data-attribute usage.
 
 ### Forms
 
@@ -1242,7 +1245,7 @@ Request from another page:
   vd-params="{ id: selectedId }"
   vd-target="home"
   vd-state="externalPostResult"
-  vd-request-state
+  vd-auto-state
 >
   Load into home state
 </button>
@@ -2240,7 +2243,7 @@ Latest local verification on 2026-07-09:
 - Core documentation audit passes for 54 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 139 automated tests pass
+- 141 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2257,6 +2260,8 @@ Latest implementation update:
   BreadcrumbList, FAQPage, and Product JSON-LD validation coverage.
 - Added an internal naming guard that freezes `page-router.ts` and
   `requests/request-router.ts` as framework-owned module filenames.
+- Added `vd-auto-state` as the preferred friendly alias for automatic request
+  loading/error state while keeping `vd-request-state` compatible.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
   `VeloDom_Master_Architecture_Prompt.md` to distinguish client takeover from
   true SSR hydration.

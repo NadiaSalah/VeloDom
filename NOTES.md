@@ -243,6 +243,10 @@
   frozen internal filenames. They remain private implementation modules, but
   keeping the names stable protects diagnostics, runtime wiring, and
   integration tests from accidental churn.
+- `vd-auto-state` is the preferred authoring alias for automatic request
+  loading/error/result state. The compiler normalizes it to the stable
+  `data-vd-request-state` runtime attribute, while direct
+  `data-vd-auto-state` remains accepted for uncompiled HTML compatibility.
 
 ## Known Constraints
 

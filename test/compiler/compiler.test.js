@@ -189,6 +189,28 @@ test("compiler normalizes route prefetch as a navigation feature", () => {
   ]);
 });
 
+test("compiler normalizes auto-state alias to request-state", () => {
+  const result = compileTemplate(`
+    <button
+      vd-request="posts.load"
+      vd-target="postResult"
+      vd-auto-state
+    >Load</button>
+  `);
+
+  assert.deepEqual(result.diagnostics, []);
+  assert.equal(result.html.includes("data-vd-request-state"), true);
+  assert.equal(result.html.includes("data-vd-auto-state"), false);
+  assert.deepEqual(result.manifest.features, [
+    "requests"
+  ]);
+  assert.deepEqual(result.manifest.directives, [
+    "data-vd-request",
+    "data-vd-request-state",
+    "data-vd-target"
+  ]);
+});
+
 test("compiler accepts optional validation directive without runtime feature", () => {
   const result = compileTemplate(`
     <form vd-validate>

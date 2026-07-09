@@ -368,9 +368,19 @@ function compileDirectiveName(name) {
 
   return {
     type: "directive",
-    name: `data-vd-${directive}`,
+    name: `data-vd-${normalizeDirectiveAlias(directive)}`,
     modifiers: readModifiers(directive)
   };
+}
+
+function normalizeDirectiveAlias(directive: string) {
+  if (directive === "auto-state") return "request-state";
+
+  if (directive.startsWith("auto-state.")) {
+    return `request-state${directive.slice("auto-state".length)}`;
+  }
+
+  return directive;
 }
 
 function parseStartTag(tagSource, sourceOffset) {

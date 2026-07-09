@@ -270,6 +270,7 @@ function resolveRuntimeFeature(directive: string) {
     case "data-vd-request":
     case "data-vd-request-config":
     case "data-vd-request-state":
+    case "data-vd-auto-state":
     case "data-vd-params":
     case "data-vd-target":
     case "data-vd-state":

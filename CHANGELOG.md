@@ -162,6 +162,16 @@ package versions.
   those internal names intentionally.
 - Brought the automated suite to 139 passing tests.
 
+### Request State Naming
+
+- Chose `vd-auto-state` as the preferred HTML-first alias for automatic request
+  status state.
+- Kept `vd-request-state` / `data-vd-request-state` compatible and stable; the
+  compiler normalizes `vd-auto-state` to the canonical runtime attribute.
+- Added runtime support for direct `data-vd-auto-state` usage in uncompiled
+  templates.
+- Brought the automated suite to 141 passing tests.
+
 ## 2026-07-08
 
 ### Router UX
