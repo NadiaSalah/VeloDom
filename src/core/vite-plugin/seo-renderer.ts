@@ -31,7 +31,12 @@ import {
 } from "../seo.ts";
 import type {
   PageConfig,
-  SeoMetadata
+  SeoConfig,
+  SeoEntriesContext,
+  SeoEntriesHook,
+  SeoMetadata,
+  SeoRouteEntry,
+  UnknownRecord
 } from "../types.ts";
 
 /** Options controlling production SEO artifact generation. */
@@ -41,6 +46,7 @@ export interface StaticSeoBuildOptions {
   siteUrl?: string;
   generateSitemap?: boolean;
   generateRobots?: boolean;
+  entries?: SeoEntriesHook;
 }
 
 /** Result summary returned by the production SEO renderer. */
@@ -52,6 +58,11 @@ export interface StaticSeoBuildResult {
 interface StaticSeoPage {
   route: string;
   seo: SeoMetadata;
+}
+
+interface DiscoverStaticSeoOptions {
+  root: string;
+  entries?: SeoEntriesHook;
 }
 
 interface RenderSeoDocumentOptions {
@@ -76,7 +87,10 @@ export async function generateStaticSeoPages(
 
   const [baseHtml, pages] = await Promise.all([
     readFile(baseHtmlPath, "utf8"),
-    discoverStaticSeoPages(pagesRoot)
+    discoverStaticSeoPages(pagesRoot, {
+      root,
+      entries: options.entries
+    })
   ]);
   const files: string[] = [];
 
@@ -179,7 +193,8 @@ export function renderSeoDocument(
 }
 
 async function discoverStaticSeoPages(
-  pagesRoot: string
+  pagesRoot: string,
+  options: DiscoverStaticSeoOptions
 ): Promise<StaticSeoPage[]> {
   const templates = await findPageTemplates(pagesRoot);
   const groups = await Promise.all(
@@ -204,6 +219,11 @@ async function discoverStaticSeoPages(
         config.path || folderToRoute(folder)
       );
       const isDynamic = /(^|\/)\[[^/]+\](\/|$)/.test(folder);
+      const context = {
+        page: folder,
+        route,
+        root: options.root
+      };
 
       if (route && !isDynamic) {
         pages.push({
@@ -212,14 +232,21 @@ async function discoverStaticSeoPages(
         });
       }
 
-      for (const entry of seo.entries || []) {
+      const entries = await resolveBuildSeoEntries(
+        config.seo,
+        seo,
+        context,
+        options.entries
+      );
+
+      for (const entry of entries) {
         const entryRoute = normalizeStaticRoute(entry.path);
 
         if (!entryRoute) continue;
 
         pages.push({
           route: entryRoute,
-          seo: resolvePageSeo(seo, entryRoute) || entry
+          seo: entry
         });
       }
 
@@ -228,6 +255,70 @@ async function discoverStaticSeoPages(
   );
 
   return groups.flat();
+}
+
+async function resolveBuildSeoEntries(
+  rawSeo: PageConfig["seo"],
+  baseSeo: SeoConfig,
+  context: SeoEntriesContext,
+  globalHook: SeoEntriesHook | undefined
+) {
+  const rawEntries = await collectRawSeoEntries(
+    rawSeo,
+    context,
+    globalHook
+  );
+
+  if (!rawEntries.length) return [];
+
+  return normalizeSeoConfig({
+    ...baseSeo,
+    entries: rawEntries
+  }, `SEO entries for page "${context.page}"`)?.entries as SeoRouteEntry[] || [];
+}
+
+async function collectRawSeoEntries(
+  rawSeo: PageConfig["seo"],
+  context: SeoEntriesContext,
+  globalHook: SeoEntriesHook | undefined
+) {
+  const entries: unknown[] = [];
+  const rawRecord = rawSeo as unknown as UnknownRecord | undefined;
+  const rawValue = rawRecord?.entries;
+
+  if (Array.isArray(rawValue)) {
+    entries.push(...rawValue);
+  }
+
+  if (typeof rawValue === "function") {
+    entries.push(...await runSeoEntriesHook(
+      rawValue as SeoEntriesHook,
+      context
+    ));
+  }
+
+  if (globalHook) {
+    entries.push(...await runSeoEntriesHook(globalHook, context));
+  }
+
+  return entries;
+}
+
+async function runSeoEntriesHook(
+  hook: SeoEntriesHook,
+  context: SeoEntriesContext
+) {
+  const result = await hook(context);
+
+  if (result === undefined || result === null) return [];
+
+  if (!Array.isArray(result)) {
+    throw new TypeError(
+      `SEO entries hook for page "${context.page}" must return an array`
+    );
+  }
+
+  return result;
 }
 
 async function findPageTemplates(directory: string): Promise<string[]> {

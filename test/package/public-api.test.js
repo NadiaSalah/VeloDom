@@ -62,6 +62,8 @@ test("runtime public type exports are frozen for application authors", () => {
     "RouteLocation",
     "RouterOptions",
     "SeoConfig",
+    "SeoEntriesContext",
+    "SeoEntriesHook",
     "SeoMetadata",
     "SeoOpenGraph",
     "SeoRouteEntry",

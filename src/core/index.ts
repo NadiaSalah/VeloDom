@@ -42,6 +42,8 @@ export type {
   RouteLocation,
   RouterOptions,
   SeoConfig,
+  SeoEntriesContext,
+  SeoEntriesHook,
   SeoMetadata,
   SeoOpenGraph,
   SeoRouteEntry,

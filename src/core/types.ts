@@ -109,9 +109,21 @@ export interface SeoRouteEntry extends SeoMetadata {
   path: string;
 }
 
+/** Context passed to build-time SEO entry hooks. */
+export interface SeoEntriesContext {
+  page: string;
+  route: string;
+  root?: string;
+}
+
+/** Build-time hook that can load concrete SEO routes from an API or CMS. */
+export type SeoEntriesHook = (
+  context: SeoEntriesContext
+) => MaybePromise<SeoRouteEntry[]>;
+
 /** SEO declaration stored in a page's existing config.js file. */
 export interface SeoConfig extends SeoMetadata {
-  entries?: SeoRouteEntry[];
+  entries?: SeoRouteEntry[] | SeoEntriesHook;
 }
 
 /** Optional route metadata and cross-page write policy for one page. */

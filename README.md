@@ -1438,6 +1438,38 @@ export default {
 };
 ```
 
+For API/CMS-backed sites, `entries` may also be an async build-time hook:
+
+```js
+export default {
+  seo: {
+    title: "Articles",
+    description: "Article archive",
+    entries: async () => {
+      const response = await fetch("https://cms.example.com/articles");
+      const articles = await response.json();
+
+      return articles.map(article => ({
+        path: `/articles/${article.slug}`,
+        title: article.title,
+        description: article.description,
+        canonical: `/articles/${article.slug}`,
+        summary: {
+          heading: article.title,
+          text: article.excerpt
+        }
+      }));
+    }
+  }
+};
+```
+
+The hook runs only during production static SEO generation. It is not bundled
+into the browser runtime, and it should return concrete route metadata rather
+than full interactive page HTML. The VeloDom showcase uses this pattern for
+DummyJSON post detail pages and falls back gracefully if the API is unavailable
+during a local build.
+
 Parameterized folders without entries are handled by the client router but are
 not emitted as fake static paths.
 
@@ -1455,7 +1487,12 @@ export default {
       seo: {
         siteUrl: "https://example.com",
         generateSitemap: true,
-        generateRobots: true
+        generateRobots: true,
+        entries: async ({ page }) => (
+          page === "blog/posts/[id]"
+            ? loadEntriesFromCms()
+            : []
+        )
       }
     })
   ]
@@ -1469,8 +1506,7 @@ Meta keywords are supported as supplemental metadata, but they should not be
 treated as a modern ranking strategy.
 
 Current SEO output is static metadata plus a concise fallback, not full page
-SSR or hydration. API/CMS entry hooks and full static rendering remain roadmap
-items.
+SSR or hydration. Full static rendering remains a separate roadmap item.
 
 ### SSR and Hydration Policy
 
@@ -2080,7 +2116,7 @@ Latest local verification on 2026-07-09:
 - Core documentation audit passes for 53 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 121 automated tests pass
+- 122 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2104,7 +2140,8 @@ Test coverage includes:
   checks
 - auth providers, role checks, middleware modes, request bindings, and HTTP
   behavior
-- runtime/static SEO and installed-package SEO generation
+- runtime/static SEO, API/CMS-backed dynamic SEO entries, and
+  installed-package SEO generation
 - frozen public runtime, compiler, Vite adapter, Vite plugin, type, and package
   subpath exports
 - package-boundary guardrails that keep SSR and hydration APIs deferred
@@ -2177,7 +2214,7 @@ These features are not implemented and should not be described as available:
 - dedicated browser extension/devtools panel beyond the optional devtools
   bridge plugin
 - full page SSR, full static content rendering, or hydration
-- automatic API/CMS discovery for dynamic SEO entries
+- full-content API/CMS pre-rendering beyond build-time SEO metadata hooks
 - guaranteed strict CI browser availability for every Firefox/WebKit/mobile
   WebKit target
 - project intelligence, health reports, visual graphs, build intelligence,

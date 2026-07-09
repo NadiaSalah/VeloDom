@@ -36,13 +36,13 @@ export function normalizeSeoConfig(
   };
 
   if (value.entries !== undefined) {
-    if (!Array.isArray(value.entries)) {
-      throw new TypeError(`${label}.entries must be an array`);
+    if (Array.isArray(value.entries)) {
+      normalized.entries = value.entries.map((entry, index) => (
+        normalizeSeoEntry(entry, `${label}.entries[${index}]`)
+      ));
+    } else if (typeof value.entries !== "function") {
+      throw new TypeError(`${label}.entries must be an array or function`);
     }
-
-    normalized.entries = value.entries.map((entry, index) => (
-      normalizeSeoEntry(entry, `${label}.entries[${index}]`)
-    ));
   }
 
   return normalized;
@@ -56,7 +56,10 @@ export function resolvePageSeo(
   if (!config) return undefined;
 
   const normalizedPath = normalizeRoutePath(path);
-  const entry = config.entries?.find(candidate => (
+  const entries = Array.isArray(config.entries)
+    ? config.entries
+    : [];
+  const entry = entries.find(candidate => (
     normalizeRoutePath(candidate.path) === normalizedPath
   ));
   const base = {

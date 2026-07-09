@@ -1,6 +1,20 @@
 import assert from "node:assert/strict";
+import {
+  mkdir,
+  mkdtemp,
+  readFile,
+  rm,
+  writeFile
+} from "node:fs/promises";
+import {
+  join
+} from "node:path";
+import {
+  tmpdir
+} from "node:os";
 import test from "node:test";
 import {
+  generateStaticSeoPages,
   renderSeoDocument
 } from "../../src/core/vite-plugin/seo-renderer.ts";
 
@@ -54,4 +68,62 @@ test("static SEO renderer falls back to title and description summary", () => {
 
   assert.match(html, /<h1>Fallback title<\/h1>/);
   assert.match(html, /<p>Fallback description<\/p>/);
+});
+
+test("static SEO renderer resolves async page entry hooks", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-seo-hook-"));
+
+  try {
+    await mkdir(join(root, "dist"), {
+      recursive: true
+    });
+    await mkdir(join(root, "src", "pages", "blog", "posts", "[id]"), {
+      recursive: true
+    });
+    await writeFile(join(root, "dist", "index.html"), shell);
+    await writeFile(
+      join(root, "src", "pages", "blog", "posts", "[id]", "index.html"),
+      "<main>Post</main>"
+    );
+    await writeFile(
+      join(root, "src", "pages", "blog", "posts", "[id]", "config.js"),
+      `
+        export default {
+          seo: {
+            title: "Post",
+            description: "Post fallback",
+            entries: async ({ page, route }) => [{
+              path: "/blog/posts/7",
+              title: "CMS post",
+              description: page + " " + route,
+              summary: {
+                heading: "CMS post",
+                text: "Loaded from a hook"
+              }
+            }]
+          }
+        };
+      `
+    );
+
+    const result = await generateStaticSeoPages({
+      root,
+      outDir: "dist"
+    });
+    const html = await readFile(
+      join(root, "dist", "blog", "posts", "7", "index.html"),
+      "utf8"
+    );
+
+    assert.deepEqual(result.routes, [
+      "/blog/posts/7"
+    ]);
+    assert.match(html, /<title>CMS post<\/title>/);
+    assert.match(html, /Loaded from a hook/);
+  } finally {
+    await rm(root, {
+      recursive: true,
+      force: true
+    });
+  }
 });

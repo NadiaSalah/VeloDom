@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**236 of 314 tasks completed — 75.2%**
+**237 of 314 tasks completed — 75.5%**
 
 `[###############-----]`
 
-Remaining tasks: **78**
+Remaining tasks: **77**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -50,12 +50,11 @@ runtime concepts.
 
 ### P2 — Powerful but Intentionally Deferred
 
-1. Load dynamic SEO entries from an application API/CMS hook.
-2. Add optional full static rendering and hydration without changing normal
+1. Add optional full static rendering and hydration without changing normal
    HTML authoring.
-3. Keep shared state, validation extensions, cache providers, and devtools as
+2. Keep shared state, validation extensions, cache providers, and devtools as
    optional plugins.
-4. Consider broader SSR only after static rendering and hydration are stable.
+3. Consider broader SSR only after static rendering and hydration are stable.
 
 ---
 
@@ -272,7 +271,7 @@ and `src/api`.
 - [x] Generate sitemap and robots artifacts when `siteUrl` is configured
 - [x] Exclude `noindex` routes from generated sitemaps
 - [x] Test runtime, static rendering, and installed-package consumption
-- [ ] Add an application-defined API/CMS data hook for dynamic SEO entries
+- [x] Add an application-defined API/CMS data hook for dynamic SEO entries
 - [ ] Add optional full-page static content rendering and hydration
 - [ ] Add structured-data validation fixtures for common content types
 

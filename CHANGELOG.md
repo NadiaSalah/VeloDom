@@ -92,6 +92,8 @@ package versions.
 - Added `VELODOM_BROWSER_TARGETS` and `VELODOM_BROWSER_STRICT=1` controls for
   explicit target selection and strict CI-style matrix enforcement.
 - Added `.gitignore` protection for local npm recovery-code exports.
+- Hardened the CRUD Studio browser smoke path so it waits for `vd-model`
+  runtime readiness before submitting the request form.
 
 ### DummyJSON Blog Showcase
 
@@ -104,6 +106,19 @@ package versions.
 - Removed legacy profile, TypeScript demo, error-lab, emit-demo, create-post,
   and edit-post routes that duplicated the final showcase.
 - Updated the browser E2E smoke path to validate the new CRUD studio.
+
+### Dynamic SEO Hooks
+
+- Added build-time `seo.entries` hooks so application pages can load concrete
+  dynamic SEO routes from an API or CMS without adding browser runtime weight.
+- Added a Vite plugin-level SEO entries hook for projects that want central
+  dynamic-route discovery.
+- Stripped build-only SEO entry hooks from browser page-config modules so
+  API/CMS discovery stays out of the client bundle.
+- Updated the DummyJSON blog post page to generate dynamic post metadata from
+  DummyJSON with a local fallback for offline builds.
+- Added static SEO renderer and public type export coverage, bringing the
+  automated suite to 122 passing tests.
 
 ## 2026-07-08
 

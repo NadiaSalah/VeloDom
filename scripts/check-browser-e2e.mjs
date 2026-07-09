@@ -10,6 +10,7 @@
 
 import {
   access,
+  readdir,
   readFile,
   stat
 } from "node:fs/promises";
@@ -44,6 +45,7 @@ const results = [];
 
 try {
   await assertStaticSeo(server.origin);
+  await assertBuildOnlySeoHooksStayServerSide();
 
   for (const target of selectedTargets) {
     results.push(await runBrowserTarget(target, server.origin));
@@ -300,6 +302,24 @@ async function assertStaticSeo(origin) {
   assertIncludes(html, "VeloDom framework features");
 }
 
+async function assertBuildOnlySeoHooksStayServerSide() {
+  const assets = await listFiles(join(distRoot, "assets"));
+  const javascriptAssets = assets.filter(file => file.endsWith(".js"));
+
+  for (const file of javascriptAssets) {
+    const source = await readFile(file, "utf8");
+
+    if (
+      source.includes("loadSeoPosts")
+      || source.includes("dummyjson.com/posts?limit=6")
+    ) {
+      throw new Error(
+        `Build-only SEO entry hook leaked into browser asset: ${file}`
+      );
+    }
+  }
+}
+
 async function assertRouting(page, origin) {
   await page.goto(`${origin}/`);
   await waitForPageText(page, "E2E Browser Post");
@@ -319,6 +339,14 @@ async function assertFormRequest(page, origin) {
   }
 
   const createForm = page.locator('form[data-vd-request="posts.create"]');
+
+  await page.waitForFunction(() => {
+    const tags = document.querySelector(
+      'form[data-vd-request="posts.create"] [name="tags"]'
+    );
+
+    return tags?.value === "velodom, framework";
+  });
 
   await createForm.locator('[name="title"]').fill("E2E Browser Draft");
   await createForm.locator('[name="body"]').fill(
@@ -485,6 +513,21 @@ function getContentType(file) {
     default:
       return "application/octet-stream";
   }
+}
+
+async function listFiles(directory) {
+  const entries = await readdir(directory, {
+    withFileTypes: true
+  });
+  const files = await Promise.all(entries.map(async entry => {
+    const fullPath = join(directory, entry.name);
+
+    return entry.isDirectory()
+      ? listFiles(fullPath)
+      : [fullPath];
+  }));
+
+  return files.flat();
 }
 
 async function fetchText(url) {

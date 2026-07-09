@@ -243,8 +243,10 @@
 - The showcase still needs reusable form and error-display components before
   every Phase H item can be marked complete.
 - Static SEO currently provides metadata and concise fallback content rather
-  than full page rendering or hydration. Dynamic API/CMS fetching and
-  full-content pre-rendering remain separate future milestones.
+  than full page rendering or hydration. Application `seo.entries` hooks may
+  fetch API/CMS data at build time to declare concrete dynamic routes, but the
+  hook is intentionally app-owned, optional, and never bundled into the browser
+  runtime. Full-content pre-rendering remains a separate future milestone.
 
 ## Handoff Guidance
 
