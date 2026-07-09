@@ -3,6 +3,7 @@
 <main class="mx-auto w-[92%] max-w-2xl py-10">
   <a href="/" vd-nav class="btn btn-sm btn-ghost mb-5">← Back</a>
   <form
+    vd-validate
     vd-request="posts.create"
     vd-request-config="{ target: 'createPostResult', autoState: true }"
     class="card border border-base-300 bg-base-100 shadow-sm"

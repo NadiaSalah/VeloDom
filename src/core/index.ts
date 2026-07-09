@@ -45,10 +45,16 @@ export type {
   SeoTwitterCard,
   StateRecord,
   UnknownRecord,
+  ValidationPluginOptions,
   VeloDomApp,
   VeloDomAppOptions,
   VeloDomPlugin
 } from "./types.ts";
+
+/** Optional browser-native form validation plugin. */
+export {
+  createValidationPlugin
+} from "./validation.ts";
 
 /** Advanced plugin manager utility. */
 export {

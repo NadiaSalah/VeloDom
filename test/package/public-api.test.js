@@ -22,6 +22,7 @@ test("runtime public exports are frozen for the V1 package boundary", () => {
     "createLocalStorageAuthProvider",
     "createPluginManager",
     "createServerSessionAuthProvider",
+    "createValidationPlugin",
     "defineRequestMiddleware",
     "normalizeAuthSession",
     "requestJson"
@@ -60,6 +61,7 @@ test("runtime public type exports are frozen for application authors", () => {
     "SeoTwitterCard",
     "StateRecord",
     "UnknownRecord",
+    "ValidationPluginOptions",
     "VeloDomApp",
     "VeloDomAppOptions",
     "VeloDomPlugin"

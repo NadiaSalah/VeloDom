@@ -3,6 +3,7 @@ import {
   createApp,
   createLocalStorageAuthProvider,
   createServerSessionAuthProvider,
+  createValidationPlugin,
   VD_AUTH
 } from "velodom";
 import { createViteAdapter } from "velodom/vite";
@@ -19,5 +20,8 @@ createApp({
     }
   },
   routes,
-  middleware
+  middleware,
+  plugins: [
+    createValidationPlugin()
+  ]
 }).mount();

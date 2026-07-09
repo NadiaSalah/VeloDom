@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**223 of 314 tasks completed — 71.0%**
+**224 of 314 tasks completed — 71.3%**
 
 `[##############------]`
 
-Remaining tasks: **91**
+Remaining tasks: **90**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -214,7 +214,7 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [x] Define the smallest useful plugin contract
 - [x] Support `createApp({ plugins: [] })`
 - [x] Add plugin setup and cleanup
-- [ ] Keep validation optional
+- [x] Keep validation optional
 - [ ] Keep shared state optional
 - [ ] Keep cache, retry, and devtools optional
 - [ ] Avoid adding SSR until the browser framework core is stable

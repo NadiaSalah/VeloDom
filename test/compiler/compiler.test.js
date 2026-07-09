@@ -189,6 +189,22 @@ test("compiler normalizes route prefetch as a navigation feature", () => {
   ]);
 });
 
+test("compiler accepts optional validation directive without runtime feature", () => {
+  const result = compileTemplate(`
+    <form vd-validate>
+      <label for="title">Title</label>
+      <input id="title" name="title" required>
+    </form>
+  `);
+
+  assert.deepEqual(result.diagnostics, []);
+  assert.equal(result.html.includes("data-vd-validate"), true);
+  assert.deepEqual(result.manifest.directives, [
+    "data-vd-validate"
+  ]);
+  assert.deepEqual(result.manifest.features, []);
+});
+
 test("custom component and slot tags contribute runtime features", () => {
   const result = compileTemplate(`
     <vd-component name="card">

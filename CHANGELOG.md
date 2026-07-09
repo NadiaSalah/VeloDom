@@ -16,6 +16,18 @@ package versions.
 - Extended router integration coverage, bringing the automated suite to 108
   passing tests.
 
+### Validation
+
+- Added `createValidationPlugin()` as an optional native-form validation plugin.
+  It only handles forms marked with `vd-validate` / `data-vd-validate` and
+  blocks invalid submits before declarative request handlers run.
+- Added compiler support for `vd-validate` without adding a mandatory runtime
+  directive feature.
+- Enabled the optional validation plugin in the showcase app and marked create
+  and edit post forms with `vd-validate`.
+- Added validation plugin and compiler coverage, bringing the automated suite
+  to 111 passing tests.
+
 ## 2026-07-08
 
 ### Router UX

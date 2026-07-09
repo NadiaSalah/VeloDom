@@ -32,6 +32,7 @@ export const VD = Object.freeze({
   PATH: "data-vd-path",
   NAV: "data-vd-nav",
   PREFETCH: "data-vd-prefetch",
+  VALIDATE: "data-vd-validate",
   CHILD: "data-vd-child",
   GET_CHILD: "data-vd-get-child",
   ON: "data-vd-on",
@@ -140,6 +141,15 @@ export const VD_ROUTER = Object.freeze({
   SUMMARY_TAG: "summary",
   TABINDEX_ATTRIBUTE: "tabindex",
   TRUE_VALUE: "true"
+});
+
+/** Attributes and browser events owned by the optional validation plugin. */
+export const VD_VALIDATION = Object.freeze({
+  FIELD_INVALID_ATTRIBUTE: "data-vd-field-invalid",
+  FORM_SELECTOR: `form${VD.selector(VD.VALIDATE)}`,
+  INVALID_ATTRIBUTE: "data-vd-invalid",
+  INPUT_EVENT: "input",
+  SUBMIT_EVENT: "submit"
 });
 
 /** Attributes and element values owned by the SEO runtime and static renderer. */

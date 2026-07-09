@@ -253,6 +253,13 @@ export type VeloDomPlugin = PluginSetup | {
   cleanup?: PluginCleanup;
 };
 
+/** Options for the optional native-form validation plugin. */
+export interface ValidationPluginOptions {
+  selector?: string;
+  reportValidity?: boolean;
+  markInvalidFields?: boolean;
+}
+
 /** Complete public application configuration. */
 export interface VeloDomAppOptions {
   adapter: ResourceAdapter;

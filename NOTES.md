@@ -122,6 +122,9 @@
 - Route prefetch stays opt-in and link-local through `data-vd-prefetch`. The
   router only warms matched page resources after user intent events and never
   mounts the page, runs lifecycle hooks, or mutates page state during prefetch.
+- Validation remains optional through `createValidationPlugin()`. The core
+  compiler only normalizes `vd-validate`; the plugin uses native browser
+  validity checks and blocks invalid form submits before request handlers run.
 - Framework-owned TypeScript files require an English module header and
   adjacent JSDoc for each exported declaration. The dependency-free
   `scripts/check-core-docs.mjs` audit is part of the normal quality gate and

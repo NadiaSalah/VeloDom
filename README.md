@@ -58,6 +58,7 @@ VeloDom currently provides:
 - named and unnamed slots plus folder-scoped CSS
 - declarative requests with params, result/loading/error state, events, auth,
   middleware, and cancellation
+- optional native-form validation plugin for `vd-validate` request forms
 - configurable server-session and demonstration localStorage auth providers
 - runtime head management and static SEO HTML generated from page `config.js`
 - a safe expression parser/evaluator with no `eval` or `new Function`
@@ -68,7 +69,7 @@ VeloDom currently provides:
 - generated ESM and TypeScript declarations for the intended package surface
 
 VeloDom deliberately does not currently provide a mandatory global store,
-virtual DOM, JSX, built-in form-validation system, full SSR/hydration, CLI, or
+virtual DOM, JSX, schema-heavy validation system, full SSR/hydration, CLI, or
 browser devtools.
 
 ## Requirements and Commands
@@ -191,6 +192,7 @@ import {
   createApp,
   createLocalStorageAuthProvider,
   createServerSessionAuthProvider,
+  createValidationPlugin,
   VD_AUTH
 } from "velodom";
 import { createViteAdapter } from "velodom/vite";
@@ -217,7 +219,10 @@ const app = createApp({
       console.info("navigation", from?.path, "->", to.path);
       return true;
     }
-  }
+  },
+  plugins: [
+    createValidationPlugin()
+  ]
 });
 
 await app.mount();
@@ -1100,6 +1105,7 @@ If the target does not end with `Result`, VeloDom appends `Loading` and
 
 ```html
 <form
+  vd-validate
   vd-request="posts.create"
   vd-request-config="{
     target: 'createPostResult',
@@ -1117,8 +1123,12 @@ If the target does not end with `Result`, VeloDom appends `Loading` and
 Form values are collected with `FormData`. Explicit `params` are merged over
 form values.
 
-Browser-native attributes such as `required` still work. A framework-level
-validation API is planned but does not exist yet.
+Validation remains optional. Install `createValidationPlugin()` and mark only
+the forms that should be checked with `vd-validate`. The plugin uses native
+browser validation attributes such as `required`, `minlength`, `maxlength`, and
+`pattern`. Invalid validated forms are stopped before declarative request
+handlers run, and the plugin marks invalid forms/fields with
+`data-vd-invalid` and `data-vd-field-invalid`.
 
 ### Cross-Page State Writes
 
@@ -1643,9 +1653,31 @@ createApp({
 });
 ```
 
+Optional native validation plugin:
+
+```js
+import {
+  createValidationPlugin
+} from "velodom";
+
+createApp({
+  adapter,
+  plugins: [
+    createValidationPlugin()
+  ]
+});
+```
+
+```html
+<form vd-validate vd-request="posts.create">
+  <input name="title" required minlength="3">
+  <button type="submit">Create</button>
+</form>
+```
+
 Plugins set up in registration order and clean up in reverse order. Shared
-state, validation, cache, and devtools are not silently installed; future
-implementations should remain optional plugins.
+state, cache, and devtools are not silently installed; future implementations
+should remain optional plugins.
 
 ## Compiler and Vite Integration
 
@@ -1893,6 +1925,7 @@ Runtime:
 
 - `createApp`
 - `createPluginManager`
+- `createValidationPlugin`
 - `requestJson`
 - `ApiError`
 - `defineRequestMiddleware`
@@ -1905,7 +1938,8 @@ Runtime:
 - `VD_REQUEST`
 
 Public types include page/component contexts, route/auth/request/plugin
-contracts, SEO contracts, application options, and HTTP options.
+contracts, validation plugin options, SEO contracts, application options, and
+HTTP options.
 
 ### `velodom/vite`
 
@@ -1961,10 +1995,10 @@ choices, not VeloDom Core dependencies or requirements.
 
 Latest local verification on 2026-07-09:
 
-- Core documentation audit passes for 50 TypeScript files
+- Core documentation audit passes for 51 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 108 automated tests pass
+- 111 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -1978,7 +2012,7 @@ Test coverage includes:
 - routes, guards, params, and query parsing
 - hash-fragment navigation, scroll restoration, router-managed focus, and
   opt-in route prefetch
-- reactive state, lifecycle, events, refs, and plugins
+- reactive state, lifecycle, events, refs, plugins, and optional validation
 - real DOM directives, components, navigation, errors, and requests
 - recoverable page and component error-boundary fallback and retry behavior
 - keyboard modifier, focusable-order, and semantic fallback output integration
@@ -2039,7 +2073,8 @@ These features are not implemented and should not be described as available:
 
 - public V1 API/name freeze
 - npm publication, final license, `LICENSE` file, and npm name ownership
-- built-in form validation
+- schema-based validation, custom validation rules, and validation error state
+  conventions beyond the optional native validation plugin
 - declarative request debounce, throttle, retry, or cache
 - broader keyboard/focus UX beyond the current integration coverage
 - mandatory/shared global store

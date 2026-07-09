@@ -42,6 +42,7 @@ export const PREFERRED_DIRECTIVES = Object.freeze([
   "style",
   "target",
   "text",
+  "validate",
   "value",
   "error"
 ]);
