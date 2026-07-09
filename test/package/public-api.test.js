@@ -131,6 +131,28 @@ test("package subpath exports are frozen", () => {
   ]);
 });
 
+test("SSR and hydration are not public V1 package capabilities", () => {
+  const deferredPatterns = [
+    /hydrate/i,
+    /ssr/i,
+    /serverRender/i,
+    /renderToString/i
+  ];
+  const publicNames = [
+    ...Object.keys(runtimeApi),
+    ...Object.keys(compilerApi),
+    ...Object.keys(vitePluginApi),
+    ...Object.keys(manifest.exports)
+  ];
+
+  assert.deepEqual(
+    publicNames.filter(name => (
+      deferredPatterns.some(pattern => pattern.test(name))
+    )),
+    []
+  );
+});
+
 async function readSource(relativePath) {
   return readFile(new URL(relativePath, import.meta.url), "utf8");
 }

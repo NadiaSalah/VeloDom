@@ -48,6 +48,13 @@ package versions.
 - Added optional-tools coverage, bringing the automated suite to 118 passing
   tests.
 
+### SSR Deferral
+
+- Added a package-boundary guard that keeps SSR, hydration, and
+  `renderToString`-style APIs out of the V1 public surface.
+- Documented the browser-first SSR/hydration deferral policy, bringing the
+  automated suite to 119 passing tests.
+
 ## 2026-07-08
 
 ### Router UX

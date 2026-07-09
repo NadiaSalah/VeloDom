@@ -132,6 +132,10 @@
   runtime does not retry or cache by default; `createRequestCache()` and
   `withRequestRetry()` must be used by application API code, and
   `createDevtoolsPlugin()` is the only helper that installs a browser global.
+- Full page SSR and hydration remain deferred. V1 supports static SEO fallback
+  HTML, but package-boundary tests intentionally reject public SSR/hydration
+  names until the browser core, static rendering, and hydration design are
+  stable enough to avoid changing the HTML-first authoring model.
 - Framework-owned TypeScript files require an English module header and
   adjacent JSDoc for each exported declaration. The dependency-free
   `scripts/check-core-docs.mjs` audit is part of the normal quality gate and

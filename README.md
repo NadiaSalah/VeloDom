@@ -1466,6 +1466,15 @@ Current SEO output is static metadata plus a concise fallback, not full page
 SSR or hydration. API/CMS entry hooks and full static rendering remain roadmap
 items.
 
+### SSR and Hydration Policy
+
+VeloDom V1 stays browser-first and compiler-first. Full page SSR, hydration,
+and `renderToString`-style APIs are intentionally not part of the public
+package surface yet. Static SEO HTML is the supported V1 server-delivered
+content path. Broader SSR can be reconsidered only after static rendering,
+hydration design, browser coverage, and runtime stability are mature enough to
+protect the HTML-first authoring model.
+
 ## Deployment and Static Hosting
 
 Build the application with:
@@ -2066,7 +2075,7 @@ Latest local verification on 2026-07-09:
 - Core documentation audit passes for 53 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 118 automated tests pass
+- 119 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2092,6 +2101,7 @@ Test coverage includes:
 - runtime/static SEO and installed-package SEO generation
 - frozen public runtime, compiler, Vite adapter, Vite plugin, type, and package
   subpath exports
+- package-boundary guardrails that keep SSR and hydration APIs deferred
 - a real-browser Chrome/Edge smoke path for routing, form model updates,
   request fulfillment, and no-JavaScript static SEO HTML
 

@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**229 of 314 tasks completed — 72.9%**
+**230 of 314 tasks completed — 73.2%**
 
 `[###############-----]`
 
-Remaining tasks: **85**
+Remaining tasks: **84**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -217,7 +217,7 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [x] Keep validation optional
 - [x] Keep shared state optional
 - [x] Keep cache, retry, and devtools optional
-- [ ] Avoid adding SSR until the browser framework core is stable
+- [x] Avoid adding SSR until the browser framework core is stable
 
 ### Phase G: Release Hardening
 
