@@ -119,6 +119,9 @@
   the rendered DOM, not the compiler. Fragment routes focus their hash target;
   normal route changes prefer `data-vd-focus`, then headings, landmarks, and
   finally `#app`, using programmatic `tabindex="-1"` only when needed.
+- Route prefetch stays opt-in and link-local through `data-vd-prefetch`. The
+  router only warms matched page resources after user intent events and never
+  mounts the page, runs lifecycle hooks, or mutates page state during prefetch.
 - Framework-owned TypeScript files require an English module header and
   adjacent JSDoc for each exported declaration. The dependency-free
   `scripts/check-core-docs.mjs` audit is part of the normal quality gate and

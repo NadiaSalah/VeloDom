@@ -29,6 +29,7 @@ export const PREFERRED_DIRECTIVES = Object.freeze([
   "nav",
   "params",
   "path",
+  "prefetch",
   "prop-",
   "props",
   "ref",

@@ -85,6 +85,8 @@ export function createPageRouter(
   let initialized = false;
   let removeRouterListeners = null;
   const scrollPositions = new Map<string, ScrollPosition>();
+  const prefetchedPages = new Set<string>();
+  const prefetchPromises = new Map<string, Promise<void>>();
 
   async function load(
     path: string,
@@ -365,14 +367,70 @@ export function createPageRouter(
       load(getCurrentLocationPath(), "", VD_ROUTER.HISTORY_POP);
     };
 
+    const onPrefetchIntent = (e) => {
+      const link = e.target.closest(VD_ROUTER.PREFETCH_SELECTOR);
+
+      if (!link) return;
+
+      prefetchRoute(
+        link.getAttribute(VD_ROUTER.HREF_ATTRIBUTE),
+        link.getAttribute(VD.PATH) || ""
+      );
+    };
+
     document.addEventListener("click", onDocumentClick);
     window.addEventListener(VD_ROUTER.POPSTATE_EVENT, onPopState);
+    for (const eventName of VD_ROUTER.PREFETCH_EVENTS) {
+      document.addEventListener(eventName, onPrefetchIntent, {
+        passive: true
+      });
+    }
     removeRouterListeners = () => {
       document.removeEventListener("click", onDocumentClick);
       window.removeEventListener(VD_ROUTER.POPSTATE_EVENT, onPopState);
+      for (const eventName of VD_ROUTER.PREFETCH_EVENTS) {
+        document.removeEventListener(eventName, onPrefetchIntent);
+      }
     };
 
     return load(getCurrentLocationPath());
+  }
+
+  function prefetchRoute(path, pagePath = "") {
+    const route = resolvePrefetchRoute(path, pagePath);
+
+    if (!route?.matched || route.page === currentRoute?.page) return;
+    if (prefetchedPages.has(route.page) || prefetchPromises.has(route.page)) {
+      return;
+    }
+
+    const loadHtml = pageHtml[route.page];
+
+    if (!loadHtml) return;
+
+    const promise = Promise.all([
+      loadHtml(),
+      pageManifests[route.page]?.() ?? null,
+      pageModules[route.page]?.() ?? null
+    ])
+      .then(() => {
+        prefetchedPages.add(route.page);
+      })
+      .catch(() => {
+        prefetchPromises.delete(route.page);
+      });
+
+    prefetchPromises.set(route.page, promise);
+  }
+
+  function resolvePrefetchRoute(path, pagePath = "") {
+    if (!path || typeof path !== "string" || !path.startsWith("/")) {
+      return null;
+    }
+
+    return pagePath
+      ? createLegacyRoute(path, pagePath)
+      : resolveRouteLocation(path, routeTable);
   }
 
   async function destroy() {

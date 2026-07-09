@@ -172,6 +172,23 @@ test("compiler creates a deterministic runtime feature manifest", () => {
   ]);
 });
 
+test("compiler normalizes route prefetch as a navigation feature", () => {
+  const result = compileTemplate(`
+    <a href="/about" vd-nav vd-prefetch>About</a>
+  `);
+
+  assert.deepEqual(result.diagnostics, []);
+  assert.equal(result.html.includes("data-vd-nav"), true);
+  assert.equal(result.html.includes("data-vd-prefetch"), true);
+  assert.deepEqual(result.manifest.features, [
+    "navigation"
+  ]);
+  assert.deepEqual(result.manifest.directives, [
+    "data-vd-nav",
+    "data-vd-prefetch"
+  ]);
+});
+
 test("custom component and slot tags contribute runtime features", () => {
   const result = compileTemplate(`
     <vd-component name="card">

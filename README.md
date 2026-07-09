@@ -444,8 +444,19 @@ focus the matching `id` or named anchor. Normal route changes prefer
 <h1 data-vd-focus>Blog</h1>
 ```
 
-Opt-in route prefetch is still tracked in `todo.md`; do not assume it exists
-yet.
+### Opt-in Route Prefetch
+
+Route prefetch is intentionally opt-in per link. Add `vd-prefetch` beside
+`vd-nav` when a route is likely to be opened soon:
+
+```html
+<a href="/blog" vd-nav vd-prefetch>Blog</a>
+```
+
+The compiler normalizes this to `data-vd-prefetch`. The router listens for
+lightweight user intent events such as hover, keyboard focus, and touch start.
+It warms the matched page resources, but it does not mount the page, run page
+`init()`, change state, or navigate until the user actually opens the route.
 
 ## Reactive State
 
@@ -1948,12 +1959,12 @@ choices, not VeloDom Core dependencies or requirements.
 
 ## Verification
 
-Latest local verification on 2026-07-08:
+Latest local verification on 2026-07-09:
 
 - Core documentation audit passes for 50 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 106 automated tests pass
+- 108 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -1965,7 +1976,8 @@ Test coverage includes:
 - compiler accessibility warnings for common static template issues
 - resource-map and package boundaries
 - routes, guards, params, and query parsing
-- hash-fragment navigation, scroll restoration, and router-managed focus
+- hash-fragment navigation, scroll restoration, router-managed focus, and
+  opt-in route prefetch
 - reactive state, lifecycle, events, refs, and plugins
 - real DOM directives, components, navigation, errors, and requests
 - recoverable page and component error-boundary fallback and retry behavior
@@ -2029,7 +2041,6 @@ These features are not implemented and should not be described as available:
 - npm publication, final license, `LICENSE` file, and npm name ownership
 - built-in form validation
 - declarative request debounce, throttle, retry, or cache
-- router prefetch
 - broader keyboard/focus UX beyond the current integration coverage
 - mandatory/shared global store
 - project/page/component scaffolding CLI
@@ -2057,7 +2068,7 @@ Current roadmap order:
 1. freeze public names, licensing, and package boundaries
 2. finish task-oriented documentation and recipes
 3. add real-browser E2E coverage for the documented browser matrix
-4. extend real-browser navigation/accessibility coverage and remaining prefetch contracts
+4. extend real-browser navigation/accessibility coverage
 5. complete optional form/request UX
 6. add tooling and performance budgets
 7. add local Future DX tooling such as project intelligence, doctor/inspect,

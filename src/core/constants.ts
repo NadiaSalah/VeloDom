@@ -31,6 +31,7 @@ export const VD = Object.freeze({
   ATTR: "data-vd-attr",
   PATH: "data-vd-path",
   NAV: "data-vd-nav",
+  PREFETCH: "data-vd-prefetch",
   CHILD: "data-vd-child",
   GET_CHILD: "data-vd-get-child",
   ON: "data-vd-on",
@@ -128,6 +129,12 @@ export const VD_ROUTER = Object.freeze({
   HREF_ATTRIBUTE: "href",
   MANAGED_FOCUS_ATTRIBUTE: "data-vd-focus-managed",
   POPSTATE_EVENT: "popstate",
+  PREFETCH_EVENTS: Object.freeze([
+    "mouseover",
+    "focusin",
+    "touchstart"
+  ]),
+  PREFETCH_SELECTOR: `${VD.selector(VD.NAV)}${VD.selector(VD.PREFETCH)}`,
   PROGRAMMATIC_TABINDEX: "-1",
   SCROLL_TOP: 0,
   SUMMARY_TAG: "summary",

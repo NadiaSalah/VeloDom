@@ -287,6 +287,7 @@ function resolveRuntimeFeature(directive: string) {
     case "data-vd-ref":
       return VD_COMPILER_FEATURES.REFS;
     case "data-vd-nav":
+    case "data-vd-prefetch":
       return VD_COMPILER_FEATURES.NAVIGATION;
     default:
       return "";

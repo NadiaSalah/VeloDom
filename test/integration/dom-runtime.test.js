@@ -561,6 +561,70 @@ test("page router drives navigation, route context, persistence, and teardown", 
   await router.destroy();
 });
 
+test("page router prefetches opt-in routes on link intent without mounting", async () => {
+  document.body.innerHTML = '<main id="app"></main>';
+  let aboutHtmlLoads = 0;
+  let aboutModuleLoads = 0;
+  let aboutInitCount = 0;
+  const router = createPageRouter({
+    pages: {
+      html: {
+        home: async () => `
+          <h1>Home</h1>
+          <a href="/about" data-vd-nav data-vd-prefetch>About</a>
+        `,
+        about: async () => {
+          aboutHtmlLoads += 1;
+          return "<h1>About</h1>";
+        }
+      },
+      modules: {
+        about: async () => {
+          aboutModuleLoads += 1;
+
+          return {
+            init() {
+              aboutInitCount += 1;
+            }
+          };
+        }
+      },
+      styles: {}
+    },
+    components: {
+      html: {},
+      modules: {},
+      styles: {}
+    }
+  });
+
+  await router.init();
+  assert.equal(aboutHtmlLoads, 0);
+  assert.equal(aboutModuleLoads, 0);
+
+  document.querySelector("a").dispatchEvent(new Event("mouseover", {
+    bubbles: true
+  }));
+
+  await waitFor(() => {
+    assert.equal(aboutHtmlLoads, 1);
+  });
+  assert.equal(aboutModuleLoads, 1);
+  assert.equal(aboutInitCount, 0);
+  assert.equal(document.querySelector("h1")?.textContent, "Home");
+
+  document.querySelector("a").dispatchEvent(new Event("focusin", {
+    bubbles: true
+  }));
+  assert.equal(aboutHtmlLoads, 1);
+  assert.equal(aboutModuleLoads, 1);
+
+  await router.navigate("/about");
+  assert.equal(aboutInitCount, 1);
+
+  await router.destroy();
+});
+
 test("page router moves focus to the page focus target after navigation", async () => {
   document.body.innerHTML = '<main id="app"></main>';
   const router = createPageRouter({

@@ -4,6 +4,18 @@ All important local changes to VeloDom are recorded here. The project is not
 published yet, so entries describe development milestones rather than released
 package versions.
 
+## 2026-07-09
+
+### Router UX
+
+- Added opt-in route prefetch through `vd-prefetch` / `data-vd-prefetch`.
+  Prefetch runs on link intent events such as hover, focus, and touch start,
+  warms matched page resources, and does not mount or initialize the page.
+- Added compiler normalization and runtime feature-manifest coverage for
+  `vd-prefetch`.
+- Extended router integration coverage, bringing the automated suite to 108
+  passing tests.
+
 ## 2026-07-08
 
 ### Router UX
