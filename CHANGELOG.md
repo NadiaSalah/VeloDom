@@ -57,6 +57,14 @@ package versions.
   conditionals, missing state functions, layouts, component paths, cross-page
   writes, and request config mistakes.
 
+### Request UX
+
+- Added declarative request debounce via `debounceMs` / `debounce` in
+  `vd-request-config` and the `vd-debounce` shorthand attribute.
+- Pending debounced requests are cancelled on repeated triggers and component
+  or page cleanup.
+- Brought the automated suite to 161 passing tests.
+
 ## 2026-07-09
 
 ### Router UX

@@ -17,6 +17,7 @@ export const PREFERRED_DIRECTIVES = Object.freeze([
   "child",
   "class",
   "component",
+  "debounce",
   "disabled",
   "else",
   "elseif",

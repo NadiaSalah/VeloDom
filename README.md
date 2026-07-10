@@ -62,7 +62,7 @@ VeloDom currently provides:
 - named and unnamed slots plus folder-scoped CSS
 - optional application-owned shared state through `createSharedState()`
 - declarative requests with params, result/loading/error state, events, auth,
-  middleware, and cancellation
+  middleware, debounce, and cancellation
 - optional request cache, retry wrapper, and devtools bridge helpers
 - optional native-form validation plugin for `vd-validate` request forms
 - configurable server-session and demonstration localStorage auth providers
@@ -1323,6 +1323,48 @@ Nested targets preserve their parent path. For example,
 It compiles to the stable runtime attribute `data-vd-request-state`.
 `vd-request-state` / `data-vd-request-state` remain supported for existing
 templates and direct data-attribute usage.
+
+### Request Debounce
+
+Use debounce for search forms, autosave buttons, and other actions where rapid
+repeated triggers should collapse into one request. The latest scheduled
+trigger wins, and loading/error/result state updates start when the request
+actually runs after the delay.
+
+Config form:
+
+```html
+<button
+  type="button"
+  vd-request="posts.search"
+  vd-request-config="{
+    params: { q: query },
+    target: 'searchResult',
+    autoState: true,
+    debounceMs: 300
+  }"
+>
+  Search
+</button>
+```
+
+Attribute shorthand:
+
+```html
+<button
+  type="button"
+  vd-request="posts.search"
+  vd-debounce="searchDelay"
+  vd-params="{ q: query }"
+  vd-target="searchResult"
+  vd-auto-state
+>
+  Search
+</button>
+```
+
+`vd-debounce` is compiled to `data-vd-debounce` and accepts a safe expression
+that must resolve to a non-negative number of milliseconds.
 
 ### Forms
 
@@ -2686,7 +2728,7 @@ Latest local verification on 2026-07-10:
 - Core documentation audit passes for 54 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 157 automated tests pass
+- 161 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2717,6 +2759,8 @@ Latest implementation update:
   layouts selected through page config.
 - Migrated the showcase pages to `src/layouts/default.vd` so nav/footer are
   shared from one application-owned layout instead of repeated in every page.
+- Added declarative request debounce through `debounceMs` in request config and
+  the `vd-debounce` shorthand attribute.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
   `VeloDom_Master_Architecture_Prompt.md` to distinguish client takeover from
   true SSR hydration.
@@ -2807,7 +2851,7 @@ These features are not implemented and should not be described as available:
 - npm publication and final npm account/package reservation
 - schema-based validation, custom validation rules, and validation error state
   conventions beyond the optional native validation plugin
-- declarative request debounce, throttle, retry, or cache
+- declarative request throttle, retry, or cache
 - broader keyboard/focus UX beyond the current integration coverage
 - advanced shared-state patterns beyond the optional `createSharedState()`
   helper

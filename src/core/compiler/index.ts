@@ -51,6 +51,7 @@ const EXPRESSION_DIRECTIVES = new Set([
   "data-vd-attr",
   "data-vd-checked",
   "data-vd-class",
+  "data-vd-debounce",
   "data-vd-disabled",
   "data-vd-elseif",
   "data-vd-href",

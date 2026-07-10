@@ -178,6 +178,9 @@
 - Error recipes should teach developers to fix page/template/config mistakes
   from source-aware hints instead of treating Core as the first debugging
   target.
+- Request debounce is intentionally request-local. It cancels pending timers
+  per element and delays loading state until the latest request actually
+  starts, preserving the existing cancellation semantics for active requests.
 - Page SEO is application-owned and declared in each page's existing
   `config.js`; validation, runtime head synchronization, and static rendering
   are generic framework responsibilities under `src/core`.

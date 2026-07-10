@@ -450,6 +450,150 @@ test("invalid request config reports a configuration error without calling the r
   });
 });
 
+test("request config debounce runs only the latest scheduled request", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.search"
+      data-vd-request-config="{
+        params: { q: query },
+        target: 'searchResult',
+        autoState: true,
+        debounceMs: 20
+      }"
+    >Search</button>
+  `);
+  const calls = [];
+
+  configureRequestRuntime({
+    routes: {
+      "posts.search": params => {
+        calls.push(params);
+
+        return {
+          query: params.q
+        };
+      }
+    }
+  });
+
+  const state = createState({
+    query: "a",
+    searchError: "old error",
+    searchLoading: false,
+    searchResult: null
+  });
+  const cleanup = await applyDirectives(root, state);
+  const button = root.querySelector("button");
+
+  button.click();
+  state.query = "ab";
+  button.click();
+  state.query = "abc";
+  button.click();
+
+  assert.equal(calls.length, 0);
+  assert.equal(state.searchLoading, false);
+
+  await delay(35);
+  await waitFor(() => {
+    assert.equal(calls.length, 1);
+  });
+
+  assert.deepEqual(calls[0], {
+    q: "abc"
+  });
+  assert.deepEqual(state.searchResult, {
+    query: "abc"
+  });
+  assert.equal(state.searchLoading, false);
+  assert.equal(state.searchError, "");
+
+  cleanup();
+});
+
+test("request debounce attribute accepts expression values", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.search"
+      data-vd-debounce="searchDelay"
+      data-vd-params="{ q: query }"
+      data-vd-target="result"
+    >Search</button>
+  `);
+  let handlerCalls = 0;
+
+  configureRequestRuntime({
+    routes: {
+      "posts.search": params => {
+        handlerCalls += 1;
+
+        return params.q;
+      }
+    }
+  });
+
+  const state = createState({
+    query: "velodom",
+    result: "",
+    searchDelay: 15
+  });
+  const cleanup = await applyDirectives(root, state);
+
+  root.querySelector("button").click();
+  assert.equal(handlerCalls, 0);
+
+  await delay(25);
+  await waitFor(() => {
+    assert.equal(state.result, "velodom");
+  });
+  assert.equal(handlerCalls, 1);
+
+  cleanup();
+});
+
+test("invalid request debounce reports a configuration error", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.search"
+      data-vd-debounce="-1"
+    >Search</button>
+  `);
+  let handlerCalls = 0;
+
+  configureRequestRuntime({
+    routes: {
+      "posts.search": () => {
+        handlerCalls += 1;
+      }
+    }
+  });
+
+  const events = createPageEventHub();
+  const errors = [];
+  events.on(VD_REQUEST.EVENTS.ERROR, event => {
+    errors.push(event);
+  });
+  const state = createState({
+    emit: events.emit
+  });
+
+  await withoutConsoleError(async messages => {
+    const cleanup = await applyDirectives(root, state);
+
+    root.querySelector("button").click();
+    await waitFor(() => {
+      assert.equal(errors.length, 1);
+    });
+
+    assert.equal(handlerCalls, 0);
+    assert.equal(errors[0].stage, VD_REQUEST.STAGES.CONFIG);
+    assert.equal(errors[0].code, VD_REQUEST.CODES.INVALID_CONFIG);
+    assert.match(messages[0], /Invalid Request Debounce/);
+
+    cleanup();
+  });
+});
+
 function createRoot(html) {
   const root = document.createElement("div");
   root.innerHTML = html;
@@ -463,6 +607,12 @@ function createPageOptions(pageStates) {
     getPageState: pageName => pageStates[pageName],
     hasPage: pageName => Object.hasOwn(pageStates, pageName)
   };
+}
+
+function delay(ms) {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
 }
 
 async function withoutConsoleError(callback) {

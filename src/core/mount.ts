@@ -329,6 +329,7 @@ function getProps(el, parentState) {
       VD.HREF,
       VD.STYLE,
       VD.CLASS,
+      VD.DEBOUNCE,
       VD.ALT,
       VD.DISABLED,
       VD.CHECKED,

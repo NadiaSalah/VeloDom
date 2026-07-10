@@ -44,6 +44,7 @@ export const VD = Object.freeze({
   REQUEST: "data-vd-request",
   REQUEST_CONFIG: "data-vd-request-config",
   REQUEST_STATE: "data-vd-request-state",
+  DEBOUNCE: "data-vd-debounce",
   AUTO_STATE: "data-vd-auto-state",
   PARAMS: "data-vd-params",
   TARGET: "data-vd-target",
@@ -243,6 +244,10 @@ export const VD_ERROR_BOUNDARY = Object.freeze({
 
 /** Request event names, stages, and public error codes. */
 export const VD_REQUEST = Object.freeze({
+  DEBOUNCE_KEYS: Object.freeze([
+    "debounceMs",
+    "debounce"
+  ]),
   STATUS_SUFFIXES: Object.freeze({
     RESULT: "Result",
     LOADING: "Loading",

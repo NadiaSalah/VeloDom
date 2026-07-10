@@ -316,6 +316,25 @@ test("compiler normalizes auto-state alias to request-state", () => {
   ]);
 });
 
+test("compiler normalizes request debounce directives", () => {
+  const result = compileTemplate(`
+    <button
+      vd-request="posts.search"
+      vd-debounce="searchDelay"
+    >Search</button>
+  `);
+
+  assert.deepEqual(result.diagnostics, []);
+  assert.equal(result.html.includes("data-vd-debounce=\"searchDelay\""), true);
+  assert.deepEqual(result.manifest.features, [
+    "requests"
+  ]);
+  assert.deepEqual(result.manifest.directives, [
+    "data-vd-debounce",
+    "data-vd-request"
+  ]);
+});
+
 test("compiler accepts optional validation directive without runtime feature", () => {
   const result = compileTemplate(`
     <form vd-validate>

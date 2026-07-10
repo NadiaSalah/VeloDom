@@ -80,6 +80,7 @@ interface RequestDirectiveHelpers {
 
 const activeRequests = new WeakMap();
 const activeTargetRequests = new WeakMap();
+const pendingRequestTimers = new WeakMap();
 let apiRoutes = Object.create(null);
 let appRequestMiddleware = Object.create(null);
 let authRuntime = createAuthRuntime();
@@ -126,10 +127,10 @@ export function applyRequests(
       const isForm = el.tagName === "FORM";
       const eventName = isForm ? "submit" : "click";
 
-      const handler = async (event) => {
+      const handler = (event) => {
         event.preventDefault();
 
-        await runRequestDirective(
+        scheduleRequestDirective(
           el,
           state,
           context,
@@ -142,10 +143,88 @@ export function applyRequests(
       el.addEventListener(eventName, handler);
       cleanups.push(() => {
         el.removeEventListener(eventName, handler);
+        cancelPendingRequest(el);
         cancelElementRequest(el);
       });
 
     });
+}
+
+function scheduleRequestDirective(el, state, context, event, evaluate, writeValue) {
+  const routeName = (el.getAttribute(VD.REQUEST) || "").trim();
+
+  if (!routeName || !hasApiRoute(routeName)) {
+    void runRequestDirective(
+      el,
+      state,
+      context,
+      event,
+      evaluate,
+      writeValue
+    );
+    return;
+  }
+
+  const requestConfig = getRequestConfig(
+    el,
+    state,
+    context,
+    event,
+    evaluate,
+    routeName
+  );
+
+  if (requestConfig === VD_INTERNAL.REQUEST_ABORT) {
+    return;
+  }
+
+  const debounceMs = getRequestDebounceMs(
+    el,
+    requestConfig,
+    state,
+    context,
+    event,
+    evaluate,
+    routeName
+  );
+
+  if (debounceMs === VD_INTERNAL.REQUEST_ABORT) {
+    return;
+  }
+
+  const delayMs = Number(debounceMs);
+
+  cancelPendingRequest(el);
+
+  if (delayMs <= 0) {
+    void runRequestDirective(
+      el,
+      state,
+      context,
+      event,
+      evaluate,
+      writeValue
+    );
+    return;
+  }
+
+  const pending = {
+    timer: setTimeout(() => {
+      if (pendingRequestTimers.get(el) !== pending) return;
+
+      pendingRequestTimers.delete(el);
+      void runRequestDirective(
+        el,
+        state,
+        context,
+        event,
+        evaluate,
+        writeValue
+      );
+    }, delayMs)
+  };
+
+  pendingRequestTimers.set(el, pending);
 }
 
 async function runRequestDirective(el, state, context, event, evaluate, writeValue) {
@@ -465,7 +544,95 @@ function getRequestConfig(el, state, context, event, evaluate, routeName) {
     }
   }
 
+  for (const key of VD_REQUEST.DEBOUNCE_KEYS) {
+    if (
+      evaluated[key] !== undefined
+      && !isValidRequestDelay(evaluated[key])
+    ) {
+      reportRequestDirectiveProblem(state, el, routeName, `request config "${key}" must be a non-negative number`, {
+        title: "Invalid Request Config Value",
+        directive: VD.REQUEST_CONFIG,
+        expression,
+        hint: `Set ${key} to a non-negative number of milliseconds. Example: { ${key}: 300 }`
+      });
+
+      return VD_INTERNAL.REQUEST_ABORT;
+    }
+  }
+
   return evaluated;
+}
+
+function getRequestDebounceMs(
+  el,
+  requestConfig,
+  state,
+  context,
+  event,
+  evaluate,
+  routeName
+) {
+  if (el.hasAttribute(VD.DEBOUNCE)) {
+    const expression = (el.getAttribute(VD.DEBOUNCE) || "").trim();
+    const evaluated = expression
+      ? evaluate(expression, state, event, el, context.props, {
+        directive: VD.DEBOUNCE
+      })
+      : 0;
+
+    return normalizeRequestDelay(evaluated, {
+      state,
+      el,
+      routeName,
+      directive: VD.DEBOUNCE,
+      expression,
+      hint: "Set vd-debounce to a non-negative millisecond expression. Example: vd-debounce=\"300\"."
+    });
+  }
+
+  const key = VD_REQUEST.DEBOUNCE_KEYS.find(name => (
+    requestConfig?.[name] !== undefined
+  ));
+
+  if (!key) return 0;
+
+  return normalizeRequestDelay(requestConfig[key], {
+    state,
+    el,
+    routeName,
+    directive: VD.REQUEST_CONFIG,
+    expression: el.getAttribute(VD.REQUEST_CONFIG) || routeName,
+    hint: `Set ${key} to a non-negative number of milliseconds. Example: { ${key}: 300 }.`
+  });
+}
+
+function normalizeRequestDelay(value, options) {
+  if (isValidRequestDelay(value)) {
+    return Number(value);
+  }
+
+  reportRequestDirectiveProblem(
+    options.state,
+    options.el,
+    options.routeName,
+    "Request debounce must be a non-negative number",
+    {
+      title: "Invalid Request Debounce",
+      directive: options.directive,
+      expression: options.expression,
+      hint: options.hint
+    }
+  );
+
+  return VD_INTERNAL.REQUEST_ABORT;
+}
+
+function isValidRequestDelay(value) {
+  return (
+    typeof value === "number"
+    && Number.isFinite(value)
+    && value >= 0
+  );
 }
 
 function getRequestParamsInput(el, requestConfig) {
@@ -569,6 +736,15 @@ function cancelElementRequest(el) {
 
   request.controller.abort();
   finishRequest(el, request);
+}
+
+function cancelPendingRequest(el) {
+  const pending = pendingRequestTimers.get(el);
+
+  if (!pending) return;
+
+  clearTimeout(pending.timer);
+  pendingRequestTimers.delete(el);
 }
 
 function finishRequest(el, request) {
