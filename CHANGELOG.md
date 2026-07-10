@@ -31,7 +31,10 @@ package versions.
 - Lowered interpolation to existing `data-vd-text` bindings so the browser
   runtime stays lightweight and uses the existing safe expression engine.
 - Kept interpolation disabled inside `<script>` and `<style>` content.
-- Brought the automated suite to 151 passing tests.
+- Added literal interpolation escaping with `\{{ expression }}`.
+- Added `vd-pre` / `data-vd-pre` raw template regions for documentation and
+  code examples that must preserve `{{ }}` text.
+- Brought the automated suite to 154 passing tests.
 
 ## 2026-07-09
 

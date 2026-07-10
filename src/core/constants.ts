@@ -20,6 +20,7 @@ export const VD = Object.freeze({
   FOR: "data-vd-for",
   MODEL: "data-vd-model",
   TEXT: "data-vd-text",
+  PRE: "data-vd-pre",
   SRC: "data-vd-src",
   HREF: "data-vd-href",
   STYLE: "data-vd-style",

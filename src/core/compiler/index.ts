@@ -12,7 +12,7 @@ import {
   BINDING_DIRECTIVES,
   isPreferredDirective
 } from "../shared/directives.ts";
-import { VD_ACCESSIBILITY } from "../constants.ts";
+import { VD, VD_ACCESSIBILITY } from "../constants.ts";
 import {
   ExpressionSyntaxError,
   parseExpression
@@ -175,7 +175,7 @@ export function compileTemplate(
     ast.children.push(compiledTag.ast);
     cursor = end + 1;
 
-    if (compiledTag.ast.tagName === "script" || compiledTag.ast.tagName === "style") {
+    if (shouldPreserveTextContent(compiledTag.ast)) {
       const closeStart = source
         .toLowerCase()
         .indexOf(`</${compiledTag.ast.tagName}`, cursor);
@@ -318,7 +318,8 @@ function compileStartTag(
         name: attribute.name,
         value: attribute.value,
         offset: attribute.start
-      }))
+      })),
+      preserveText: hasPreservedTextAttribute(parsed.attributes)
     }
   };
 }
@@ -333,11 +334,19 @@ function compileTextSegment(
   const metadata = [];
   let html = "";
   let cursor = 0;
-  const pattern = /{{([\s\S]*?)}}/g;
+  const pattern = /(\\)?{{([\s\S]*?)}}/g;
   let match = pattern.exec(text);
 
   while (match) {
-    const expressionSource = match[1] || "";
+    if (match[1]) {
+      html += text.slice(cursor, match.index);
+      html += match[0].slice(1);
+      cursor = match.index + match[0].length;
+      match = pattern.exec(text);
+      continue;
+    }
+
+    const expressionSource = match[2] || "";
     const expression = expressionSource.trim();
     const interpolationStart = sourceOffset + match.index;
     const expressionOffset = interpolationStart
@@ -376,10 +385,10 @@ function compileTextSegment(
         ));
       }
 
-      html += `<span data-vd-text="${escapeAttribute(expression)}"></span>`;
+      html += `<span ${VD.TEXT}="${escapeAttribute(expression)}"></span>`;
       metadata.push({
         type: "interpolation",
-        name: "data-vd-text",
+        name: VD.TEXT,
         originalName: "{{ }}",
         argument: "",
         modifiers: [],
@@ -400,6 +409,22 @@ function compileTextSegment(
     diagnostics,
     metadata
   };
+}
+
+function shouldPreserveTextContent(ast) {
+  return (
+    !ast.selfClosing
+    && (ast.tagName === "script"
+    || ast.tagName === "style"
+    || ast.preserveText)
+  );
+}
+
+function hasPreservedTextAttribute(attributes) {
+  return attributes.some(attribute => (
+    attribute.name === "vd-pre"
+    || attribute.name === VD.PRE
+  ));
 }
 
 function compileDirectiveName(name) {

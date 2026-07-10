@@ -324,6 +324,7 @@ function getProps(el, parentState) {
       VD.FOR,
       VD.MODEL,
       VD.TEXT,
+      VD.PRE,
       VD.SRC,
       VD.HREF,
       VD.STYLE,

@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**245 of 316 tasks completed — 77.5%**
+**246 of 317 tasks completed — 77.6%**
 
 `[###############-----]`
 
@@ -136,6 +136,7 @@ runtime work.
 
 - [x] Preferred `vd-*` syntax works in page and component HTML
 - [x] Text interpolation `{{ expression }}` compiles to safe reactive text bindings
+- [x] Interpolation escape `\{{ expression }}` and raw `vd-pre` sections preserve literal examples
 - [x] Existing `data-vd-*` templates continue working unchanged
 - [x] Malformed directives fail during development build
 - [x] Compiler modules run under Node without browser globals

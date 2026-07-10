@@ -609,6 +609,20 @@ The compiler turns each `{{ expression }}` into the same safe reactive text
 binding used by `vd-text`. Expressions are validated during compilation and
 are ignored inside `<script>` and `<style>` content.
 
+When documenting VeloDom syntax or showing mustache text literally, escape the
+opening braces with a backslash:
+
+```html
+<p>Write \{{ name }} to show the syntax literally.</p>
+```
+
+For larger literal examples, mark the container with `vd-pre`. The compiler
+normalizes it to `data-vd-pre` and leaves the whole element body untouched:
+
+```html
+<pre vd-pre><code>{{ name }} remains literal here.</code></pre>
+```
+
 ### Conditionals
 
 ```html
@@ -2307,7 +2321,7 @@ Latest local verification on 2026-07-10:
 - Core documentation audit passes for 54 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 151 automated tests pass
+- 154 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2332,6 +2346,8 @@ Latest implementation update:
   exported the `ComponentExpose` TypeScript contract.
 - Added compiler-first text interpolation with `{{ expression }}` so inline
   reactive text no longer requires extra wrapper elements.
+- Added literal interpolation escapes with `\{{ expression }}` and raw
+  `vd-pre` sections for documentation/code examples.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
   `VeloDom_Master_Architecture_Prompt.md` to distinguish client takeover from
   true SSR hydration.

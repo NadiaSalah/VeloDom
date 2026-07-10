@@ -165,6 +165,9 @@
 - Text interpolation is a compiler feature, not a browser runtime parser.
   `{{ expression }}` is lowered to `data-vd-text` spans and uses the existing
   safe expression engine and text directive.
+- Literal interpolation examples should use `\{{ expression }}` for one inline
+  occurrence or `vd-pre` / `data-vd-pre` for a whole raw element body. This
+  keeps documentation authoring ergonomic without adding a runtime parser.
 - Page SEO is application-owned and declared in each page's existing
   `config.js`; validation, runtime head synchronization, and static rendering
   are generic framework responsibilities under `src/core`.

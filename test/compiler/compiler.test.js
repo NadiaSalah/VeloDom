@@ -85,6 +85,17 @@ test("text interpolations escape directive expressions in attributes", () => {
   assert.deepEqual(result.diagnostics, []);
 });
 
+test("escaped text interpolations remain literal text", () => {
+  const result = compileTemplate("<p>Use \\{{ name }} literally and {{ name }}</p>");
+
+  assert.equal(
+    result.html,
+    '<p>Use {{ name }} literally and <span data-vd-text="name"></span></p>'
+  );
+  assert.deepEqual(result.diagnostics, []);
+  assert.equal(result.metadata.length, 1);
+});
+
 test("text interpolations validate expressions with source diagnostics", () => {
   const result = compileTemplate("<p>Hello {{ user && }}</p>", {
     filename: "interpolation.html"
@@ -109,6 +120,45 @@ test("script and style contents do not compile text interpolations", () => {
   assert.match(result.html, /content: '{{ label }}'/);
   assert.equal(result.metadata.length, 1);
   assert.match(result.html, /<span data-vd-text="name"><\/span>/);
+});
+
+test("vd-pre preserves literal interpolation examples inside an element", () => {
+  const result = compileTemplate([
+    "<pre vd-pre><code>{{ name }}</code></pre>",
+    "<p>{{ name }}</p>"
+  ].join(""));
+
+  assert.match(
+    result.html,
+    /<pre data-vd-pre><code>{{ name }}<\/code><\/pre>/
+  );
+  assert.match(result.html, /<p><span data-vd-text="name"><\/span><\/p>/);
+  assert.deepEqual(result.diagnostics, []);
+  assert.equal(
+    result.metadata.filter(entry => entry.type === "interpolation").length,
+    1
+  );
+  assert.deepEqual(result.manifest.features, [
+    "text"
+  ]);
+  assert.deepEqual(result.manifest.directives, [
+    "data-vd-pre",
+    "data-vd-text"
+  ]);
+});
+
+test("legacy data-vd-pre also preserves literal text content", () => {
+  const result = compileTemplate([
+    "<code data-vd-pre>{{ name }}</code>",
+    "<p>{{ age }}</p>"
+  ].join(""));
+
+  assert.match(result.html, /<code data-vd-pre>{{ name }}<\/code>/);
+  assert.match(result.html, /<p><span data-vd-text="age"><\/span><\/p>/);
+  assert.equal(
+    result.metadata.filter(entry => entry.type === "interpolation").length,
+    1
+  );
 });
 
 test("quoted greater-than characters do not close a start tag", () => {
