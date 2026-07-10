@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**243 of 315 tasks completed — 77.1%**
+**244 of 315 tasks completed — 77.5%**
 
 `[###############-----]`
 
-Remaining tasks: **72**
+Remaining tasks: **71**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -342,7 +342,7 @@ and `src/api`.
 - [x] Freeze naming for `page-router` and `request-router`
 - [x] Decide whether `data-vd-request-state` keeps its current name or becomes a clearer alias
 - [x] Freeze request naming convention: `Result`, `Loading`, `Error`
-- [ ] Freeze component public API pattern: `expose`
+- [x] Freeze component public API pattern: `expose`
 - [x] Freeze page opt-in external write pattern: `page.config.js`
 
 ---

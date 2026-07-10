@@ -883,6 +883,39 @@ export function init({ state }) {
 }
 ```
 
+The V1 component public API pattern is frozen as `return { state, expose }`.
+`expose` must be a plain object. Its function members are called with the
+component state as `this`, and non-function values are copied as public values.
+Protected framework state names cannot be replaced through `expose`.
+
+For TypeScript component scripts, type the public API with `ComponentExpose`:
+
+```ts
+import type { ComponentExpose, ComponentScriptContext } from "velodom";
+
+type ModalState = {
+  opened: boolean;
+};
+
+export function init({ state }: ComponentScriptContext<ModalState>) {
+  state.opened = false;
+
+  const expose: ComponentExpose = {
+    open() {
+      state.opened = true;
+    },
+    close() {
+      state.opened = false;
+    }
+  };
+
+  return {
+    state,
+    expose
+  };
+}
+```
+
 ```html
 <!-- src/components/modal/index.html -->
 <dialog vd-bind:attr="{ open: opened }">
@@ -903,8 +936,6 @@ export function init({ state }) {
   };
 }
 ```
-
-Protected framework state names cannot be replaced through `expose`.
 
 ### Grouped and Keyed Component Refs
 
@@ -2076,6 +2107,7 @@ Typed component:
 
 ```ts
 import type {
+  ComponentExpose,
   ComponentScriptContext,
   StateRecord
 } from "velodom";
@@ -2093,6 +2125,17 @@ export function init({
   state
 }: ComponentScriptContext<BadgeState, BadgeProps>) {
   state.label = props.label || "Badge";
+
+  const expose: ComponentExpose = {
+    rename(label: string) {
+      state.label = label;
+    }
+  };
+
+  return {
+    state,
+    expose
+  };
 }
 ```
 
@@ -2253,7 +2296,7 @@ Latest local verification on 2026-07-10:
 - Core documentation audit passes for 54 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 144 automated tests pass
+- 146 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2274,6 +2317,8 @@ Latest implementation update:
   loading/error state while keeping `vd-request-state` compatible.
 - Froze automatic request state suffixes as `Result`, `Loading`, and `Error`,
   including nested state-path behavior.
+- Froze the component public API pattern as `return { state, expose }` and
+  exported the `ComponentExpose` TypeScript contract.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
   `VeloDom_Master_Architecture_Prompt.md` to distinguish client takeover from
   true SSR hydration.

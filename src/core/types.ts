@@ -18,6 +18,8 @@ export type MaybePromise<T> = T | Promise<T>;
 export type UnknownRecord = Record<string, unknown>;
 /** Generic application state record used by public runtime contracts. */
 export type StateRecord = UnknownRecord;
+/** Public members returned from a component init result under `expose`. */
+export type ComponentExpose = Record<string, unknown>;
 /** Lazy resource loader used by build adapters. */
 export type ResourceLoader<T = unknown> = () => MaybePromise<T>;
 

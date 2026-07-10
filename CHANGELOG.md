@@ -15,6 +15,15 @@ package versions.
   `Result`, and preserving nested state paths.
 - Brought the automated suite to 144 passing tests.
 
+### Component Expose API
+
+- Froze the component public API pattern as `return { state, expose }`.
+- Exported the `ComponentExpose` TypeScript contract for application component
+  scripts.
+- Added coverage for plain-object exposed values and invalid non-object
+  expose returns.
+- Brought the automated suite to 146 passing tests.
+
 ## 2026-07-09
 
 ### Router UX

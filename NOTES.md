@@ -251,6 +251,9 @@
   `Loading`, and `Error`. A target ending in `Result` replaces only that
   suffix; other targets append status suffixes, and nested paths keep their
   parent segments.
+- Component public APIs are frozen around `return { state, expose }`.
+  `expose` must stay a plain object and is the only documented pattern for
+  parent ref commands; protected framework state keys remain blocked.
 
 ## Known Constraints
 

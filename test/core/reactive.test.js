@@ -21,6 +21,27 @@ test("component expose members are callable from local template state", () => {
   assert.equal(state.count, 2);
 });
 
+test("component expose accepts plain object public values", () => {
+  const state = createState({});
+
+  mergeExposedMembers(state, {
+    label: "Dialog",
+    version: 1
+  });
+
+  assert.equal(state.label, "Dialog");
+  assert.equal(state.version, 1);
+});
+
+test("component expose must be a plain object", () => {
+  const state = createState({});
+
+  assert.throws(
+    () => mergeExposedMembers(state, ["open"]),
+    /plain object/
+  );
+});
+
 test("component expose cannot replace protected state members", () => {
   const state = createState({});
 

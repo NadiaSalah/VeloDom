@@ -19,6 +19,7 @@ export type {
   AuthProvider,
   AuthProviderContext,
   AuthSessionPayload,
+  ComponentExpose,
   ComponentScriptContext,
   DevtoolsPluginOptions,
   ErrorBoundaryContext,

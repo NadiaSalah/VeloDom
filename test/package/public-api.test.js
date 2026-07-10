@@ -39,6 +39,7 @@ test("runtime public type exports are frozen for application authors", () => {
     "AuthProvider",
     "AuthProviderContext",
     "AuthSessionPayload",
+    "ComponentExpose",
     "ComponentScriptContext",
     "DevtoolsPluginOptions",
     "ErrorBoundaryContext",
