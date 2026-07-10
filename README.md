@@ -1556,6 +1556,158 @@ Requests are automatically aborted when:
 - another request replaces the same result destination
 - the owner page/component is unmounted
 
+### Recipe: Common Framework Error Examples
+
+VeloDom reports most user-facing problems with a title, source location,
+directive or route context when available, and a hint. These examples show the
+usual cause and the fastest fix.
+
+Unknown directive at compile time:
+
+```html
+<!-- Problem -->
+<button vd-click="save()">Save</button>
+
+<!-- Fix -->
+<button vd-on:click="save()">Save</button>
+```
+
+The compiler reports `VD_COMPILER_UNKNOWN_DIRECTIVE` because preferred
+directives must use known `vd-*` names. Event handlers use `vd-on:event`.
+
+Invalid expression:
+
+```html
+<!-- Problem -->
+<p vd-text="user &&"></p>
+
+<!-- Fix -->
+<p vd-text="user?.name || 'Guest'"></p>
+```
+
+Expressions are parsed safely during compilation. Syntax errors fail early
+instead of becoming browser `eval` failures.
+
+Condition accessed data before it existed:
+
+```html
+<!-- Problem -->
+<a vd-if="Boolean(post?.id)" vd-bind:href="'/posts/' + post.id"></a>
+
+<!-- Fix -->
+<a vd-if="Boolean(post?.id)" vd-bind:href="'/posts/' + post?.id"></a>
+```
+
+Inactive conditional branches suspend their own expression updates, but
+attributes on the same active element should still use optional access when
+data may be loading.
+
+Missing page state function:
+
+```html
+<!-- Problem -->
+<button vd-on:click="announce()">Emit</button>
+```
+
+```js
+// Fix: define the function in the page or component state.
+export function init({ state, ctx }) {
+  state.announce = () => {
+    ctx.emit("demo:announce", {
+      message: "Hello"
+    });
+  };
+}
+```
+
+Runtime event expressions run against explicit page/component state, `props`,
+`event`, and `el`. If a function is not defined there, VeloDom reports an
+Expression Evaluation Error.
+
+Invalid layout:
+
+```html
+<!-- Problem: no page placeholder -->
+<template>
+  <main>Shared shell</main>
+</template>
+
+<!-- Fix -->
+<template>
+  <main>
+    <vd-page></vd-page>
+  </main>
+</template>
+```
+
+Every layout must contain exactly one `<vd-page></vd-page>` placeholder so the
+router can compose the shared shell and the active page deterministically.
+
+Invalid component path:
+
+```html
+<!-- Problem -->
+<vd-component name="post-card"></vd-component>
+
+<!-- Fix when the component lives in src/components/blog/post-card/ -->
+<vd-component name="blog/post-card"></vd-component>
+```
+
+Component names follow the folder path below `src/components`. Single-file
+components follow the same rule, so `src/components/blog/post-card.vd` is also
+loaded as `blog/post-card`.
+
+Invalid request target:
+
+```html
+<!-- Problem: writes to another page without permission -->
+<button
+  vd-request="posts.getOne"
+  vd-target="home"
+  vd-state="externalPostResult"
+>
+  Load into home
+</button>
+```
+
+```js
+// Fix: opt in from the destination page config.
+export default {
+  allowExternalWrite: [
+    "externalPostResult",
+    "externalPostLoading",
+    "externalPostError"
+  ]
+};
+```
+
+Cross-page writes are blocked unless the destination page explicitly allows
+the target state keys. This keeps request side effects visible in page config.
+
+Invalid request config:
+
+```html
+<!-- Problem -->
+<button vd-request="posts.getOne" vd-request-config="{ target: 42 }">
+  Load
+</button>
+
+<!-- Fix -->
+<button
+  vd-request="posts.getOne"
+  vd-request-config="{ target: 'postResult', autoState: true }"
+>
+  Load
+</button>
+```
+
+Request config values are validated before the handler runs. Targets and state
+paths must be strings; params must resolve to a plain object.
+
+When an error looks surprising, check the file, directive, expression, and hint
+shown by VeloDom first. The fix is usually in the page/template/config that the
+error names, not inside Core.
+
 ## Middleware
 
 Application middleware belongs in `src/api/middleware.js`.

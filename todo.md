@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**248 of 318 tasks completed — 78.0%**
+**249 of 318 tasks completed — 78.3%**
 
 `[################----]`
 
-Remaining tasks: **70**
+Remaining tasks: **69**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -383,7 +383,7 @@ and `src/api`.
 - [x] Add recipe: auth-protected request
 - [x] Add recipe: request with application middleware
 - [x] Add recipe: form create/update/delete
-- [ ] Add recipe: common framework error examples
+- [x] Add recipe: common framework error examples
 
 ### 8. Lifecycle
 

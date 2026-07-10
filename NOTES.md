@@ -175,6 +175,9 @@
 - Recipes should document framework patterns using the showcase app as the
   proof source. Prefer documenting existing working conventions before adding
   new runtime behavior.
+- Error recipes should teach developers to fix page/template/config mistakes
+  from source-aware hints instead of treating Core as the first debugging
+  target.
 - Page SEO is application-owned and declared in each page's existing
   `config.js`; validation, runtime head synchronization, and static rendering
   are generic framework responsibilities under `src/core`.

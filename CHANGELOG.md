@@ -53,6 +53,9 @@ package versions.
 - Added a create/update/delete form recipe that connects `vd-model`,
   `vd-request`, `vd-request-config`, optional validation, and automatic request
   status state.
+- Added common framework error examples for compiler directives, expressions,
+  conditionals, missing state functions, layouts, component paths, cross-page
+  writes, and request config mistakes.
 
 ## 2026-07-09
 
