@@ -46,6 +46,7 @@ export interface ValidatedResourceGroup {
 export interface ValidatedResourceAdapter {
   pages: ValidatedResourceGroup;
   components: ValidatedResourceGroup;
+  layouts: ValidatedResourceGroup;
 }
 
 /** Validates an injected adapter and returns normalized resource groups. */
@@ -71,10 +72,19 @@ export function validateResourceAdapter(
       allowConfigs: false
     }
   );
+  const layouts = validateResourceGroup(
+    adapter.layouts || {},
+    "layouts",
+    {
+      requireHtml: false,
+      allowConfigs: false
+    }
+  );
 
   return {
     pages,
-    components
+    components,
+    layouts
   };
 }
 
@@ -201,8 +211,11 @@ function normalizePageConfig(
   const file = getResourceSourceFile(label, name);
 
   try {
+    const layout = normalizeLayoutName(config.layout, label, name);
+
     return {
       ...config,
+      ...(layout !== undefined ? { layout } : {}),
       seo: normalizeSeoConfig(
         config.seo,
         `Adapter config "${label}.${name}".seo`
@@ -215,6 +228,37 @@ function normalizePageConfig(
       `Check the page configuration exported from ${file}.`
     );
   }
+}
+
+function normalizeLayoutName(
+  value: unknown,
+  label: string,
+  name: string
+) {
+  if (value === undefined) return undefined;
+  if (value === false) return false;
+  if (typeof value !== "string") {
+    throw createAdapterError(
+      `Adapter config "${label}.${name}".layout must be a layout name or false`,
+      "Use layout: \"default\" or layout: false in page config.",
+      getResourceSourceFile(label, name)
+    );
+  }
+
+  const layout = value
+    .trim()
+    .replace(/^\/+|\/+$/g, "")
+    .replace(/\/{2,}/g, "/");
+
+  if (!layout || layout.includes("..")) {
+    throw createAdapterError(
+      `Adapter config "${label}.${name}".layout must be a safe non-empty path`,
+      "Use a layout name such as default, blog, or dashboard/admin.",
+      getResourceSourceFile(label, name)
+    );
+  }
+
+  return layout;
 }
 
 function createSourceAwareLoader<T>(
@@ -248,9 +292,7 @@ function attachSourceToError(
 
 function getResourceSourceFile(label: string, name: string) {
   const [group, type] = label.split(".");
-  const root = group === VD_RESOURCE_ADAPTER.GROUPS.COMPONENTS
-    ? VD_RESOURCE_ADAPTER.ROOTS.COMPONENTS
-    : VD_RESOURCE_ADAPTER.ROOTS.PAGES;
+  const root = getResourceRoot(group);
   const folder = name || VD_RESOURCE_ADAPTER.UNKNOWN_FOLDER;
 
   switch (type) {
@@ -267,6 +309,18 @@ function getResourceSourceFile(label: string, name: string) {
     default:
       return `${VD_RESOURCE_ADAPTER.STAGE}.${label}.${folder}`;
   }
+}
+
+function getResourceRoot(group: string) {
+  if (group === VD_RESOURCE_ADAPTER.GROUPS.COMPONENTS) {
+    return VD_RESOURCE_ADAPTER.ROOTS.COMPONENTS;
+  }
+
+  if (group === VD_RESOURCE_ADAPTER.GROUPS.LAYOUTS) {
+    return VD_RESOURCE_ADAPTER.ROOTS.LAYOUTS;
+  }
+
+  return VD_RESOURCE_ADAPTER.ROOTS.PAGES;
 }
 
 function createAdapterError(

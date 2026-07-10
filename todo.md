@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**246 of 317 tasks completed — 77.6%**
+**247 of 318 tasks completed — 77.7%**
 
 `[###############-----]`
 
@@ -155,6 +155,7 @@ different kinds of websites, while keeping application code outside `src/core`.
 
 - [x] Isolate all `import.meta.glob(...)` usage in the Vite adapter
 - [x] Inject page and component resources into `createApp(...)`
+- [x] Inject optional layout resources into `createApp(...)` for shared page shells
 - [x] Keep filesystem folder conventions inside the adapter, not the router
 - [x] Inject application routes and middleware into `createApp(...)`
 - [x] Provide one public request API through `src/core/requests/index.ts`

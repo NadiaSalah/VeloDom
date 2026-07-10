@@ -36,6 +36,18 @@ package versions.
   code examples that must preserve `{{ }}` text.
 - Brought the automated suite to 154 passing tests.
 
+### Page Layouts
+
+- Added optional `src/layouts/` discovery for folder-mode and `.vd` page
+  shells.
+- Added `layout` page config support with automatic `default`, named layouts,
+  and `layout: false` opt-out.
+- Mounted layout directives and components together with the active page by
+  replacing one `<vd-page></vd-page>` placeholder before runtime activation.
+- Migrated the showcase app to a shared `src/layouts/default.vd` shell for
+  nav/footer reuse.
+- Brought the automated suite to 157 passing tests.
+
 ## 2026-07-09
 
 ### Router UX

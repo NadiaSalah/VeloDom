@@ -30,6 +30,53 @@ test("resource adapter accepts lazy nested resource maps", () => {
   assert.notEqual(adapter.pages.manifests.home, manifestLoader);
 });
 
+test("resource adapter accepts optional layout resource maps", () => {
+  const adapter = validateResourceAdapter({
+    pages: {
+      html: {
+        home: async () => "<main></main>"
+      },
+      configs: {
+        home: {
+          layout: "marketing/default"
+        }
+      }
+    },
+    layouts: {
+      html: {
+        "marketing/default": async () => "<div><vd-page></vd-page></div>"
+      },
+      styles: {},
+      manifests: {}
+    }
+  });
+
+  assert.equal(typeof adapter.layouts.html["marketing/default"], "function");
+  assert.equal(adapter.pages.configs.home.layout, "marketing/default");
+});
+
+test("resource adapter rejects invalid layout config values", () => {
+  assert.throws(
+    () => validateResourceAdapter({
+      pages: {
+        html: {
+          home: async () => "<main></main>"
+        },
+        configs: {
+          home: {
+            layout: "../admin"
+          }
+        }
+      }
+    }),
+    error => (
+      error.code === "VD_INVALID_ADAPTER"
+      && error.__vdFile === "src/pages/home/config.js"
+      && /layout/.test(error.message)
+    )
+  );
+});
+
 test("resource adapter fails clearly when pages are missing", () => {
   assert.throws(
     () => validateResourceAdapter({

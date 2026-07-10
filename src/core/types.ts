@@ -39,6 +39,7 @@ export interface ResourceGroup {
 export interface ResourceAdapter {
   pages: ResourceGroup;
   components?: ResourceGroup;
+  layouts?: ResourceGroup;
 }
 
 /** Fully resolved route information supplied to pages and guards. */
@@ -158,6 +159,7 @@ export interface SeoConfig extends SeoMetadata {
 /** Optional route metadata and cross-page write policy for one page. */
 export interface PageConfig {
   path?: string;
+  layout?: string | false;
   meta?: UnknownRecord;
   beforeEnter?: NavigationGuard;
   allowExternalWrite?: string[];

@@ -1,0 +1,9 @@
+<template>
+  <div class="min-h-screen bg-slate-50 text-slate-950">
+    <vd-component name="nav" vd-prop-title="VeloDom"></vd-component>
+
+    <vd-page></vd-page>
+
+    <vd-component name="footer"></vd-component>
+  </div>
+</template>

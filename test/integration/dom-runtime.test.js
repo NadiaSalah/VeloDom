@@ -591,6 +591,132 @@ test("page router drives navigation, route context, persistence, and teardown", 
   await router.destroy();
 });
 
+test("page router wraps pages with default, named, and disabled layouts", async () => {
+  document.body.innerHTML = '<main id="app"></main>';
+  const router = createPageRouter({
+    pages: {
+      html: {
+        home: async () => '<h1 data-vd-text="title"></h1>',
+        about: async () => '<h1 data-vd-text="title"></h1>',
+        login: async () => '<h1>Login</h1>'
+      },
+      modules: {
+        home: async () => ({
+          init() {
+            return {
+              state: {
+                navLabel: "Main navigation",
+                title: "Home"
+              }
+            };
+          }
+        }),
+        about: async () => ({
+          init() {
+            return {
+              state: {
+                title: "About"
+              }
+            };
+          }
+        })
+      },
+      configs: {
+        about: {
+          layout: "marketing"
+        },
+        login: {
+          layout: false
+        }
+      },
+      manifests: {
+        home: async () => ({
+          directives: [
+            "data-vd-text"
+          ],
+          features: [
+            "text"
+          ]
+        }),
+        about: async () => ({
+          directives: [
+            "data-vd-text"
+          ],
+          features: [
+            "text"
+          ]
+        })
+      },
+      styles: {}
+    },
+    components: {
+      html: {
+        nav: async () => '<nav data-vd-text="navLabel"></nav>'
+      },
+      manifests: {
+        nav: async () => ({
+          directives: [
+            "data-vd-text"
+          ],
+          features: [
+            "text"
+          ]
+        })
+      },
+      styles: {}
+    },
+    layouts: {
+      html: {
+        default: async () => `
+          <section id="default-layout">
+            <vd-component name="nav"></vd-component>
+            <main><vd-page></vd-page></main>
+            <footer>Default footer</footer>
+          </section>
+        `,
+        marketing: async () => `
+          <section id="marketing-layout">
+            <aside>Marketing bar</aside>
+            <vd-page></vd-page>
+          </section>
+        `
+      },
+      manifests: {
+        default: async () => ({
+          directives: [
+            "data-vd-component"
+          ],
+          features: [
+            "components"
+          ]
+        }),
+        marketing: async () => ({
+          directives: [],
+          features: []
+        })
+      },
+      styles: {}
+    }
+  });
+
+  await router.init();
+  assert.equal(document.querySelector("#default-layout h1")?.textContent, "Home");
+  assert.equal(document.querySelector("nav")?.textContent, "Main navigation");
+  assert.equal(document.querySelector("footer")?.textContent, "Default footer");
+
+  await router.navigate("/about");
+  assert.equal(document.querySelector("#marketing-layout h1")?.textContent, "About");
+  assert.equal(document.querySelector("aside")?.textContent, "Marketing bar");
+  assert.equal(document.querySelector("#default-layout"), null);
+
+  await router.navigate("/login");
+  assert.equal(document.querySelector("#default-layout"), null);
+  assert.equal(document.querySelector("#marketing-layout"), null);
+  assert.equal(document.querySelector("h1")?.textContent, "Login");
+
+  await router.destroy();
+});
+
 test("page router prefetches opt-in routes on link intent without mounting", async () => {
   document.body.innerHTML = '<main id="app"></main>';
   let aboutHtmlLoads = 0;

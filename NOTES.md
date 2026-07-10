@@ -168,6 +168,10 @@
 - Literal interpolation examples should use `\{{ expression }}` for one inline
   occurrence or `vd-pre` / `data-vd-pre` for a whole raw element body. This
   keeps documentation authoring ergonomic without adding a runtime parser.
+- Layouts are application-owned shells under `src/layouts`. The adapter
+  discovers them, while the router only composes validated resource maps.
+  `<vd-page></vd-page>` is intentionally a single required placeholder so
+  layout composition remains static and compiler-friendly.
 - Page SEO is application-owned and declared in each page's existing
   `config.js`; validation, runtime head synchronization, and static rendering
   are generic framework responsibilities under `src/core`.

@@ -1,6 +1,4 @@
 <template>
-  <vd-component name="nav" vd-prop-title="Single File"></vd-component>
-
   <main class="mx-auto w-[92%] max-w-6xl py-10">
     <section class="rounded-[2rem] bg-slate-950 p-8 text-white">
       <p class="text-sm font-semibold text-primary">VeloDom .vd authoring</p>
@@ -38,7 +36,6 @@
     </section>
   </main>
 
-  <vd-component name="footer"></vd-component>
 </template>
 
 <script>

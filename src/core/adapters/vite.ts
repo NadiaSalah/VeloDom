@@ -143,6 +143,50 @@ const componentSingleFileStyles = mapLoaderExports<string>(
   "__vdStyle"
 );
 
+const layoutTemplateFiles = import.meta.glob(
+  "/src/layouts/**/index.html",
+  {
+    query: "?raw"
+  }
+);
+const layoutHtmlFiles = mapLoaderExports<string>(
+  layoutTemplateFiles,
+  "default"
+);
+const layoutManifestFiles = mapLoaderExports<
+  RuntimeFeatureManifest | undefined
+>(
+  layoutTemplateFiles,
+  "__vdManifest"
+);
+const layoutSingleFileTemplateFiles = import.meta.glob(
+  "/src/layouts/**/*.vd"
+);
+const layoutSingleFileHtmlFiles = mapLoaderExports<string>(
+  layoutSingleFileTemplateFiles,
+  "default"
+);
+const layoutSingleFileManifestFiles = mapLoaderExports<
+  RuntimeFeatureManifest | undefined
+>(
+  layoutSingleFileTemplateFiles,
+  "__vdManifest"
+);
+const layoutStyleFiles = import.meta.glob(
+  "/src/layouts/**/*.css",
+  {
+    query: "?inline",
+    import: "default"
+  }
+);
+const layoutSingleFileStyleFiles = import.meta.glob(
+  "/src/layouts/**/*.vd"
+);
+const layoutSingleFileStyles = mapLoaderExports<string>(
+  layoutSingleFileStyleFiles,
+  "__vdStyle"
+);
+
 /**
  * Creates the lazy resource adapter consumed by the generic VeloDom runtime.
  */
@@ -225,6 +269,28 @@ export function createViteAdapter(): ResourceAdapter {
       styles: {
         ...rebaseSingleFileStyles(componentSingleFileStyles, "/src/components/"),
         ...rebaseFiles(componentStyleFiles, "/src/components/")
+      }
+    },
+    layouts: {
+      html: {
+        ...indexSingleFiles(layoutSingleFileHtmlFiles, "/src/layouts/"),
+        ...indexFolderFiles(
+          layoutHtmlFiles,
+          "/src/layouts/",
+          "/index.html"
+        )
+      },
+      manifests: {
+        ...indexSingleFiles(layoutSingleFileManifestFiles, "/src/layouts/"),
+        ...indexFolderFiles(
+          layoutManifestFiles,
+          "/src/layouts/",
+          "/index.html"
+        )
+      },
+      styles: {
+        ...rebaseSingleFileStyles(layoutSingleFileStyles, "/src/layouts/"),
+        ...rebaseFiles(layoutStyleFiles, "/src/layouts/")
       }
     }
   };

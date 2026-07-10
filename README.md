@@ -18,6 +18,7 @@ JavaScript or TypeScript independently for every page and component.
 - [Requirements and Commands](#requirements-and-commands)
 - [Project Structure](#project-structure)
 - [Folder Conventions](#folder-conventions)
+- [Layouts](#layouts)
 - [Optional Single-File Modules](#optional-single-file-modules)
 - [Application Bootstrap](#application-bootstrap)
 - [Pages](#pages)
@@ -49,6 +50,7 @@ VeloDom currently provides:
 
 - folder-discovered pages and nested components
 - optional `.vd` single-file pages and components for small co-located modules
+- optional page layouts with shared nav/footer shells and per-page selection
 - static, nested, and dynamic client-side routes
 - route params, query values, metadata, and navigation guards
 - shallow reactive state with inherited component state
@@ -68,8 +70,8 @@ VeloDom currently provides:
 - a safe expression parser/evaluator with no `eval` or `new Function`
 - a Vite template compiler, source-aware diagnostics, optimizer hooks, and
   runtime feature manifests
-- source-aware adapter and user-file loader errors for pages, components, and
-  page config files
+- source-aware adapter and user-file loader errors for pages, layouts,
+  components, and page config files
 - a repeatable local rendering benchmark for common page bindings and loops
 - compiler accessibility warnings for common image, form-control, anchor,
   click-target, and heading mistakes
@@ -141,6 +143,7 @@ src/
     vite-plugin/              template compilation and static SEO rendering
 
   pages/                      application-owned pages
+  layouts/                    optional application-owned page shells
   components/                 application-owned components
   api/                        application-owned handlers and middleware
   assets/                     application-owned static assets such as favicon
@@ -184,15 +187,77 @@ src/components/example/
   *.css               optional scoped styles
 ```
 
+Layouts:
+
+```text
+src/layouts/default.vd        optional default page shell
+src/layouts/blog.vd           optional named page shell
+
+src/layouts/dashboard/
+  index.html                  folder-mode layout template
+  style.css                   optional scoped layout styles
+```
+
 Compatibility filenames `page.js`, `page.config.js`, and `component.js` are
 still discovered, but new application code should prefer `script.js`,
 `config.js`, and `script.ts` where typing is wanted. Page config is currently
 JavaScript (`config.js`), not TypeScript.
 
+## Layouts
+
+Layouts are optional application-owned page shells for shared structure such as
+navigation, sidebars, and footers. They live in `src/layouts/`, support folder
+mode and `.vd` single-file mode, and are selected from page config.
+
+If `src/layouts/default.vd` or `src/layouts/default/index.html` exists, pages
+use it automatically unless their config opts out or chooses another layout.
+
+```html
+<!-- src/layouts/default.vd -->
+<template>
+  <div class="min-h-screen">
+    <vd-component name="nav"></vd-component>
+
+    <main>
+      <vd-page></vd-page>
+    </main>
+
+    <vd-component name="footer"></vd-component>
+  </div>
+</template>
+```
+
+Each layout must contain exactly one `<vd-page></vd-page>` placeholder. The
+router replaces that placeholder with the active page HTML before directives
+and components are mounted, so layout components and page content share the
+same page state and lifecycle.
+
+Choose a named layout from `config.js`:
+
+```js
+export default {
+  path: "/blog",
+  layout: "blog",
+  seo: {
+    title: "Blog",
+    description: "Latest articles."
+  }
+};
+```
+
+Disable layouts for focused pages such as login screens:
+
+```js
+export default {
+  path: "/login",
+  layout: false
+};
+```
+
 ## Optional Single-File Modules
 
 Folder mode remains the default and keeps priority. VeloDom also supports an
-optional `.vd` file format for pages and components when a small module reads
+optional `.vd` file format for pages, layouts, and components when a small module reads
 better in one file.
 
 Both forms are valid:
@@ -2321,7 +2386,7 @@ Latest local verification on 2026-07-10:
 - Core documentation audit passes for 54 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 154 automated tests pass
+- 157 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2348,6 +2413,10 @@ Latest implementation update:
   reactive text no longer requires extra wrapper elements.
 - Added literal interpolation escapes with `\{{ expression }}` and raw
   `vd-pre` sections for documentation/code examples.
+- Added optional `src/layouts/` support with default, named, and disabled page
+  layouts selected through page config.
+- Migrated the showcase pages to `src/layouts/default.vd` so nav/footer are
+  shared from one application-owned layout instead of repeated in every page.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
   `VeloDom_Master_Architecture_Prompt.md` to distinguish client takeover from
   true SSR hydration.

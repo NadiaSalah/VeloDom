@@ -178,6 +178,7 @@ export const VD_RESOURCE_ADAPTER = Object.freeze({
   UNKNOWN_FOLDER: "<unknown>",
   GROUPS: Object.freeze({
     COMPONENTS: "components",
+    LAYOUTS: "layouts",
     PAGES: "pages"
   }),
   TYPES: Object.freeze({
@@ -189,6 +190,7 @@ export const VD_RESOURCE_ADAPTER = Object.freeze({
   }),
   ROOTS: Object.freeze({
     COMPONENTS: "src/components",
+    LAYOUTS: "src/layouts",
     PAGES: "src/pages"
   }),
   FILES: Object.freeze({
@@ -197,6 +199,12 @@ export const VD_RESOURCE_ADAPTER = Object.freeze({
     MODULE: "script.js",
     STYLE: "style.css"
   })
+});
+
+/** Layout placeholder tags used when wrapping page templates. */
+export const VD_LAYOUT = Object.freeze({
+  DEFAULT: "default",
+  PAGE_TAG_SELECTOR: "vd-page"
 });
 
 /** Attributes and element values owned by the SEO runtime and static renderer. */

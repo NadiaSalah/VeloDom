@@ -18,6 +18,7 @@ import {
   VD,
   VD_COMPILER_FEATURES,
   VD_INTERNAL,
+  VD_LAYOUT,
   VD_ROUTER
 } from "./constants.ts";
 import { reportUserActionError } from "./errors/error-reporter.ts";
@@ -35,6 +36,9 @@ import {
 import { validateResourceAdapter } from "./resource-adapter.ts";
 import { applyPageSeo } from "./seo.ts";
 import { normalizeFolderPath } from "./shared/path.ts";
+import type {
+  RuntimeFeatureManifest
+} from "./compiler/types.ts";
 import type {
   ErrorBoundaryHook,
   RouterOptions,
@@ -64,11 +68,15 @@ export function createPageRouter(
   const resources = validateResourceAdapter(adapter);
   const pageResources = resources.pages;
   const componentResources = resources.components;
+  const layoutResources = resources.layouts;
   const pageHtml = pageResources.html || Object.create(null);
   const pageModules = pageResources.modules || Object.create(null);
   const pageConfigs = pageResources.configs || Object.create(null);
   const pageStyles = pageResources.styles || Object.create(null);
   const pageManifests = pageResources.manifests || Object.create(null);
+  const layoutHtml = layoutResources.html || Object.create(null);
+  const layoutStyles = layoutResources.styles || Object.create(null);
+  const layoutManifests = layoutResources.manifests || Object.create(null);
   const runtime = {
     availablePages: new Set(Object.keys(pageHtml)),
     pageConfigs,
@@ -171,14 +179,48 @@ export function createPageRouter(
         throw error;
       }
 
+      const layoutName = resolvePageLayoutName(pageConfigs[page], layoutHtml);
+      const loadLayoutHtml = layoutName
+        ? layoutHtml[layoutName]
+        : null;
+
+      if (layoutName && !loadLayoutHtml) {
+        throw new Error(
+          `Layout "${layoutName}" configured for page "${page}" was not found`
+        );
+      }
+
       const loadManifest = pageManifests[page];
-      const [html, manifest] = await Promise.all([
+      const loadLayoutManifest = layoutName
+        ? layoutManifests[layoutName]
+        : null;
+      const [
+        html,
+        manifest,
+        layoutTemplate,
+        layoutManifest
+      ] = await Promise.all([
         loadHtml(),
-        loadManifest?.() ?? null
+        loadManifest?.() ?? null,
+        loadLayoutHtml?.() ?? null,
+        layoutName ? loadLayoutManifest?.() ?? null : undefined
       ]);
+      const activeManifest = combineRuntimeManifests(
+        manifest,
+        layoutManifest
+      );
 
       applyPageSeo(pageConfigs[page]?.seo, route.path);
-      app.innerHTML = html;
+      app.innerHTML = layoutName && layoutTemplate
+        ? renderPageLayout(layoutTemplate, html, layoutName)
+        : html;
+      if (layoutName) {
+        await applyScopedFolderStyles(
+          app,
+          layoutStyles,
+          `${layoutName}/`
+        );
+      }
       await applyScopedFolderStyles(
         app,
         pageStyles,
@@ -223,10 +265,10 @@ export function createPageRouter(
         page: ctx.page,
         getPageState: ctx.getPageState,
         hasPage: ctx.hasPage,
-        features: manifest?.features
+        features: activeManifest?.features
       });
 
-      const componentsCleanup = shouldMountComponents(manifest)
+      const componentsCleanup = shouldMountComponents(activeManifest)
           ? await mount(
             app,
             state,
@@ -293,7 +335,18 @@ export function createPageRouter(
           pageConfigs[notFoundPage]?.seo,
           route.path
         );
-        app.innerHTML = await load404();
+        const html = await load404();
+        const layoutName = resolvePageLayoutName(
+          pageConfigs[notFoundPage],
+          layoutHtml
+        );
+        const layoutTemplate = layoutName
+          ? await layoutHtml[layoutName]?.()
+          : null;
+
+        app.innerHTML = layoutName && layoutTemplate
+          ? renderPageLayout(layoutTemplate, html, layoutName)
+          : html;
       } else {
         applyPageSeo(undefined, route.path);
         app.innerHTML = `<h1>Page "${page}" not found</h1>`;
@@ -408,10 +461,16 @@ export function createPageRouter(
 
     if (!loadHtml) return;
 
+    const layoutName = resolvePageLayoutName(
+      pageConfigs[route.page],
+      layoutHtml
+    );
     const promise = Promise.all([
       loadHtml(),
       pageManifests[route.page]?.() ?? null,
-      pageModules[route.page]?.() ?? null
+      pageModules[route.page]?.() ?? null,
+      layoutName ? layoutHtml[layoutName]?.() ?? null : null,
+      layoutName ? layoutManifests[layoutName]?.() ?? null : null
     ])
       .then(() => {
         prefetchedPages.add(route.page);
@@ -455,6 +514,73 @@ function shouldMountComponents(manifest) {
   return !manifest || manifest.features.includes(
     VD_COMPILER_FEATURES.COMPONENTS
   );
+}
+
+function resolvePageLayoutName(config, layouts) {
+  if (config?.layout === false) return "";
+
+  const configured = normalizeFolderPath(config?.layout);
+
+  if (configured) return configured;
+
+  return layouts[VD_LAYOUT.DEFAULT]
+    ? VD_LAYOUT.DEFAULT
+    : "";
+}
+
+function renderPageLayout(
+  layoutHtml: string,
+  pageHtml: string,
+  layoutName: string
+) {
+  const layoutTemplate = document.createElement("template");
+
+  layoutTemplate.innerHTML = layoutHtml;
+
+  const placeholders = layoutTemplate.content.querySelectorAll(
+    VD_LAYOUT.PAGE_TAG_SELECTOR
+  );
+
+  if (placeholders.length !== 1) {
+    throw new Error(
+      `Layout "${layoutName}" must contain exactly one <vd-page></vd-page> placeholder`
+    );
+  }
+
+  const pageTemplate = document.createElement("template");
+
+  pageTemplate.innerHTML = pageHtml;
+  placeholders[0].replaceWith(pageTemplate.content);
+  return layoutTemplate.innerHTML;
+}
+
+function combineRuntimeManifests(
+  pageManifest: RuntimeFeatureManifest | null | undefined,
+  layoutManifest: RuntimeFeatureManifest | null | undefined
+): RuntimeFeatureManifest | null | undefined {
+  const manifests = [
+    pageManifest,
+    layoutManifest
+  ].filter(manifest => manifest !== undefined);
+
+  if (manifests.length === 0) return undefined;
+  if (manifests.some(manifest => manifest === null)) return null;
+
+  return {
+    directives: uniqueManifestValues(manifests, "directives"),
+    features: uniqueManifestValues(manifests, "features")
+  };
+}
+
+function uniqueManifestValues(
+  manifests: RuntimeFeatureManifest[],
+  key: keyof RuntimeFeatureManifest
+): string[] {
+  return [
+    ...new Set(
+      manifests.flatMap(manifest => manifest?.[key] || [])
+    )
+  ].sort();
 }
 
 function onceAsync(callback) {
