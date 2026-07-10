@@ -1353,6 +1353,154 @@ browser validation attributes such as `required`, `minlength`, `maxlength`, and
 handlers run, and the plugin marks invalid forms/fields with
 `data-vd-invalid` and `data-vd-field-invalid`.
 
+### Recipe: Create, Update, and Delete Forms
+
+Use the same small pattern for CRUD screens:
+
+1. keep draft values in page state with `vd-model`
+2. point the form/button at an application-owned API route with `vd-request`
+3. use `target` plus `autoState` so VeloDom derives result/loading/error names
+4. install `createValidationPlugin()` only when native form validation is needed
+
+API routes stay in `src/api`:
+
+```js
+// src/api/posts.js
+import { requestJson } from "velodom";
+
+export function create(params, { signal } = {}) {
+  return requestJson("https://dummyjson.com/posts/add", {
+    method: "POST",
+    body: params,
+    signal
+  });
+}
+
+export function update(params, { signal } = {}) {
+  const { id, ...body } = params;
+
+  return requestJson(`https://dummyjson.com/posts/${id}`, {
+    method: "PUT",
+    body,
+    signal
+  });
+}
+
+export function remove({ id }, { signal } = {}) {
+  return requestJson(`https://dummyjson.com/posts/${id}`, {
+    method: "DELETE",
+    signal
+  });
+}
+```
+
+Register names once:
+
+```js
+// src/api/routes.js
+import * as posts from "./posts.js";
+
+export default {
+  "posts.create": posts.create,
+  "posts.update": posts.update,
+  "posts.delete": posts.remove
+};
+```
+
+Create form:
+
+```html
+<form
+  vd-validate
+  vd-request="posts.create"
+  vd-request-config="{ target: 'createResult', autoState: true }"
+>
+  <input name="title" vd-model="createDraft.title" required>
+  <textarea name="body" vd-model="createDraft.body" required></textarea>
+
+  <button type="submit" vd-bind:disabled="createLoading">Create</button>
+  <p vd-show="createLoading">Creating...</p>
+  <p vd-if="createError !== ''" vd-text="createError"></p>
+  <p vd-if="Boolean(createResult?.id)">
+    Created #{{ createResult.id }}
+  </p>
+</form>
+```
+
+Update form:
+
+```html
+<form
+  vd-validate
+  vd-request="posts.update"
+  vd-request-config="{
+    params: {
+      id: editDraft.id,
+      title: editDraft.title,
+      body: editDraft.body
+    },
+    target: 'updateResult',
+    autoState: true
+  }"
+>
+  <input name="id" vd-model="editDraft.id" required>
+  <input name="title" vd-model="editDraft.title" required>
+  <textarea name="body" vd-model="editDraft.body"></textarea>
+
+  <button type="submit" vd-bind:disabled="updateLoading">Update</button>
+  <p vd-if="Boolean(updateResult?.id)">
+    Updated #{{ updateResult.id }}
+  </p>
+</form>
+```
+
+Delete actions can be buttons because they usually need only one parameter:
+
+```html
+<input vd-model="deleteId" required>
+
+<button
+  type="button"
+  vd-request="posts.delete"
+  vd-request-config="{
+    params: { id: deleteId },
+    target: 'deleteResult',
+    autoState: true
+  }"
+  vd-bind:disabled="deleteLoading"
+>
+  Delete
+</button>
+
+<p vd-show="deleteLoading">Deleting...</p>
+<p vd-if="deleteError !== ''" vd-text="deleteError"></p>
+<p vd-if="Boolean(deleteResult?.id)">
+  Deleted #{{ deleteResult.id }}
+</p>
+```
+
+Initialize draft state in the page script:
+
+```js
+// src/pages/studio/script.js
+export function init({ state }) {
+  state.createDraft = {
+    title: "",
+    body: ""
+  };
+  state.editDraft = {
+    id: "1",
+    title: "",
+    body: ""
+  };
+  state.deleteId = "1";
+}
+```
+
+The showcase route `/studio` contains the full working version using
+DummyJSON, Tailwind CSS, optional validation, and automatic request status
+state.
+
 ### Cross-Page State Writes
 
 Destination page:

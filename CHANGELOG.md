@@ -48,6 +48,12 @@ package versions.
   nav/footer reuse.
 - Brought the automated suite to 157 passing tests.
 
+### Documentation Recipes
+
+- Added a create/update/delete form recipe that connects `vd-model`,
+  `vd-request`, `vd-request-config`, optional validation, and automatic request
+  status state.
+
 ## 2026-07-09
 
 ### Router UX

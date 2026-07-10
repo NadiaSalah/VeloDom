@@ -172,6 +172,9 @@
   discovers them, while the router only composes validated resource maps.
   `<vd-page></vd-page>` is intentionally a single required placeholder so
   layout composition remains static and compiler-friendly.
+- Recipes should document framework patterns using the showcase app as the
+  proof source. Prefer documenting existing working conventions before adding
+  new runtime behavior.
 - Page SEO is application-owned and declared in each page's existing
   `config.js`; validation, runtime head synchronization, and static rendering
   are generic framework responsibilities under `src/core`.
