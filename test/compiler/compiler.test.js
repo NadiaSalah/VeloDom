@@ -56,6 +56,61 @@ test("script contents are not parsed as template tags", () => {
   assert.equal(result.metadata.length, 1);
 });
 
+test("text interpolations compile to text directives", () => {
+  const result = compileTemplate(`
+    <p>Hello {{ name }}. Age: {{ user.age }}</p>
+  `);
+
+  assert.match(
+    result.html,
+    /Hello <span data-vd-text="name"><\/span>\. Age: <span data-vd-text="user\.age"><\/span>/
+  );
+  assert.deepEqual(result.diagnostics, []);
+  assert.deepEqual(result.manifest.features, [
+    "text"
+  ]);
+  assert.deepEqual(result.manifest.directives, [
+    "data-vd-text"
+  ]);
+  assert.equal(result.metadata[0].type, "interpolation");
+});
+
+test("text interpolations escape directive expressions in attributes", () => {
+  const result = compileTemplate("<p>{{ user['full name'] }}</p>");
+
+  assert.match(
+    result.html,
+    /data-vd-text="user\['full name'\]"/
+  );
+  assert.deepEqual(result.diagnostics, []);
+});
+
+test("text interpolations validate expressions with source diagnostics", () => {
+  const result = compileTemplate("<p>Hello {{ user && }}</p>", {
+    filename: "interpolation.html"
+  });
+  const diagnostic = result.diagnostics[0];
+
+  assert.equal(diagnostic.code, "VD_EXPRESSION_SYNTAX");
+  assert.equal(diagnostic.filename, "interpolation.html");
+  assert.equal(diagnostic.location.line, 1);
+  assert.ok(diagnostic.location.column > 1);
+});
+
+test("script and style contents do not compile text interpolations", () => {
+  const source = [
+    "<script>const template = '{{ name }}';</script>",
+    "<style>.badge::after { content: '{{ label }}'; }</style>",
+    "<p>{{ name }}</p>"
+  ].join("");
+  const result = compileTemplate(source);
+
+  assert.match(result.html, /const template = '{{ name }}'/);
+  assert.match(result.html, /content: '{{ label }}'/);
+  assert.equal(result.metadata.length, 1);
+  assert.match(result.html, /<span data-vd-text="name"><\/span>/);
+});
+
 test("quoted greater-than characters do not close a start tag", () => {
   const result = compileTemplate('<p title="a > b" vd-show="visible"></p>');
 

@@ -17,7 +17,7 @@
         <div class="space-y-4">
           <div class="flex flex-wrap gap-2">
             <button vd-on:click="increment()" class="btn btn-primary">
-              Count: <span vd-text="count"></span>
+              Count: {{ count }}
             </button>
             <button vd-on:click="toggleVisible()" class="btn btn-outline">
               Toggle visibility
@@ -34,7 +34,7 @@
         </div>
       </vd-child>
       <vd-child name="footer">
-        <span class="badge badge-outline">if / elseif / else / show / text</span>
+        <span class="badge badge-outline">if / elseif / else / show / text / interpolation</span>
       </vd-child>
     </vd-component>
 
@@ -49,7 +49,7 @@
             placeholder="Your name"
           />
           <p>
-            Hello, <strong vd-text="profile.name || 'reader'"></strong>
+            Hello, <strong>{{ profile.name || 'reader' }}</strong>
           </p>
           <label class="label cursor-pointer justify-start gap-3">
             <input type="checkbox" vd-model="accepted" class="checkbox" />

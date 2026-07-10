@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**244 of 315 tasks completed — 77.5%**
+**245 of 316 tasks completed — 77.5%**
 
 `[###############-----]`
 
@@ -135,6 +135,7 @@ runtime work.
 ### Phase 0 Acceptance Criteria
 
 - [x] Preferred `vd-*` syntax works in page and component HTML
+- [x] Text interpolation `{{ expression }}` compiles to safe reactive text bindings
 - [x] Existing `data-vd-*` templates continue working unchanged
 - [x] Malformed directives fail during development build
 - [x] Compiler modules run under Node without browser globals

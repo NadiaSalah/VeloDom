@@ -162,6 +162,9 @@
   feature set synchronously.
 - Missing manifests intentionally select every directive feature, preserving
   compatibility for custom resource adapters and direct runtime usage.
+- Text interpolation is a compiler feature, not a browser runtime parser.
+  `{{ expression }}` is lowered to `data-vd-text` spans and uses the existing
+  safe expression engine and text directive.
 - Page SEO is application-owned and declared in each page's existing
   `config.js`; validation, runtime head synchronization, and static rendering
   are generic framework responsibilities under `src/core`.

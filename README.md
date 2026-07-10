@@ -598,6 +598,17 @@ but new examples should use `vd-*`.
 
 Text is assigned through `textContent`, not HTML injection.
 
+For inline text, use compiler-first interpolation instead of adding extra
+elements only to print one value:
+
+```html
+<p>{{ name }} is {{ age }} years old.</p>
+```
+
+The compiler turns each `{{ expression }}` into the same safe reactive text
+binding used by `vd-text`. Expressions are validated during compilation and
+are ignored inside `<script>` and `<style>` content.
+
 ### Conditionals
 
 ```html
@@ -2296,7 +2307,7 @@ Latest local verification on 2026-07-10:
 - Core documentation audit passes for 54 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 146 automated tests pass
+- 151 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2319,6 +2330,8 @@ Latest implementation update:
   including nested state-path behavior.
 - Froze the component public API pattern as `return { state, expose }` and
   exported the `ComponentExpose` TypeScript contract.
+- Added compiler-first text interpolation with `{{ expression }}` so inline
+  reactive text no longer requires extra wrapper elements.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
   `VeloDom_Master_Architecture_Prompt.md` to distinguish client takeover from
   true SSR hydration.

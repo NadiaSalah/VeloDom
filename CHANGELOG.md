@@ -24,6 +24,15 @@ package versions.
   expose returns.
 - Brought the automated suite to 146 passing tests.
 
+### Text Interpolation
+
+- Added compiler-first `{{ expression }}` text interpolation for page,
+  component, and `.vd` templates.
+- Lowered interpolation to existing `data-vd-text` bindings so the browser
+  runtime stays lightweight and uses the existing safe expression engine.
+- Kept interpolation disabled inside `<script>` and `<style>` content.
+- Brought the automated suite to 151 passing tests.
+
 ## 2026-07-09
 
 ### Router UX

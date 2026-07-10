@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { compileTemplate } from "../../src/core/compiler/index.ts";
 import { applyDirectives } from "../../src/core/directives.ts";
 import { createPageEventHub } from "../../src/core/events.ts";
 import { mount } from "../../src/core/mount.ts";
@@ -106,6 +107,35 @@ test("directives react through a real DOM tree", async () => {
 
   assert.equal(root.querySelector("#elseif").style.display, "none");
   assert.equal(root.querySelector("#else").style.display, "");
+
+  cleanup();
+});
+
+test("compiled text interpolations react through text directives", async () => {
+  const root = document.createElement("main");
+  const compiled = compileTemplate(
+    "<p>Hello {{ name }} — {{ age }}</p>"
+  );
+
+  root.innerHTML = compiled.html;
+  document.body.append(root);
+
+  const state = createState({
+    name: "Nadia",
+    age: 32
+  });
+  const cleanup = await applyDirectives(root, state, {
+    features: compiled.manifest.features
+  });
+
+  assert.equal(root.textContent.trim(), "Hello Nadia — 32");
+
+  state.name = "VeloDom";
+  state.age = 1;
+
+  await waitFor(() => {
+    assert.equal(root.textContent.trim(), "Hello VeloDom — 1");
+  });
 
   cleanup();
 });

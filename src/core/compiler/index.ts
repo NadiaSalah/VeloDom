@@ -93,11 +93,29 @@ export function compileTemplate(
     const open = source.indexOf("<", cursor);
 
     if (open === -1) {
-      output += source.slice(cursor);
+      const compiledText = compileTextSegment(
+        source.slice(cursor),
+        cursor,
+        source,
+        filename
+      );
+
+      output += compiledText.html;
+      diagnostics.push(...compiledText.diagnostics);
+      metadata.push(...compiledText.metadata);
       break;
     }
 
-    output += source.slice(cursor, open);
+    const compiledText = compileTextSegment(
+      source.slice(cursor, open),
+      cursor,
+      source,
+      filename
+    );
+
+    output += compiledText.html;
+    diagnostics.push(...compiledText.diagnostics);
+    metadata.push(...compiledText.metadata);
 
     if (source.startsWith("<!--", open)) {
       const commentEnd = source.indexOf("-->", open + 4);
@@ -302,6 +320,85 @@ function compileStartTag(
         offset: attribute.start
       }))
     }
+  };
+}
+
+function compileTextSegment(
+  text: string,
+  sourceOffset: number,
+  fullSource: string,
+  filename: string
+) {
+  const diagnostics = [];
+  const metadata = [];
+  let html = "";
+  let cursor = 0;
+  const pattern = /{{([\s\S]*?)}}/g;
+  let match = pattern.exec(text);
+
+  while (match) {
+    const expressionSource = match[1] || "";
+    const expression = expressionSource.trim();
+    const interpolationStart = sourceOffset + match.index;
+    const expressionOffset = interpolationStart
+      + 2
+      + expressionSource.indexOf(expression);
+
+    html += text.slice(cursor, match.index);
+
+    if (!expression) {
+      diagnostics.push(createDiagnostic(
+        fullSource,
+        filename,
+        interpolationStart,
+        "error",
+        "VD_COMPILER_EMPTY_INTERPOLATION",
+        "Text interpolation requires an expression"
+      ));
+      html += match[0];
+    } else {
+      try {
+        parseExpression(expression);
+      } catch (error) {
+        const syntaxError = error instanceof ExpressionSyntaxError
+          ? error
+          : new ExpressionSyntaxError(
+            error?.message || "Invalid text interpolation expression"
+          );
+
+        diagnostics.push(createDiagnostic(
+          fullSource,
+          filename,
+          expressionOffset + syntaxError.offset,
+          "error",
+          syntaxError.code,
+          syntaxError.message
+        ));
+      }
+
+      html += `<span data-vd-text="${escapeAttribute(expression)}"></span>`;
+      metadata.push({
+        type: "interpolation",
+        name: "data-vd-text",
+        originalName: "{{ }}",
+        argument: "",
+        modifiers: [],
+        expression,
+        offset: interpolationStart,
+        location: getSourceLocation(fullSource, interpolationStart)
+      });
+    }
+
+    cursor = match.index + match[0].length;
+    match = pattern.exec(text);
+  }
+
+  html += text.slice(cursor);
+
+  return {
+    html,
+    diagnostics,
+    metadata
   };
 }
 
@@ -749,6 +846,14 @@ function readModifiers(name) {
 
 function isWhitespace(value) {
   return Boolean(value && /\s/.test(value));
+}
+
+function escapeAttribute(value: string) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 function createDiagnostic(source, filename, offset, severity, code, message) {
