@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { VD } from "../../src/core/constants.ts";
+import {
+  VD,
+  VD_REQUEST
+} from "../../src/core/constants.ts";
 import {
   createAutoStatusBinding,
   resolveRequestBinding,
@@ -68,6 +71,48 @@ test("automatic request status names replace the Result suffix", () => {
   assert.equal(
     createAutoStatusBinding(target, "error").path,
     "postError"
+  );
+});
+
+test("automatic request status suffix names are frozen", () => {
+  assert.deepEqual(VD_REQUEST.STATUS_SUFFIXES, {
+    RESULT: "Result",
+    LOADING: "Loading",
+    ERROR: "Error"
+  });
+});
+
+test("automatic request status names append suffixes without Result", () => {
+  const target = {
+    state: {},
+    path: "post",
+    pageName: "features"
+  };
+
+  assert.equal(
+    createAutoStatusBinding(target, "loading").path,
+    "postLoading"
+  );
+  assert.equal(
+    createAutoStatusBinding(target, "error").path,
+    "postError"
+  );
+});
+
+test("automatic request status names preserve nested state paths", () => {
+  const target = {
+    state: {},
+    path: "article.currentResult",
+    pageName: "features"
+  };
+
+  assert.equal(
+    createAutoStatusBinding(target, "loading").path,
+    "article.currentLoading"
+  );
+  assert.equal(
+    createAutoStatusBinding(target, "error").path,
+    "article.currentError"
   );
 });
 

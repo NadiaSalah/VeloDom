@@ -8,7 +8,10 @@
  * ----------------------------------------
  */
 
-import { VD } from "../constants.ts";
+import {
+  VD,
+  VD_REQUEST
+} from "../constants.ts";
 import {
   findProtectedStatePathKey,
   normalizeFolderPath
@@ -403,10 +406,13 @@ function deriveRequestStatusPath(
 
   if (segments.length === 0) return "";
 
-  const suffix = kind === "loading" ? "Loading" : "Error";
+  const suffix = kind === "loading"
+    ? VD_REQUEST.STATUS_SUFFIXES.LOADING
+    : VD_REQUEST.STATUS_SUFFIXES.ERROR;
   const last = segments.pop();
-  const base = last.endsWith("Result")
-    ? last.slice(0, -6)
+  const resultSuffix = VD_REQUEST.STATUS_SUFFIXES.RESULT;
+  const base = last.endsWith(resultSuffix)
+    ? last.slice(0, -resultSuffix.length)
     : last;
 
   segments.push(`${base}${suffix}`);

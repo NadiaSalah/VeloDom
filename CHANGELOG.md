@@ -4,6 +4,17 @@ All important local changes to VeloDom are recorded here. The project is not
 published yet, so entries describe development milestones rather than released
 package versions.
 
+## 2026-07-10
+
+### Request Status Naming
+
+- Froze automatic request state suffixes as `Result`, `Loading`, and `Error`.
+- Moved the suffix values into framework constants so the request binding
+  derivation no longer depends on hidden string literals.
+- Added coverage for replacing `Result`, appending suffixes to targets without
+  `Result`, and preserving nested state paths.
+- Brought the automated suite to 144 passing tests.
+
 ## 2026-07-09
 
 ### Router UX

@@ -247,6 +247,10 @@
   loading/error/result state. The compiler normalizes it to the stable
   `data-vd-request-state` runtime attribute, while direct
   `data-vd-auto-state` remains accepted for uncompiled HTML compatibility.
+- Automatic request status naming is frozen around the suffixes `Result`,
+  `Loading`, and `Error`. A target ending in `Result` replaces only that
+  suffix; other targets append status suffixes, and nested paths keep their
+  parent segments.
 
 ## Known Constraints
 

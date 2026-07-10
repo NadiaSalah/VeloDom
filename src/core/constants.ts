@@ -234,6 +234,11 @@ export const VD_ERROR_BOUNDARY = Object.freeze({
 
 /** Request event names, stages, and public error codes. */
 export const VD_REQUEST = Object.freeze({
+  STATUS_SUFFIXES: Object.freeze({
+    RESULT: "Result",
+    LOADING: "Loading",
+    ERROR: "Error"
+  }),
   EVENTS: Object.freeze({
     SUCCESS: "vd:request:success",
     ERROR: "vd:request:error"

@@ -1188,6 +1188,16 @@ postError
 If the target does not end with `Result`, VeloDom appends `Loading` and
 `Error` to the target name.
 
+This naming convention is frozen for V1:
+
+- `Result` marks the result-state suffix that can be replaced.
+- `Loading` is the derived loading-state suffix.
+- `Error` is the derived error-state suffix.
+
+Nested targets preserve their parent path. For example,
+`article.currentResult` derives `article.currentLoading` and
+`article.currentError`.
+
 `vd-auto-state` is the preferred attribute equivalent of `autoState: true`.
 It compiles to the stable runtime attribute `data-vd-request-state`.
 `vd-request-state` / `data-vd-request-state` remain supported for existing
@@ -2238,12 +2248,12 @@ choices, not VeloDom Core dependencies or requirements.
 
 ## Verification
 
-Latest local verification on 2026-07-09:
+Latest local verification on 2026-07-10:
 
 - Core documentation audit passes for 54 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 141 automated tests pass
+- 144 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2262,6 +2272,8 @@ Latest implementation update:
   `requests/request-router.ts` as framework-owned module filenames.
 - Added `vd-auto-state` as the preferred friendly alias for automatic request
   loading/error state while keeping `vd-request-state` compatible.
+- Froze automatic request state suffixes as `Result`, `Loading`, and `Error`,
+  including nested state-path behavior.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
   `VeloDom_Master_Architecture_Prompt.md` to distinguish client takeover from
   true SSR hydration.
