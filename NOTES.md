@@ -413,6 +413,10 @@
   public conformance assertion. This documents adapter responsibilities without
   leaking build-tool discovery into the router; legacy adapters remain valid
   when they omit the new metadata.
+- The `velodom/assets` subpath inspects application-owned image files and
+  builds standards-based responsive-image attributes from explicit variants.
+  It intentionally does not select a CDN or transform files: image generation
+  remains an application/deployment decision and adds no VeloDom runtime code.
 
 ## Handoff Guidance
 

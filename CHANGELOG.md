@@ -18,6 +18,9 @@ package versions.
 - Added the versioned V1 resource-adapter contract, a public conformance
   assertion, adapter fixtures, and optional inference helpers for page config,
   request routes, plugins, and adapters in both JavaScript and TypeScript.
+- Added optional Node-only image inspection and responsive attribute helpers,
+  plus compiler diagnostics for image dimensions, without a browser asset
+  runtime or image-provider dependency.
 
 ### V1 Release Polish
 

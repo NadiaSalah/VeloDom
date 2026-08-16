@@ -52,6 +52,11 @@
       "import": "./lib/content.js",
       "default": "./lib/content.js"
     },
+    "./assets": {
+      "types": "./types/assets.d.ts",
+      "import": "./lib/assets.js",
+      "default": "./lib/assets.js"
+    },
     "./vite": {
       "types": "./types/adapters/vite.d.ts",
       "import": "./lib/adapters/vite.js",

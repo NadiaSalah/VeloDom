@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**349 of 369 tasks completed — 95%**
+**351 of 369 tasks completed — 95%**
 
 `[###################-]`
 
@@ -684,11 +684,11 @@ browser runtime small, and remain optional where a project does not need it.
 
 #### 19.2 Build-Time Asset Quality — V1.x
 
-- [ ] Design an optional `velodom/assets` build helper for responsive image
+- [x] Design an optional `velodom/assets` build helper for responsive image
       metadata and generated image variants without a new browser directive —
       Fit: HTML-first and runtime-lightweight; Value: better LCP and easier
       image authoring; Complexity: medium; Target: V1.x
-- [ ] Add compiler/build diagnostics for missing image dimensions, oversized
+- [x] Add compiler/build diagnostics for missing image dimensions, oversized
       local assets, and absent useful alt text while preserving intentional
       decorative-image patterns — Fit: compiler-first guidance; Value: fewer
       layout shifts and accessibility mistakes; Complexity: medium; Target:

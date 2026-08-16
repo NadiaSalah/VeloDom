@@ -220,6 +220,7 @@ test("compiler emits baseline accessibility warnings", () => {
   const codes = result.diagnostics.map(diagnostic => diagnostic.code);
 
   assert.ok(codes.includes("VD_A11Y_IMG_ALT"));
+  assert.ok(codes.includes("VD_A11Y_IMG_DIMENSIONS"));
   assert.ok(codes.includes("VD_A11Y_CONTROL_NAME"));
   assert.ok(codes.includes("VD_A11Y_ANCHOR_HREF"));
   assert.ok(codes.includes("VD_A11Y_NON_SEMANTIC_CLICK"));
@@ -234,7 +235,7 @@ test("compiler accepts accessible static and bound template patterns", () => {
   const result = compileTemplate(`
     <label for="email">Email</label>
     <input id="email" type="email">
-    <img vd-bind:alt="avatarAlt" src="/avatar.png">
+    <img vd-bind:alt="avatarAlt" src="/avatar.png" width="64" height="64">
     <a vd-bind:href="profileUrl" vd-nav>Profile</a>
     <div
       role="button"

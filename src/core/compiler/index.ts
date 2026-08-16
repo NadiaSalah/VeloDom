@@ -641,6 +641,22 @@ function createAccessibilityDiagnostics(
     ));
   }
 
+  if (
+    tagName === "img"
+    && hasAnyAttribute(attributes, ["src", "data-vd-src", "vd-src", "vd-bind:src"])
+    && !hasAnyAttribute(attributes, ["width", "data-vd-width", "vd-width", "vd-bind:width"])
+    && !hasAnyAttribute(attributes, ["height", "data-vd-height", "vd-height", "vd-bind:height"])
+  ) {
+    diagnostics.push(createDiagnostic(
+      source,
+      filename,
+      parsed.offset,
+      "warning",
+      VD_ACCESSIBILITY.CODES.IMG_DIMENSIONS,
+      "Images should provide width and height to reduce layout shift"
+    ));
+  }
+
   if (isFormControl(tagName, attributes) && !hasAccessibleName(attributes, context)) {
     diagnostics.push(createDiagnostic(
       source,
