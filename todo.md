@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**284 of 326 tasks completed — 87.1%**
+**286 of 326 tasks completed — 87.7%**
 
-`[#################---]`
+`[##################--]`
 
-Remaining tasks: **42**
+Remaining tasks: **40**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -472,8 +472,8 @@ and `src/api`.
 - [x] Create CLI for component scaffolding
 - [x] Create CLI for API file scaffolding
 - [x] Create CLI for demo scaffolding
-- [ ] Add public test utilities for mounting pages and components
-- [ ] Add a development command to inspect discovered routes and feature manifests
+- [x] Add public test utilities for mounting pages and components
+- [x] Add a development command to inspect discovered routes and feature manifests
 
 ### 14.1 Future DX Acceptance Rules
 

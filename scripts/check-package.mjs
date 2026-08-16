@@ -35,6 +35,10 @@ const expectedExports = {
   "./vite-plugin": [
     "./lib/vite-plugin/index.js",
     "./types/vite-plugin/index.d.ts"
+  ],
+  "./testing": [
+    "./lib/testing.js",
+    "./types/testing.d.ts"
   ]
 };
 const allowedPackageFiles = new Set([

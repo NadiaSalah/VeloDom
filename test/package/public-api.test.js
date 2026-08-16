@@ -3,11 +3,13 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import * as compilerApi from "../../src/core/compiler/index.ts";
 import * as runtimeApi from "../../src/core/index.ts";
+import * as testingApi from "../../src/core/testing.ts";
 import * as vitePluginApi from "../../src/core/vite-plugin/index.ts";
 
 const adapterEntrySource = await readSource("../../src/core/adapters/vite.ts");
 const rootEntrySource = await readSource("../../src/core/index.ts");
 const compilerEntrySource = await readSource("../../src/core/compiler/index.ts");
+const testingEntrySource = await readSource("../../src/core/testing.ts");
 const vitePluginEntrySource = await readSource("../../src/core/vite-plugin/index.ts");
 const manifest = JSON.parse(await readSource("../../package.json"));
 
@@ -135,11 +137,25 @@ test("vite adapter and plugin public exports are frozen", () => {
   ]);
 });
 
+test("testing utilities public exports are frozen", () => {
+  assert.deepEqual(Object.keys(testingApi).sort(), [
+    "mountTestComponent",
+    "mountTestPage"
+  ]);
+  assert.deepEqual(readInterfaceExportNames(testingEntrySource), [
+    "TestComponentDefinition",
+    "TestComponentMountOptions",
+    "TestMountResult",
+    "TestPageMountOptions"
+  ]);
+});
+
 test("package subpath exports are frozen", () => {
   assert.deepEqual(Object.keys(manifest.exports).sort(), [
     ".",
     "./compiler",
     "./package.json",
+    "./testing",
     "./vite",
     "./vite-plugin"
   ]);

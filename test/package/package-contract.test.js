@@ -13,6 +13,7 @@ test("published package boundaries use built allowlisted artifacts", () => {
   const publicEntries = [
     ".",
     "./compiler",
+    "./testing",
     "./vite",
     "./vite-plugin"
   ];

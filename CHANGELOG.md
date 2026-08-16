@@ -28,6 +28,15 @@ package versions.
   publishable file allowlist.
 - Brought the automated suite to 193 passing tests.
 
+### Public Testing Utilities
+
+- Added the `velodom/testing` package subpath.
+- Added `mountTestPage()` for compiling and mounting page-like templates in
+  browser-like test environments.
+- Added `mountTestComponent()` for mounting in-memory component definitions
+  with props, slots, module hooks, styles, and optional manifest overrides.
+- Brought the automated suite to 196 passing tests.
+
 ## 2026-07-10
 
 ### Request Status Naming

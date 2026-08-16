@@ -17,6 +17,7 @@ JavaScript or TypeScript independently for every page and component.
 - [What Works Today](#what-works-today)
 - [Requirements and Commands](#requirements-and-commands)
 - [CLI and Project Intelligence](#cli-and-project-intelligence)
+- [Testing Utilities](#testing-utilities)
 - [Project Structure](#project-structure)
 - [Folder Conventions](#folder-conventions)
 - [Layouts](#layouts)
@@ -81,6 +82,8 @@ VeloDom currently provides:
   package runtime modules
 - local static CLI tooling for project inspection, route listing, stats, and
   convention-first scaffolding
+- public `velodom/testing` utilities for mounting pages and components in
+  browser-like test environments
 - compiler accessibility warnings for common image, form-control, anchor,
   click-target, and heading mistakes
 - generated ESM and TypeScript declarations for the intended package surface
@@ -164,6 +167,29 @@ The CLI is intentionally static and local. `vd inspect` and `vd stats` read
 folders, `.vd` files, API route registrations, middleware files, template
 directives, compiler feature manifests, SEO coverage, and test-file signals
 without adding any browser runtime behavior.
+
+## Testing Utilities
+
+Use `velodom/testing` in happy-dom, jsdom, or real-browser tests when you want
+to mount small VeloDom units without importing internal core files:
+
+```js
+import { mountTestPage, mountTestComponent } from "velodom/testing";
+
+const page = await mountTestPage("<h1 vd-text=\"title\"></h1>", {
+  state: {
+    title: "Hello tests"
+  }
+});
+
+page.state.title = "Updated";
+await page.cleanup();
+```
+
+`mountTestPage()` compiles preferred `vd-*` syntax, creates reactive state,
+applies directives, and returns `{ root, state, cleanup }`.
+`mountTestComponent()` mounts one in-memory component definition with optional
+props, slots, module hooks, style, and manifest overrides.
 
 ## Project Structure
 
@@ -3040,6 +3066,12 @@ SEO contracts, application options, and HTTP options.
 - `createRuntimeFeatureManifest`
 - compiler/optimizer result types
 
+### `velodom/testing`
+
+- `mountTestPage`
+- `mountTestComponent`
+- page/component testing utility types
+
 Modules such as `page-router.ts`, `mount.ts`, `directives.ts`, and
 `request-router.ts` are internal. Application code should not import them.
 The internal router filenames `page-router.ts` and
@@ -3079,10 +3111,10 @@ choices, not VeloDom Core dependencies or requirements.
 
 Latest local verification on 2026-08-16:
 
-- Core documentation audit passes for 58 TypeScript files
+- Core documentation audit passes for 59 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 193 automated tests pass
+- 196 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -3139,6 +3171,8 @@ Latest implementation update:
   added `npm run performance:check` to enforce generated JavaScript budgets.
 - Added `vd` / `create-velodom` package binaries for static inspection,
   project stats, route listing, and convention-first scaffolding.
+- Added `velodom/testing` with `mountTestPage()` and `mountTestComponent()`
+  for public DOM test helpers.
 - Added optional direction management through `createDirectionPlugin()` and
   compiler support for explicit `vd-rtl-flip` directional icon markers.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
@@ -3173,6 +3207,7 @@ Test coverage includes:
   subpath exports
 - package-boundary guardrails that keep SSR and hydration APIs deferred
 - CLI inspection, stats, route listing, and scaffolding behavior
+- public page/component testing utilities
 - source-aware adapter errors and user-file loader failure reporting
 - a real-browser Playwright matrix for Chromium/Chrome/Edge plus optional
   Firefox, WebKit, and mobile WebKit coverage of routing, form model updates,

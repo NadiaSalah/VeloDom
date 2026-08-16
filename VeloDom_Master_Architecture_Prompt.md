@@ -324,6 +324,7 @@ Application code should import only documented package entry points:
 
 - `velodom`
 - `velodom/compiler`
+- `velodom/testing`
 - `velodom/vite`
 - `velodom/vite-plugin`
 

@@ -287,6 +287,10 @@
 - CLI scaffolding creates normal VeloDom folders or optional `.vd` files. It
   must continue producing HTML-first files rather than introducing JSX,
   component render functions, or configuration-heavy templates.
+- Public testing helpers live under `velodom/testing`, not the root runtime
+  export. They compile preferred `vd-*` syntax for tests and mount in-memory
+  pages/components against an already-installed DOM environment such as
+  happy-dom, jsdom, or a real browser.
 - Future DX tooling should default to static analysis, compiler manifests,
   Vite/build metadata, and local CLI output. It should improve developer
   confidence without adding mandatory browser runtime features.

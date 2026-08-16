@@ -56,6 +56,11 @@
       "import": "./lib/vite-plugin/index.js",
       "default": "./lib/vite-plugin/index.js"
     },
+    "./testing": {
+      "types": "./types/testing.d.ts",
+      "import": "./lib/testing.js",
+      "default": "./lib/testing.js"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
