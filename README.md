@@ -3203,8 +3203,13 @@ Latest local verification on 2026-08-16:
 - local rendering benchmark script passes
 - JavaScript performance budget check passes
 - production showcase build passes
-- browser E2E passes on Chromium/Chrome/Edge; Firefox/WebKit/mobile WebKit
-  targets skip locally when their Playwright binaries are not installed
+- browser E2E passes on Chromium/Chrome/Edge, WebKit, and mobile WebKit in the
+  current local environment
+- strict browser E2E was retried after installing Firefox and WebKit binaries:
+  WebKit and mobile WebKit pass, while Firefox remains pending because its
+  local headless launch timed out with a graphics/compositor error
+- deployment/static SEO contract passes locally for root HTML, generated route
+  folders, dynamic SEO entries, and unknown-route SPA fallback
 
 Latest implementation update:
 
@@ -3305,6 +3310,13 @@ Latest implementation update:
   true SSR hydration.
 - Browser E2E passed for Chromium/Chrome/Edge; Firefox/WebKit targets were
   skipped locally because their Playwright binaries are not installed.
+- Installed the missing Firefox/WebKit Playwright browsers for strict release
+  verification. WebKit and mobile WebKit passed; Firefox still requires a
+  compatible release/CI environment because local headless startup timed out.
+- Verified the documented static-hosting contract locally: real files and
+  generated directories resolve before fallback to `/index.html`, and generated
+  SEO HTML includes metadata, canonical links, visible fallback content, and
+  JSON-LD for a dynamic article route.
 
 Test coverage includes:
 

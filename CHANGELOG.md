@@ -18,6 +18,12 @@ package versions.
   `velodom/content` implementation documentation plus future improvements.
 - Updated current release evidence to 201 passing automated tests while keeping
   historical changelog counts unchanged.
+- Installed missing Playwright Firefox/WebKit browsers for release verification;
+  WebKit and mobile WebKit now pass locally, while Firefox strict verification
+  remains pending because local headless startup timed out.
+- Verified the provider-neutral static-hosting contract locally: root files,
+  generated route folders, dynamic SEO entries, and unknown-route SPA fallback
+  resolve as documented.
 
 ### Performance Pass
 

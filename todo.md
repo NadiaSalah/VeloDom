@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**343 of 347 tasks completed — 99%**
+**344 of 347 tasks completed — 99%**
 
 `[###################-]`
 
-Remaining tasks: **4**
+Remaining tasks: **3**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -88,11 +88,16 @@ runtime features.
   release-gate commands.
 - [ ] Run strict full browser matrix with all intended Playwright browsers
   installed.
-- [ ] Verify deployment/static-SEO behavior against the documented generic
+- [x] Verify deployment/static-SEO behavior against the documented generic
   hosting contract.
 - [ ] Confirm npm package ownership/reservation and publication account.
 - [ ] Confirm npm access level, 2FA policy, final release notes, and tag
   decision before removing `private: true`.
+
+Strict browser note: Firefox and WebKit Playwright binaries were installed
+locally on 2026-08-16. Strict WebKit and mobile WebKit passed, but Firefox
+headless timed out with a local graphics/compositor launch error, so the full
+strict matrix remains pending for CI or a Firefox-capable release machine.
 
 ---
 

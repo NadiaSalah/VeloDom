@@ -49,8 +49,12 @@ Before publication, the owner must confirm:
 - `npm test`: 201 tests passed locally
 - `npm run check`: passed locally
 - `npm run build`: passed locally
-- `npm run test:browser`: passed locally for Chromium/Chrome/Edge; Firefox,
-  WebKit, and mobile WebKit were skipped because their Playwright binaries are
-  not installed in this local environment
+- `npm run test:browser`: passed locally for Chromium/Chrome/Edge, WebKit, and
+  mobile WebKit after installing the missing Playwright browser binaries
+- `VELODOM_BROWSER_STRICT=1 npm run test:browser`: still pending because
+  Firefox headless startup timed out locally with a graphics/compositor launch
+  error; rerun on a Firefox-capable release or CI machine before public V1
+- Deployment/static SEO contract: passed locally for `/`, `/features/`,
+  `/blog/posts/html-first/`, and an unknown SPA fallback route
 
 This file is a release governance note. It is not a release automation script.
