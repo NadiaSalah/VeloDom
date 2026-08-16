@@ -3445,10 +3445,15 @@ AI and migration research lives in
 [docs/FUTURE_RESEARCH.md](docs/FUTURE_RESEARCH.md), and VeloDom positioning
 lives in [docs/FRAMEWORK_IDENTITY.md](docs/FRAMEWORK_IDENTITY.md).
 
-The current `todo.md` checklist is complete. The remaining practical work
-before a public release is release governance: npm ownership, final publication
-approval, optional stricter browser CI availability, and deciding which future
-research items deserve a new roadmap phase.
+The current V1 implementation checklist is complete. The remaining practical
+work before a public release is release governance: npm ownership, final
+publication approval, and a strict browser run in a Firefox-capable CI or
+release environment. The next deliberately scoped roadmap is documented in
+Phase 19 of `todo.md`: adapter compatibility, opt-in authoring types,
+build-time asset quality, editor intelligence, static-rendering research,
+progressive forms, localization, and development-only inspection. None of
+these items authorizes a mandatory virtual DOM, JSX, CMS, global store, or
+universal SSR runtime.
 
 When continuing development:
 

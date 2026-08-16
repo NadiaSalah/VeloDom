@@ -403,6 +403,12 @@
   complete while npm publication remains blocked by `private: true` until the
   owner confirms package ownership, account, access, 2FA, final notes, and tag
   decisions.
+- The post-V1 competitive roadmap is intentionally bounded: adapter contracts,
+  authoring types, asset tooling, editor intelligence, static rendering,
+  progressive forms, localization, and dev inspection may be researched or
+  implemented only as optional compiler/build or development capabilities.
+  VeloDom must not add a mandatory virtual DOM, JSX, CMS, global store, or
+  universal SSR runtime merely to match another framework's feature list.
 
 ## Handoff Guidance
 

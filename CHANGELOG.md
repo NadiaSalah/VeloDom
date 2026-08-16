@@ -6,6 +6,16 @@ package versions.
 
 ## 2026-08-16
 
+### Post-V1 Roadmap Decision
+
+- Added a constrained competitive-evolution roadmap for adapter stability,
+  optional authoring types, build-time asset quality, editor intelligence,
+  static-rendering research, progressive HTML forms, localization, and
+  development-only inspection.
+- Recorded the architectural guardrail that these initiatives must not turn
+  VeloDom into a mandatory virtual-DOM, JSX, CMS, global-store, or universal
+  SSR framework.
+
 ### V1 Release Polish
 
 - Reconciled release-candidate documentation so README, TODO, NOTES,

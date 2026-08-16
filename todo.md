@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**344 of 347 tasks completed — 99%**
+**344 of 369 tasks completed — 93%**
 
 `[###################-]`
 
@@ -655,6 +655,115 @@ Runtime Lightweight, and Vanilla Friendly.
 - [x] Add deployment recipes for static hosting, Vercel, Netlify, Cloudflare
       Pages, and Node preview without adding provider lock-in
 
+### 19. Focused Competitive Evolution
+
+This backlog is deliberately selective. It is based on the V1 project review,
+not a commitment to copy React, Vue, Angular, or full-stack frameworks. Each
+item must preserve normal HTML as the primary authoring surface, keep the
+browser runtime small, and remain optional where a project does not need it.
+
+#### 19.1 Adapter Stability and Authoring Types — V1.x
+
+- [ ] Publish an adapter capability contract and compatibility guarantees for
+      discovery, compilation, static output, and development diagnostics — Fit:
+      preserves a generic Core; Value: future adapters can evolve without
+      coupling applications to Vite; Complexity: medium; Target: V1.x
+- [ ] Add an adapter conformance fixture suite instead of promising adapters
+      that are not tested — Fit: compiler-first verification; Value: reliable
+      ecosystem extension; Complexity: medium; Target: V1.x
+- [ ] Provide optional `definePageConfig`, request, and plugin declaration
+      helpers that are type-only at runtime — Fit: Vanilla Friendly; Value:
+      autocomplete and safer configuration without forcing TypeScript;
+      Complexity: low; Target: V1.x
+- [ ] Publish equivalent JSDoc types and JavaScript examples for all new
+      declaration helpers — Fit: JavaScript remains first-class; Value: editor
+      assistance for Vanilla projects; Complexity: low; Target: V1.x
+- [ ] Add installed-package type fixtures covering both JavaScript and
+      TypeScript consumers — Fit: public-contract testing; Value: avoids
+      framework-only type regressions; Complexity: low; Target: V1.x
+
+#### 19.2 Build-Time Asset Quality — V1.x
+
+- [ ] Design an optional `velodom/assets` build helper for responsive image
+      metadata and generated image variants without a new browser directive —
+      Fit: HTML-first and runtime-lightweight; Value: better LCP and easier
+      image authoring; Complexity: medium; Target: V1.x
+- [ ] Add compiler/build diagnostics for missing image dimensions, oversized
+      local assets, and absent useful alt text while preserving intentional
+      decorative-image patterns — Fit: compiler-first guidance; Value: fewer
+      layout shifts and accessibility mistakes; Complexity: medium; Target:
+      V1.x
+- [ ] Prove generated image markup and assets add no mandatory runtime code in
+      package and performance checks — Fit: runtime-lightweight; Value:
+      protects VeloDom's performance identity; Complexity: low; Target: V1.x
+
+#### 19.3 Editor Intelligence — V2
+
+- [ ] Research a language-service layer that reuses compiler diagnostics for
+      `.html`, `.vd`, `config.js`, and folder conventions — Fit:
+      compiler-first; Value: errors appear while authors write code;
+      Complexity: high; Target: V2
+- [ ] Prototype an optional VS Code extension with directive completion,
+      hover documentation, and go-to component/route support before designing
+      a general editor protocol — Fit: convention over configuration; Value:
+      a gentler beginner workflow; Complexity: high; Target: V2
+- [ ] Carry resource/block line information through diagnostics so editor
+      highlights remain accurate for `.vd` template, script, style, and config
+      blocks — Fit: source-aware compiler; Value: actionable errors;
+      Complexity: high; Target: V2
+
+#### 19.4 Static Rendering and HTML Forms — V2 Research
+
+- [ ] Write a build-time prerender design that can emit complete route HTML
+      from explicit application data while retaining client takeover as an
+      option — Fit: HTML-first/content sites; Value: stronger SEO and fast
+      first render without mandatory SSR; Complexity: high; Target: V2
+- [ ] Define clear boundaries between static prerendering, the existing
+      `seo.renderPage` fallback, and future SSR/hydration; reject ambiguous
+      `renderToString` public APIs until proven — Fit: protects the simple
+      model; Value: prevents an accidental server runtime; Complexity: medium;
+      Target: V2
+- [ ] Validate any prerender proposal with no-JavaScript, direct-route,
+      dynamic-entry, and client-takeover browser fixtures — Fit: compiler/build
+      verification; Value: reliable deployment behavior; Complexity: high;
+      Target: V2
+- [ ] Design progressive-form enhancement around native HTML `action` and
+      `method`, with VeloDom enhancing rather than replacing normal submission
+      — Fit: HTML-first; Value: resilient forms for beginners and production
+      sites; Complexity: high; Target: V2
+- [ ] Define an optional adapter contract for serialized form data, field
+      errors, redirects, CSRF ownership, and no-JavaScript behavior; keep
+      server authorization application-owned — Fit: flexible adapters; Value:
+      clearer full-stack integration without a backend framework;
+      Complexity: high; Target: V2
+- [ ] Add progressive-form test fixtures only after the contract is approved,
+      covering enhanced and native submissions — Fit: convention-first safety;
+      Value: avoids fragile request abstractions; Complexity: medium; Target:
+      V2
+
+#### 19.5 Optional Localization and Development Inspection — V2
+
+- [ ] Research a build-time localization plugin with explicit dictionaries and
+      locale routes, separate from the existing `lang`/`dir` presentation
+      plugin — Fit: optional and HTML-first; Value: completes multilingual
+      site workflows without mandatory i18n runtime; Complexity: high; Target:
+      V2
+- [ ] Require static extraction/diagnostics for missing translation keys and
+      locale SEO metadata before considering a runtime translation helper —
+      Fit: compiler-first; Value: catches copy errors before deployment;
+      Complexity: high; Target: V2
+- [ ] Keep translation-provider, CMS, and remote-loading integrations outside
+      Core and optional — Fit: framework-agnostic Core; Value: teams retain
+      vendor freedom; Complexity: medium; Target: V2
+- [ ] Define a development-only inspection protocol based on the existing
+      devtools bridge; it must be tree-shaken from production by default — Fit:
+      runtime-lightweight; Value: easier route/state/request debugging;
+      Complexity: medium; Target: V2
+- [ ] Prototype an optional browser extension or standalone inspector only
+      after the protocol proves useful; do not ship a mandatory in-app panel —
+      Fit: opt-in tooling; Value: advanced debugging without beginner clutter;
+      Complexity: high; Target: V2
+
 ---
 
 ## Suggested Order
@@ -686,3 +795,8 @@ Runtime Lightweight, and Vanilla Friendly.
 - 2026-08-16 Content Mode pass: added optional `velodom/content` build-time
   helpers for Markdown collections, SEO entries, sitemap records, RSS XML,
   search-index records, and typed content metadata.
+- 2026-08-16 Competitive review: accepted a constrained post-V1 roadmap for
+  adapter compatibility, optional authoring types, build-time asset quality,
+  editor intelligence, static rendering research, progressive forms,
+  localization, and development-only inspection. It explicitly rejects a
+  mandatory virtual DOM, global store, JSX, CMS, or universal SSR runtime.
