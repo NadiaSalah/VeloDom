@@ -34,7 +34,8 @@ import type {
   ErrorReportOptions
 } from "../errors/error-reporter.ts";
 import type {
-  RequestContext
+  RequestContext,
+  RequestHookOptions
 } from "../types.ts";
 import type {
   DirectiveCleanup,
@@ -52,6 +53,7 @@ interface RequestRuntimeOptions {
   routes?: unknown;
   middleware?: unknown;
   auth?: unknown;
+  hooks?: unknown;
 }
 
 interface RequestRetryRuntimeOptions {
@@ -89,13 +91,15 @@ const pendingRequestTimers = new WeakMap();
 const requestThrottleWindows = new WeakMap();
 let apiRoutes = Object.create(null);
 let appRequestMiddleware = Object.create(null);
+let requestHooks: RequestHookOptions = {};
 let authRuntime = createAuthRuntime();
 
 /** Replaces the application-owned request routes, middleware, and auth config. */
 export function configureRequestRuntime({
   routes = {},
   middleware = {},
-  auth = {}
+  auth = {},
+  hooks = {}
 }: RequestRuntimeOptions = {}) {
   if (!isPlainObject(routes)) {
     throw new TypeError("VeloDom routes must be a plain object");
@@ -107,6 +111,7 @@ export function configureRequestRuntime({
 
   apiRoutes = Object.assign(Object.create(null), routes);
   appRequestMiddleware = Object.assign(Object.create(null), middleware);
+  requestHooks = normalizeRequestHooks(hooks);
   authRuntime = createAuthRuntime(auth);
 }
 
@@ -285,6 +290,7 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
   const paramsInput = getRequestParamsInput(el, requestConfig);
   const retryOptions = getRequestRetryOptions(requestConfig);
   let authRedirectTarget = "";
+  let afterPayload = null;
   const params = getRequestParams(
     el,
     state,
@@ -417,6 +423,31 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
       signal: activeRequest.controller.signal,
       navigate: context.navigate || undefined
     };
+    const beforePayload = createRequestLifecyclePayload(
+      routeName,
+      params,
+      state,
+      el,
+      session,
+      activeRequest.controller.signal
+    );
+
+    afterPayload = beforePayload;
+
+    const beforeAllowed = runBeforeRequestHook(beforePayload);
+    const requestAllowed = beforeAllowed instanceof Promise
+      ? await beforeAllowed
+      : beforeAllowed;
+
+    if (!requestAllowed) {
+      await runAfterRequestHook({
+        ...beforePayload,
+        ok: false,
+        stage: VD_REQUEST.STAGES.REQUEST
+      });
+      return;
+    }
+
     const execution = await executeRequestWithRetry({
       routeConfig,
       params,
@@ -425,6 +456,13 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
     });
     const finalParams = execution.params;
     const result = execution.result;
+    const successPayload = {
+      ...beforePayload,
+      params: finalParams,
+      result,
+      ok: true,
+      stage: VD_REQUEST.STAGES.REQUEST
+    };
 
     if (!isLatestRequest(el, activeRequest)) {
       return;
@@ -434,12 +472,15 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
       writeValue(targetBinding.path, targetBinding.state, result);
     }
 
+    await runRequestSuccessCallback(requestConfig, successPayload);
+
     state.emit?.(VD_REQUEST.EVENTS.SUCCESS, {
       route: routeName,
       params: finalParams,
       result,
       element: el
     });
+    await runAfterRequestHook(successPayload);
   } catch (err) {
     if (!isLatestRequest(el, activeRequest) || err?.name === "AbortError") {
       return;
@@ -472,6 +513,19 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
     if (shouldRedirectAuthFailure(err, authRedirectTarget, context)) {
       await context.navigate?.(authRedirectTarget);
     }
+
+    await runAfterRequestHook({
+      ...afterPayload,
+      route: routeName,
+      routeName,
+      params,
+      state,
+      element: el,
+      signal: activeRequest.controller.signal,
+      error: err,
+      ok: false,
+      stage: err?.__vdStage || VD_REQUEST.STAGES.REQUEST
+    });
   } finally {
     if (isLatestRequest(el, activeRequest) && loadingBinding.path) {
       writeValue(loadingBinding.path, loadingBinding.state, false);
@@ -593,6 +647,20 @@ function getRequestConfig(el, state, context, event, evaluate, routeName) {
     }
   }
 
+  if (
+    evaluated.onSuccess !== undefined
+    && typeof evaluated.onSuccess !== "function"
+  ) {
+    reportRequestDirectiveProblem(state, el, routeName, "request config \"onSuccess\" must be a function", {
+      title: "Invalid Request Success Callback",
+      directive: VD.REQUEST_CONFIG,
+      expression,
+      hint: "Set onSuccess to a page or component function. Example: { onSuccess: handleSaved }"
+    });
+
+    return VD_INTERNAL.REQUEST_ABORT;
+  }
+
   for (const key of [
     ...VD_REQUEST.DEBOUNCE_KEYS,
     ...VD_REQUEST.THROTTLE_KEYS
@@ -645,6 +713,75 @@ function getRequestConfig(el, state, context, event, evaluate, routeName) {
   }
 
   return evaluated;
+}
+
+function normalizeRequestHooks(value) {
+  if (value === undefined || value === null) return {};
+
+  if (!isPlainObject(value)) {
+    throw new TypeError("VeloDom request hooks must be a plain object");
+  }
+
+  for (const key of ["beforeRequest", "afterRequest"]) {
+    if (value[key] !== undefined && typeof value[key] !== "function") {
+      throw new TypeError(`VeloDom request hook "${key}" must be a function`);
+    }
+  }
+
+  const hooks: RequestHookOptions = {};
+
+  if (typeof value.beforeRequest === "function") {
+    hooks.beforeRequest = value.beforeRequest as RequestHookOptions["beforeRequest"];
+  }
+
+  if (typeof value.afterRequest === "function") {
+    hooks.afterRequest = value.afterRequest as RequestHookOptions["afterRequest"];
+  }
+
+  return hooks;
+}
+
+function createRequestLifecyclePayload(
+  routeName,
+  params,
+  state,
+  el,
+  session,
+  signal
+) {
+  return {
+    route: routeName,
+    routeName,
+    params,
+    state,
+    element: el,
+    session,
+    signal
+  };
+}
+
+function runBeforeRequestHook(payload) {
+  if (typeof requestHooks.beforeRequest !== "function") return true;
+
+  const result = requestHooks.beforeRequest(payload);
+
+  if (result instanceof Promise) {
+    return result.then(value => value !== false);
+  }
+
+  return result !== false;
+}
+
+async function runAfterRequestHook(payload) {
+  if (typeof requestHooks.afterRequest !== "function") return;
+
+  await requestHooks.afterRequest(payload);
+}
+
+async function runRequestSuccessCallback(requestConfig, payload) {
+  if (typeof requestConfig?.onSuccess !== "function") return;
+
+  await requestConfig.onSuccess(payload);
 }
 
 async function executeRequestWithRetry({

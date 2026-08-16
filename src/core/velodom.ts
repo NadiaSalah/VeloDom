@@ -23,7 +23,8 @@ export function createApp(options: VeloDomAppOptions): VeloDomApp {
   configureRequestRuntime({
     routes: options.routes,
     middleware: options.middleware,
-    auth: options.auth
+    auth: options.auth,
+    hooks: options.requestHooks
   });
   const app = {} as VeloDomApp;
   const router = createPageRouter(

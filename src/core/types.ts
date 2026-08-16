@@ -273,6 +273,37 @@ export interface RequestContext {
   [key: string]: unknown;
 }
 
+/** Payload supplied to request lifecycle hooks and success callbacks. */
+export interface RequestLifecyclePayload {
+  route: string;
+  routeName: string;
+  params: StateRecord;
+  state?: StateRecord;
+  element?: Element;
+  session?: AuthSessionPayload | null;
+  signal?: AbortSignal;
+  result?: unknown;
+  error?: unknown;
+  ok?: boolean;
+  stage?: string;
+}
+
+/** Global hook that runs before an authorized declarative request executes. */
+export type RequestBeforeHook = (
+  payload: RequestLifecyclePayload
+) => MaybePromise<void | false>;
+
+/** Global hook that runs after a declarative request succeeds or fails. */
+export type RequestAfterHook = (
+  payload: RequestLifecyclePayload
+) => MaybePromise<void>;
+
+/** Optional global request hooks configured through createApp(). */
+export interface RequestHookOptions {
+  beforeRequest?: RequestBeforeHook;
+  afterRequest?: RequestAfterHook;
+}
+
 /** Application request route handler. */
 export type RouteHandler = (
   params: StateRecord,
@@ -395,6 +426,7 @@ export interface VeloDomAppOptions {
   routes?: RequestRouteRegistry;
   middleware?: Record<string, RequestMiddleware>;
   auth?: AuthOptions;
+  requestHooks?: RequestHookOptions;
   plugins?: VeloDomPlugin[];
   router?: RouterOptions;
   errorBoundary?: ErrorBoundaryHook;

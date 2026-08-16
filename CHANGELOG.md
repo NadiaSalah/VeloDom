@@ -71,7 +71,9 @@ package versions.
   in `vd-request-config`.
 - Added opt-in auth-failure redirects via route-level `authRedirect` and
   per-request `redirectOnAuthFailure` configuration.
-- Brought the automated suite to 176 passing tests.
+- Added global `requestHooks.beforeRequest` / `requestHooks.afterRequest` and
+  per-request `onSuccess` callbacks for declarative requests.
+- Brought the automated suite to 179 passing tests.
 
 ### RTL and Multilingual CSS
 

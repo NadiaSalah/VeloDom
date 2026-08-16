@@ -63,8 +63,8 @@ VeloDom currently provides:
 - named and unnamed slots plus folder-scoped CSS
 - optional application-owned shared state through `createSharedState()`
 - declarative requests with params, result/loading/error state, events, auth,
-  auth-failure redirects, middleware, debounce, throttle, retry, and
-  cancellation
+  auth-failure redirects, lifecycle hooks, success callbacks, middleware,
+  debounce, throttle, retry, and cancellation
 - optional request cache, retry wrapper, and devtools bridge helpers
 - optional native-form validation plugin for `vd-validate` request forms
 - optional direction plugin for document `lang`/`dir` and RTL-aware templates
@@ -1474,6 +1474,48 @@ Per-request override:
 VeloDom still writes request error state and emits the request error event
 before navigating. External URLs and protocol-relative values are rejected to
 avoid unsafe open redirects.
+
+### Request Hooks and Success Callbacks
+
+Use global request hooks for app-wide analytics, progress indicators, or
+policy checks:
+
+```js
+createApp({
+  adapter,
+  routes,
+  requestHooks: {
+    beforeRequest(payload) {
+      console.log("before", payload.route, payload.params);
+    },
+    afterRequest(payload) {
+      console.log("after", payload.route, payload.ok);
+    }
+  }
+});
+```
+
+`beforeRequest` runs after config/auth succeeds and before middleware/handler
+execution. Returning `false` cancels that request. `afterRequest` runs after a
+completed success or reported failure.
+
+For one request, use an `onSuccess` callback in `vd-request-config`:
+
+```html
+<button
+  type="button"
+  vd-request="posts.save"
+  vd-request-config="{
+    target: 'saveResult',
+    onSuccess: rememberSavedPost
+  }"
+>
+  Save
+</button>
+```
+
+The callback receives the same payload shape as request hooks and runs after
+the target state is written.
 
 ### Forms
 
@@ -2896,9 +2938,9 @@ Runtime:
 - `VD_REQUEST`
 
 Public types include page/component contexts, route/auth/request/plugin
-contracts, optional cache/retry/devtools contracts, direction plugin contracts,
-shared-state contracts, validation plugin options, SEO contracts, application
-options, and HTTP options.
+contracts, request hook payloads, optional cache/retry/devtools contracts,
+direction plugin contracts, shared-state contracts, validation plugin options,
+SEO contracts, application options, and HTTP options.
 
 ### `velodom/vite`
 
@@ -2960,7 +3002,7 @@ Latest local verification on 2026-07-10:
 - Core documentation audit passes for 55 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 176 automated tests pass
+- 179 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2999,6 +3041,8 @@ Latest implementation update:
   `retryDelayMs` in request config.
 - Added opt-in auth-failure redirects through `authRedirect` on routes and
   `redirectOnAuthFailure` in request config.
+- Added global `requestHooks.beforeRequest` / `requestHooks.afterRequest` and
+  per-request `onSuccess` callbacks.
 - Added optional direction management through `createDirectionPlugin()` and
   compiler support for explicit `vd-rtl-flip` directional icon markers.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and

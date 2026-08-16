@@ -1036,6 +1036,160 @@ test("invalid request retry reports a configuration error", async () => {
   });
 });
 
+test("global request hooks observe successful declarative requests", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.save"
+      data-vd-target="result"
+      data-vd-params="{ title }"
+    >Save</button>
+  `);
+  const hooks = [];
+
+  configureRequestRuntime({
+    hooks: {
+      beforeRequest(payload) {
+        hooks.push([
+          "before",
+          payload.route,
+          payload.params.title
+        ]);
+      },
+      afterRequest(payload) {
+        hooks.push([
+          "after",
+          payload.route,
+          payload.ok,
+          payload.result
+        ]);
+      }
+    },
+    routes: {
+      "posts.save": params => `saved:${params.title}`
+    }
+  });
+
+  const state = createState({
+    result: "",
+    title: "hooked"
+  });
+  const cleanup = await applyDirectives(root, state);
+
+  root.querySelector("button").click();
+
+  await waitFor(() => {
+    assert.equal(state.result, "saved:hooked");
+  });
+  assert.deepEqual(hooks, [
+    [
+      "before",
+      "posts.save",
+      "hooked"
+    ],
+    [
+      "after",
+      "posts.save",
+      true,
+      "saved:hooked"
+    ]
+  ]);
+
+  cleanup();
+});
+
+test("global before request hook can cancel a declarative request", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.save"
+      data-vd-target="result"
+      data-vd-loading="loading"
+    >Save</button>
+  `);
+  const hooks = [];
+  let handlerCalls = 0;
+
+  configureRequestRuntime({
+    hooks: {
+      beforeRequest() {
+        hooks.push("before");
+
+        return false;
+      },
+      afterRequest(payload) {
+        hooks.push([
+          "after",
+          payload.ok
+        ]);
+      }
+    },
+    routes: {
+      "posts.save": () => {
+        handlerCalls += 1;
+
+        return "should not run";
+      }
+    }
+  });
+
+  const state = createState({
+    loading: false,
+    result: ""
+  });
+  const cleanup = await applyDirectives(root, state);
+
+  root.querySelector("button").click();
+  await waitFor(() => {
+    assert.deepEqual(hooks, [
+      "before",
+      [
+        "after",
+        false
+      ]
+    ]);
+  });
+
+  assert.equal(handlerCalls, 0);
+  assert.equal(state.result, "");
+  assert.equal(state.loading, false);
+
+  cleanup();
+});
+
+test("request config onSuccess callback runs after state is written", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.save"
+      data-vd-request-config="{
+        target: 'result',
+        onSuccess: rememberSuccess
+      }"
+    >Save</button>
+  `);
+
+  configureRequestRuntime({
+    routes: {
+      "posts.save": () => "saved"
+    }
+  });
+
+  const state = createState({
+    result: "",
+    successSeen: "",
+    rememberSuccess(payload) {
+      state.successSeen = `${state.result}:${payload.result}`;
+    }
+  });
+  const cleanup = await applyDirectives(root, state);
+
+  root.querySelector("button").click();
+
+  await waitFor(() => {
+    assert.equal(state.successSeen, "saved:saved");
+  });
+
+  cleanup();
+});
+
 function createRoot(html) {
   const root = document.createElement("div");
   root.innerHTML = html;

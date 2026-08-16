@@ -189,6 +189,9 @@
 - Auth-failure redirects are opt-in and limited to application paths beginning
   with `/`; external and protocol-relative URLs are rejected to avoid open
   redirect footguns.
+- Request hooks are configured once through `createApp({ requestHooks })`.
+  They stay outside templates unless a specific request opts into an
+  `onSuccess` callback through `vd-request-config`.
 - Direction management is optional and plugin-owned. RTL presentation support
   currently covers document `lang`/`dir`, reactive `$direction` reads, and
   explicit `vd-rtl-flip` markers; logical CSS diagnostics and translation
