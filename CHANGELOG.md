@@ -6,6 +6,19 @@ package versions.
 
 ## 2026-08-16
 
+### V1 Release Polish
+
+- Reconciled release-candidate documentation so README, TODO, NOTES,
+  RELEASE_DECISION, Content Mode docs, and DX rubric describe one consistent
+  current state.
+- Removed stale README limitations around the already-frozen local public V1
+  API and clarified that `seo.renderPage` client takeover is not SSR or
+  hydration.
+- Converted the Content Mode document from a planned-design note into current
+  `velodom/content` implementation documentation plus future improvements.
+- Updated current release evidence to 201 passing automated tests while keeping
+  historical changelog counts unchanged.
+
 ### Performance Pass
 
 - Reviewed loop rerender behavior and avoided structural loop rerenders when
@@ -66,9 +79,9 @@ package versions.
   tagging, and publication approval gates before any public release.
 - Added provider-neutral deployment recipes for static hosting, Vercel,
   Netlify, Cloudflare Pages, Nginx, Apache, and GitHub Pages.
-- Added a planned Content Mode design for Markdown/local content collections,
-  generated SEO data, RSS/search-index artifacts, and build-time diagnostics
-  without adding browser runtime weight.
+- Added Content Mode documentation for Markdown/local content collections,
+  generated SEO data, RSS/search-index artifacts, and future build-time
+  diagnostics without adding browser runtime weight.
 - Added the optional `velodom/content` package subpath with Markdown
   frontmatter parsing, safe HTML output, SEO route entries, sitemap records,
   RSS XML generation, search-index records, and typed content metadata.

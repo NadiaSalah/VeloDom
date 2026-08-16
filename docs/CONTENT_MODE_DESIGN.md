@@ -1,23 +1,61 @@
-# VeloDom Content Mode Design
+# VeloDom Content Mode
 
-Status: planned design, not implemented.
+Status: implemented V1 build-time helper layer, with future improvements
+tracked separately.
 
 ## Goal
 
-Content Mode should make VeloDom excellent for blogs, documentation sites,
+Content Mode makes VeloDom friendlier for blogs, documentation sites,
 marketing pages, portfolios, and content-heavy websites without turning the
-runtime into a CMS framework.
+browser runtime into a CMS framework.
 
-The feature must stay:
+The feature stays:
 
 - HTML-first
-- Compiler-first
-- Folder-first
-- Runtime lightweight
+- compiler-first
+- folder-first
+- runtime lightweight
 - optional
 - friendly to Vanilla JavaScript and TypeScript users
 
-## Proposed Folder Convention
+## Current V1 Scope
+
+The public `velodom/content` package subpath is available in `package.json`
+exports and is implemented by the Node/build-time module
+`src/core/content.ts`.
+
+Current helpers:
+
+```js
+import {
+  createContentCollection,
+  createContentRssFeed,
+  createContentSearchIndex,
+  createContentSeoEntries,
+  createContentSitemap,
+  loadContentCollection,
+  parseMarkdownContent
+} from "velodom/content";
+```
+
+The helper layer can:
+
+- load Markdown files from a local collection folder
+- parse small frontmatter metadata
+- infer titles, descriptions, slugs, excerpts, tags, and draft status
+- generate safe HTML from basic Markdown without executing JavaScript
+- produce SEO route entries compatible with page `seo.entries`
+- produce sitemap records
+- produce local search-index records
+- produce RSS XML
+- expose TypeScript types for content entries and derived artifacts
+
+This is build-time/tooling behavior. It is not bundled as a mandatory browser
+runtime service.
+
+## Folder Convention
+
+Applications can use a normal local content folder:
 
 ```text
 src/content/
@@ -46,139 +84,117 @@ draft: false
 Content stays readable and portable.
 ```
 
-## Generated Build-Time Data
+## Page Config Integration
 
-The Vite plugin or a Node-only compiler helper can generate an internal content
-manifest:
-
-```ts
-type ContentEntry = {
-  collection: string;
-  slug: string;
-  path: string;
-  title: string;
-  description: string;
-  date?: string;
-  tags: string[];
-  draft: boolean;
-  bodyHtml: string;
-  excerpt: string;
-  seo: {
-    title: string;
-    description: string;
-    canonical: string;
-    keywords: string[];
-  };
-};
-```
-
-This manifest should be build-time data. It must not add mandatory browser
-runtime parsing.
-
-## Page Integration
-
-Folder pages should consume content through normal page scripts:
+Dynamic pages can expose explicit SEO entries from local content:
 
 ```js
-import { getContentCollection } from "velodom/content";
-
-export async function init({ state }) {
-  state.posts = await getContentCollection("posts");
-}
-```
-
-Dynamic routes should support content entries:
-
-```text
-src/pages/blog/[slug]/
-  index.html
-  script.js
-  config.js
-```
-
-```js
-// config.js
-import { getContentEntries } from "velodom/content";
+// src/pages/blog/[slug]/config.js
+import { loadContentCollection } from "velodom/content";
 
 export default {
   path: "/blog/:slug",
   seo: {
-    entries: async () => getContentEntries("posts")
+    entries: async () => {
+      const posts = await loadContentCollection({
+        root: "src/content",
+        collection: "posts",
+        basePath: "/blog"
+      });
+
+      return posts.seoEntries;
+    }
   }
 };
 ```
 
-## Generated Artifacts
+The application owns the content source and decides when to use it. VeloDom
+does not fabricate dynamic route content without explicit app data.
 
-Content Mode should be able to produce:
+## Generated Data Shape
 
-- dynamic route entries
-- SEO metadata
-- visible static fallback summaries
-- sitemap entries
-- RSS feed data
-- search index data
-- tag and category metadata
-
-RSS and search indexes should be opt-in build artifacts, not runtime services.
-
-## Public API Shape
-
-Potential package subpath:
-
-```text
-velodom/content
-```
-
-Candidate helpers:
+`createContentCollection()` and `loadContentCollection()` return:
 
 ```ts
-getContentCollection(name)
-getContentEntry(collection, slug)
-getContentEntries(collection)
-createContentPlugin(options)
+type ContentCollection = {
+  entries: ContentEntry[];
+  seoEntries: SeoRouteEntry[];
+  sitemap: ContentSitemapEntry[];
+  searchIndex: ContentSearchRecord[];
+};
 ```
 
-The public API should return plain objects so application authors can use
-Vanilla JavaScript without framework-specific classes.
+Each `ContentEntry` includes:
+
+- collection
+- slug
+- path
+- title
+- description
+- optional date
+- tags
+- draft flag
+- parsed frontmatter
+- safe body HTML
+- plain body text
+- excerpt
+- derived SEO metadata
+
+## RSS and Search Indexes
+
+RSS and local search indexes are generated artifacts, not runtime services:
+
+```js
+import {
+  createContentRssFeed,
+  loadContentCollection
+} from "velodom/content";
+
+const posts = await loadContentCollection({
+  root: "src/content",
+  collection: "posts",
+  basePath: "/blog"
+});
+
+const rss = createContentRssFeed(posts.entries, {
+  title: "VeloDom Blog",
+  description: "Framework articles",
+  siteUrl: "https://example.com"
+});
+```
 
 ## Markdown Strategy
 
-Initial implementation should prefer a small, explicit Markdown pipeline:
+The V1 helper intentionally uses a small, explicit Markdown pipeline:
 
 - parse frontmatter
-- convert Markdown to safe HTML
-- reject or sanitize scripts
-- generate plain-text excerpt
-- emit diagnostics for missing title/description
+- convert common Markdown blocks and inline text to escaped HTML
+- keep scripts escaped as text
+- generate plain-text excerpts
+- keep returned values as plain objects
 
-The first implementation should not add MDX, JSX, React components, or a CMS
-runtime compatibility layer.
+It does not add MDX, JSX, React components, or a CMS runtime compatibility
+layer.
 
-## Compiler Diagnostics
-
-Content Mode should warn when:
-
-- `title` is missing
-- `description` is missing or too long
-- duplicate slugs exist
-- draft content is included in production output accidentally
-- generated canonical paths collide
-- unsafe HTML appears in Markdown output
-
-## Non-Goals for V1.x
+## Current Non-Goals
 
 - full CMS admin UI
 - MDX/JSX component execution inside Markdown
 - server runtime database querying
 - live preview server protocol
-- mandatory content collections for all apps
+- mandatory content collections for every application
+- automatic full-page SSR or hydration
 
-## Implementation Order
+## Future Content Improvements
 
-1. Add a Node-only content parser behind the Vite plugin.
-2. Generate a content manifest during build/dev.
-3. Expose content helpers through a package subpath.
-4. Connect content entries to static SEO route generation.
-5. Add optional RSS and search-index artifact generation.
-6. Add docs, examples, and tests.
+Future V1.x work should extend the existing helper layer only when real project
+needs appear. Possible improvements:
+
+- richer collection queries
+- pagination helpers
+- asset/image integration
+- clearer content diagnostics for missing metadata and duplicate slugs
+- faster or incremental content builds
+- feed/search artifact extensions
+
+These improvements should remain optional and build-time oriented.

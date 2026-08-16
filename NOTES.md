@@ -386,8 +386,9 @@
 - Adapter/user-file source diagnostics are now available for validated lazy
   resources, but full source-map integration across every build tool remains a
   future hardening task.
-- The showcase still needs reusable form and error-display components before
-  every Phase H item can be marked complete.
+- Phase H is complete for the V1 framework-site showcase. Future application
+  examples may still add more reusable form or error-display components, but
+  they are no longer a blocker for the completed V1 showcase milestone.
 - Static SEO currently provides metadata, concise fallback content, and an
   optional `seo.renderPage` hook for build-time static content. Application
   `seo.entries` and `seo.renderPage` hooks may fetch API/CMS data at build
@@ -397,6 +398,11 @@
   `<config>` blocks remain synchronously available to the router. Folder pages
   keep lazy chunk behavior; future build work can revisit query-based config
   extraction if Vite/Rolldown supports it without duplicate import warnings.
+- V1 release polish is documentation and verification work, not a new feature
+  phase. Local code readiness, public API freeze, and package checks can be
+  complete while npm publication remains blocked by `private: true` until the
+  owner confirms package ownership, account, access, 2FA, final notes, and tag
+  decisions.
 
 ## Handoff Guidance
 

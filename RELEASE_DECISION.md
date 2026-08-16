@@ -46,7 +46,11 @@ Before publication, the owner must confirm:
 - Publication guard: `private: true`
 - Package dry-run artifact: `velodom-1.0.0.tgz`
 - `npm run pack:check`: passed locally
-- `npm test`: 196 tests passed locally
+- `npm test`: 201 tests passed locally
 - `npm run check`: passed locally
+- `npm run build`: passed locally
+- `npm run test:browser`: passed locally for Chromium/Chrome/Edge; Firefox,
+  WebKit, and mobile WebKit were skipped because their Playwright binaries are
+  not installed in this local environment
 
 This file is a release governance note. It is not a release automation script.

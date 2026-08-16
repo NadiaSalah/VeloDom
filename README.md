@@ -97,14 +97,9 @@ VeloDom deliberately does not currently provide a mandatory global store,
 virtual DOM, JSX, schema-heavy validation system, full SSR/hydration, or a full
 browser devtools panel.
 
-Post-V1 content work is described in
-[docs/CONTENT_MODE_DESIGN.md](docs/CONTENT_MODE_DESIGN.md). The first content
-helper layer is intentionally build-time tooling, not a mandatory browser
-runtime layer.
-
-Planned post-V1 content work is described in
-[docs/CONTENT_MODE_DESIGN.md](docs/CONTENT_MODE_DESIGN.md). It is intentionally
-designed as build-time tooling, not a mandatory browser runtime layer.
+The current build-time content helper layer and future content improvements are
+documented in [docs/CONTENT_MODE_DESIGN.md](docs/CONTENT_MODE_DESIGN.md). It is
+intentionally tooling-oriented, not a mandatory browser runtime layer.
 
 ## Requirements and Commands
 
@@ -2523,9 +2518,9 @@ VeloDom V1 stays browser-first and compiler-first. `seo.renderPage` provides
 optional build-time static content plus client takeover, not a React/Vue-style
 SSR reconciliation engine. `renderToString`-style APIs and persistent server
 runtime APIs are intentionally not part of the public package surface yet.
-Broader SSR can be reconsidered only after static rendering, hydration design,
-browser coverage, and runtime stability are mature enough to protect the
-HTML-first authoring model.
+Broader SSR/hydration can be reconsidered only after a proven design, browser
+coverage, and runtime stability are mature enough to protect the HTML-first
+authoring model.
 
 ### Content Mode Helpers
 
@@ -3203,6 +3198,7 @@ Latest local verification on 2026-08-16:
 - 201 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
+- package dry-run validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
 - local rendering benchmark script passes
 - JavaScript performance budget check passes
@@ -3212,6 +3208,9 @@ Latest local verification on 2026-08-16:
 
 Latest implementation update:
 
+- Reconciled V1 release-polish documentation so README, TODO, NOTES,
+  RELEASE_DECISION, Content Mode docs, and DX rubric describe the same current
+  release-candidate state.
 - Marked the local package identity as `1.0.0` while keeping `private: true`.
 - Added `RELEASE_DECISION.md` as the publication approval note for npm
   ownership, access, 2FA, final version, and tagging decisions.
@@ -3323,13 +3322,6 @@ Test coverage includes:
 - real DOM directives, components, navigation, errors, and requests
 - loop structural rerender skipping for unchanged item identities
 - recoverable page and component error-boundary fallback and retry behavior
-
-## Release Decision
-
-The repository is now aligned as a local `1.0.0` release candidate, but npm
-publication is intentionally blocked by `private: true`.
-[RELEASE_DECISION.md](RELEASE_DECISION.md) records the current owner-approval
-requirements before publishing, tagging, or removing the private package guard.
 - keyboard modifier, focusable-order, and semantic fallback output integration
   checks
 - auth providers, role checks, middleware modes, request bindings, and HTTP
@@ -3353,6 +3345,13 @@ requirements before publishing, tagging, or removing the private package guard.
 Strict CI execution for every browser target still depends on installing the
 matching Playwright browser binaries. Current fast DOM integration uses
 happy-dom.
+
+## Release Decision
+
+The repository is now aligned as a local `1.0.0` release candidate, but npm
+publication is intentionally blocked by `private: true`.
+[RELEASE_DECISION.md](RELEASE_DECISION.md) records the current owner-approval
+requirements before publishing, tagging, or removing the private package guard.
 
 ## Browser Support
 
@@ -3401,7 +3400,6 @@ E2E coverage.
 
 These features are not implemented and should not be described as available:
 
-- public V1 API/name freeze
 - npm publication and final npm account/package reservation
 - schema-based validation and custom validation rules beyond the optional
   native validation plugin
@@ -3413,8 +3411,9 @@ These features are not implemented and should not be described as available:
   helper
 - dedicated browser extension/devtools panel beyond the optional devtools
   bridge plugin
-- full page SSR, full static content rendering, or hydration
-- full-content API/CMS pre-rendering beyond build-time SEO metadata hooks
+- general-purpose full-page SSG/SSR with reconciliation or hydration
+- automatic full-content API/CMS pre-rendering beyond explicit app-owned
+  build-time SEO/content hooks
 - guaranteed strict CI browser availability for every Firefox/WebKit/mobile
   WebKit target
 - optional AI provider tooling and migration helpers; both remain documented

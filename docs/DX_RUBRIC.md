@@ -20,12 +20,19 @@ Before adding a DX feature, evaluate it with these questions:
 
 ## Target Decision
 
-- V1.x: static analysis, scaffolding, inspection, package checks, build
-  reports, test utilities, and release-confidence tooling.
-- V2: graphing, richer health reports, large-project maintainability checks,
-  and optional migration assistants.
-- Future Research: AI providers, deep event/state relationship inference,
-  advanced codemods, and runtime-affecting ideas that need security review.
+- Implemented in V1/V1.x: static analysis, scaffolding, inspection, package
+  checks, build reports, test utilities, release-confidence tooling, project
+  graphs, advisory health reports, generated documentation, and maintainability
+  warnings that can be proven from local source.
+- Next V1.x improvements: stricter browser CI, security regression corpora,
+  source-map diagnostics, incremental type hardening, richer static content
+  diagnostics, and optional i18n tooling that remains outside the mandatory
+  runtime.
+- V2: only work that requires a justified breaking public-contract change
+  after real V1 adoption proves the need.
+- Future Research: AI providers, optional migration assistants, advanced
+  codemods, deeper event/state inference, and runtime-affecting ideas that need
+  security review.
 - Rejected: mandatory AI, JSX/TSX authoring, compatibility runtimes for other
   frameworks, hidden global state, and browser runtime features that only solve
   development-time problems.

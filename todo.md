@@ -11,13 +11,16 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**332 of 332 tasks completed — 100%**
+**343 of 347 tasks completed — 99%**
 
-`[####################]`
+`[###################-]`
 
-Remaining tasks: **0**
+Remaining tasks: **4**
 
 Update this counter whenever checklist items are added or completed.
+
+Checked research/design items mean the analysis or architecture decision is
+complete; they do not imply that every researched future feature is shipped.
 
 ---
 
@@ -50,11 +53,46 @@ runtime concepts.
 
 ### P2 — Powerful but Intentionally Deferred
 
-1. Add optional full static rendering and hydration without changing normal
-   HTML authoring.
+1. Improve optional build-time static content/client-takeover workflows without
+   changing normal HTML authoring.
 2. Keep shared state, validation extensions, cache providers, and devtools as
    optional plugins.
-3. Consider broader SSR only after static rendering and hydration are stable.
+3. Consider broader SSR/hydration only after a proven design protects the
+   HTML-first model and lightweight runtime.
+
+---
+
+## Phase Z: V1 Release Polish and Documentation Truth
+
+This phase keeps VeloDom V1 truthful and publish-ready without adding large
+runtime features.
+
+- [x] Remove the stale README limitation that described the local public V1 API
+  freeze as missing.
+- [x] Clarify static SEO/content terminology so `seo.renderPage` client
+  takeover is not confused with SSR or hydration.
+- [x] Fix the README Verification and Release Decision section ordering.
+- [x] Remove duplicated Content Mode wording from README.
+- [x] Replace stale Phase H constraints in NOTES with the current showcase
+  status.
+- [x] Clarify that checked research roadmap items are completed decisions, not
+  shipped future features.
+- [x] Reconcile `docs/CONTENT_MODE_DESIGN.md` with the implemented
+  `velodom/content` package subpath.
+- [x] Update `docs/DX_RUBRIC.md` so graph, health, build-report, docs, and
+  maintainability analysis are no longer mislabeled as V2-only work.
+- [x] Keep Future Research items clearly research-only and outside the browser
+  runtime.
+- [x] Audit README positioning against `docs/FRAMEWORK_IDENTITY.md`.
+- [x] Synchronize current release-verification results after running the local
+  release-gate commands.
+- [ ] Run strict full browser matrix with all intended Playwright browsers
+  installed.
+- [ ] Verify deployment/static-SEO behavior against the documented generic
+  hosting contract.
+- [ ] Confirm npm package ownership/reservation and publication account.
+- [ ] Confirm npm access level, 2FA policy, final release notes, and tag
+  decision before removing `private: true`.
 
 ---
 
@@ -276,7 +314,8 @@ and `src/api`.
 - [x] Exclude `noindex` routes from generated sitemaps
 - [x] Test runtime, static rendering, and installed-package consumption
 - [x] Add an application-defined API/CMS data hook for dynamic SEO entries
-- [x] Add optional full-page static content rendering and hydration
+- [x] Add optional app-provided static route content with explicit client
+  takeover
 - [x] Add structured-data validation fixtures for common content types
 
 ---
