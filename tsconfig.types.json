@@ -4,17 +4,17 @@
     "noEmit": false,
     "declaration": true,
     "emitDeclarationOnly": true,
-    "outDir": "types",
-    "rootDir": "src/core",
+    "outDir": "packages/velodom/types",
+    "rootDir": "packages/velodom/src",
     "rewriteRelativeImportExtensions": true
   },
   "include": [
-    "src/core/**/*.ts"
+    "packages/velodom/src/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "lib",
-    "types"
+    "examples/blog/dist",
+    "packages/velodom/lib",
+    "packages/velodom/types"
   ]
 }

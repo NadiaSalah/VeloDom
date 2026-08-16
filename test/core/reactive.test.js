@@ -3,7 +3,7 @@ import test from "node:test";
 import {
   createState,
   mergeExposedMembers
-} from "../../src/core/reactive.ts";
+} from "../../packages/velodom/src/reactive.ts";
 
 test("component expose members are callable from local template state", () => {
   const state = createState({

@@ -9,7 +9,7 @@ import {
   rebaseFiles,
   rebaseSingleFileStyles,
   resolveConventionExport
-} from "../../src/core/adapters/resource-map.ts";
+} from "../../packages/velodom/src/adapters/resource-map.ts";
 
 test("page files are indexed by nested folder name", () => {
   const homeLoader = () => "home";

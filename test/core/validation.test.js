@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createPluginManager } from "../../src/core/plugins.ts";
-import { createValidationPlugin } from "../../src/core/validation.ts";
+import { createPluginManager } from "../../packages/velodom/src/plugins.ts";
+import { createValidationPlugin } from "../../packages/velodom/src/validation.ts";
 import { installDom } from "../../test-support/dom.js";
 
 const removeDom = installDom();

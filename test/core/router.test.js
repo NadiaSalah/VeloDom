@@ -4,7 +4,7 @@ import {
   createRouteTable,
   resolveRouteLocation,
   runNavigationGuards
-} from "../../src/core/router.ts";
+} from "../../packages/velodom/src/router.ts";
 
 test("folder routes support nested dynamic params and query strings", () => {
   const table = createRouteTable([

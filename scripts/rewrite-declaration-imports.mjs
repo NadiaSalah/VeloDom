@@ -13,9 +13,18 @@ import {
   readdir,
   writeFile
 } from "node:fs/promises";
-import { join } from "node:path";
+import {
+  join,
+  resolve
+} from "node:path";
+import { fileURLToPath } from "node:url";
 
-const files = await collectDeclarationFiles("types");
+const workspaceRoot = resolve(
+  fileURLToPath(new URL("..", import.meta.url))
+);
+const files = await collectDeclarationFiles(
+  join(workspaceRoot, "packages", "velodom", "types")
+);
 let rewritten = 0;
 
 for (const file of files) {

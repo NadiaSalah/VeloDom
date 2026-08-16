@@ -8,10 +8,10 @@ route-aware lifecycle hooks, and an optional request layer without JSX or TSX.
 The framework source is TypeScript. Application authors may choose Vanilla
 JavaScript or TypeScript independently for every page and component.
 
-> Project status: local V1 release candidate. The package metadata is
-> `1.0.0`, but `private: true` intentionally remains enabled and the package is
-> not published to npm. Public API names are frozen locally and protected by
-> package-boundary tests.
+> Project status: local V1 release candidate. The publishable package lives at
+> `packages/velodom`, uses version `1.0.0`, and keeps `private: true` until the
+> npm release is explicitly approved. Public API names are frozen locally and
+> protected by package-boundary tests.
 
 ## Contents
 
@@ -21,6 +21,7 @@ JavaScript or TypeScript independently for every page and component.
 - [CLI and Project Intelligence](#cli-and-project-intelligence)
 - [Testing Utilities](#testing-utilities)
 - [Project Structure](#project-structure)
+- [Package and Import Boundaries](#package-and-import-boundaries)
 - [Folder Conventions](#folder-conventions)
 - [Layouts](#layouts)
 - [Optional Single-File Modules](#optional-single-file-modules)
@@ -112,7 +113,8 @@ intentionally tooling-oriented, not a mandatory browser runtime layer.
 
 ## Five-Minute Start
 
-For this repository:
+For this repository workspace, these commands build the local `velodom`
+package and run the independent blog example:
 
 ```bash
 npm install
@@ -209,7 +211,7 @@ What the main checks do:
 | Command | Purpose |
 | --- | --- |
 | `npm test` | Runs compiler, core, request, package, and DOM integration tests. |
-| `npm run docs:check` | Enforces headers and exported JSDoc under `src/core`. |
+| `npm run docs:check` | Enforces headers and exported JSDoc under `packages/velodom/src`. |
 | `npm run check` | Runs documentation, TypeScript, and ESLint checks. |
 | `npm run package:check` | Builds ESM/types and tests an installed local tarball consumer. |
 | `npm run pack:check` | Runs package checks and inspects the npm tarball dry-run contents. |
@@ -218,8 +220,9 @@ What the main checks do:
 | `npm run test:browser` | Builds the showcase and runs the Playwright browser matrix. Chromium/Chrome/Edge is required; Firefox, WebKit, and mobile WebKit run when installed. |
 | `npm run build` | Runs all quality/package gates, builds the showcase, then checks performance budgets. |
 
-Generated `dist/`, `lib/`, and `types/` folders are build output and should not
-be edited manually.
+Generated `examples/blog/dist`, `packages/velodom/lib`, and
+`packages/velodom/types` folders are build output and should not be edited
+manually.
 
 ## CLI and Project Intelligence
 
@@ -245,7 +248,8 @@ create-velodom my-site
 ```
 
 Inside this repository, run `npm run package:build` first, then use
-`node bin/vd.js ...` because the wrappers load the generated `lib/cli.js`.
+`node packages/velodom/bin/vd.js ...` because the wrappers load the generated
+`packages/velodom/lib/cli.js`.
 After installation from npm, the `vd` and `create-velodom` binaries are
 available directly through the package manager.
 
@@ -304,9 +308,11 @@ props, slots, module hooks, style, and manifest overrides.
 ## Project Structure
 
 ```text
-bin/                        package CLI wrappers
-src/
-  core/                       framework-owned TypeScript
+packages/
+  velodom/                    publishable npm package named "velodom"
+    package.json              public exports, peers, binaries, publish guard
+    bin/                      vd and create-velodom CLI wrappers
+    src/                      framework-owned TypeScript
     adapters/                 build-tool resource discovery
     cli/                      static analysis, reporters, scaffolds, contracts
     compiler/                 HTML compiler and optimizer contracts
@@ -317,31 +323,75 @@ src/
     shared/                   generic validation and path helpers
     vite-plugin/              template compilation and static SEO rendering
 
-  pages/                      application-owned pages
-  layouts/                    optional application-owned page shells
-  components/                 application-owned components
-  api/                        application-owned handlers and middleware
-  assets/                     application-owned static assets such as favicon
-  main.js                     application bootstrap
+examples/
+  blog/                       independent VeloDom consumer application
+    src/
+      pages/                  application-owned pages
+      layouts/                optional application-owned page shells
+      components/             application-owned components
+      api/                    application-owned handlers and middleware
+      assets/                 application-owned static assets
+      main.js                 one-call application bootstrap
+  package-consumer/           installed-package verification fixture
 
 test/                         automated tests
 test-support/                 reusable test environment helpers
 docs/                         DX, future research, and identity notes
-examples/package-consumer/    installed-package verification fixture
+scripts/                      workspace release and quality checks
 ```
 
 Ownership rule:
 
-- Framework behavior that is generic across sites belongs in `src/core`.
+- Framework behavior that is generic across sites belongs in
+  `packages/velodom/src` and is published only as built `lib` plus `types`.
 - Business pages, components, route handlers, and custom middleware stay in
-  `src/pages`, `src/components`, and `src/api`.
-- Application assets stay in `src/assets`; root-level duplicate favicons are
-  avoided unless a deployment target explicitly requires them.
-- Build configuration stays at the repository root because npm, Vite,
-  TypeScript, and ESLint discover it there.
+  the consuming application's `src/pages`, `src/components`, and `src/api`.
+- The blog is a real workspace consumer under `examples/blog`; it does not
+  import framework source or carry a private copy of Core.
+- Repository-wide TypeScript, ESLint, tests, and release scripts stay at the
+  workspace root. Application Vite/Tailwind configuration belongs to the app.
 
 Use the [focused documentation map](docs/README.md) to distinguish shipped V1
 capabilities from optional tooling and approved future research.
+
+## Package and Import Boundaries
+
+Applications install one npm package named `velodom`. They never copy
+`packages/velodom/src` into their own source tree. Choose the narrowest public
+entry that matches the task:
+
+```js
+// General runtime and public contracts.
+import { createApp, createSharedState } from "velodom";
+
+// Recommended convention-first Vite bootstrap.
+import { mountVeloDom } from "velodom/vite";
+
+// Build configuration only.
+import { velodom } from "velodom/vite-plugin";
+
+// Optional focused tooling.
+import { compileTemplate } from "velodom/compiler";
+import { mountTestPage } from "velodom/testing";
+```
+
+Inside application code, imports can use whichever style is clearest:
+
+```js
+// Portable relative import; needs no alias configuration.
+import { listArticles } from "../../api/posts.js";
+
+// Short Vite/editor alias configured by the starter and blog example.
+import { listArticles } from "@/api/posts.js";
+
+// Standards-based package import alias declared in package.json#imports.
+import { listArticles } from "#app/api/posts.js";
+```
+
+`@` and `#app` point to the consuming application's `src` directory, not to
+VeloDom internals. The `velodom/*` subpaths are the stable framework boundary;
+deep imports such as `velodom/lib/router.js` or workspace source paths are not
+supported.
 
 ## Folder Conventions
 
@@ -2944,24 +2994,18 @@ devtools should remain optional plugins rather than mandatory runtime behavior.
 
 ### Vite Plugin
 
-The repository development config imports the source plugin directly because
-the package is not published:
+The blog is a real workspace package consumer and uses the same public plugin
+subpath as an npm-installed application:
 
 ```js
 import { defineConfig } from "vite";
-import { velodom } from "./src/core/vite-plugin/index.ts";
+import { velodom } from "velodom/vite-plugin";
 
 export default defineConfig({
   plugins: [
     velodom()
   ]
 });
-```
-
-An installed/package consumer uses:
-
-```js
-import { velodom } from "velodom/vite-plugin";
 ```
 
 The plugin:
@@ -3354,8 +3398,8 @@ The internal router filenames `page-router.ts` and
 runtime, directive features, tests, and diagnostics refer to them by name.
 
 VeloDom uses the MIT License. Package publishing remains intentionally blocked
-by `private: true` until a human approves the exact npm account, access level,
-2FA setup, and package reservation. Public API names are tracked by
+by `private: true` in `packages/velodom/package.json` until a human approves
+the exact npm account, access level, 2FA setup, and package reservation. Public API names are tracked by
 package-boundary tests and should change only through an intentional
 architecture decision plus documentation update.
 
@@ -3388,12 +3432,12 @@ Latest local verification on 2026-08-17:
 - Core documentation audit passes for 68 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 215 automated tests pass
+- 216 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - package dry-run validation passes
-- npm package documentation links are backed by allowlisted `docs/`, NOTES,
-  and roadmap files
+- npm tarball includes the focused package README and license while repository
+  docs, examples, tests, and raw framework TypeScript remain outside it
 - an isolated local-tarball TypeScript/Vite consumer passes
 - local rendering benchmark script passes
 - JavaScript performance budget check passes
@@ -3408,6 +3452,12 @@ Latest local verification on 2026-08-17:
 
 Latest implementation update:
 
+- Separated the publishable `velodom` package into `packages/velodom` and
+  moved the documentation blog to `examples/blog`, where it consumes only
+  public package exports like a real client project.
+- Added flexible client imports: stable `velodom/*` package subpaths, a short
+  Vite/editor `@` alias, standards-based `#app/*` imports, and unchanged
+  relative imports. New CLI projects generate the required config.
 - Added optional typed `config.ts` for folder pages across Vite runtime
   discovery, static SEO generation, CLI analysis, doctor/docs output, and
   `vd create page --ts`; Vanilla `config.js` remains dependency-free.
@@ -3420,7 +3470,7 @@ Latest implementation update:
   explicit composition levels rather than removing advanced control.
 - Updated CLI project generation to emit a complete HTML shell and the same
   one-call bootstrap used by the documentation.
-- Reduced showcase CSS from about 1.16 MB to about 91 KB by using the daisyUI
+- Reduced showcase CSS from about 1.16 MB to about 70 KB by using the daisyUI
   Tailwind plugin instead of its complete prebuilt stylesheet.
 - Reconciled V1 release-polish documentation so README, TODO, NOTES,
   RELEASE_DECISION, Content Mode docs, and DX rubric describe the same current
@@ -3434,7 +3484,7 @@ Latest implementation update:
   and typed content metadata.
 - Added optional static SEO content rendering through `seo.renderPage`.
 - Updated framework contracts, SEO constants, Vite plugin options, and static
-  renderer behavior in `src/core`.
+  renderer behavior in `packages/velodom/src`.
 - Added focused coverage in `test/compiler/seo-renderer.test.js`.
 - Added reusable structured-data fixtures for WebSite, BlogPosting,
   BreadcrumbList, FAQPage, and Product JSON-LD validation coverage.
@@ -3570,7 +3620,8 @@ happy-dom.
 ## Release Decision
 
 The repository is now aligned as a local `1.0.0` release candidate, but npm
-publication is intentionally blocked by `private: true`.
+publication is intentionally blocked by `private: true` in the publishable
+workspace package.
 [RELEASE_DECISION.md](RELEASE_DECISION.md) records the current owner-approval
 requirements before publishing, tagging, or removing the private package guard.
 
@@ -3664,8 +3715,9 @@ universal SSR runtime.
 
 When continuing development:
 
-1. Keep generic framework logic under `src/core`.
-2. Keep business examples under `src/pages`, `src/components`, and `src/api`.
+1. Keep generic framework logic under `packages/velodom/src`.
+2. Keep the blog example under `examples/blog/src`; client projects own their
+   own `src/pages`, `src/components`, and `src/api`.
 3. Update README, TODO, CHANGELOG, and NOTES after significant work.
 4. Add a regression test for every Core bug or behavior change.
 5. Run `npm test` and `npm run build` before committing important changes.

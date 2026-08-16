@@ -23,9 +23,10 @@ import {
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
 
-const projectRoot = resolve(
+const workspaceRoot = resolve(
   fileURLToPath(new URL("..", import.meta.url))
 );
+const packageRoot = join(workspaceRoot, "packages", "velodom");
 const temporaryRoot = await mkdtemp(
   join(tmpdir(), "velodom-pack-dry-run-")
 );
@@ -52,7 +53,7 @@ try {
     "--dry-run",
     "--ignore-scripts"
   ], {
-    cwd: projectRoot,
+    cwd: packageRoot,
     env: {
       ...process.env,
       npm_config_cache: cacheRoot

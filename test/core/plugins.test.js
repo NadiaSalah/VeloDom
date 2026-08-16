@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createPluginManager } from "../../src/core/plugins.ts";
+import { createPluginManager } from "../../packages/velodom/src/plugins.ts";
 
 test("plugins setup in order and clean up in reverse order", async () => {
   const order = [];

@@ -11,19 +11,16 @@ import test from "node:test";
 const root = process.cwd();
 
 test("internal router module filenames are frozen", async () => {
-  const pageRouterPath = join(root, "src", "core", "page-router.ts");
+  const coreRoot = join(root, "packages", "velodom", "src");
+  const pageRouterPath = join(coreRoot, "page-router.ts");
   const requestRouterPath = join(
-    root,
-    "src",
-    "core",
+    coreRoot,
     "requests",
     "request-router.ts"
   );
-  const runtimeEntryPath = join(root, "src", "core", "velodom.ts");
+  const runtimeEntryPath = join(coreRoot, "velodom.ts");
   const requestDirectivePath = join(
-    root,
-    "src",
-    "core",
+    coreRoot,
     "directives",
     "features",
     "requests.ts"

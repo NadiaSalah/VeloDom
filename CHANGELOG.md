@@ -40,6 +40,22 @@ package versions.
   builds; Vanilla `config.js` projects add no compiler requirement.
 - Converted the showcase Features page to typed config and added regression
   coverage for TypeScript SEO evaluation and CLI generation.
+- Moved all framework-owned source, package binaries, built ESM, and generated
+  declarations into the publishable `packages/velodom` workspace package.
+- Replaced the former repository-document tarball allowlist with a focused npm
+  README and license; full roadmap and architecture records remain repository
+  documentation instead of application dependencies.
+- Moved the documentation blog to `examples/blog` and removed every direct
+  framework-source import so it verifies the same `velodom` public subpaths as
+  an external application.
+- Added application-local `@` and standards-based `#app/*` aliases while
+  preserving relative imports, and updated CLI project scaffolding to generate
+  the Vite and editor configuration automatically.
+- Made Vite an optional peer of the focused Vite integrations and kept
+  TypeScript optional, so adapter-independent Vanilla users install only the
+  runtime they choose.
+- Kept the blog's Tailwind scan rooted to its own workspace, reducing the
+  current generated CSS artifact further to about 70 KB.
 
 ## 2026-08-16
 

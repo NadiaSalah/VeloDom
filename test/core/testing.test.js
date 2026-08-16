@@ -3,7 +3,7 @@ import test from "node:test";
 import {
   mountTestComponent,
   mountTestPage
-} from "../../src/core/testing.ts";
+} from "../../packages/velodom/src/testing.ts";
 import { installDom } from "../../test-support/dom.js";
 
 const removeDom = installDom();

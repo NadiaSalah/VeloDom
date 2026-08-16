@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createPluginManager } from "../../src/core/plugins.ts";
-import { createSharedState } from "../../src/core/shared-state.ts";
+import { createPluginManager } from "../../packages/velodom/src/plugins.ts";
+import { createSharedState } from "../../packages/velodom/src/shared-state.ts";
 
 test("shared state installs only when its plugin is registered", async () => {
   const app = {};

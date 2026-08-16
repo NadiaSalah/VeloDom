@@ -16,7 +16,7 @@ import test from "node:test";
 import {
   generateStaticSeoPages,
   renderSeoDocument
-} from "../../src/core/vite-plugin/seo-renderer.ts";
+} from "../../packages/velodom/src/vite-plugin/seo-renderer.ts";
 import {
   structuredDataFixtures
 } from "../../test-support/structured-data-fixtures.js";

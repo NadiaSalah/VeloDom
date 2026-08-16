@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { applyDirectives } from "../../src/core/directives.ts";
-import { createPageRouter } from "../../src/core/page-router.ts";
-import { createState } from "../../src/core/reactive.ts";
+import { applyDirectives } from "../../packages/velodom/src/directives.ts";
+import { createPageRouter } from "../../packages/velodom/src/page-router.ts";
+import { createState } from "../../packages/velodom/src/reactive.ts";
 import {
   renderSeoDocument
-} from "../../src/core/vite-plugin/seo-renderer.ts";
+} from "../../packages/velodom/src/vite-plugin/seo-renderer.ts";
 import { installDom } from "../../test-support/dom.js";
 
 const removeDom = installDom();

@@ -3,7 +3,7 @@ import test from "node:test";
 import {
   ApiError,
   requestJson
-} from "../../src/core/requests/index.ts";
+} from "../../packages/velodom/src/requests/index.ts";
 
 test("GET requests do not send a JSON content type", async () => {
   const originalFetch = globalThis.fetch;

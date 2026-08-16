@@ -18,12 +18,15 @@ export default tseslint.config(
     ignores: [
       "dist/**",
       "node_modules/**",
-      "types/**"
+      "packages/velodom/lib/**",
+      "packages/velodom/types/**",
+      "examples/blog/dist/**"
     ]
   },
   {
     files: [
-      "src/**/*.ts"
+      "packages/velodom/src/**/*.ts",
+      "examples/**/*.ts"
     ],
     extends: [
       eslint.configs.recommended,
@@ -46,7 +49,7 @@ export default tseslint.config(
   },
   {
     files: [
-      "src/core/**/*.ts"
+      "packages/velodom/src/**/*.ts"
     ],
     rules: {
       "@typescript-eslint/no-explicit-any": "error"
@@ -54,7 +57,8 @@ export default tseslint.config(
   },
   {
     files: [
-      "src/**/*.js",
+      "packages/velodom/bin/**/*.js",
+      "examples/**/*.js",
       "scripts/**/*.mjs",
       "test/**/*.js",
       "*.js"

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { scopeCss } from "../../src/core/styles.ts";
+import { scopeCss } from "../../packages/velodom/src/styles.ts";
 
 test("scoped CSS supports leading global ancestor selectors", () => {
   assert.equal(

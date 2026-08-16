@@ -27,7 +27,8 @@ After `1.0.0`:
 - major releases may change public exports, directives, lifecycle contracts, or
   generated application behavior incompatibly.
 
-Internal files that are not reachable through `package.json#exports` are not
+Internal files that are not reachable through
+`packages/velodom/package.json#exports` are not
 public API. Application folders, tests, source configuration, and showcase
 assets must never be included in the npm tarball.
 
@@ -87,16 +88,21 @@ The checks must confirm:
 
 ### 4. Package Boundary Review
 
-- Confirm `package.json#exports` exposes only:
+- Confirm `packages/velodom/package.json#exports` exposes only:
   - `velodom`
+  - `velodom/assets`
   - `velodom/compiler`
   - `velodom/content`
+  - `velodom/devtools`
+  - `velodom/testing`
   - `velodom/vite`
   - `velodom/vite-plugin`
   - `velodom/package.json`
 - Confirm application folders, tests, source config, assets, and local build
   scaffolding are not included in the npm tarball.
-- Confirm `RELEASE_DECISION.md` is included when README links to it.
+- Confirm the package tarball contains its focused `README.md`, `LICENSE`,
+  `bin`, `lib`, and `types`, but excludes workspace examples and framework
+  TypeScript source.
 - Confirm public API freeze tests pass before changing any export names.
 
 ### 5. Publication Approval
@@ -115,4 +121,5 @@ The checks must confirm:
   this workspace.
 - npm publishing account, organization, access level, and 2FA requirements have
   not been approved yet.
-- `private: true` is intentionally still enabled in `package.json`.
+- `private: true` is intentionally still enabled in
+  `packages/velodom/package.json`.

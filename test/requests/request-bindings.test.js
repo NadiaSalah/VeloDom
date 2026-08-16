@@ -3,12 +3,12 @@ import test from "node:test";
 import {
   VD,
   VD_REQUEST
-} from "../../src/core/constants.ts";
+} from "../../packages/velodom/src/constants.ts";
 import {
   createAutoStatusBinding,
   resolveRequestBinding,
   validateRequestBindingAccess
-} from "../../src/core/requests/request-bindings.ts";
+} from "../../packages/velodom/src/requests/request-bindings.ts";
 
 function createContext(pageStates = {}) {
   return {

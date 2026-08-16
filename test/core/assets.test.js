@@ -7,7 +7,7 @@ import {
   createResponsiveImageAttributes,
   inspectImageAsset,
   inspectImageDirectory
-} from "../../src/core/assets.ts";
+} from "../../packages/velodom/src/assets.ts";
 
 test("asset helpers inspect PNG dimensions and report oversized files", async () => {
   const root = await mkdtemp(join(tmpdir(), "velodom-assets-"));

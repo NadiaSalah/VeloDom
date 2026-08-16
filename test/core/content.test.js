@@ -13,7 +13,7 @@ import {
   createContentSitemap,
   loadContentCollection,
   parseMarkdownContent
-} from "../../src/core/content.ts";
+} from "../../packages/velodom/src/content.ts";
 
 test("content mode parses frontmatter and safe markdown output", () => {
   const entry = parseMarkdownContent({

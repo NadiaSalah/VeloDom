@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createPageEventHub } from "../../src/core/events.ts";
+import { createPageEventHub } from "../../packages/velodom/src/events.ts";
 
 test("event hub supports on, off, once, emit, and clear", () => {
   const events = createPageEventHub();

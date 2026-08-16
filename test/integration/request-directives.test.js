@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { VD_REQUEST } from "../../src/core/constants.ts";
-import { applyDirectives } from "../../src/core/directives.ts";
-import { createPageEventHub } from "../../src/core/events.ts";
-import { createState } from "../../src/core/reactive.ts";
+import { VD_REQUEST } from "../../packages/velodom/src/constants.ts";
+import { applyDirectives } from "../../packages/velodom/src/directives.ts";
+import { createPageEventHub } from "../../packages/velodom/src/events.ts";
+import { createState } from "../../packages/velodom/src/reactive.ts";
 import {
   configureRequestRuntime
-} from "../../src/core/requests/request-router.ts";
+} from "../../packages/velodom/src/requests/request-router.ts";
 import {
   installDom,
   waitFor

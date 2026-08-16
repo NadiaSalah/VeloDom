@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { VD } from "../../src/core/constants.ts";
-import { applyDirectives } from "../../src/core/directives.ts";
-import { createState } from "../../src/core/reactive.ts";
+import { VD } from "../../packages/velodom/src/constants.ts";
+import { applyDirectives } from "../../packages/velodom/src/directives.ts";
+import { createState } from "../../packages/velodom/src/reactive.ts";
 
 class FakeElement {
   constructor(attributes = {}) {

@@ -6,7 +6,7 @@ import {
   createServerSessionAuthProvider,
   normalizeRequestAuthConfig,
   resolveRequestSession
-} from "../../src/core/requests/auth.ts";
+} from "../../packages/velodom/src/requests/auth.ts";
 
 test("server auth respects an explicit authenticated false value", async () => {
   const originalFetch = globalThis.fetch;

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createLifecycleScope } from "../../src/core/lifecycle.ts";
+import { createLifecycleScope } from "../../packages/velodom/src/lifecycle.ts";
 
 test("lifecycle cleanup runs in reverse registration order", async () => {
   const order = [];

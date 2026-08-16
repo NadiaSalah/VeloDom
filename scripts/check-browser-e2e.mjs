@@ -32,7 +32,7 @@ import {
 const projectRoot = resolve(
   fileURLToPath(new URL("..", import.meta.url))
 );
-const distRoot = join(projectRoot, "dist");
+const distRoot = join(projectRoot, "examples", "blog", "dist");
 const strictBrowserMatrix = process.env.VELODOM_BROWSER_STRICT === "1";
 const debugBrowserE2e = process.env.VELODOM_BROWSER_E2E_DEBUG === "1";
 const targetRegistry = createTargetRegistry();

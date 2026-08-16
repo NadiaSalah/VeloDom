@@ -3,10 +3,10 @@ import test from "node:test";
 import {
   compileTemplate,
   defineTemplateOptimizer
-} from "../../src/core/compiler/index.ts";
+} from "../../packages/velodom/src/compiler/index.ts";
 import {
   createTemplateModule
-} from "../../src/core/vite-plugin/index.ts";
+} from "../../packages/velodom/src/vite-plugin/index.ts";
 
 test("preferred directives compile to backward-compatible runtime names", () => {
   const result = compileTemplate(`

@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { isPlainObject } from "../../src/core/shared/object.ts";
+import { isPlainObject } from "../../packages/velodom/src/shared/object.ts";
 import {
   findProtectedStatePathKey,
   normalizeFolderPath
-} from "../../src/core/shared/path.ts";
+} from "../../packages/velodom/src/shared/path.ts";
 
 test("plain-object validation accepts records and rejects arrays", () => {
   assert.equal(isPlainObject({ value: 1 }), true);

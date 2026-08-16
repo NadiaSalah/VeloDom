@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { compileTemplate } from "../../src/core/compiler/index.ts";
-import { applyDirectives } from "../../src/core/directives.ts";
-import { createPageEventHub } from "../../src/core/events.ts";
-import { mount } from "../../src/core/mount.ts";
-import { createPageRouter } from "../../src/core/page-router.ts";
-import { createState } from "../../src/core/reactive.ts";
+import { compileTemplate } from "../../packages/velodom/src/compiler/index.ts";
+import { applyDirectives } from "../../packages/velodom/src/directives.ts";
+import { createPageEventHub } from "../../packages/velodom/src/events.ts";
+import { mount } from "../../packages/velodom/src/mount.ts";
+import { createPageRouter } from "../../packages/velodom/src/page-router.ts";
+import { createState } from "../../packages/velodom/src/reactive.ts";
 import {
   configureRequestRuntime
-} from "../../src/core/requests/request-router.ts";
+} from "../../packages/velodom/src/requests/request-router.ts";
 import {
   installDom,
   waitFor

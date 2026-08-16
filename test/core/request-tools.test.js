@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createPluginManager } from "../../src/core/plugins.ts";
+import { createPluginManager } from "../../packages/velodom/src/plugins.ts";
 import {
   createDevtoolsPlugin,
   createRequestCache,
   withRequestRetry
-} from "../../src/core/request-tools.ts";
+} from "../../packages/velodom/src/request-tools.ts";
 import { installDom } from "../../test-support/dom.js";
 
 const removeDom = installDom();

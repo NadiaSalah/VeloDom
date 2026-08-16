@@ -3,11 +3,11 @@ import test from "node:test";
 import {
   defineRequestMiddleware,
   VD_MIDDLEWARE
-} from "../../src/core/requests/index.ts";
+} from "../../packages/velodom/src/requests/index.ts";
 import {
   executeRequestMiddleware,
   resolveRequestMiddleware
-} from "../../src/core/requests/middleware-engine.ts";
+} from "../../packages/velodom/src/requests/middleware-engine.ts";
 
 test("middleware resolution only accepts own registry keys", () => {
   const resolved = resolveRequestMiddleware(["toString"], {

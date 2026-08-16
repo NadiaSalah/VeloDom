@@ -22,7 +22,7 @@ The feature stays:
 
 The public `velodom/content` package subpath is available in `package.json`
 exports and is implemented by the Node/build-time module
-`src/core/content.ts`.
+`packages/velodom/src/content.ts`.
 
 Current helpers:
 

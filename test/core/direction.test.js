@@ -4,7 +4,7 @@ import {
   createApp,
   createDirectionPlugin,
   createRtlFlipStyles
-} from "../../src/core/index.ts";
+} from "../../packages/velodom/src/index.ts";
 import {
   installDom,
   waitFor

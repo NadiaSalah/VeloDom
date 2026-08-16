@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mountDevtoolsInspector } from "../../src/core/devtools.ts";
+import { mountDevtoolsInspector } from "../../packages/velodom/src/devtools.ts";
 import { installDom } from "../../test-support/dom.js";
 
 test("standalone devtools inspector is opt-in and reads the registered bridge", () => {

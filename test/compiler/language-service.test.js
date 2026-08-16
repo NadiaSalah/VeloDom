@@ -3,7 +3,7 @@ import test from "node:test";
 import {
   analyzeVeloDomDocument,
   getVeloDomDirectiveCompletions
-} from "../../src/core/compiler/index.ts";
+} from "../../packages/velodom/src/compiler/index.ts";
 
 test("language service remaps single-file template diagnostics to the source document", () => {
   const source = `<script>export {};</script>

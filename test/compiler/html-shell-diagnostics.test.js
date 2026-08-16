@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   analyzeHtmlShell
-} from "../../src/core/vite-plugin/html-shell-diagnostics.ts";
+} from "../../packages/velodom/src/vite-plugin/html-shell-diagnostics.ts";
 
 test("HTML shell diagnostics accept UTF-8 charset", () => {
   assert.deepEqual(

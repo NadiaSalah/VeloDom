@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   analyzeRtlCss
-} from "../../src/core/vite-plugin/rtl-css-diagnostics.ts";
+} from "../../packages/velodom/src/vite-plugin/rtl-css-diagnostics.ts";
 
 test("RTL CSS diagnostics suggest logical alternatives", () => {
   const diagnostics = analyzeRtlCss(`

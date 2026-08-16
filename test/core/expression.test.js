@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createState } from "../../src/core/reactive.ts";
+import { createState } from "../../packages/velodom/src/reactive.ts";
 import {
   createScope,
   evaluate,
   isIterable,
   readValue,
   writeValue
-} from "../../src/core/directives/expression.ts";
+} from "../../packages/velodom/src/directives/expression.ts";
 
 test("expression helpers evaluate and update nested state", () => {
   const state = createState({

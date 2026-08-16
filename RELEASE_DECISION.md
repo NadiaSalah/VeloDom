@@ -7,9 +7,10 @@ Date: 2026-08-17
 VeloDom is prepared locally as a `1.0.0` release candidate, but it is not
 approved for npm publication yet.
 
-`package.json` must keep `private: true` until the project owner explicitly
-approves publication for the exact version, account, access level, and npm
-package destination.
+`packages/velodom/package.json` must keep `private: true` until the project
+owner explicitly approves publication for the exact version, account, access
+level, and npm package destination. The root manifest is always private because
+it coordinates the development workspace rather than an npm release.
 
 ## Approved Now
 
@@ -46,7 +47,7 @@ Before publication, the owner must confirm:
 - Publication guard: `private: true`
 - Package dry-run artifact: `velodom-1.0.0.tgz`
 - `npm run pack:check`: passed locally
-- `npm test`: 215 tests passed locally
+- `npm test`: 216 tests passed locally
 - `npm run check`: passed locally
 - `npm run build`: passed locally
 - `npm run test:browser`: passed locally for Chromium/Chrome/Edge, WebKit, and

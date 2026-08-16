@@ -3,7 +3,7 @@ import test from "node:test";
 import {
   assertResourceAdapterConformance,
   validateResourceAdapter
-} from "../../src/core/resource-adapter.ts";
+} from "../../packages/velodom/src/resource-adapter.ts";
 
 test("resource adapter accepts lazy nested resource maps", () => {
   const manifestLoader = async () => ({

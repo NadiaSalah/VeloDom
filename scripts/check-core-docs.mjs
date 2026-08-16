@@ -3,7 +3,7 @@
  * Module: Core Documentation Audit
  * ----------------------------------------
  *
- * Verifies that every TypeScript module in src/core starts with a module
+ * Verifies that every TypeScript module in packages/velodom/src starts with a module
  * header and that every exported declaration has an adjacent JSDoc block.
  * This keeps documentation standards enforceable during future refactors.
  * ----------------------------------------
@@ -15,7 +15,7 @@ import {
 } from "node:fs/promises";
 import { join } from "node:path";
 
-const CORE_DIRECTORY = "src/core";
+const CORE_DIRECTORY = "packages/velodom/src";
 const EXPORT_PATTERN = /^\s*export\s+(?:(?:default|declare|async)\s+)*(?:function|class|interface|type|const|let|var|\{)/;
 
 const files = await collectTypeScriptFiles(CORE_DIRECTORY);

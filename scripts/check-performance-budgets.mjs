@@ -7,7 +7,20 @@ import {
 import path from "node:path";
 import { gzipSync } from "node:zlib";
 
-const root = process.cwd();
+const workspaceRoot = process.cwd();
+const distAssetsRoot = path.join(
+  workspaceRoot,
+  "examples",
+  "blog",
+  "dist",
+  "assets"
+);
+const packageLibRoot = path.join(
+  workspaceRoot,
+  "packages",
+  "velodom",
+  "lib"
+);
 const budgets = Object.freeze({
   distTotalJsBytes: 220 * 1024,
   distLargestJsChunkBytes: 120 * 1024,
@@ -18,25 +31,25 @@ const budgets = Object.freeze({
 
 const checks = [];
 
-if (!existsSync(path.join(root, "dist", "assets"))) {
+if (!existsSync(distAssetsRoot)) {
   fail(
-    "Missing dist/assets. Run npm run build before checking generated chunk budgets."
+    "Missing examples/blog/dist/assets. Run npm run build before checking generated chunk budgets."
   );
 }
 
-if (!existsSync(path.join(root, "lib"))) {
+if (!existsSync(packageLibRoot)) {
   fail(
-    "Missing lib. Run npm run package:build before checking package runtime budgets."
+    "Missing packages/velodom/lib. Run npm run package:build before checking package runtime budgets."
   );
 }
 
-const distFiles = existsSync(path.join(root, "dist", "assets"))
-  ? await collectFiles(path.join(root, "dist", "assets"), file => (
+const distFiles = existsSync(distAssetsRoot)
+  ? await collectFiles(distAssetsRoot, file => (
     file.endsWith(".js")
   ))
   : [];
-const packageFiles = existsSync(path.join(root, "lib"))
-  ? await collectFiles(path.join(root, "lib"), file => (
+const packageFiles = existsSync(packageLibRoot)
+  ? await collectFiles(packageLibRoot, file => (
     file.endsWith(".js")
   ))
   : [];

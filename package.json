@@ -1,107 +1,29 @@
 {
-  "name": "velodom",
+  "name": "velodom-workspace",
   "private": true,
   "version": "1.0.0",
-  "description": "Compiler-first, HTML-first frontend framework with reactive state, routing, components, and requests.",
-  "license": "MIT",
+  "description": "Development workspace for the VeloDom framework package and its example applications.",
   "type": "module",
-  "main": "./lib/index.js",
-  "module": "./lib/index.js",
-  "types": "./types/index.d.ts",
-  "sideEffects": false,
-  "bin": {
-    "vd": "./bin/vd.js",
-    "create-velodom": "./bin/create-velodom.js"
-  },
-  "files": [
-    "bin",
-    "docs",
-    "lib",
-    "types",
-    "README.md",
-    "BROWSERS.md",
-    "CHANGELOG.md",
-    "NOTES.md",
-    "RELEASE_DECISION.md",
-    "RELEASING.md",
-    "todo.md"
+  "workspaces": [
+    "packages/velodom",
+    "examples/blog"
   ],
-  "engines": {
-    "node": "^20.19.0 || >=22.12.0"
-  },
-  "browserslist": [
-    "last 2 Chrome versions",
-    "last 2 Edge versions",
-    "last 2 Firefox versions",
-    "last 2 Safari versions",
-    "last 2 iOS versions",
-    "last 2 Android versions",
-    "not dead",
-    "not op_mini all"
-  ],
-  "exports": {
-    ".": {
-      "types": "./types/index.d.ts",
-      "import": "./lib/index.js",
-      "default": "./lib/index.js"
-    },
-    "./compiler": {
-      "types": "./types/compiler/index.d.ts",
-      "import": "./lib/compiler/index.js",
-      "default": "./lib/compiler/index.js"
-    },
-    "./content": {
-      "types": "./types/content.d.ts",
-      "import": "./lib/content.js",
-      "default": "./lib/content.js"
-    },
-    "./assets": {
-      "types": "./types/assets.d.ts",
-      "import": "./lib/assets.js",
-      "default": "./lib/assets.js"
-    },
-    "./devtools": {
-      "types": "./types/devtools.d.ts",
-      "import": "./lib/devtools.js",
-      "default": "./lib/devtools.js"
-    },
-    "./vite": {
-      "types": "./types/adapters/vite.d.ts",
-      "import": "./lib/adapters/vite.js",
-      "default": "./lib/adapters/vite.js"
-    },
-    "./vite-plugin": {
-      "types": "./types/vite-plugin/index.d.ts",
-      "import": "./lib/vite-plugin/index.js",
-      "default": "./lib/vite-plugin/index.js"
-    },
-    "./testing": {
-      "types": "./types/testing.d.ts",
-      "import": "./lib/testing.js",
-      "default": "./lib/testing.js"
-    },
-    "./package.json": "./package.json"
-  },
   "scripts": {
-    "dev": "vite",
-    "build": "npm run check && npm run package:check && vite build && npm run performance:check",
-    "preview": "vite preview",
+    "dev": "npm run package:build && vite --config examples/blog/vite.config.js",
+    "build": "npm run check && npm run package:check && vite build --config examples/blog/vite.config.js && npm run performance:check",
+    "preview": "vite preview --config examples/blog/vite.config.js",
     "test": "node --test",
     "docs:check": "node scripts/check-core-docs.mjs",
     "typecheck": "tsc --noEmit",
-    "clean:types": "node -e \"require('node:fs').rmSync('types', { recursive: true, force: true })\"",
-    "clean:package": "node -e \"require('node:fs').rmSync('lib', { recursive: true, force: true })\"",
-    "types": "npm run clean:types && tsc --project tsconfig.types.json && node scripts/rewrite-declaration-imports.mjs",
-    "package:build": "npm run clean:package && tsc --project tsconfig.package.json && npm run types",
-    "package:consumer": "npm run package:build && node scripts/check-package-consumer.mjs",
-    "package:check": "npm run package:build && node scripts/check-package.mjs && node scripts/check-package-consumer.mjs",
-    "pack:check": "npm run package:check && node scripts/check-pack-dry-run.mjs",
+    "package:build": "npm run package:build --workspace velodom",
+    "package:consumer": "npm run package:consumer --workspace velodom",
+    "package:check": "npm run package:check --workspace velodom",
+    "pack:check": "npm run pack:check --workspace velodom",
     "benchmark:rendering": "node scripts/benchmark-rendering.mjs",
     "performance:check": "node scripts/check-performance-budgets.mjs",
     "test:browser": "npm run build && node scripts/check-browser-e2e.mjs",
     "lint": "eslint .",
-    "check": "npm run docs:check && npm run typecheck && npm run lint",
-    "prepack": "npm run package:check"
+    "check": "npm run docs:check && npm run typecheck && npm run lint"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -118,13 +40,5 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.62.1",
     "vite": "^8.1.3"
-  },
-  "peerDependencies": {
-    "typescript": ">=5.7"
-  },
-  "peerDependenciesMeta": {
-    "typescript": {
-      "optional": true
-    }
   }
 }

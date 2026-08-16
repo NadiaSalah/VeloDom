@@ -1,23 +1,23 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import * as compilerApi from "../../src/core/compiler/index.ts";
-import * as assetsApi from "../../src/core/assets.ts";
-import * as devtoolsApi from "../../src/core/devtools.ts";
-import * as contentApi from "../../src/core/content.ts";
-import * as runtimeApi from "../../src/core/index.ts";
-import * as testingApi from "../../src/core/testing.ts";
-import * as vitePluginApi from "../../src/core/vite-plugin/index.ts";
+import * as compilerApi from "../../packages/velodom/src/compiler/index.ts";
+import * as assetsApi from "../../packages/velodom/src/assets.ts";
+import * as devtoolsApi from "../../packages/velodom/src/devtools.ts";
+import * as contentApi from "../../packages/velodom/src/content.ts";
+import * as runtimeApi from "../../packages/velodom/src/index.ts";
+import * as testingApi from "../../packages/velodom/src/testing.ts";
+import * as vitePluginApi from "../../packages/velodom/src/vite-plugin/index.ts";
 
-const adapterEntrySource = await readSource("../../src/core/adapters/vite.ts");
-const assetsEntrySource = await readSource("../../src/core/assets.ts");
-const devtoolsEntrySource = await readSource("../../src/core/devtools.ts");
-const rootEntrySource = await readSource("../../src/core/index.ts");
-const compilerEntrySource = await readSource("../../src/core/compiler/index.ts");
-const contentEntrySource = await readSource("../../src/core/content.ts");
-const testingEntrySource = await readSource("../../src/core/testing.ts");
-const vitePluginEntrySource = await readSource("../../src/core/vite-plugin/index.ts");
-const manifest = JSON.parse(await readSource("../../package.json"));
+const adapterEntrySource = await readSource("../../packages/velodom/src/adapters/vite.ts");
+const assetsEntrySource = await readSource("../../packages/velodom/src/assets.ts");
+const devtoolsEntrySource = await readSource("../../packages/velodom/src/devtools.ts");
+const rootEntrySource = await readSource("../../packages/velodom/src/index.ts");
+const compilerEntrySource = await readSource("../../packages/velodom/src/compiler/index.ts");
+const contentEntrySource = await readSource("../../packages/velodom/src/content.ts");
+const testingEntrySource = await readSource("../../packages/velodom/src/testing.ts");
+const vitePluginEntrySource = await readSource("../../packages/velodom/src/vite-plugin/index.ts");
+const manifest = JSON.parse(await readSource("../../packages/velodom/package.json"));
 
 test("runtime public exports are frozen for the V1 package boundary", () => {
   assert.deepEqual(Object.keys(runtimeApi).sort(), [

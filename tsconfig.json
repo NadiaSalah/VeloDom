@@ -11,7 +11,16 @@
     "moduleResolution": "Bundler",
     "paths": {
       "velodom": [
-        "./src/core/index.ts"
+        "./packages/velodom/src/index.ts"
+      ],
+      "velodom/vite": [
+        "./packages/velodom/src/adapters/vite.ts"
+      ],
+      "velodom/vite-plugin": [
+        "./packages/velodom/src/vite-plugin/index.ts"
+      ],
+      "@/*": [
+        "./examples/blog/src/*"
       ]
     },
     "allowImportingTsExtensions": true,
@@ -30,14 +39,13 @@
     "noEmit": true
   },
   "include": [
-    "src/core/**/*.ts",
-    "src/api/**/*.ts",
-    "src/components/**/*.ts",
-    "src/pages/**/*.ts"
+    "packages/velodom/src/**/*.ts",
+    "examples/blog/src/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "types"
+    "examples/blog/dist",
+    "packages/velodom/lib",
+    "packages/velodom/types"
   ]
 }

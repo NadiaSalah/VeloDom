@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createApp } from "../../src/core/index.ts";
-import { applyDirectives } from "../../src/core/directives.ts";
+import { createApp } from "../../packages/velodom/src/index.ts";
+import { applyDirectives } from "../../packages/velodom/src/directives.ts";
 import {
   reportUserActionError
-} from "../../src/core/errors/error-reporter.ts";
+} from "../../packages/velodom/src/errors/error-reporter.ts";
 import {
   renderFatalFrameworkError
-} from "../../src/core/errors/error-screen.ts";
-import { createState } from "../../src/core/reactive.ts";
+} from "../../packages/velodom/src/errors/error-screen.ts";
+import { createState } from "../../packages/velodom/src/reactive.ts";
 import {
   installDom,
   waitFor
@@ -74,7 +74,7 @@ test("error reporter extracts source locations from Windows stack frames", async
 
   await captureConsole("error", messages => {
     const reported = reportUserActionError(error, {
-      file: "src/core/page-router.ts",
+      file: "velodom/page-router.ts",
       line: 1
     });
 
@@ -100,7 +100,7 @@ test("error reporter prefers source metadata from adapter loaders", async () => 
   await captureConsole("error", messages => {
     const reported = reportUserActionError(error, {
       title: "Navigation Crash",
-      file: "src/core/page-router.ts",
+      file: "velodom/page-router.ts",
       hint: "Fallback hint"
     });
 
@@ -124,7 +124,7 @@ test("warning reports use the warning channel", async () => {
   await captureConsole("warn", messages => {
     const reported = reportUserActionError("Optional listener ignored", {
       title: "Invalid Event Listener",
-      file: "src/core/events.ts",
+      file: "velodom/events.ts",
       line: 8,
       level: "warn"
     });
@@ -376,7 +376,7 @@ test("fatal reports replace the page once and render content as text", async () 
   await captureConsole("error", () => {
     reportUserActionError(error, {
       title: "Navigation Crash",
-      file: "src/core/page-router.ts",
+      file: "velodom/page-router.ts",
       line: 188,
       column: 5,
       hint: "Check the page module.",

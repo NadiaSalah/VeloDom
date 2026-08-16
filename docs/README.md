@@ -43,4 +43,6 @@ making those ideas part of the browser runtime.
   be supported by implementation, tests, and the package boundary.
 - Prefer examples using `mountVeloDom()` for conventional Vite applications.
   Use `createApp()` only when demonstrating explicit adapter composition.
-- Keep application-owned business behavior outside `src/core`.
+- Keep application-owned business behavior outside `packages/velodom/src`.
+  The repository example belongs under `examples/blog/src`; installed projects
+  own their own `src` folders.

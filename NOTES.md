@@ -3,9 +3,10 @@
 ## Architectural Decisions
 
 - VeloDom is compiler-first, HTML-first, and folder-first.
-- `src/core` is the single home for reusable framework source, including the
-  compiler, shared contracts, adapters, and Vite plugin.
-- `src/pages`, `src/components`, and `src/api` are application-owned.
+- `packages/velodom/src` is the single home for reusable framework source,
+  including the compiler, shared contracts, adapters, and Vite plugin.
+- `examples/blog/src` is the repository's application-owned showcase. External
+  applications own their own `src/pages`, `src/components`, and `src/api`.
 - Build-tool discovery belongs to adapters; the runtime accepts injected
   resource maps.
 - Vite applications should normally start with `mountVeloDom()`. It supplies
@@ -30,19 +31,27 @@
   config is transpiled only during Vite build tooling, accepts type-only
   imports, and requires TypeScript only as an optional application development
   dependency; Vanilla projects keep no TypeScript requirement.
-- The public application import boundary is the `velodom` package export backed
-  by `src/core/index.ts`; other core modules are internal until promoted.
+- The public application import boundary is the `velodom` workspace package
+  backed by `packages/velodom/src/index.ts`; other modules are internal until
+  promoted through an explicit package subpath.
 - V1 public names are frozen by package-boundary tests. Changes to
   runtime exports, public type declarations, compiler exports, Vite adapter
   exports, Vite plugin exports, or package subpaths require an intentional
   architecture decision and documentation update.
-- `package.json` now uses local version `1.0.0` to match the first VeloDom
-  release-candidate identity. `private: true` remains the publication guard;
-  this is not an npm release.
+- `packages/velodom/package.json` uses local version `1.0.0` to match the first
+  VeloDom release-candidate identity. `private: true` remains the publication
+  guard; the root package is a private development workspace.
 - Build-specific framework features use explicit subpath exports:
   `velodom/vite`, `velodom/vite-plugin`, and `velodom/compiler`.
-- Package exports target generated ESM in `lib` and declarations in `types`;
-  raw framework TypeScript is a development input, not a published runtime.
+- Package exports target generated ESM in `packages/velodom/lib` and
+  declarations in `packages/velodom/types`; raw framework TypeScript is a
+  development input, not a published runtime.
+- Vite is an optional peer because only the `velodom/vite` and
+  `velodom/vite-plugin` integrations require it. TypeScript remains an optional
+  peer for typed config; the base runtime stays adapter- and language-neutral.
+- Client imports use public `velodom` subpaths. The optional `@` alias and
+  standard `#app/*` import map resolve application files only and must never
+  expose framework internals.
 - The npm package uses an explicit file allowlist. Application code, tests,
   assets, and workspace configuration are never package contents.
 - Release preparation is intentionally separated from publication. The
@@ -62,11 +71,11 @@
 - Package-consumer verification must install the tarball into an isolated
   temporary project; resolving the workspace source would not validate npm
   exports or declaration paths.
-- Source type contracts live in `src/core/types.ts`. Generated declarations
-  stay in the ignored root `types` build-output folder, while
+- Source type contracts live in `packages/velodom/src/types.ts`. Generated
+  declarations stay in the ignored `packages/velodom/types` output folder, while
   `node_modules/@types` remains npm-managed dependency data.
 - Generic object validation, folder-path normalization, and protected-state
-  path inspection live in `src/core/shared`; runtime modules should not create
+  path inspection live in `packages/velodom/src/shared`; runtime modules should not create
   private copies of these helpers.
 - Application examples use kebab-case folders, preferred `script`/`config`
   filenames, and compiler-facing `vd-*` syntax. Legacy names and
@@ -74,17 +83,17 @@
 - The showcase application is now the first VeloDom framework site: a local
   documentation blog that explains V1 capabilities while using VeloDom pages,
   components, dynamic routes, local request routes, layouts, and SEO config.
-  It should stay application-owned under `src/pages`, `src/components`, and
-  `src/api`; framework-neutral behavior must stay in `src/core`.
-- Showcase `src/api/routes.js` is the declarative request registry for
-  `vd-request`, not a list of every helper exported by `src/api`. Page scripts
+  It stays application-owned under `examples/blog/src`; framework-neutral
+  behavior must stay in `packages/velodom/src`.
+- Showcase `examples/blog/src/api/routes.js` is the declarative request
+  registry for `vd-request`, not a list of every exported API helper. Page scripts
   may still import API helpers directly when imperative loading is clearer.
 - The V1 site intentionally does not ship application middleware, auth, or CRUD
   example pages. Those framework features remain documented and tested in Core,
   while the public site stays focused on launch messaging and learning paths.
 - The showcase uses the daisyUI Tailwind plugin with only light/dark themes;
   importing the complete prebuilt daisyUI stylesheet produced roughly 1.16 MB
-  of CSS and was replaced by a generated 91 KB application stylesheet.
+  of CSS and was replaced by a generated 70 KB application stylesheet.
 - Browser E2E now follows the V1 documentation site, not the removed CRUD
   showcase. It verifies the landing page, features page, one-file page,
   dynamic article route, local `vd-request` example, and no-JavaScript SEO.
@@ -96,14 +105,13 @@
   `src/assets/favicon.png`; root-level static duplicates should only return if
   a deployment target requires them.
 - `VeloDom_Master_Architecture_Prompt.md` is treated as the concise guiding
-  architecture brief. It should mirror current project principles, not preserve
-  outdated package/folder ideas that conflict with the single `src/core`
-  framework source boundary.
+  architecture brief. It mirrors the npm package boundary at
+  `packages/velodom/src` and keeps application folders outside Core.
 - Large runtime entry modules coordinate features while focused modules own
   reusable behavior: `directives/expression.ts` handles expression state
   access, and `requests/request-bindings.ts` handles request destinations and
   cross-page policy.
-- Template expressions are parsed under `src/core/expression` and evaluated
+- Template expressions are parsed under `packages/velodom/src/expression` and evaluated
   from an AST. The grammar is intentionally expression-only; complex logic
   belongs in page/component scripts, not templates.
 - The expression security model blocks host-global identifiers, prototype
@@ -249,7 +257,7 @@
   systems remain separate roadmap work.
 - Page SEO is application-owned and declared in each page's existing
   `config.js`; validation, runtime head synchronization, and static rendering
-  are generic framework responsibilities under `src/core`.
+  are generic framework responsibilities under `packages/velodom/src`.
 - Static SEO output is generated after Vite emits the client shell. Each
   concrete route receives metadata plus either a concise visible fallback in
   `#app` or optional application-rendered static content from `seo.renderPage`.
@@ -343,11 +351,12 @@
 - Performance budgets intentionally measure browser runtime package modules,
   excluding Node-only CLI and public testing utilities from the largest-runtime
   module threshold.
-- Package CLI wrappers live in `bin/` and call generated `lib/cli.js`; the
-  implementation remains TypeScript under `src/core` so it shares framework
+- Package CLI wrappers live in `packages/velodom/bin` and call generated
+  `packages/velodom/lib/cli.js`; the
+  implementation remains TypeScript under `packages/velodom/src` so it shares framework
   quality gates while staying outside the application folders.
 - CLI filesystem conventions, human-readable reporters, generated templates,
-  and shared contracts now live under `src/core/cli/`. The public `cli.ts`
+  and shared contracts now live under `packages/velodom/src/cli/`. The public `cli.ts`
   entry remains the command orchestrator so package binaries and command
   output contracts do not change during internal maintenance.
 - CLI scaffolding creates normal VeloDom folders or optional `.vd` files. It
@@ -378,7 +387,7 @@
   for folder mode. The Vite plugin compiles `.vd` blocks into the same resource
   contract used by folders, and folder resources keep priority when both forms
   declare the same logical page or component name.
-- `src/core/page-router.ts` and `src/core/requests/request-router.ts` are
+- `packages/velodom/src/page-router.ts` and `packages/velodom/src/requests/request-router.ts` are
   frozen internal filenames. They remain private implementation modules, but
   keeping the names stable protects diagnostics, runtime wiring, and
   integration tests from accidental churn.
@@ -454,7 +463,7 @@
 ## Handoff Guidance
 
 1. Read `README.md`, then `todo.md`, before changing framework APIs.
-2. Add framework behavior to `src/core` only when it is generic across sites.
+2. Add framework behavior to `packages/velodom/src` only when it is generic across sites.
 3. Keep domain-specific examples in the blog application folders.
 4. Add a regression test for every core bug.
 5. Run `npm test` and `npm run build` before committing.

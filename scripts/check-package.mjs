@@ -13,10 +13,19 @@ import {
   readFile,
   readdir
 } from "node:fs/promises";
-import { join } from "node:path";
+import {
+  join,
+  resolve
+} from "node:path";
+import { fileURLToPath } from "node:url";
+
+const workspaceRoot = resolve(
+  fileURLToPath(new URL("..", import.meta.url))
+);
+const packageRoot = join(workspaceRoot, "packages", "velodom");
 
 const manifest = JSON.parse(
-  await readFile("package.json", "utf8")
+  await readFile(join(packageRoot, "package.json"), "utf8")
 );
 const violations = [];
 const expectedExports = {
@@ -54,16 +63,10 @@ const expectedExports = {
   ]
 };
 const allowedPackageFiles = new Set([
-  "BROWSERS.md",
-  "CHANGELOG.md",
-  "NOTES.md",
+  "LICENSE",
   "README.md",
-  "RELEASE_DECISION.md",
-  "RELEASING.md",
   "bin",
-  "docs",
   "lib",
-  "todo.md",
   "types"
 ]);
 
@@ -82,6 +85,18 @@ if (manifest.peerDependencies?.typescript !== ">=5.7") {
 if (manifest.peerDependenciesMeta?.typescript?.optional !== true) {
   violations.push(
     "typescript peer dependency must remain optional for Vanilla projects"
+  );
+}
+
+if (manifest.peerDependencies?.vite !== ">=6 <9") {
+  violations.push(
+    "vite must remain an optional >=6 <9 peer for Vite integrations"
+  );
+}
+
+if (manifest.peerDependenciesMeta?.vite?.optional !== true) {
+  violations.push(
+    "vite peer dependency must remain optional for adapter-independent usage"
   );
 }
 
@@ -104,7 +119,7 @@ for (const [name, target] of Object.entries(manifest.bin || {})) {
   }
 
   try {
-    await access(target.slice(2));
+    await access(join(packageRoot, target.slice(2)));
   } catch {
     violations.push(`bin "${name}" target is missing: ${target}`);
   }
@@ -124,14 +139,14 @@ for (const [name, targets] of Object.entries(expectedExports)) {
 
   for (const target of targets) {
     try {
-      await access(target.slice(2));
+      await access(join(packageRoot, target.slice(2)));
     } catch {
       violations.push(`export "${name}" target is missing: ${target}`);
     }
   }
 }
 
-for (const file of await collectFiles("lib", ".js")) {
+for (const file of await collectFiles(join(packageRoot, "lib"), ".js")) {
   const source = await readFile(file, "utf8");
 
   if (/(?:from\s+|import\()\s*["'][^"']+\.ts["']/.test(source)) {
@@ -139,7 +154,7 @@ for (const file of await collectFiles("lib", ".js")) {
   }
 }
 
-for (const file of await collectFiles("types", ".d.ts")) {
+for (const file of await collectFiles(join(packageRoot, "types"), ".d.ts")) {
   const source = await readFile(file, "utf8");
 
   if (/(?:from\s+|import\()\s*["'][^"']+\.ts["']/.test(source)) {

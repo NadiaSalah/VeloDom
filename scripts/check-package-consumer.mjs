@@ -29,9 +29,10 @@ import {
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
 
-const projectRoot = resolve(
+const workspaceRoot = resolve(
   fileURLToPath(new URL("..", import.meta.url))
 );
+const packageRoot = join(workspaceRoot, "packages", "velodom");
 const temporaryRoot = await mkdtemp(
   join(tmpdir(), "velodom-package-consumer-")
 );
@@ -55,7 +56,7 @@ const npmArguments = process.platform === "win32"
 
 try {
   await cp(
-    join(projectRoot, "examples", "package-consumer"),
+    join(workspaceRoot, "examples", "package-consumer"),
     consumerRoot,
     {
       recursive: true
@@ -84,7 +85,7 @@ try {
     "--pack-destination",
     artifactsRoot
   ], {
-    cwd: projectRoot,
+    cwd: packageRoot,
     env: {
       ...process.env,
       npm_config_dry_run: "false",
@@ -123,7 +124,7 @@ try {
   });
 
   await run(process.execPath, [
-    join(projectRoot, "node_modules", "typescript", "bin", "tsc"),
+    join(workspaceRoot, "node_modules", "typescript", "bin", "tsc"),
     "--project",
     join(consumerRoot, "tsconfig.json"),
     "--noEmit"
@@ -131,7 +132,7 @@ try {
     cwd: consumerRoot
   });
   await run(process.execPath, [
-    join(projectRoot, "node_modules", "vite", "bin", "vite.js"),
+    join(workspaceRoot, "node_modules", "vite", "bin", "vite.js"),
     "build"
   ], {
     cwd: consumerRoot

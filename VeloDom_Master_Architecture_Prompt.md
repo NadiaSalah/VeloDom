@@ -53,7 +53,7 @@ The framework must:
 - generate declaration files for public package exports
 - pass TypeScript, ESLint, and documentation checks
 - avoid unsafe implicit public types
-- keep framework-owned logic under `src/core`
+- keep framework-owned logic under `packages/velodom/src`
 
 Application authors may choose JavaScript or TypeScript per page/component:
 
@@ -98,7 +98,7 @@ Application-owned code belongs in:
 
 Framework-owned code belongs in:
 
-- `src/core`
+- `packages/velodom/src`
 
 Build-tool discovery belongs to adapters, not to the runtime router.
 
@@ -323,23 +323,29 @@ semantic integration tests without turning VeloDom into a heavy runtime.
 Application code should import only documented package entry points:
 
 - `velodom`
+- `velodom/assets`
 - `velodom/compiler`
+- `velodom/content`
+- `velodom/devtools`
 - `velodom/testing`
 - `velodom/vite`
 - `velodom/vite-plugin`
 
-Internal `src/core` modules are not application import targets unless promoted
-intentionally.
+Internal `packages/velodom/src` modules are not application import targets
+unless promoted intentionally.
 
 The npm package should contain only publishable framework artifacts and
 documentation:
 
-- `lib`
-- `types`
+- `bin`
+- built `lib`
+- generated `types`
 - `README.md`
-- `BROWSERS.md`
-- `CHANGELOG.md`
-- `RELEASING.md`
+- `LICENSE`
+
+The repository blog belongs in `examples/blog` and must consume public package
+subpaths. Optional application aliases such as `@` or `#app/*` may shorten
+imports inside the client project, but must never expose framework internals.
 
 Do not publish until license, package-name ownership, versioning, and release
 approval are explicitly confirmed.

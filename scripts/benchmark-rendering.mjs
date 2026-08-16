@@ -1,6 +1,6 @@
 import { performance } from "node:perf_hooks";
-import { applyDirectives } from "../src/core/directives.ts";
-import { createState } from "../src/core/reactive.ts";
+import { applyDirectives } from "../packages/velodom/src/directives.ts";
+import { createState } from "../packages/velodom/src/reactive.ts";
 import { installDom } from "../test-support/dom.js";
 
 const BENCHMARKS = Object.freeze({

@@ -4,7 +4,7 @@ import {
   evaluateExpression,
   ExpressionSyntaxError,
   parseExpression
-} from "../../src/core/expression/index.ts";
+} from "../../packages/velodom/src/expression/index.ts";
 
 test("safe expressions preserve operator precedence and conditionals", () => {
   const scope = {

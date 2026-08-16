@@ -10,7 +10,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { runVeloDomCli } from "../../src/core/cli.ts";
+import { runVeloDomCli } from "../../packages/velodom/src/cli.ts";
 
 test("CLI inspect and stats read folder and single-file conventions", async () => {
   const root = await createFixture();
@@ -357,6 +357,8 @@ test("CLI create scaffolds convention-first project resources", async () => {
     await assertFile(join(root, "src/api/middleware.js"));
     await assertFile(join(root, "src/plugins/analytics.js"));
     await assertFile(join(root, "starter/src/pages/home/config.js"));
+    await assertFile(join(root, "starter/vite.config.js"));
+    await assertFile(join(root, "starter/jsconfig.json"));
 
     const config = await readFile(
       join(root, "src/pages/blog/posts/[id]/config.ts"),
@@ -370,6 +372,14 @@ test("CLI create scaffolds convention-first project resources", async () => {
       join(root, "starter/index.html"),
       "utf8"
     );
+    const starterViteConfig = await readFile(
+      join(root, "starter/vite.config.js"),
+      "utf8"
+    );
+    const starterManifest = JSON.parse(await readFile(
+      join(root, "starter/package.json"),
+      "utf8"
+    ));
 
     assert.match(config, /path: "\/blog\/posts\/:id"/);
     assert.match(config, /satisfies PageConfig/);
@@ -377,6 +387,9 @@ test("CLI create scaffolds convention-first project resources", async () => {
     assert.doesNotMatch(starterMain, /createViteAdapter/);
     assert.match(starterShell, /<!doctype html>/i);
     assert.match(starterShell, /name="description"/);
+    assert.match(starterViteConfig, /from "velodom\/vite-plugin"/);
+    assert.match(starterViteConfig, /"@": fileURLToPath/);
+    assert.equal(starterManifest.imports["#app/*"], "./src/*");
   } finally {
     await removeFixture(root);
   }

@@ -6,10 +6,10 @@ import {
   createSingleFileScriptModule,
   createSingleFileStyleModule,
   parseVeloDomSingleFile
-} from "../../src/core/vite-plugin/single-file.ts";
+} from "../../packages/velodom/src/vite-plugin/single-file.ts";
 import {
   createTemplateModule
-} from "../../src/core/vite-plugin/index.ts";
+} from "../../packages/velodom/src/vite-plugin/index.ts";
 
 test("single-file modules parse VeloDom blocks", () => {
   const descriptor = parseVeloDomSingleFile(`

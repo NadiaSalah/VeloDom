@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**375 of 380 tasks completed — 99%**
+**376 of 381 tasks completed — 99%**
 
 `[###################-]`
 
@@ -122,11 +122,14 @@ while preserving the explicit `createApp()` path for advanced integrations.
 - [x] Remove stale hard-coded framework line numbers from global error reports
   so stack-derived locations survive refactors.
 - [x] Replace the showcase's full daisyUI stylesheet import with its Tailwind
-  plugin, reducing production CSS from about 1.16 MB to about 91 KB.
+  plugin, reducing production CSS from about 1.16 MB to about 70 KB.
 - [x] Split the large CLI implementation into analyzer, reporter, and scaffold
   modules without changing commands or output contracts — Target: V1.x.
 - [x] Design build-time support for typed page config without breaking static
   SEO loading or requiring TypeScript from Vanilla projects — Target: V1.x.
+- [x] Separate the publishable `velodom` npm package from the application
+  showcase, make the blog a real workspace consumer, and generate optional
+  `@` plus `#app/*` client import aliases — Target: V1.x.
 - [ ] Add an optional CSS budget to build intelligence after choosing a safe
   default that does not punish application design-system choices — Target:
   V1.x.
@@ -181,7 +184,7 @@ runtime work.
 - [x] Add a typed application page using the same page lifecycle API
 - [x] Tighten permissive internal compatibility types incrementally
 - [x] Remove explicit `any` annotations from dynamic core orchestrators
-- [x] Enforce `no-explicit-any` across every TypeScript file in `src/core`
+- [x] Enforce `no-explicit-any` across every TypeScript file in `packages/velodom/src`
 
 ### 0.5 Code Quality
 
@@ -205,7 +208,7 @@ runtime work.
 
 ### 0.7 Code Documentation Standards
 
-- [x] Add an English responsibility header to every TypeScript file in `src/core`
+- [x] Add an English responsibility header to every TypeScript file in `packages/velodom/src`
 - [x] Add JSDoc to every exported core function, class, interface, type, and constant
 - [x] Enforce core headers and exported JSDoc through `npm run docs:check`
 
@@ -226,7 +229,7 @@ runtime work.
 ## General Framework Roadmap
 
 The goal of this roadmap is to make the VeloDom core reusable for building
-different kinds of websites, while keeping application code outside `src/core`.
+different kinds of websites, while keeping application code outside `packages/velodom/src`.
 
 ### Phase A: Core Boundaries
 
@@ -235,15 +238,15 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [x] Inject optional layout resources into `createApp(...)` for shared page shells
 - [x] Keep filesystem folder conventions inside the adapter, not the router
 - [x] Inject application routes and middleware into `createApp(...)`
-- [x] Provide one public request API through `src/core/requests/index.ts`
-- [x] Keep named framework constants inside `src/core/constants.ts`
+- [x] Provide one public request API through `packages/velodom/src/requests/index.ts`
+- [x] Keep named framework constants inside `packages/velodom/src/constants.ts`
 - [x] Add tests for the Vite adapter resource maps
-- [x] Consolidate all framework-owned source under `src/core`
+- [x] Consolidate all framework-owned source under `packages/velodom/src`
 - [x] Expose build integrations through supported package subpaths
 
 ### Phase A Acceptance Criteria
 
-- [x] Runtime modules outside `src/core/adapters` contain no `import.meta.glob(...)`
+- [x] Runtime modules outside `packages/velodom/src/adapters` contain no `import.meta.glob(...)`
 - [x] Nested page and component folders are indexed by adapter paths
 - [x] Core router and component mounting work from injected resource maps
 - [x] Missing or invalid adapters fail with structured startup errors
@@ -305,7 +308,7 @@ different kinds of websites, while keeping application code outside `src/core`.
 - [x] Add source-aware errors for adapters and user files
 - [x] Complete router, component, directive, request, and lifecycle tests
 - [x] Add package exports and semantic versioning rules
-- [x] Build publishable ESM and declaration artifacts from `src/core`
+- [x] Build publishable ESM and declaration artifacts from `packages/velodom/src`
 - [x] Validate package entry points and the npm file allowlist before packing
 - [x] Add a minimal package-consumer example
 - [x] Type-check a consumer against the installed package declarations
@@ -472,8 +475,8 @@ and `src/api`.
 
 ### 9. Project Polish
 
-- [x] Review folder naming consistency inside `src/core`
-- [x] Consolidate duplicate object and path helpers under `src/core/shared`
+- [x] Review folder naming consistency inside `packages/velodom/src`
+- [x] Consolidate duplicate object and path helpers under `packages/velodom/src/shared`
 - [x] Extract expression/state-path logic from the directive orchestrator
 - [x] Extract target and cross-page policy from the request router
 - [x] Review internal naming consistency across `pages`, `components`, and `api`

@@ -5,7 +5,7 @@ import {
   definePlugin,
   defineRequestRoute,
   defineResourceAdapter
-} from "../../src/core/authoring.ts";
+} from "../../packages/velodom/src/authoring.ts";
 
 test("authoring declaration helpers preserve normal application values", () => {
   const page = definePageConfig({

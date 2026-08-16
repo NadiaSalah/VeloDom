@@ -4,7 +4,7 @@ import {
   applyPageSeo,
   normalizeSeoConfig,
   resolvePageSeo
-} from "../../src/core/seo.ts";
+} from "../../packages/velodom/src/seo.ts";
 import {
   invalidStructuredDataFixtures,
   structuredDataFixtures
