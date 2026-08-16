@@ -322,6 +322,7 @@ packages/
     requests/                 HTTP, auth, middleware, request runtime
     shared/                   generic validation and path helpers
     vite-plugin/              template compilation and static SEO rendering
+  velodom-vscode/             optional VS Code extension package
 
 examples/
   blog/                       independent VeloDom consumer application
@@ -332,12 +333,13 @@ examples/
       api/                    application-owned handlers and middleware
       assets/                 application-owned static assets
       main.js                 one-call application bootstrap
-  package-consumer/           installed-package verification fixture
 
 test/                         automated tests
+test-fixtures/package-consumer/
+                              installed-package verification fixture
 test-support/                 reusable test environment helpers
 docs/                         DX, future research, and identity notes
-scripts/                      workspace release and quality checks
+tools/scripts/                workspace release and quality checks
 ```
 
 Ownership rule:
@@ -348,8 +350,13 @@ Ownership rule:
   the consuming application's `src/pages`, `src/components`, and `src/api`.
 - The blog is a real workspace consumer under `examples/blog`; it does not
   import framework source or carry a private copy of Core.
+- `test-fixtures/package-consumer` verifies the packed npm artifact; it is not
+  an application example or a published package file.
+- `packages/velodom-vscode` is an optional editor integration with its own
+  lifecycle. It consumes the public compiler API and is never a runtime
+  dependency of a VeloDom site.
 - Repository-wide TypeScript, ESLint, tests, and release scripts stay at the
-  workspace root. Application Vite/Tailwind configuration belongs to the app.
+  workspace level. Application Vite/Tailwind configuration belongs to the app.
 
 Use the [documentation map](DOCUMENTATION_MAP.md) to distinguish shipped V1
 capabilities from optional tooling and approved future research.
@@ -3339,7 +3346,7 @@ and `.vd` documents, remapping `.vd` template diagnostics to their original
 file lines. This is a dependency-free foundation for future editor extensions,
 not a mandatory VS Code plugin or browser runtime feature. See
 [EDITOR_INTELLIGENCE.md](EDITOR_INTELLIGENCE.md). An optional VS Code
-prototype lives in `integrations/vscode/velodom-language`; it offers directive
+prototype lives in `packages/velodom-vscode`; it offers directive
 completion/hover text and conventional component or static-route definitions.
 
 ## Future Static Rendering, Forms, and Localization

@@ -87,11 +87,11 @@
   "scripts": {
     "clean:types": "node -e \"require('node:fs').rmSync('types', { recursive: true, force: true })\"",
     "clean:package": "node -e \"require('node:fs').rmSync('lib', { recursive: true, force: true })\"",
-    "types": "npm run clean:types && tsc --project ../../tsconfig.types.json && node ../../scripts/rewrite-declaration-imports.mjs",
+    "types": "npm run clean:types && tsc --project ../../tsconfig.types.json && node ../../tools/scripts/rewrite-declaration-imports.mjs",
     "package:build": "npm run clean:package && tsc --project ../../tsconfig.package.json && npm run types",
-    "package:consumer": "npm run package:build && node ../../scripts/check-package-consumer.mjs",
-    "package:check": "npm run package:build && node ../../scripts/check-package.mjs && node ../../scripts/check-package-consumer.mjs",
-    "pack:check": "npm run package:check && node ../../scripts/check-pack-dry-run.mjs",
+    "package:consumer": "npm run package:build && node ../../tools/scripts/check-package-consumer.mjs",
+    "package:check": "npm run package:build && node ../../tools/scripts/check-package.mjs && node ../../tools/scripts/check-package-consumer.mjs",
+    "pack:check": "npm run package:check && node ../../tools/scripts/check-pack-dry-run.mjs",
     "prepack": "npm run package:check"
   },
   "peerDependencies": {

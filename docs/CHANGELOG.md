@@ -59,6 +59,12 @@ package versions.
 - Consolidated repository-level Markdown documentation into `docs/`; the root
   README now acts as a short entry point and the npm package retains its own
   focused README for registry rendering.
+- Kept the runnable documentation blog in `examples/blog`, moved the
+  installed-package verification fixture to `test-fixtures/package-consumer`,
+  and relocated the optional VS Code integration to `packages/velodom-vscode`.
+- Moved repository-only release, package, browser, documentation, and
+  performance checks to `tools/scripts`; they remain workspace tooling and are
+  intentionally excluded from the published `velodom` package.
 
 ## 2026-08-16
 

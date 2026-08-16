@@ -18,8 +18,10 @@ npm run dev
 ```
 
 The workspace is TypeScript, Vite, ESLint, Tailwind CSS, and Node.js. It keeps
-the framework in `packages/velodom`, the real blog consumer in `examples/blog`,
-and the full documentation, decisions, changelog, and roadmap in `docs/`.
+the framework in `packages/velodom`, optional editor tooling in
+`packages/velodom-vscode`, the real blog consumer in `examples/blog`, quality
+tools in `tools/scripts`, and the full documentation, decisions, changelog,
+and roadmap in `docs/`.
 
 ## Current Status
 

@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**377 of 382 tasks completed — 99%**
+**378 of 383 tasks completed — 99%**
 
 `[###################-]`
 
@@ -839,3 +839,16 @@ browser runtime small, and remain optional where a project does not need it.
   editor intelligence, static rendering research, progressive forms,
   localization, and development-only inspection. It explicitly rejects a
   mandatory virtual DOM, global store, JSX, CMS, or universal SSR runtime.
+- 2026-08-17 Workspace organization pass: kept the runnable blog under
+  `examples/`, reclassified the installed-package fixture under `test-fixtures`,
+  placed optional VS Code tooling beside the framework packages, and moved
+  repository-only release checks to `tools/scripts` so none become accidental
+  npm runtime dependencies.
+
+## Completed Workspace Organization
+
+- [x] Classify example applications, package test fixtures, optional editor
+      integrations, and repository quality tools by ownership; keep only the
+      Core runtime in the published `velodom` package — Fit: clear package
+      boundaries; Value: a clean consumer install and maintainable workspace;
+      Complexity: low; Target: V1

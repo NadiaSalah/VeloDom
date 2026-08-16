@@ -30,7 +30,7 @@ import {
 } from "@playwright/test";
 
 const projectRoot = resolve(
-  fileURLToPath(new URL("..", import.meta.url))
+  fileURLToPath(new URL("../..", import.meta.url))
 );
 const distRoot = join(projectRoot, "examples", "blog", "dist");
 const strictBrowserMatrix = process.env.VELODOM_BROWSER_STRICT === "1";

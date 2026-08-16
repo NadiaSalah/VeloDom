@@ -24,7 +24,7 @@ import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
 
 const workspaceRoot = resolve(
-  fileURLToPath(new URL("..", import.meta.url))
+  fileURLToPath(new URL("../..", import.meta.url))
 );
 const packageRoot = join(workspaceRoot, "packages", "velodom");
 const temporaryRoot = await mkdtemp(

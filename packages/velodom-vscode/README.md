@@ -12,5 +12,5 @@ conventional `<vd-component name="shared/card">` references and static
 or `.vd` conventions. Configured route overrides remain outside this prototype.
 
 The extension expects `velodom` to be available as a dependency after public
-publication. It is deliberately outside the framework package and is not a
-runtime requirement for VeloDom applications.
+publication. It is a separate optional package beside the framework package,
+not a runtime requirement for VeloDom applications.

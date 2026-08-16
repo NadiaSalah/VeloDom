@@ -20,7 +20,7 @@ import {
 import { fileURLToPath } from "node:url";
 
 const workspaceRoot = resolve(
-  fileURLToPath(new URL("..", import.meta.url))
+  fileURLToPath(new URL("../..", import.meta.url))
 );
 const packageRoot = join(workspaceRoot, "packages", "velodom");
 

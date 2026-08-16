@@ -26,7 +26,7 @@ extension. A future extension can add hover docs, project navigation, and code
 actions while reusing this stable result instead of duplicating compiler logic.
 
 The repository includes a small optional VS Code prototype under
-`integrations/vscode/velodom-language`. It consumes this public compiler API,
+`packages/velodom-vscode`. It consumes this public compiler API,
 offers diagnostics, preferred-directive completion and hover text, and resolves
 conventional component/static-route definitions. It is not bundled with the
 VeloDom framework package or required by applications.

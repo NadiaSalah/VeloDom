@@ -192,7 +192,7 @@
   stable enough to avoid changing the HTML-first authoring model.
 - Framework-owned TypeScript files require an English module header and
   adjacent JSDoc for each exported declaration. The dependency-free
-  `scripts/check-core-docs.mjs` audit is part of the normal quality gate and
+  `tools/scripts/check-core-docs.mjs` audit is part of the normal quality gate and
   rejects adjacent duplicate JSDoc blocks.
 - Documentation comments should capture ownership, invariants, or architectural
   reasons; obvious line-by-line narration is intentionally avoided.
