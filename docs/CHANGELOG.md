@@ -72,9 +72,9 @@ package versions.
 - Split shared TypeScript options into root `tsconfig.base.json`, retained the
   workspace check at `tsconfig.json`, and moved package build/declaration
   configs beside `packages/velodom`.
-- Removed ignored generated build output from the working tree; dependency
-  folders remain excluded from Git, while the lockfile and npm scripts are the
-  reproducible source of installation and build state.
+- Kept generated dependency and build output excluded from Git; the lockfile
+  and npm scripts remain the reproducible source of installation and build
+  state.
 
 ## 2026-08-16
 

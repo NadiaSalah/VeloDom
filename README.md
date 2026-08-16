@@ -34,5 +34,5 @@ TypeScript keeps shared compiler settings in `tsconfig.base.json`, workspace
 checking in `tsconfig.json`, and package build/type output settings beside
 `packages/velodom`.
 
-The repository does not retain dependency or build output folders. Restore the
-toolchain with `npm install`; regenerate output with the documented npm scripts.
+Git does not retain dependency or build output folders. Restore the toolchain
+with `npm install`; regenerate output with the documented npm scripts.
