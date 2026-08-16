@@ -58,6 +58,8 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
     assert.equal(inspection.directiveUsage["vd-text"], 2);
     assert.deepEqual(inspection.compilerFeatures, [
       "bindings",
+      "components",
+      "requests",
       "text"
     ]);
     assert.deepEqual(inspection.requestRoutes, [
@@ -88,7 +90,7 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
     assert.equal(stats.layouts, 1);
     assert.equal(stats.apiFiles, 3);
     assert.equal(stats.requestRoutes, 1);
-    assert.equal(stats.compilerFeatures, 2);
+    assert.equal(stats.compilerFeatures, 4);
     assert.deepEqual(stats.seoCoverage, {
       pagesWithSeo: 1,
       totalPages: 2
@@ -135,11 +137,50 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
     assert.equal(report.project.components, 1);
     assert.deepEqual(report.project.compilerFeatures, [
       "bindings",
+      "components",
+      "requests",
       "text"
     ]);
     assert.ok(report.project.unusedRuntimeFeatures.includes("loops"));
     assert.equal(report.dist.jsTotalBytes, Buffer.byteLength("console.log('app');"));
     assert.equal(report.dist.cssTotalBytes, Buffer.byteLength("body { color: red; }"));
+
+    output.length = 0;
+
+    const graphCode = await runVeloDomCli([
+      "graph",
+      "--json",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+    const graph = JSON.parse(output.join("\n"));
+    const edgeLabels = graph.edges.map(edge => (
+      `${edge.from}:${edge.label}:${edge.to}`
+    ));
+
+    assert.equal(graphCode, 0);
+    assert.ok(edgeLabels.includes("page:home:route:route:/"));
+    assert.ok(edgeLabels.includes("page:home:uses component:component:shared/card"));
+    assert.ok(edgeLabels.includes("page:home:requests:request:posts.getAll"));
+    assert.ok(edgeLabels.includes("request:posts.getAll:middleware:middleware:trimStringFields"));
+
+    output.length = 0;
+
+    const mermaidCode = await runVeloDomCli([
+      "graph",
+      "--mermaid",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+
+    assert.equal(mermaidCode, 0);
+    assert.match(output.join("\n"), /flowchart TD/);
   } finally {
     await removeFixture(root);
   }
@@ -281,7 +322,13 @@ async function createFixture() {
   await writeFixtureFile(
     root,
     "src/pages/home/index.html",
-    "<main><h1 vd-text=\"title\"></h1></main>"
+    `
+      <main>
+        <h1 vd-text="title"></h1>
+        <vd-component name="shared/card"></vd-component>
+        <button vd-request="posts.getAll"></button>
+      </main>
+    `
   );
   await writeFixtureFile(
     root,
@@ -312,7 +359,7 @@ async function createFixture() {
   await writeFixtureFile(
     root,
     "src/api/routes.js",
-    "export default { \"posts.getAll\": () => [] };"
+    "export default { \"posts.getAll\": { handler: () => [], middleware: [\"trimStringFields\"] } };"
   );
   await writeFixtureFile(
     root,

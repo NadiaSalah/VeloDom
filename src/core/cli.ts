@@ -80,6 +80,19 @@ interface FileSizeReport {
   source: string;
 }
 
+interface ProjectGraph {
+  edges: Array<{
+    from: string;
+    label: string;
+    to: string;
+  }>;
+  nodes: Array<{
+    id: string;
+    label: string;
+    type: string;
+  }>;
+}
+
 const HELP = `VeloDom CLI
 
 Usage:
@@ -87,6 +100,7 @@ Usage:
   vd doctor [--json] [--root <dir>]
   vd stats [--json] [--root <dir>]
   vd routes [--json] [--root <dir>]
+  vd graph [--json] [--mermaid] [--root <dir>]
   vd build-report [--json] [--root <dir>]
   vd create page <name> [--ts] [--single-file] [--root <dir>]
   vd create component <name> [--ts] [--single-file] [--root <dir>]
@@ -135,6 +149,9 @@ export async function runVeloDomCli(
         return 0;
       case "routes":
         await printRoutes(context, parsed.flags.has("json"));
+        return 0;
+      case "graph":
+        await printGraph(context, parsed.flags);
         return 0;
       case "build-report":
         await printBuildReport(context, parsed.flags.has("json"));
@@ -285,6 +302,28 @@ async function printBuildReport(context: CliContext, json: boolean) {
   printSizeGroup(context, "Largest JS chunks", report.dist.largestJsChunks);
 }
 
+async function printGraph(context: CliContext, flags: Set<string>) {
+  const graph = await createProjectGraph(context.cwd);
+
+  if (flags.has("mermaid")) {
+    context.stdout(toMermaidGraph(graph));
+    return;
+  }
+
+  if (flags.has("json")) {
+    context.stdout(JSON.stringify(graph, null, 2));
+    return;
+  }
+
+  context.stdout("VeloDom project graph");
+  context.stdout("=====================");
+  context.stdout(`Nodes: ${graph.nodes.length}`);
+  context.stdout(`Edges: ${graph.edges.length}`);
+  graph.edges.forEach(edge => {
+    context.stdout(`  - ${edge.from} --${edge.label}--> ${edge.to}`);
+  });
+}
+
 async function runDoctor(root: string) {
   const inspection = await inspectProject(root);
   const issues: DoctorIssue[] = [];
@@ -415,6 +454,91 @@ async function createBuildReport(root: string) {
       largestJsChunks: topSizes(jsAssets),
       largestCssChunks: topSizes(cssAssets)
     }
+  };
+}
+
+async function createProjectGraph(root: string): Promise<ProjectGraph> {
+  const inspection = await inspectProject(root);
+  const nodes = new Map<string, ProjectGraph["nodes"][number]>();
+  const edges: ProjectGraph["edges"] = [];
+  const templates = [
+    ...inspection.pages.map(page => ({
+      ...page,
+      ownerType: "page"
+    })),
+    ...inspection.components.map(component => ({
+      ...component,
+      ownerType: "component"
+    })),
+    ...inspection.layouts.map(layout => ({
+      ...layout,
+      ownerType: "layout"
+    }))
+  ];
+
+  inspection.pages.forEach(page => {
+    addGraphNode(nodes, `page:${page.name}`, page.name, "page");
+    addGraphNode(nodes, `route:${page.route}`, page.route || page.name, "route");
+    edges.push({
+      from: `page:${page.name}`,
+      label: "route",
+      to: `route:${page.route}`
+    });
+  });
+
+  inspection.components.forEach(component => {
+    addGraphNode(nodes, `component:${component.name}`, component.name, "component");
+  });
+  inspection.layouts.forEach(layout => {
+    addGraphNode(nodes, `layout:${layout.name}`, layout.name, "layout");
+  });
+  inspection.requestRoutes.forEach(route => {
+    addGraphNode(nodes, `request:${route}`, route, "request");
+  });
+  inspection.middleware.forEach(file => {
+    addGraphNode(nodes, `middleware:${file}`, file, "middleware");
+  });
+
+  await Promise.all(templates.map(async template => {
+    const ownerId = `${template.ownerType}:${template.name}`;
+    const source = await readTemplateSource(root, template.source);
+
+    findComponentReferences(source).forEach(component => {
+      addGraphNode(nodes, `component:${component}`, component, "component");
+      edges.push({
+        from: ownerId,
+        label: "uses component",
+        to: `component:${component}`
+      });
+    });
+
+    findRequestReferences(source).forEach(request => {
+      addGraphNode(nodes, `request:${request}`, request, "request");
+      edges.push({
+        from: ownerId,
+        label: "requests",
+        to: `request:${request}`
+      });
+    });
+  }));
+
+  const middlewareEdges = await discoverRequestMiddlewareEdges(root);
+
+  middlewareEdges.forEach(edge => {
+    addGraphNode(nodes, `request:${edge.route}`, edge.route, "request");
+    addGraphNode(nodes, `middleware:${edge.middleware}`, edge.middleware, "middleware");
+    edges.push({
+      from: `request:${edge.route}`,
+      label: "middleware",
+      to: `middleware:${edge.middleware}`
+    });
+  });
+
+  return {
+    edges: dedupeGraphEdges(edges),
+    nodes: [...nodes.values()].sort((left, right) => (
+      left.id.localeCompare(right.id)
+    ))
   };
 }
 
@@ -629,6 +753,99 @@ function findRequestReferences(source: string) {
     .map(match => match[1].trim())
     .filter(Boolean)
     .sort();
+}
+
+async function readTemplateSource(root: string, file: string) {
+  const source = await readOptionalText(join(root, file));
+
+  return file.endsWith(".vd")
+    ? source.match(/<template\b[^>]*>([\s\S]*?)<\/template>/i)?.[1] || ""
+    : source;
+}
+
+async function discoverRequestMiddlewareEdges(root: string) {
+  const files = [
+    "src/api/routes.js",
+    "src/api/routes.ts"
+  ];
+  const edges: Array<{
+    middleware: string;
+    route: string;
+  }> = [];
+
+  await Promise.all(files.map(async file => {
+    const source = await readOptionalText(join(root, file));
+    const routePattern = /["']([^"']+)["']\s*:\s*\{([\s\S]*?)\}/g;
+
+    for (const match of source.matchAll(routePattern)) {
+      const middlewareSource = match[2].match(/middleware\s*:\s*\[([^\]]*)\]/)?.[1] || "";
+
+      for (const middleware of middlewareSource.matchAll(/["']([^"']+)["']/g)) {
+        edges.push({
+          route: match[1],
+          middleware: middleware[1]
+        });
+      }
+    }
+  }));
+
+  return edges;
+}
+
+function addGraphNode(
+  nodes: Map<string, ProjectGraph["nodes"][number]>,
+  id: string,
+  label: string | undefined,
+  type: string
+) {
+  if (nodes.has(id)) return;
+
+  nodes.set(id, {
+    id,
+    label: label || id,
+    type
+  });
+}
+
+function dedupeGraphEdges(edges: ProjectGraph["edges"]) {
+  const seen = new Set<string>();
+
+  return edges.filter(edge => {
+    const key = `${edge.from}\0${edge.label}\0${edge.to}`;
+
+    if (seen.has(key)) return false;
+
+    seen.add(key);
+    return true;
+  }).sort((left, right) => (
+    `${left.from}:${left.label}:${left.to}`
+      .localeCompare(`${right.from}:${right.label}:${right.to}`)
+  ));
+}
+
+function toMermaidGraph(graph: ProjectGraph) {
+  const lines = [
+    "flowchart TD"
+  ];
+
+  graph.nodes.forEach(node => {
+    lines.push(`  ${toMermaidId(node.id)}["${escapeMermaidLabel(node.label)}"]`);
+  });
+  graph.edges.forEach(edge => {
+    lines.push(
+      `  ${toMermaidId(edge.from)} -->|"${escapeMermaidLabel(edge.label)}"| ${toMermaidId(edge.to)}`
+    );
+  });
+
+  return lines.join("\n");
+}
+
+function toMermaidId(value: string) {
+  return value.replace(/[^A-Za-z0-9_]/g, "_");
+}
+
+function escapeMermaidLabel(value: string) {
+  return value.replaceAll("\"", "&quot;");
 }
 
 async function validatePageConfigText(

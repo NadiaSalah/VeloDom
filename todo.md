@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**304 of 326 tasks completed — 93.3%**
+**308 of 326 tasks completed — 94.5%**
 
 `[###################-]`
 
-Remaining tasks: **22**
+Remaining tasks: **18**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -509,7 +509,7 @@ scaffold normal `index.html`, `script.js`/`script.ts`, `style.css`, and
 
 - [x] Extend CLI planning to include `vd middleware` and `vd plugin` scaffolding — Fit: keeps custom code outside core; Value: faster setup for advanced users; Complexity: low; Target: V1.x
 - [ ] Add `vd health` as a summarized wrapper over doctor, stats, SEO, accessibility, and build checks — Fit: local static tooling; Value: one command before release; Complexity: medium; Target: V2
-- [ ] Add `vd graph` to export project relationships as JSON and Mermaid without requiring a browser devtool — Fit: compiler/build-time output; Value: easier onboarding and audits; Complexity: medium; Target: V2
+- [x] Add `vd graph` to export project relationships as JSON and Mermaid without requiring a browser devtool — Fit: compiler/build-time output; Value: easier onboarding and audits; Complexity: medium; Target: V2
 - [ ] Add `vd benchmark` for repeatable page, loop, request, and component rendering benchmarks — Fit: performance-budget roadmap; Value: prevents anecdotal optimization; Complexity: medium; Target: V2
 - [x] Add a route explorer command that prints route paths, params, guards, metadata, SEO, and generated static entries — Fit: folder-first router transparency; Value: easier deployment/debugging; Complexity: low; Target: V1.x
 - [x] Add a build report command or Vite output section for bundle, directive, route, component, and SEO summaries — Fit: build intelligence without runtime cost; Value: clear production feedback; Complexity: medium; Target: V1.x
@@ -519,9 +519,9 @@ scaffold normal `index.html`, `script.js`/`script.ts`, `style.css`, and
 Visual graphs are useful when generated from source metadata. They should be
 exported artifacts, not a mandatory browser devtools runtime.
 
-- [ ] Generate a pages-to-routes graph — Fit: folder-first; Value: shows navigation surface; Complexity: low; Target: V2
-- [ ] Generate a pages-to-components graph with nested component dependencies — Fit: HTML component discovery; Value: finds coupling and circular usage; Complexity: medium; Target: V2
-- [ ] Generate request and middleware graphs from `src/api` registrations — Fit: request-layer transparency; Value: safer API refactors; Complexity: medium; Target: V2
+- [x] Generate a pages-to-routes graph — Fit: folder-first; Value: shows navigation surface; Complexity: low; Target: V2
+- [x] Generate a pages-to-components graph with nested component dependencies — Fit: HTML component discovery; Value: finds coupling and circular usage; Complexity: medium; Target: V2
+- [x] Generate request and middleware graphs from `src/api` registrations — Fit: request-layer transparency; Value: safer API refactors; Complexity: medium; Target: V2
 - [ ] Generate event, ref, state, and expose relationship graphs where static analysis can prove the connection — Fit: compiler-first where possible; Value: debugs communication patterns; Complexity: high; Target: Future Research
 
 ### 14.5 Framework Health Report

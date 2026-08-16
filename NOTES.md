@@ -289,6 +289,10 @@
   It intentionally reports what can be proven from folders, compiler manifests,
   SEO config presence, and generated assets; dependency-level bundle attribution
   should wait for a more precise Vite/Rollup metadata design.
+- `vd graph` exports relationships that can be proven statically today:
+  pages-to-routes, templates-to-components, templates-to-requests, and
+  request-to-middleware registrations. Event/ref/state graphs remain separate
+  research until inference is reliable.
 - Package CLI wrappers live in `bin/` and call generated `lib/cli.js`; the
   implementation remains TypeScript under `src/core` so it shares framework
   quality gates while staying outside the application folders.

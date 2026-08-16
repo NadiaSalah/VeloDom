@@ -150,6 +150,7 @@ vd inspect
 vd doctor
 vd stats
 vd routes
+vd graph --mermaid
 vd build-report --json
 vd create page blog/posts/[id] --ts
 vd create component shared/post-card --single-file
@@ -174,6 +175,8 @@ references, broken request references, and simple page config mistakes.
 `vd build-report` summarizes project counts, SEO coverage, compiler features,
 unused runtime feature modules, largest pages/components, and generated
 JavaScript/CSS chunks in text or JSON for CI dashboards.
+`vd graph` exports page-route, page/component dependency, request, and
+middleware relationships as text, JSON, or Mermaid.
 
 ## Testing Utilities
 
@@ -3182,6 +3185,7 @@ Latest implementation update:
 - Added `vd doctor` for local static diagnostics covering compiler issues,
   missing components, broken request references, and page config path mistakes.
 - Added `vd build-report` for machine-readable build/project intelligence.
+- Added `vd graph` for JSON/Mermaid project relationship graphs.
 - Added `velodom/testing` with `mountTestPage()` and `mountTestComponent()`
   for public DOM test helpers.
 - Added DX, future research, and framework identity documents under `docs/`.
@@ -3219,6 +3223,7 @@ Test coverage includes:
   subpath exports
 - package-boundary guardrails that keep SSR and hydration APIs deferred
 - CLI inspection, stats, route listing, and scaffolding behavior
+- JSON and Mermaid project graph generation
 - public page/component testing utilities
 - source-aware adapter errors and user-file loader failure reporting
 - a real-browser Playwright matrix for Chromium/Chrome/Edge plus optional

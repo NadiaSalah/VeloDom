@@ -27,6 +27,8 @@ package versions.
 - Added `vd build-report` for text or JSON summaries of project counts, SEO
   coverage, compiler features, unused runtime feature modules, largest source
   templates, and generated JS/CSS chunks.
+- Added `vd graph` to export page-route, template-component, request, and
+  middleware relationships as text, JSON, or Mermaid.
 - Added convention-first scaffolding for pages, components, API files, demo
   pages, middleware files, plugins, and starter projects.
 - Extended package contract checks to include the CLI wrappers in the
