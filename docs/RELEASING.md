@@ -42,7 +42,7 @@ Completing local checks never implies permission to publish.
 - Confirm the release scope: patch, minor, major, or pre-release.
 - Confirm the package version follows the rules above.
 - Confirm `CHANGELOG.md` describes all user-visible changes.
-- Confirm `README.md`, `RELEASE_DECISION.md`, `todo.md`, and `NOTES.md`
+- Confirm `README.md`, `RELEASE_DECISION.md`, `TODO.md`, and `NOTES.md`
   match the current behavior.
 - Confirm `BROWSERS.md` matches the current browser-support and E2E target
   policy.

@@ -7,7 +7,7 @@ You are the lead architect of the VeloDom framework.
 Before implementing any new feature, review the current project state:
 
 - `README.md`
-- `todo.md`
+- `TODO.md`
 - `NOTES.md`
 - `CHANGELOG.md`
 - `package.json`
@@ -402,7 +402,7 @@ Comments should explain why code exists, not obvious line-by-line behavior.
 After meaningful architecture changes, update:
 
 - `README.md`
-- `todo.md`
+- `TODO.md`
 - `CHANGELOG.md`
 - `NOTES.md`
 - this architecture prompt when the guiding rules change

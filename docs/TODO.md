@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**376 of 381 tasks completed — 99%**
+**377 of 382 tasks completed — 99%**
 
 `[###################-]`
 
@@ -130,6 +130,8 @@ while preserving the explicit `createApp()` path for advanced integrations.
 - [x] Separate the publishable `velodom` npm package from the application
   showcase, make the blog a real workspace consumer, and generate optional
   `@` plus `#app/*` client import aliases — Target: V1.x.
+- [x] Consolidate repository-level Markdown documentation under `docs/` while
+  keeping concise root and npm-package README entry points — Target: V1.x.
 - [ ] Add an optional CSS budget to build intelligence after choosing a safe
   default that does not punish application design-system choices — Target:
   V1.x.

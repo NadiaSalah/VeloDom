@@ -54,6 +54,9 @@
   expose framework internals.
 - The npm package uses an explicit file allowlist. Application code, tests,
   assets, and workspace configuration are never package contents.
+- Repository-level documentation lives under `docs/`. The root README is a
+  stable short link to `docs/README.md`; `packages/velodom/README.md` remains
+  adjacent to the package manifest because npm uses it as the package page.
 - Release preparation is intentionally separated from publication. The
   checklist in `RELEASING.md` records gates, but only explicit human approval
   for an exact version can authorize removing `private: true` or publishing.
@@ -104,7 +107,7 @@
   duplicates are intentionally removed because `index.html` already references
   `src/assets/favicon.png`; root-level static duplicates should only return if
   a deployment target requires them.
-- `VeloDom_Master_Architecture_Prompt.md` is treated as the concise guiding
+- `ARCHITECTURE.md` is treated as the concise guiding
   architecture brief. It mirrors the npm package boundary at
   `packages/velodom/src` and keeps application folders outside Core.
 - Large runtime entry modules coordinate features while focused modules own
@@ -462,7 +465,7 @@
 
 ## Handoff Guidance
 
-1. Read `README.md`, then `todo.md`, before changing framework APIs.
+1. Read `README.md`, then `TODO.md`, before changing framework APIs.
 2. Add framework behavior to `packages/velodom/src` only when it is generic across sites.
 3. Keep domain-specific examples in the blog application folders.
 4. Add a regression test for every core bug.

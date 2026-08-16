@@ -33,5 +33,5 @@ Application pages, components, layouts, API routes, middleware, and assets stay
 inside the consuming project. Framework internals are installed under
 `node_modules/velodom` and must not be copied into application source.
 
-See the [repository README](https://github.com/NadiaSalah/velodom#readme) for
-the complete guide, examples, architecture, and release notes.
+See the [framework documentation](https://github.com/NadiaSalah/velodom/tree/master/docs)
+for the complete guide, examples, architecture, and release notes.

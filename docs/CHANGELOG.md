@@ -56,6 +56,9 @@ package versions.
   runtime they choose.
 - Kept the blog's Tailwind scan rooted to its own workspace, reducing the
   current generated CSS artifact further to about 70 KB.
+- Consolidated repository-level Markdown documentation into `docs/`; the root
+  README now acts as a short entry point and the npm package retains its own
+  focused README for registry rendering.
 
 ## 2026-08-16
 
@@ -498,7 +501,7 @@ package versions.
 
 ### Architecture Documentation
 
-- Refactored `VeloDom_Master_Architecture_Prompt.md` to match the current
+- Refactored `ARCHITECTURE.md` (the framework architecture brief) to match the current
   framework direction: HTML-first authoring, TypeScript core with JavaScript or
   TypeScript application scripts, compiler diagnostics, static SEO,
   accessibility baseline, package boundaries, and optional future DX tooling.
@@ -646,7 +649,7 @@ package versions.
 - Added deployment guidance for VeloDom's SPA fallback, generated static SEO
   routes, hosting rewrites, Vite base paths, cache headers, and no-JavaScript
   SEO checks.
-- Added a prioritized gap map to `todo.md`, separating V1 release blockers,
+- Added a prioritized gap map to `TODO.md`, separating V1 release blockers,
   everyday application needs, and intentionally deferred framework features.
 - Added concrete roadmap work for browser E2E coverage, accessibility,
   recoverable error boundaries, router UX, test utilities, performance
@@ -741,7 +744,7 @@ package versions.
   output and named failure reporting.
 - Added deterministic directive/runtime feature manifests for future
   feature-module tree-shaking.
-- Added a visible completed/total progress counter to `todo.md`.
+- Added a visible completed/total progress counter to `TODO.md`.
 - Exported `UnknownRecord`, `ApiErrorOptions`, and `JsonRequestOptions` for
   TypeScript consumers.
 - Split conditionals, text, visibility, bindings, model, events, requests, and
