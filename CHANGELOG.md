@@ -24,6 +24,12 @@ package versions.
 - Added compiler-backed editor analysis and preferred-directive completions;
   `.vd` template diagnostics now retain original-document line locations in
   both the Vite error path and optional language-service output.
+- Recorded V2 implementation contracts for build-time prerendering,
+  progressive native forms, optional localization, and development inspection;
+  added a fixture confirming that native forms add no runtime feature.
+- Added an optional standalone `velodom/devtools` inspector and a VS Code
+  prototype backed by the public compiler language service. Neither is a
+  required application runtime dependency.
 
 ### V1 Release Polish
 

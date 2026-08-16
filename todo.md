@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**353 of 369 tasks completed — 96%**
+**366 of 369 tasks completed — 99%**
 
 `[###################-]`
 
@@ -693,7 +693,7 @@ browser runtime small, and remain optional where a project does not need it.
       decorative-image patterns — Fit: compiler-first guidance; Value: fewer
       layout shifts and accessibility mistakes; Complexity: medium; Target:
       V1.x
-- [ ] Prove generated image markup and assets add no mandatory runtime code in
+- [x] Prove generated image markup and assets add no mandatory runtime code in
       package and performance checks — Fit: runtime-lightweight; Value:
       protects VeloDom's performance identity; Complexity: low; Target: V1.x
 
@@ -703,7 +703,7 @@ browser runtime small, and remain optional where a project does not need it.
       `.html`, `.vd`, `config.js`, and folder conventions — Fit:
       compiler-first; Value: errors appear while authors write code;
       Complexity: high; Target: V2
-- [ ] Prototype an optional VS Code extension with directive completion,
+- [x] Prototype an optional VS Code extension with directive completion,
       hover documentation, and go-to component/route support before designing
       a general editor protocol — Fit: convention over configuration; Value:
       a gentler beginner workflow; Complexity: high; Target: V2
@@ -714,52 +714,52 @@ browser runtime small, and remain optional where a project does not need it.
 
 #### 19.4 Static Rendering and HTML Forms — V2 Research
 
-- [ ] Write a build-time prerender design that can emit complete route HTML
+- [x] Write a build-time prerender design that can emit complete route HTML
       from explicit application data while retaining client takeover as an
       option — Fit: HTML-first/content sites; Value: stronger SEO and fast
       first render without mandatory SSR; Complexity: high; Target: V2
-- [ ] Define clear boundaries between static prerendering, the existing
+- [x] Define clear boundaries between static prerendering, the existing
       `seo.renderPage` fallback, and future SSR/hydration; reject ambiguous
       `renderToString` public APIs until proven — Fit: protects the simple
       model; Value: prevents an accidental server runtime; Complexity: medium;
       Target: V2
-- [ ] Validate any prerender proposal with no-JavaScript, direct-route,
+- [x] Validate any prerender proposal with no-JavaScript, direct-route,
       dynamic-entry, and client-takeover browser fixtures — Fit: compiler/build
       verification; Value: reliable deployment behavior; Complexity: high;
       Target: V2
-- [ ] Design progressive-form enhancement around native HTML `action` and
+- [x] Design progressive-form enhancement around native HTML `action` and
       `method`, with VeloDom enhancing rather than replacing normal submission
       — Fit: HTML-first; Value: resilient forms for beginners and production
       sites; Complexity: high; Target: V2
-- [ ] Define an optional adapter contract for serialized form data, field
+- [x] Define an optional adapter contract for serialized form data, field
       errors, redirects, CSRF ownership, and no-JavaScript behavior; keep
       server authorization application-owned — Fit: flexible adapters; Value:
       clearer full-stack integration without a backend framework;
       Complexity: high; Target: V2
-- [ ] Add progressive-form test fixtures only after the contract is approved,
+- [x] Add progressive-form test fixtures only after the contract is approved,
       covering enhanced and native submissions — Fit: convention-first safety;
       Value: avoids fragile request abstractions; Complexity: medium; Target:
       V2
 
 #### 19.5 Optional Localization and Development Inspection — V2
 
-- [ ] Research a build-time localization plugin with explicit dictionaries and
+- [x] Research a build-time localization plugin with explicit dictionaries and
       locale routes, separate from the existing `lang`/`dir` presentation
       plugin — Fit: optional and HTML-first; Value: completes multilingual
       site workflows without mandatory i18n runtime; Complexity: high; Target:
       V2
-- [ ] Require static extraction/diagnostics for missing translation keys and
+- [x] Require static extraction/diagnostics for missing translation keys and
       locale SEO metadata before considering a runtime translation helper —
       Fit: compiler-first; Value: catches copy errors before deployment;
       Complexity: high; Target: V2
-- [ ] Keep translation-provider, CMS, and remote-loading integrations outside
+- [x] Keep translation-provider, CMS, and remote-loading integrations outside
       Core and optional — Fit: framework-agnostic Core; Value: teams retain
       vendor freedom; Complexity: medium; Target: V2
-- [ ] Define a development-only inspection protocol based on the existing
+- [x] Define a development-only inspection protocol based on the existing
       devtools bridge; it must be tree-shaken from production by default — Fit:
       runtime-lightweight; Value: easier route/state/request debugging;
       Complexity: medium; Target: V2
-- [ ] Prototype an optional browser extension or standalone inspector only
+- [x] Prototype an optional browser extension or standalone inspector only
       after the protocol proves useful; do not ship a mandatory in-app panel —
       Fit: opt-in tooling; Value: advanced debugging without beginner clutter;
       Complexity: high; Target: V2

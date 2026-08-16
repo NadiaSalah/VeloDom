@@ -41,6 +41,7 @@ JavaScript or TypeScript independently for every page and component.
 - [Compiler and Vite Integration](#compiler-and-vite-integration)
 - [Adapter Contract and Optional Types](#adapter-contract-and-optional-types)
 - [Editor Intelligence](#editor-intelligence)
+- [Future Static Rendering, Forms, and Localization](#future-static-rendering-forms-and-localization)
 - [JavaScript and TypeScript](#javascript-and-typescript)
 - [Error and Security Model](#error-and-security-model)
 - [Public Package Boundaries](#public-package-boundaries)
@@ -2847,6 +2848,11 @@ change declarative request behavior unless the user explicitly uses them in an
 API route or request module. The devtools bridge only installs a browser global
 when its plugin is registered.
 
+For local development only, an application that registered the bridge can
+explicitly import `mountDevtoolsInspector` from `velodom/devtools`. It renders a
+small read-only inspector and fails if the bridge is absent, so it cannot add a
+hidden production panel.
+
 Plugins set up in registration order and clean up in reverse order. Future
 devtools should remain optional plugins rather than mandatory runtime behavior.
 
@@ -3180,7 +3186,21 @@ integrations. They reuse compiler diagnostics and directive metadata for HTML
 and `.vd` documents, remapping `.vd` template diagnostics to their original
 file lines. This is a dependency-free foundation for future editor extensions,
 not a mandatory VS Code plugin or browser runtime feature. See
-[docs/EDITOR_INTELLIGENCE.md](docs/EDITOR_INTELLIGENCE.md).
+[docs/EDITOR_INTELLIGENCE.md](docs/EDITOR_INTELLIGENCE.md). An optional VS Code
+prototype lives in `integrations/vscode/velodom-language`; it offers directive
+completion/hover text and conventional component or static-route definitions.
+
+## Future Static Rendering, Forms, and Localization
+
+VeloDom's accepted V2 designs keep expansion outside the mandatory browser
+runtime: richer static route rendering remains build-time and distinct from
+SSR; form enhancement starts from native HTML `action`/`method`; and
+localization stays an optional build-time plugin separate from RTL direction.
+The implementation contracts and required test gates are documented in
+[static rendering](docs/STATIC_RENDERING_DESIGN.md),
+[progressive forms](docs/PROGRESSIVE_FORMS.md),
+[localization](docs/LOCALIZATION_DESIGN.md), and the
+[development inspection protocol](docs/DEVTOOLS_PROTOCOL.md).
 
 ### `velodom/vite`
 
@@ -3191,6 +3211,10 @@ not a mandatory VS Code plugin or browser runtime feature. See
 - `inspectImageAsset`
 - `inspectImageDirectory`
 - `createResponsiveImageAttributes`
+
+### `velodom/devtools`
+
+- `mountDevtoolsInspector`
 
 ### `velodom/vite-plugin`
 
@@ -3479,8 +3503,8 @@ These features are not implemented and should not be described as available:
 - broader keyboard/focus UX beyond the current integration coverage
 - advanced shared-state patterns beyond the optional `createSharedState()`
   helper
-- dedicated browser extension/devtools panel beyond the optional devtools
-  bridge plugin
+- a full browser extension/devtools panel beyond the optional bridge and
+  standalone inspector prototype
 - general-purpose full-page SSG/SSR with reconciliation or hydration
 - automatic full-content API/CMS pre-rendering beyond explicit app-owned
   build-time SEO/content hooks

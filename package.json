@@ -57,6 +57,11 @@
       "import": "./lib/assets.js",
       "default": "./lib/assets.js"
     },
+    "./devtools": {
+      "types": "./types/devtools.d.ts",
+      "import": "./lib/devtools.js",
+      "default": "./lib/devtools.js"
+    },
     "./vite": {
       "types": "./types/adapters/vite.d.ts",
       "import": "./lib/adapters/vite.js",

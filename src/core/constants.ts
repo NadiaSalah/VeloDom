@@ -72,6 +72,14 @@ export const VD_ADAPTER = Object.freeze({
   ])
 });
 
+/** Names used only by opt-in development inspection helpers. */
+export const VD_DEVTOOLS = Object.freeze({
+  GLOBAL_NAME: "__VELODOM_DEVTOOLS__",
+  INSPECTOR_ATTRIBUTE: "data-velodom-inspector",
+  INSPECTOR_TITLE: "VeloDom inspector",
+  REFRESH_LABEL: "Refresh"
+});
+
 /** Authentication provider names, defaults, aliases, and valid credentials. */
 export const VD_AUTH = Object.freeze({
   STORAGE_KEY: "vd-user-session",

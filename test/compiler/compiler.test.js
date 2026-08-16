@@ -253,6 +253,19 @@ test("compiler accepts accessible static and bound template patterns", () => {
   );
 });
 
+test("compiler leaves native progressive forms unchanged without runtime features", () => {
+  const result = compileTemplate(`
+    <form action="/contact" method="post">
+      <input name="email" type="email" required>
+      <button type="submit">Send</button>
+    </form>
+  `);
+
+  assert.match(result.html, /action="\/contact"/);
+  assert.match(result.html, /method="post"/);
+  assert.deepEqual(result.manifest.features, []);
+});
+
 test("compiler creates a deterministic runtime feature manifest", () => {
   const result = compileTemplate(`
     <section vd-if="ready">

@@ -120,6 +120,6 @@ function toLocation(source: string, offset: number) {
 
   return {
     line: lines.length,
-    column: lines.at(-1)?.length || 0
+    column: (lines.at(-1)?.length || 0) + 1
   };
 }

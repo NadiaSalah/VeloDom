@@ -35,6 +35,8 @@ export type {
   ComponentExpose,
   ComponentScriptContext,
   DevtoolsPluginOptions,
+  DevtoolsBridge,
+  DevtoolsSnapshot,
   DirectionController,
   DirectionLocaleDefinition,
   DirectionPluginOptions,

@@ -14,6 +14,7 @@ import {
   createResponsiveImageAttributes,
   type AssetImageInspection
 } from "velodom/assets";
+import type { DevtoolsInspectorOptions } from "velodom/devtools";
 
 const _testingTypeSmoke: TestMountResult | null = null;
 const _pageConfig = definePageConfig({ path: "/" });
@@ -28,6 +29,7 @@ const _imageAttributes = createResponsiveImageAttributes({
   height: 360
 });
 const _imageInspection: AssetImageInspection | null = null;
+const _devtoolsOptions: DevtoolsInspectorOptions = {};
 const app: VeloDomApp = createApp({
   adapter: createViteAdapter()
 });
@@ -39,4 +41,5 @@ void _plugin;
 void _adapter;
 void _imageAttributes;
 void _imageInspection;
+void _devtoolsOptions;
 void app.mount();

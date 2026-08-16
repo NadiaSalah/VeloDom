@@ -16,6 +16,8 @@ import {
 } from "./requests/http-client.ts";
 import type {
   DevtoolsPluginOptions,
+  DevtoolsBridge,
+  DevtoolsSnapshot,
   PluginContext,
   RequestCache,
   RequestCacheOptions,
@@ -171,12 +173,12 @@ export function createDevtoolsPlugin(
 function createDevtoolsBridge({
   app,
   navigate
-}: PluginContext) {
+}: PluginContext): DevtoolsBridge {
   return Object.freeze({
     get app() {
       return app;
     },
-    inspect() {
+    inspect(): DevtoolsSnapshot {
       return {
         sharedStateNames: Object.keys(app.shared || {})
       };

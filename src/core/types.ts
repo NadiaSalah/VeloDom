@@ -437,6 +437,18 @@ export interface DevtoolsPluginOptions {
   enabled?: boolean;
 }
 
+/** Read-only summary exposed through the optional development bridge. */
+export interface DevtoolsSnapshot {
+  sharedStateNames: string[];
+}
+
+/** Optional development bridge installed only by createDevtoolsPlugin(). */
+export interface DevtoolsBridge {
+  readonly app: VeloDomApp;
+  inspect(): DevtoolsSnapshot;
+  navigate: VeloDomApp["navigate"];
+}
+
 /** Options for the optional native-form validation plugin. */
 export interface ValidationPluginOptions {
   selector?: string;

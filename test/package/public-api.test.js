@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import * as compilerApi from "../../src/core/compiler/index.ts";
 import * as assetsApi from "../../src/core/assets.ts";
+import * as devtoolsApi from "../../src/core/devtools.ts";
 import * as contentApi from "../../src/core/content.ts";
 import * as runtimeApi from "../../src/core/index.ts";
 import * as testingApi from "../../src/core/testing.ts";
@@ -10,6 +11,7 @@ import * as vitePluginApi from "../../src/core/vite-plugin/index.ts";
 
 const adapterEntrySource = await readSource("../../src/core/adapters/vite.ts");
 const assetsEntrySource = await readSource("../../src/core/assets.ts");
+const devtoolsEntrySource = await readSource("../../src/core/devtools.ts");
 const rootEntrySource = await readSource("../../src/core/index.ts");
 const compilerEntrySource = await readSource("../../src/core/compiler/index.ts");
 const contentEntrySource = await readSource("../../src/core/content.ts");
@@ -55,6 +57,8 @@ test("runtime public type exports are frozen for application authors", () => {
     "ComponentExpose",
     "ComponentScriptContext",
     "DevtoolsPluginOptions",
+    "DevtoolsBridge",
+    "DevtoolsSnapshot",
     "DirectionController",
     "DirectionLocaleDefinition",
     "DirectionPluginOptions",
@@ -186,6 +190,16 @@ test("asset public exports remain build-time only", () => {
   ]);
 });
 
+test("optional devtools inspector remains an explicit subpath", () => {
+  assert.deepEqual(Object.keys(devtoolsApi), [
+    "mountDevtoolsInspector"
+  ]);
+  assert.deepEqual(readInterfaceExportNames(devtoolsEntrySource), [
+    "DevtoolsInspectorHandle",
+    "DevtoolsInspectorOptions"
+  ]);
+});
+
 test("vite adapter and plugin public exports are frozen", () => {
   assert.deepEqual(readFunctionExportNames(adapterEntrySource), [
     "createViteAdapter"
@@ -220,6 +234,7 @@ test("package subpath exports are frozen", () => {
     "./assets",
     "./compiler",
     "./content",
+    "./devtools",
     "./package.json",
     "./testing",
     "./vite",

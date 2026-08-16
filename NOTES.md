@@ -421,6 +421,17 @@
   service instead of an editor-specific runtime. It maps `.vd` template
   diagnostics back to original file locations and leaves editor UI, project
   navigation, and code actions as optional integration work.
+- V2 static rendering, progressive forms, localization, and devtools are
+  approved as bounded designs: static output is build-only and not SSR; forms
+  enhance native submission through adapters; translations remain optional
+  build tooling; and inspection stays opt-in with a read-only bridge.
+- The VS Code prototype remains outside the package and consumes the public
+  compiler language-service API. Its navigation intentionally follows only
+  conventional folders and `.vd` names; route-config overrides need a future
+  project-aware index before they can be resolved reliably.
+- The standalone `velodom/devtools` inspector is an explicit subpath. It
+  requires an existing bridge and is not part of createApp or production builds
+  unless an application imports it.
 
 ## Handoff Guidance
 
