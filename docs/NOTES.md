@@ -140,6 +140,9 @@
 - Local npm recovery-code exports are ignored through `.gitignore`. They should
   remain outside version control and should not be read during routine
   framework work.
+- `node_modules`, package `lib`/`types`, and application `dist` folders are
+  reproducible local output. They remain ignored and should not be retained in
+  a clean source checkout.
 - Loop blocks own the cleanups created for each rendered clone and release them
   both before rerender and during parent teardown.
 - Explicit request loading/error paths inherit the destination of the resolved

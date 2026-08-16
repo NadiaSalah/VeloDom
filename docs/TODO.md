@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**379 of 384 tasks completed — 99%**
+**380 of 385 tasks completed — 99%**
 
 `[###################-]`
 
@@ -857,3 +857,8 @@ browser runtime small, and remain optional where a project does not need it.
       `tools/` without publishing or executing fixtures as test files — Fit:
       clean repository ownership; Value: a pure application/framework surface
       with unchanged quality coverage; Complexity: low; Target: V1
+- [x] Co-locate package build and declaration TypeScript configurations with
+      `packages/velodom`, while keeping shared compiler and workspace-check
+      configuration at the repository root — Fit: explicit package ownership;
+      Value: a cleaner source tree with reproducible package outputs;
+      Complexity: low; Target: V1

@@ -29,3 +29,10 @@ V1 is locally verified with 216 automated tests, package-consumer validation,
 and production build checks. The roadmap is [docs/TODO.md](docs/TODO.md);
 remaining work is release governance, a strict Firefox-capable browser run,
 optional CSS budgets, and starter presets.
+
+TypeScript keeps shared compiler settings in `tsconfig.base.json`, workspace
+checking in `tsconfig.json`, and package build/type output settings beside
+`packages/velodom`.
+
+The repository does not retain dependency or build output folders. Restore the
+toolchain with `npm install`; regenerate output with the documented npm scripts.

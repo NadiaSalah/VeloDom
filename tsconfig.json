@@ -1,14 +1,6 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "useDefineForClassFields": true,
-    "lib": [
-      "ES2022",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
     "paths": {
       "velodom": [
         "./packages/velodom/src/index.ts"
@@ -23,19 +15,6 @@
         "./examples/blog/src/*"
       ]
     },
-    "allowImportingTsExtensions": true,
-    "types": [
-      "node",
-      "vite/client"
-    ],
-    "allowJs": false,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-    "strict": false,
-    "noImplicitOverride": true,
-    "noUncheckedSideEffectImports": true,
-    "skipLibCheck": true,
     "noEmit": true
   },
   "include": [
