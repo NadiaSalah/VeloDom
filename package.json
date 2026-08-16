@@ -15,13 +15,16 @@
   },
   "files": [
     "bin",
+    "docs",
     "lib",
     "types",
     "README.md",
     "BROWSERS.md",
     "CHANGELOG.md",
+    "NOTES.md",
     "RELEASE_DECISION.md",
-    "RELEASING.md"
+    "RELEASING.md",
+    "todo.md"
   ],
   "engines": {
     "node": "^20.19.0 || >=22.12.0"

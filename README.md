@@ -16,6 +16,7 @@ JavaScript or TypeScript independently for every page and component.
 ## Contents
 
 - [What Works Today](#what-works-today)
+- [Five-Minute Start](#five-minute-start)
 - [Requirements and Commands](#requirements-and-commands)
 - [CLI and Project Intelligence](#cli-and-project-intelligence)
 - [Testing Utilities](#testing-utilities)
@@ -52,12 +53,15 @@ JavaScript or TypeScript independently for every page and component.
 - [Best Practices](#best-practices)
 - [Current Limitations](#current-limitations)
 - [Roadmap and Handoff](#roadmap-and-handoff)
+- [Focused Documentation](docs/README.md)
 
 ## What Works Today
 
 VeloDom currently provides:
 
 - folder-discovered pages and nested components
+- one-call Vite startup through `mountVeloDom()` with convention-discovered
+  request routes and application middleware
 - optional `.vd` single-file pages and components for small co-located modules
 - optional page layouts with shared nav/footer shells and per-page selection
 - static, nested, and dynamic client-side routes
@@ -104,6 +108,68 @@ browser devtools panel.
 The current build-time content helper layer and future content improvements are
 documented in [docs/CONTENT_MODE_DESIGN.md](docs/CONTENT_MODE_DESIGN.md). It is
 intentionally tooling-oriented, not a mandatory browser runtime layer.
+
+## Five-Minute Start
+
+For this repository:
+
+```bash
+npm install
+npm run dev
+```
+
+The beginner entry point is intentionally one call:
+
+```js
+// src/main.js
+import "./style.css";
+import { mountVeloDom } from "velodom/vite";
+
+await mountVeloDom();
+```
+
+Add a page with ordinary HTML:
+
+```html
+<!-- src/pages/hello/index.html -->
+<main>
+  <h1>{{ title }}</h1>
+  <button type="button" vd-on:click="increment()">
+    Count: {{ count }}
+  </button>
+</main>
+```
+
+Add its optional behavior:
+
+```js
+// src/pages/hello/script.js
+export function init({ state }) {
+  state.title = "Hello VeloDom";
+  state.count = 0;
+  state.increment = () => {
+    state.count += 1;
+  };
+}
+```
+
+Add route and SEO metadata:
+
+```js
+// src/pages/hello/config.js
+export default {
+  path: "/hello",
+  seo: {
+    title: "Hello VeloDom",
+    description: "A small HTML-first page."
+  }
+};
+```
+
+VeloDom discovers these files. No component registration, route import, render
+function, JSX, or store setup is required. Folder mode is the clearest default;
+the optional `.vd` format is available when keeping a small page in one file is
+more readable.
 
 ## Requirements and Commands
 
@@ -271,6 +337,9 @@ Ownership rule:
   avoided unless a deployment target explicitly requires them.
 - Build configuration stays at the repository root because npm, Vite,
   TypeScript, and ESLint discover it there.
+
+Use the [focused documentation map](docs/README.md) to distinguish shipped V1
+capabilities from optional tooling and approved future research.
 
 ## Folder Conventions
 
@@ -442,32 +511,29 @@ The showcase includes `/single-file` and
 
 ## Application Bootstrap
 
-The V1 documentation site keeps the application bootstrap intentionally small:
-Core stays generic, while the site only registers the adapter and the local
-request routes it actually uses.
+The recommended Vite bootstrap delegates framework wiring to Core:
 
 ```js
 // src/main.js
 import "./style.css";
-import { createApp } from "velodom";
-import { createViteAdapter } from "velodom/vite";
-import routes from "./api/routes.js";
+import { mountVeloDom } from "velodom/vite";
 
-createApp({
-  adapter: createViteAdapter(),
-  routes
-}).mount();
+await mountVeloDom();
 ```
+
+`mountVeloDom()` automatically supplies the Vite resource adapter and discovers
+default exports from `src/api/routes.js|ts` and
+`src/api/middleware.js|ts` when those files exist. Keep only one extension for
+each registry. Explicit options win over discovered files.
 
 Applications can opt into middleware, auth providers, plugins, and router
 guards when they need them:
 
 ```js
 import { createValidationPlugin } from "velodom";
+import { mountVeloDom } from "velodom/vite";
 
-const app = createApp({
-  adapter: createViteAdapter(),
-  routes,
+const app = await mountVeloDom({
   auth: {
     providers: {}
   },
@@ -482,8 +548,6 @@ const app = createApp({
     createValidationPlugin()
   ]
 });
-
-await app.mount();
 ```
 
 Programmatic navigation and teardown:
@@ -491,6 +555,21 @@ Programmatic navigation and teardown:
 ```js
 await app.navigate("/features");
 await app.destroy();
+```
+
+Advanced integrations may keep full explicit composition:
+
+```js
+import { createApp } from "velodom";
+import { createViteAdapter } from "velodom/vite";
+import routes from "./api/routes.js";
+
+const app = createApp({
+  adapter: createViteAdapter(),
+  routes
+});
+
+await app.mount();
 ```
 
 The page shell must provide the mount element:
@@ -3205,6 +3284,9 @@ The implementation contracts and required test gates are documented in
 ### `velodom/vite`
 
 - `createViteAdapter`
+- `createViteApp`
+- `mountVeloDom`
+- `ViteAppOptions`
 
 ### `velodom/assets`
 
@@ -3272,15 +3354,17 @@ choices, not VeloDom Core dependencies or requirements.
 
 ## Verification
 
-Latest local verification on 2026-08-16:
+Latest local verification on 2026-08-17:
 
-- Core documentation audit passes for 60 TypeScript files
+- Core documentation audit passes for 64 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 201 automated tests pass
+- 214 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - package dry-run validation passes
+- npm package documentation links are backed by allowlisted `docs/`, NOTES,
+  and roadmap files
 - an isolated local-tarball TypeScript/Vite consumer passes
 - local rendering benchmark script passes
 - JavaScript performance budget check passes
@@ -3295,6 +3379,14 @@ Latest local verification on 2026-08-16:
 
 Latest implementation update:
 
+- Added the beginner-first `mountVeloDom()` Vite bootstrap with automatic
+  request-route and application-middleware registry discovery.
+- Kept `createViteApp()` and generic `createApp()` as progressively more
+  explicit composition levels rather than removing advanced control.
+- Updated CLI project generation to emit a complete HTML shell and the same
+  one-call bootstrap used by the documentation.
+- Reduced showcase CSS from about 1.16 MB to about 91 KB by using the daisyUI
+  Tailwind plugin instead of its complete prebuilt stylesheet.
 - Reconciled V1 release-polish documentation so README, TODO, NOTES,
   RELEASE_DECISION, Content Mode docs, and DX rubric describe the same current
   release-candidate state.

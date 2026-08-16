@@ -1,5 +1,4 @@
 import {
-  createApp,
   definePageConfig,
   definePlugin,
   defineRequestRoute,
@@ -9,7 +8,10 @@ import {
 import type {
   TestMountResult
 } from "velodom/testing";
-import { createViteAdapter } from "velodom/vite";
+import {
+  createViteApp,
+  type ViteAppOptions
+} from "velodom/vite";
 import {
   createResponsiveImageAttributes,
   type AssetImageInspection
@@ -30,9 +32,8 @@ const _imageAttributes = createResponsiveImageAttributes({
 });
 const _imageInspection: AssetImageInspection | null = null;
 const _devtoolsOptions: DevtoolsInspectorOptions = {};
-const app: VeloDomApp = createApp({
-  adapter: createViteAdapter()
-});
+const _viteOptions: ViteAppOptions = {};
+const app: VeloDomApp = createViteApp();
 
 void _testingTypeSmoke;
 void _pageConfig;
@@ -42,4 +43,5 @@ void _adapter;
 void _imageAttributes;
 void _imageInspection;
 void _devtoolsOptions;
+void _viteOptions;
 void app.mount();

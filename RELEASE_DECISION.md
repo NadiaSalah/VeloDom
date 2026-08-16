@@ -1,6 +1,6 @@
 # VeloDom V1 Release Decision
 
-Date: 2026-08-16
+Date: 2026-08-17
 
 ## Current Decision
 
@@ -46,7 +46,7 @@ Before publication, the owner must confirm:
 - Publication guard: `private: true`
 - Package dry-run artifact: `velodom-1.0.0.tgz`
 - `npm run pack:check`: passed locally
-- `npm test`: 201 tests passed locally
+- `npm test`: 214 tests passed locally
 - `npm run check`: passed locally
 - `npm run build`: passed locally
 - `npm run test:browser`: passed locally for Chromium/Chrome/Edge, WebKit, and

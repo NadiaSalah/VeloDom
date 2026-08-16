@@ -361,8 +361,20 @@ test("CLI create scaffolds convention-first project resources", async () => {
       join(root, "src/pages/blog/posts/[id]/config.js"),
       "utf8"
     );
+    const starterMain = await readFile(
+      join(root, "starter/src/main.js"),
+      "utf8"
+    );
+    const starterShell = await readFile(
+      join(root, "starter/index.html"),
+      "utf8"
+    );
 
     assert.match(config, /path: "\/blog\/posts\/:id"/);
+    assert.match(starterMain, /await mountVeloDom\(\)/);
+    assert.doesNotMatch(starterMain, /createViteAdapter/);
+    assert.match(starterShell, /<!doctype html>/i);
+    assert.match(starterShell, /name="description"/);
   } finally {
     await removeFixture(root);
   }

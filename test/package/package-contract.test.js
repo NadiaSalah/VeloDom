@@ -12,8 +12,10 @@ const manifest = JSON.parse(
 test("published package boundaries use built allowlisted artifacts", () => {
   const publicEntries = [
     ".",
+    "./assets",
     "./compiler",
     "./content",
+    "./devtools",
     "./testing",
     "./vite",
     "./vite-plugin"
@@ -27,13 +29,16 @@ test("published package boundaries use built allowlisted artifacts", () => {
   });
   assert.deepEqual(manifest.files, [
     "bin",
+    "docs",
     "lib",
     "types",
     "README.md",
     "BROWSERS.md",
     "CHANGELOG.md",
+    "NOTES.md",
     "RELEASE_DECISION.md",
-    "RELEASING.md"
+    "RELEASING.md",
+    "todo.md"
   ]);
 
   publicEntries.forEach(entry => {

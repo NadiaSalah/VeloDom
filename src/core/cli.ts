@@ -2570,18 +2570,26 @@ function createProjectManifest(name: string) {
 }
 
 function createProjectShell() {
-  return `<div id="app"></div>
-<script type="module" src="/src/main.js"></script>
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A website built with VeloDom.">
+    <title>VeloDom App</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
 `;
 }
 
 function createProjectMain() {
-  return `import { createApp } from "velodom";
-import { createViteAdapter } from "velodom/vite";
+  return `import { mountVeloDom } from "velodom/vite";
 
-createApp({
-  adapter: createViteAdapter()
-}).mount("#app");
+await mountVeloDom();
 `;
 }
 

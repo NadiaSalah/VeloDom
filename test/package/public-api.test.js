@@ -202,7 +202,12 @@ test("optional devtools inspector remains an explicit subpath", () => {
 
 test("vite adapter and plugin public exports are frozen", () => {
   assert.deepEqual(readFunctionExportNames(adapterEntrySource), [
-    "createViteAdapter"
+    "createViteAdapter",
+    "createViteApp",
+    "mountVeloDom"
+  ]);
+  assert.deepEqual(readTypeExportNames(adapterEntrySource, "local"), [
+    "ViteAppOptions"
   ]);
   assert.deepEqual(Object.keys(vitePluginApi).sort(), [
     "createTemplateModule",

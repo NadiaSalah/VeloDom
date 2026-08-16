@@ -176,3 +176,34 @@ export function indexFolderVariants(files, prefix, suffixes) {
 
   return indexed;
 }
+
+/**
+ * Resolves one optional convention file and rejects ambiguous or malformed
+ * application registries before the runtime starts.
+ */
+export function resolveConventionExport<T>(
+  modules: Record<string, unknown>,
+  label: string
+): T | undefined {
+  const entries = Object.entries(modules);
+
+  if (!entries.length) return undefined;
+
+  if (entries.length > 1) {
+    const files = entries.map(([file]) => file).join(", ");
+
+    throw new Error(
+      `[VeloDom] Found multiple ${label} files: ${files}. Keep either the JavaScript or TypeScript file.`
+    );
+  }
+
+  const [file, value] = entries[0];
+
+  if (!value || typeof value !== "object") {
+    throw new TypeError(
+      `[VeloDom] ${file} must default-export a ${label} object.`
+    );
+  }
+
+  return value as T;
+}

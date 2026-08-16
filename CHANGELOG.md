@@ -4,6 +4,29 @@ All important local changes to VeloDom are recorded here. The project is not
 published yet, so entries describe development milestones rather than released
 package versions.
 
+## 2026-08-17
+
+### Beginner-First V1 Authoring
+
+- Added `mountVeloDom()` as the recommended one-call Vite entry point and
+  `createViteApp()` as the non-mounting convenience API.
+- Added convention discovery for optional `src/api/routes.js|ts` and
+  `src/api/middleware.js|ts`, while preserving explicit option overrides and
+  the generic `createApp()` API.
+- Added deterministic errors and regression tests for ambiguous convention
+  files and invalid registry exports.
+- Updated the CLI project scaffold to emit a complete HTML document and removed
+  its misleading `mount("#app")` argument.
+- Removed stale hard-coded source lines from global error reporting.
+- Switched the showcase from the complete daisyUI CSS import to the Tailwind
+  plugin with light/dark themes, reducing generated CSS from about 1.16 MB to
+  about 91 KB.
+- Reworked the primary documentation and roadmap around the beginner path,
+  explicit advanced escape hatches, project ownership, and truthful V1 limits.
+- Included linked focused docs, engineering notes, and the roadmap in the npm
+  allowlist, and expanded package-contract checks to cover asset/devtools
+  subpaths so installed-package documentation and exports remain complete.
+
 ## 2026-08-16
 
 ### Post-V1 Roadmap Decision

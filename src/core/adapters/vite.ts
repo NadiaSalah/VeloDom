@@ -17,13 +17,45 @@ import {
   mapEagerModulesToLoaders,
   mapLoaderExports,
   rebaseFiles,
-  rebaseSingleFileStyles
+  rebaseSingleFileStyles,
+  resolveConventionExport
 } from "./resource-map.ts";
 import type {
   RuntimeFeatureManifest
 } from "../compiler/types.ts";
-import type { ResourceAdapter } from "../types.ts";
+import { createApp } from "../velodom.ts";
+import type {
+  RequestMiddleware,
+  RequestRouteRegistry,
+  ResourceAdapter,
+  VeloDomApp,
+  VeloDomAppOptions
+} from "../types.ts";
 import { VD_ADAPTER } from "../constants.ts";
+
+/** Beginner-friendly Vite options; resource discovery is supplied by VeloDom. */
+export type ViteAppOptions = Omit<VeloDomAppOptions, "adapter">;
+
+const applicationRouteFiles = import.meta.glob(
+  [
+    "/src/api/routes.js",
+    "/src/api/routes.ts"
+  ],
+  {
+    eager: true,
+    import: "default"
+  }
+);
+const applicationMiddlewareFiles = import.meta.glob(
+  [
+    "/src/api/middleware.js",
+    "/src/api/middleware.ts"
+  ],
+  {
+    eager: true,
+    import: "default"
+  }
+);
 
 const pageTemplateFiles = import.meta.glob(
   "/src/pages/**/index.html",
@@ -302,4 +334,51 @@ export function createViteAdapter(): ResourceAdapter {
       }
     }
   };
+}
+
+/**
+ * Creates a Vite-backed application using folder conventions for resources,
+ * request routes, and application middleware.
+ *
+ * Explicit options always take precedence over convention-discovered files.
+ */
+export function createViteApp(
+  options: ViteAppOptions = {}
+): VeloDomApp {
+  return createApp({
+    ...options,
+    routes: options.routes ?? resolveConventionExport<RequestRouteRegistry>(
+      applicationRouteFiles,
+      "request route registry"
+    ),
+    middleware: options.middleware ?? resolveConventionExport<
+      Record<string, RequestMiddleware>
+    >(
+      applicationMiddlewareFiles,
+      "application middleware registry"
+    ),
+    adapter: createViteAdapter()
+  });
+}
+
+/**
+ * Creates and mounts the conventional Vite application in `#app`.
+ *
+ * This is the recommended beginner entry point. Advanced applications can use
+ * createViteApp() or the generic createApp() API when explicit composition is
+ * preferable.
+ */
+export function mountVeloDom(
+  options: ViteAppOptions = {}
+): Promise<VeloDomApp> {
+  return mountViteApp(options);
+}
+
+async function mountViteApp(
+  options: ViteAppOptions
+): Promise<VeloDomApp> {
+  const app = createViteApp(options);
+
+  await app.mount();
+  return app;
 }

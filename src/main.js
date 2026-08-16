@@ -1,11 +1,4 @@
 import "./style.css";
-import {
-  createApp
-} from "velodom";
-import { createViteAdapter } from "velodom/vite";
-import routes from "./api/routes.js";
+import { mountVeloDom } from "velodom/vite";
 
-createApp({
-  adapter: createViteAdapter(),
-  routes
-}).mount();
+await mountVeloDom();

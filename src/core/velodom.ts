@@ -19,7 +19,6 @@ import type {
 
 /** Creates a VeloDom application from injected resources and policies. */
 export function createApp(options: VeloDomAppOptions): VeloDomApp {
-
   configureRequestRuntime({
     routes: options.routes,
     middleware: options.middleware,
@@ -43,7 +42,6 @@ export function createApp(options: VeloDomAppOptions): VeloDomApp {
   );
 
   Object.assign(app, {
-
     async mount() {
       await plugins.setup();
       return router.init();
@@ -54,7 +52,6 @@ export function createApp(options: VeloDomAppOptions): VeloDomApp {
       await plugins.destroy();
     },
     navigate: router.navigate
-
   });
 
   return app;
@@ -70,8 +67,6 @@ function registerGlobalErrorHandlers() {
   window.addEventListener("error", (event) => {
     reportUserActionError(event?.error || event, {
       title: "Unexpected Runtime Error",
-      file: "src/core/velodom.ts",
-      line: 27,
       hint: "Inspect the stack location and fix the failing expression or handler.",
       fatal: true
     });
@@ -82,8 +77,6 @@ function registerGlobalErrorHandlers() {
 
     reportUserActionError(event?.reason || event, {
       title: "Unhandled Promise Rejection",
-      file: "src/core/velodom.ts",
-      line: 33,
       hint: "Await promises in handlers and add try/catch around async logic.",
       fatal: true
     });

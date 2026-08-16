@@ -8,6 +8,13 @@
 - `src/pages`, `src/components`, and `src/api` are application-owned.
 - Build-tool discovery belongs to adapters; the runtime accepts injected
   resource maps.
+- Vite applications should normally start with `mountVeloDom()`. It supplies
+  the adapter and discovers optional root request/middleware registries by
+  convention; `createViteApp()` and generic `createApp()` remain explicit
+  escape hatches rather than parallel framework models.
+- Vite convention registries use a single default-exported object. Keeping
+  both JavaScript and TypeScript variants is rejected because silent filename
+  precedence would make beginner behavior hard to explain.
 - Common users should configure requests declaratively. Custom middleware and
   explicit `next()` pipelines remain an advanced option.
 - Authentication is provider-based. Frontend auth and role checks improve UX
@@ -71,6 +78,9 @@
 - The V1 site intentionally does not ship application middleware, auth, or CRUD
   example pages. Those framework features remain documented and tested in Core,
   while the public site stays focused on launch messaging and learning paths.
+- The showcase uses the daisyUI Tailwind plugin with only light/dark themes;
+  importing the complete prebuilt daisyUI stylesheet produced roughly 1.16 MB
+  of CSS and was replaced by a generated 91 KB application stylesheet.
 - Browser E2E now follows the V1 documentation site, not the removed CRUD
   showcase. It verifies the landing page, features page, one-file page,
   dynamic article route, local `vd-request` example, and no-JavaScript SEO.

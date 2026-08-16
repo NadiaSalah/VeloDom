@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**366 of 369 tasks completed — 99%**
+**373 of 380 tasks completed — 98%**
 
 `[###################-]`
 
-Remaining tasks: **3**
+Remaining tasks: **7**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -98,6 +98,38 @@ Strict browser note: Firefox and WebKit Playwright binaries were installed
 locally on 2026-08-16. Strict WebKit and mobile WebKit passed, but Firefox
 headless timed out with a local graphics/compositor launch error, so the full
 strict matrix remains pending for CI or a Firefox-capable release machine.
+
+---
+
+## Phase Y: Beginner-First V1 Authoring
+
+This phase reduces application boilerplate through visible folder conventions
+while preserving the explicit `createApp()` path for advanced integrations.
+
+- [x] Add `mountVeloDom()` as the recommended one-call Vite bootstrap.
+- [x] Add `createViteApp()` for applications that need an app handle before
+  mounting without wiring the resource adapter manually.
+- [x] Discover optional `src/api/routes.js|ts` and
+  `src/api/middleware.js|ts` registries by convention, with explicit options
+  taking precedence.
+- [x] Reject ambiguous JavaScript/TypeScript registry pairs and malformed
+  default exports with actionable startup errors.
+- [x] Update `create-velodom` output to generate a complete accessible HTML
+  shell and the beginner bootstrap instead of the obsolete `mount("#app")`
+  call.
+- [x] Remove stale hard-coded framework line numbers from global error reports
+  so stack-derived locations survive refactors.
+- [x] Replace the showcase's full daisyUI stylesheet import with its Tailwind
+  plugin, reducing production CSS from about 1.16 MB to about 91 KB.
+- [ ] Split the large CLI implementation into analyzer, reporter, and scaffold
+  modules without changing commands or output contracts — Target: V1.x.
+- [ ] Design build-time support for typed page config without breaking static
+  SEO loading or requiring TypeScript from Vanilla projects — Target: V1.x.
+- [ ] Add an optional CSS budget to build intelligence after choosing a safe
+  default that does not punish application design-system choices — Target:
+  V1.x.
+- [ ] Add tested minimal/blog starter presets only after the npm installation
+  path is publicly available — Target: V1.x.
 
 ---
 

@@ -7,7 +7,8 @@ import {
   mapEagerExports,
   mapLoaderExports,
   rebaseFiles,
-  rebaseSingleFileStyles
+  rebaseSingleFileStyles,
+  resolveConventionExport
 } from "../../src/core/adapters/resource-map.ts";
 
 test("page files are indexed by nested folder name", () => {
@@ -122,4 +123,34 @@ test("eager module export maps derive values for single-file configs", () => {
     path: "/about"
   });
   assert.equal(configs["../pages/empty.vd"], undefined);
+});
+
+test("optional convention exports are resolved without hidden ambiguity", () => {
+  assert.equal(
+    resolveConventionExport({}, "route registry"),
+    undefined
+  );
+  assert.deepEqual(
+    resolveConventionExport({
+      "/src/api/routes.js": {
+        "posts.getAll": {}
+      }
+    }, "route registry"),
+    {
+      "posts.getAll": {}
+    }
+  );
+  assert.throws(
+    () => resolveConventionExport({
+      "/src/api/routes.js": {},
+      "/src/api/routes.ts": {}
+    }, "route registry"),
+    /multiple route registry files/
+  );
+  assert.throws(
+    () => resolveConventionExport({
+      "/src/api/routes.js": undefined
+    }, "route registry"),
+    /must default-export a route registry object/
+  );
 });

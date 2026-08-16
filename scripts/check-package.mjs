@@ -32,6 +32,14 @@ const expectedExports = {
     "./lib/content.js",
     "./types/content.d.ts"
   ],
+  "./assets": [
+    "./lib/assets.js",
+    "./types/assets.d.ts"
+  ],
+  "./devtools": [
+    "./lib/devtools.js",
+    "./types/devtools.d.ts"
+  ],
   "./vite": [
     "./lib/adapters/vite.js",
     "./types/adapters/vite.d.ts"
@@ -48,11 +56,14 @@ const expectedExports = {
 const allowedPackageFiles = new Set([
   "BROWSERS.md",
   "CHANGELOG.md",
+  "NOTES.md",
   "README.md",
   "RELEASE_DECISION.md",
   "RELEASING.md",
   "bin",
+  "docs",
   "lib",
+  "todo.md",
   "types"
 ]);
 

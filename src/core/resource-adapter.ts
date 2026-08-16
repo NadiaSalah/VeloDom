@@ -60,7 +60,7 @@ export function validateResourceAdapter(
   if (!isPlainObject(adapter)) {
     throw createAdapterError(
       "VeloDom requires a resource adapter",
-      "Pass createViteAdapter() through createApp({ adapter })."
+      "Use mountVeloDom() in Vite, or pass an adapter through createApp({ adapter })."
     );
   }
 
