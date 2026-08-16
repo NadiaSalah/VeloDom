@@ -409,6 +409,170 @@ test("request role checks deny missing roles before calling the handler", async 
   });
 });
 
+test("auth failures can redirect through route config", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.secure"
+      data-vd-target="result"
+      data-vd-error="error"
+    >Load</button>
+  `);
+  const navigations = [];
+
+  configureRequestRuntime({
+    auth: {
+      defaultProvider: "test",
+      providers: {
+        test() {
+          return {
+            authenticated: false
+          };
+        }
+      }
+    },
+    routes: {
+      "posts.secure": {
+        handler() {
+          return "forbidden";
+        },
+        auth: true,
+        authRedirect: "/login"
+      }
+    }
+  });
+
+  const events = createPageEventHub();
+  const errors = [];
+  events.on(VD_REQUEST.EVENTS.ERROR, event => {
+    errors.push(event);
+  });
+  const state = createState({
+    emit: events.emit,
+    error: "",
+    result: null
+  });
+
+  await withoutConsoleError(async () => {
+    const cleanup = await applyDirectives(root, state, {
+      navigate(path) {
+        navigations.push(path);
+      }
+    });
+
+    root.querySelector("button").click();
+    await waitFor(() => {
+      assert.deepEqual(navigations, [
+        "/login"
+      ]);
+    });
+
+    assert.equal(state.result, null);
+    assert.match(state.error, /Authentication required/);
+    assert.equal(errors[0].stage, VD_REQUEST.STAGES.AUTH);
+
+    cleanup();
+  });
+});
+
+test("request config auth redirect overrides route redirect", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.secure"
+      data-vd-request-config="{
+        target: 'result',
+        error: 'error',
+        redirectOnAuthFailure: '/signin'
+      }"
+    >Load</button>
+  `);
+  const navigations = [];
+
+  configureRequestRuntime({
+    auth: {
+      defaultProvider: "test",
+      providers: {
+        test() {
+          return null;
+        }
+      }
+    },
+    routes: {
+      "posts.secure": {
+        handler() {
+          return "forbidden";
+        },
+        auth: true,
+        authRedirect: "/login"
+      }
+    }
+  });
+
+  const state = createState({
+    error: "",
+    result: null
+  });
+
+  await withoutConsoleError(async () => {
+    const cleanup = await applyDirectives(root, state, {
+      navigate(path) {
+        navigations.push(path);
+      }
+    });
+
+    root.querySelector("button").click();
+    await waitFor(() => {
+      assert.deepEqual(navigations, [
+        "/signin"
+      ]);
+    });
+
+    cleanup();
+  });
+});
+
+test("invalid auth redirect path reports a configuration error", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.secure"
+      data-vd-request-config="{ authRedirect: 'https://example.test/login' }"
+    >Load</button>
+  `);
+  let handlerCalls = 0;
+
+  configureRequestRuntime({
+    routes: {
+      "posts.secure": () => {
+        handlerCalls += 1;
+      }
+    }
+  });
+
+  const events = createPageEventHub();
+  const errors = [];
+  events.on(VD_REQUEST.EVENTS.ERROR, event => {
+    errors.push(event);
+  });
+  const state = createState({
+    emit: events.emit
+  });
+
+  await withoutConsoleError(async messages => {
+    const cleanup = await applyDirectives(root, state);
+
+    root.querySelector("button").click();
+    await waitFor(() => {
+      assert.equal(errors.length, 1);
+    });
+
+    assert.equal(handlerCalls, 0);
+    assert.equal(errors[0].stage, VD_REQUEST.STAGES.CONFIG);
+    assert.equal(errors[0].code, VD_REQUEST.CODES.INVALID_CONFIG);
+    assert.match(messages[0], /Invalid Request Auth Redirect/);
+
+    cleanup();
+  });
+});
+
 test("invalid request config reports a configuration error without calling the route", async () => {
   const root = createRoot(`
     <button

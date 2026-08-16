@@ -26,6 +26,7 @@ export interface DirectiveRuntimeContext {
   page: string;
   getPageState: ((pageName: string) => DirectiveState) | null;
   hasPage: ((pageName: string) => boolean) | null;
+  navigate: ((path: string) => unknown | Promise<unknown>) | null;
 }
 
 /** Options accepted while preparing directives for one DOM subtree. */
@@ -35,6 +36,7 @@ export interface DirectiveRuntimeOptions {
   page?: string;
   getPageState?: ((pageName: string) => DirectiveState) | null;
   hasPage?: ((pageName: string) => boolean) | null;
+  navigate?: ((path: string) => unknown | Promise<unknown>) | null;
   features?: string[];
 }
 

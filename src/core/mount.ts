@@ -65,6 +65,7 @@ interface ComponentPageContext {
   components?: UnknownRecord;
   getPageState?: (pageName: string) => ComponentState;
   hasPage?: (pageName: string) => boolean;
+  navigate?: (path: string) => unknown | Promise<unknown>;
   emit?: (...args: unknown[]) => unknown;
   on?: (...args: unknown[]) => unknown;
   off?: (...args: unknown[]) => unknown;
@@ -199,6 +200,7 @@ export async function mount(
           page: pageCtx?.page || "",
           getPageState: pageCtx?.getPageState || null,
           hasPage: pageCtx?.hasPage || null,
+          navigate: pageCtx?.navigate || null,
           features: manifest?.features
         });
 

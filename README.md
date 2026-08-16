@@ -63,7 +63,8 @@ VeloDom currently provides:
 - named and unnamed slots plus folder-scoped CSS
 - optional application-owned shared state through `createSharedState()`
 - declarative requests with params, result/loading/error state, events, auth,
-  middleware, debounce, throttle, retry, and cancellation
+  auth-failure redirects, middleware, debounce, throttle, retry, and
+  cancellation
 - optional request cache, retry wrapper, and devtools bridge helpers
 - optional native-form validation plugin for `vd-validate` request forms
 - optional direction plugin for document `lang`/`dir` and RTL-aware templates
@@ -1436,6 +1437,44 @@ up to two retries after the first failed attempt. `retryDelayMs` / `delayMs`
 adds an optional delay between attempts. Auth and configuration failures are
 not retried; retry applies only after a request is configured and authorized.
 
+### Auth Failure Redirects
+
+Use auth redirects when a protected request should send the visitor to a login
+or sign-in page after frontend auth fails. Redirects are disabled by default
+and must use an application path that starts with `/`.
+
+Route config form:
+
+```js
+export default {
+  "posts.secure": {
+    handler: loadSecurePosts,
+    auth: true,
+    authRedirect: "/login"
+  }
+};
+```
+
+Per-request override:
+
+```html
+<button
+  type="button"
+  vd-request="posts.secure"
+  vd-request-config="{
+    target: 'securePostsResult',
+    error: 'securePostsError',
+    redirectOnAuthFailure: '/signin'
+  }"
+>
+  Load secure posts
+</button>
+```
+
+VeloDom still writes request error state and emits the request error event
+before navigating. External URLs and protocol-relative values are rejected to
+avoid unsafe open redirects.
+
 ### Forms
 
 ```html
@@ -1940,7 +1979,8 @@ Route policies:
 export default {
   "profile.read": {
     handler: readProfile,
-    auth: true
+    auth: true,
+    authRedirect: "/login"
   },
   "posts.update": {
     handler: updatePost,
@@ -2920,7 +2960,7 @@ Latest local verification on 2026-07-10:
 - Core documentation audit passes for 55 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 173 automated tests pass
+- 176 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2957,6 +2997,8 @@ Latest implementation update:
   the `vd-throttle` shorthand attribute.
 - Added declarative request retry through `retry`, `retries`, and
   `retryDelayMs` in request config.
+- Added opt-in auth-failure redirects through `authRedirect` on routes and
+  `redirectOnAuthFailure` in request config.
 - Added optional direction management through `createDirectionPlugin()` and
   compiler support for explicit `vd-rtl-flip` directional icon markers.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and

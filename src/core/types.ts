@@ -269,6 +269,7 @@ export interface RequestContext {
   state?: StateRecord;
   el?: Element;
   auth?: AuthSessionPayload | null;
+  navigate?: (path: string) => MaybePromise<unknown>;
   [key: string]: unknown;
 }
 
@@ -291,6 +292,8 @@ export interface RequestRoute {
   auth?: boolean | string | UnknownRecord;
   roles?: string[];
   middleware?: Array<string | RequestMiddleware>;
+  authRedirect?: string;
+  redirectOnAuthFailure?: string;
 }
 
 /** Named application request route registry. */

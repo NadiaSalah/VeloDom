@@ -241,7 +241,13 @@ export function createPageRouter(
       );
       const events = createPageEventHub();
       const lifecycle = createLifecycleScope(
-        createPageContext(state, events, runtime, route)
+        createPageContext(
+          state,
+          events,
+          runtime,
+          route,
+          targetPath => load(targetPath, "", VD_ROUTER.HISTORY_PUSH)
+        )
       );
       const ctx = lifecycle.context;
 
@@ -274,6 +280,7 @@ export function createPageRouter(
         page: ctx.page,
         getPageState: ctx.getPageState,
         hasPage: ctx.hasPage,
+        navigate: ctx.navigate,
         features: activeManifest?.features
       });
 
@@ -663,7 +670,7 @@ function attachDirectionToPageState(
   });
 }
 
-function createPageContext(state, events, runtime, route) {
+function createPageContext(state, events, runtime, route, navigate) {
   return {
     page: state.__vdPageName || "",
     route,
@@ -680,6 +687,7 @@ function createPageContext(state, events, runtime, route) {
     hasPage(pageName) {
       return hasRegisteredPage(pageName, runtime);
     },
+    navigate,
     on: events.on,
     off: events.off,
     once: events.once,

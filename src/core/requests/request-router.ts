@@ -284,6 +284,7 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
   const requestStateEnabled = hasRequestStateAutomation(el, requestConfig);
   const paramsInput = getRequestParamsInput(el, requestConfig);
   const retryOptions = getRequestRetryOptions(requestConfig);
+  let authRedirectTarget = "";
   const params = getRequestParams(
     el,
     state,
@@ -396,6 +397,10 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
       return;
     }
 
+    authRedirectTarget = getAuthRedirectTarget(
+      requestConfig,
+      routeConfig
+    );
     const session = await authorizeRouteRequest(
       routeConfig,
       {
@@ -409,7 +414,8 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
       el,
       state,
       session,
-      signal: activeRequest.controller.signal
+      signal: activeRequest.controller.signal,
+      navigate: context.navigate || undefined
     };
     const execution = await executeRequestWithRetry({
       routeConfig,
@@ -462,6 +468,10 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
       stage: err?.__vdStage || VD_REQUEST.STAGES.REQUEST,
       element: el
     });
+
+    if (shouldRedirectAuthFailure(err, authRedirectTarget, context)) {
+      await context.navigate?.(authRedirectTarget);
+    }
   } finally {
     if (isLatestRequest(el, activeRequest) && loadingBinding.path) {
       writeValue(loadingBinding.path, loadingBinding.state, false);
@@ -532,7 +542,14 @@ function getRequestConfig(el, state, context, event, evaluate, routeName) {
     return VD_INTERNAL.REQUEST_ABORT;
   }
 
-  const textKeys = ["target", "path", "state", "loading", "error"];
+  const textKeys = [
+    "target",
+    "path",
+    "state",
+    "loading",
+    "error",
+    ...VD_REQUEST.AUTH_REDIRECT_KEYS
+  ];
 
   for (const key of textKeys) {
     if (evaluated[key] !== undefined && typeof evaluated[key] !== "string") {
@@ -541,6 +558,22 @@ function getRequestConfig(el, state, context, event, evaluate, routeName) {
         directive: VD.REQUEST_CONFIG,
         expression,
         hint: `Set ${key} to a string. Example: { ${key}: "result" }`
+      });
+
+      return VD_INTERNAL.REQUEST_ABORT;
+    }
+  }
+
+  for (const key of VD_REQUEST.AUTH_REDIRECT_KEYS) {
+    if (
+      evaluated[key] !== undefined
+      && normalizeAuthRedirectPath(evaluated[key]) === null
+    ) {
+      reportRequestDirectiveProblem(state, el, routeName, `request config "${key}" must be an application path`, {
+        title: "Invalid Request Auth Redirect",
+        directive: VD.REQUEST_CONFIG,
+        expression,
+        hint: `Set ${key} to an application path such as "/login".`
       });
 
       return VD_INTERNAL.REQUEST_ABORT;
@@ -670,6 +703,38 @@ function getRequestRetryOptions(
       ? Number(requestConfig[delayKey])
       : 0
   };
+}
+
+function getAuthRedirectTarget(requestConfig, routeConfig) {
+  const requestKey = VD_REQUEST.AUTH_REDIRECT_KEYS.find(name => (
+    requestConfig?.[name] !== undefined
+  ));
+
+  if (requestKey) {
+    return normalizeAuthRedirectPath(requestConfig[requestKey]) || "";
+  }
+
+  return routeConfig.authRedirect || "";
+}
+
+function normalizeAuthRedirectPath(value) {
+  if (value === undefined || value === null || value === "") return "";
+
+  const path = String(value).trim();
+
+  if (!path || !path.startsWith("/") || path.startsWith("//")) {
+    return null;
+  }
+
+  return path;
+}
+
+function shouldRedirectAuthFailure(err, target, context) {
+  return (
+    err?.__vdStage === VD_REQUEST.STAGES.AUTH
+    && Boolean(target)
+    && typeof context.navigate === "function"
+  );
 }
 
 function getRequestThrottleMs(
@@ -1059,6 +1124,8 @@ function resolveRouteConfig(routeName, state, el) {
 
   const middleware = normalizeRouteMiddleware(raw.middleware, routeName, state, el);
   if (!middleware) return null;
+  const authRedirect = normalizeRouteAuthRedirect(raw, routeName, state, el);
+  if (authRedirect === null) return null;
 
   return {
     name: routeName,
@@ -1066,9 +1133,32 @@ function resolveRouteConfig(routeName, state, el) {
     auth: roles.length > 0 && !auth.enabled
       ? normalizeRequestAuthConfig(true, authRuntime)
       : auth,
+    authRedirect,
     roles,
     middleware
   };
+}
+
+function normalizeRouteAuthRedirect(raw, routeName, state, el) {
+  const key = VD_REQUEST.AUTH_REDIRECT_KEYS.find(name => (
+    raw[name] !== undefined
+  ));
+
+  if (!key) return "";
+
+  const value = normalizeAuthRedirectPath(raw[key]);
+
+  if (value !== null) return value;
+
+  reportRequestDirectiveProblem(state, el, routeName, `Route "${routeName}" has an invalid auth redirect`, {
+    title: "Invalid Route Auth Redirect",
+    directive: VD.REQUEST,
+    expression: routeName,
+    line: 580,
+    hint: `Set ${key} to an application path such as "/login".`
+  });
+
+  return null;
 }
 
 function normalizeRouteAuth(value, routeName, state, el) {

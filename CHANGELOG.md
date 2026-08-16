@@ -69,7 +69,9 @@ package versions.
   inside the configured window.
 - Added declarative request retry via `retry`, `retries`, and `retryDelayMs`
   in `vd-request-config`.
-- Brought the automated suite to 173 passing tests.
+- Added opt-in auth-failure redirects via route-level `authRedirect` and
+  per-request `redirectOnAuthFailure` configuration.
+- Brought the automated suite to 176 passing tests.
 
 ### RTL and Multilingual CSS
 

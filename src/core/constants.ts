@@ -262,6 +262,10 @@ export const VD_REQUEST = Object.freeze({
     "retryDelayMs",
     "delayMs"
   ]),
+  AUTH_REDIRECT_KEYS: Object.freeze([
+    "authRedirect",
+    "redirectOnAuthFailure"
+  ]),
   STATUS_SUFFIXES: Object.freeze({
     RESULT: "Result",
     LOADING: "Loading",

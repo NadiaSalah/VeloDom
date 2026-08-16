@@ -59,7 +59,8 @@ function applyLoadedDirectives(
     root: options.el ?? root,
     page: options.page ?? "",
     getPageState: options.getPageState ?? null,
-    hasPage: options.hasPage ?? null
+    hasPage: options.hasPage ?? null,
+    navigate: options.navigate ?? null
   };
   const applyNested = (
     nestedRoot: DirectiveRoot,
