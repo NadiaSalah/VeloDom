@@ -15,6 +15,7 @@ import type {
   DirectionPluginOptions,
   DirectionValue,
   PluginContext,
+  RtlFlipStyleOptions,
   VeloDomPlugin
 } from "./types.ts";
 
@@ -63,6 +64,66 @@ export function createDirectionPlugin(
       };
     }
   };
+}
+
+/** Creates optional project-owned CSS for explicit vd-rtl-flip icon markers. */
+export function createRtlFlipStyles(
+  options: RtlFlipStyleOptions = {}
+) {
+  const selector = normalizeCssToken(
+    options.selector,
+    VD_DIRECTION.RTL_FLIP_SELECTOR,
+    "RTL flip selector"
+  );
+  const rtlSelector = normalizeCssToken(
+    options.rtlSelector,
+    VD_DIRECTION.RTL_ROOT_SELECTOR,
+    "RTL root selector"
+  );
+  const variableName = normalizeCssToken(
+    options.transformVariable,
+    VD_DIRECTION.TRANSFORM_VARIABLE,
+    "RTL transform variable"
+  );
+  const baseTransform = normalizeCssToken(
+    options.baseTransform,
+    "scaleX(1)",
+    "RTL base transform"
+  );
+  const rtlTransform = normalizeCssToken(
+    options.rtlTransform,
+    "scaleX(-1)",
+    "RTL mirrored transform"
+  );
+
+  return [
+    `${selector} {`,
+    `  ${variableName}: ${baseTransform};`,
+    `  transform: var(${variableName});`,
+    "}",
+    "",
+    `${rtlSelector} ${selector} {`,
+    `  ${variableName}: ${rtlTransform};`,
+    "}"
+  ].join("\n");
+}
+
+function normalizeCssToken(
+  value: string | undefined,
+  fallback: string,
+  label: string
+) {
+  const normalized = String(value || fallback).trim();
+
+  if (!normalized) {
+    throw new TypeError(`VeloDom ${label} cannot be empty`);
+  }
+
+  if (/[{};]/.test(normalized)) {
+    throw new TypeError(`VeloDom ${label} cannot contain CSS block syntax`);
+  }
+
+  return normalized;
 }
 
 function createDirectionController(

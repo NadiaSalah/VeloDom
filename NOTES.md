@@ -199,6 +199,9 @@
   logical properties but never rewrite application CSS or add browser runtime.
 - Scoped CSS `:global(...)` is intended for document-level selectors such as
   `html[dir="rtl"]`; it should not become a broad CSS preprocessor feature.
+- I18n translation remains separate from direction. A future plugin may own
+  dictionaries, pluralization, message formatting, and locale routing without
+  changing the lightweight direction plugin.
 - Direction management is optional and plugin-owned. RTL presentation support
   currently covers document `lang`/`dir`, reactive `$direction` reads, and
   explicit `vd-rtl-flip` markers; logical CSS diagnostics and translation

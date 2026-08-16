@@ -50,6 +50,7 @@ export type {
   RouteHandler,
   RouteLocation,
   RouterOptions,
+  RtlFlipStyleOptions,
   SeoConfig,
   SeoEntriesContext,
   SeoEntriesHook,
@@ -72,7 +73,8 @@ export type {
 
 /** Optional locale and document-direction helper. */
 export {
-  createDirectionPlugin
+  createDirectionPlugin,
+  createRtlFlipStyles
 } from "./direction.ts";
 
 /** Optional application-owned shared state helper. */

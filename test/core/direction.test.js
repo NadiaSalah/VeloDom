@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   createApp,
-  createDirectionPlugin
+  createDirectionPlugin,
+  createRtlFlipStyles
 } from "../../src/core/index.ts";
 import {
   installDom,
@@ -156,6 +157,43 @@ test("direction plugin rejects duplicate registration", async () => {
   await assert.rejects(
     () => app.mount(),
     /direction plugin is already registered/
+  );
+});
+
+test("RTL flip style helper generates project-owned CSS", () => {
+  assert.equal(
+    createRtlFlipStyles(),
+    [
+      "[data-vd-rtl-flip] {",
+      "  --vd-icon-transform: scaleX(1);",
+      "  transform: var(--vd-icon-transform);",
+      "}",
+      "",
+      "html[dir=\"rtl\"] [data-vd-rtl-flip] {",
+      "  --vd-icon-transform: scaleX(-1);",
+      "}"
+    ].join("\n")
+  );
+});
+
+test("RTL flip style helper accepts project-owned selectors", () => {
+  assert.equal(
+    createRtlFlipStyles({
+      rtlSelector: ".rtl",
+      selector: ".flip",
+      transformVariable: "--icon-dir",
+      rtlTransform: "rotate(180deg)"
+    }),
+    [
+      ".flip {",
+      "  --icon-dir: scaleX(1);",
+      "  transform: var(--icon-dir);",
+      "}",
+      "",
+      ".rtl .flip {",
+      "  --icon-dir: rotate(180deg);",
+      "}"
+    ].join("\n")
   );
 });
 

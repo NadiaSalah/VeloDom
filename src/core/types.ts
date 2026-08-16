@@ -262,6 +262,15 @@ export interface DirectionController {
   setDirection(direction: DirectionValue): void;
 }
 
+/** Options for generating project-owned RTL icon flip CSS. */
+export interface RtlFlipStyleOptions {
+  selector?: string;
+  rtlSelector?: string;
+  transformVariable?: string;
+  baseTransform?: string;
+  rtlTransform?: string;
+}
+
 /** Runtime values supplied to request handlers and middleware. */
 export interface RequestContext {
   routeName?: string;

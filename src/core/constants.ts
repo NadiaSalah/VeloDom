@@ -291,7 +291,10 @@ export const VD_DIRECTION = Object.freeze({
   DEFAULT_LOCALE: "en",
   DEFAULT_LANG: "en",
   DEFAULT_DIRECTION: "ltr",
+  RTL_FLIP_SELECTOR: `[${VD.RTL_FLIP}]`,
+  RTL_ROOT_SELECTOR: "html[dir=\"rtl\"]",
   STATE_KEY: "$direction",
+  TRANSFORM_VARIABLE: "--vd-icon-transform",
   DIRECTIONS: Object.freeze([
     "ltr",
     "rtl",

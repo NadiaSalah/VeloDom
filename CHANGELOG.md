@@ -79,7 +79,9 @@ package versions.
   folder CSS and `.vd` style blocks.
 - Added app-shell UTF-8 diagnostics and `:global(...)` escapes for scoped CSS
   ancestor direction selectors.
-- Brought the automated suite to 188 passing tests.
+- Added optional `createRtlFlipStyles()` CSS generation and kept full i18n as
+  separate future plugin research.
+- Brought the automated suite to 190 passing tests.
 
 ### RTL and Multilingual CSS
 

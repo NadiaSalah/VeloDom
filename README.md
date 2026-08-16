@@ -2220,8 +2220,22 @@ html[dir="rtl"] [data-vd-rtl-flip] {
 }
 ```
 
+Or generate the same project-owned CSS from JavaScript and write it into your
+own stylesheet/build step:
+
+```js
+import { createRtlFlipStyles } from "velodom";
+
+const css = createRtlFlipStyles();
+```
+
 If an icon already needs a transform, compose it through a project-owned custom
 property rather than relying on hidden framework rewriting.
+
+Translation dictionaries, pluralization, message formatting, and locale-aware
+routes are intentionally separate from this direction layer. They remain future
+plugin research so VeloDom does not make multilingual presentation depend on a
+mandatory i18n runtime.
 
 ## SEO and Static Route HTML
 
@@ -2953,6 +2967,7 @@ Runtime:
 - `createDirectionPlugin`
 - `createPluginManager`
 - `createRequestCache`
+- `createRtlFlipStyles`
 - `createSharedState`
 - `createValidationPlugin`
 - `withRequestRetry`
@@ -3032,7 +3047,7 @@ Latest local verification on 2026-07-10:
 - Core documentation audit passes for 57 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 188 automated tests pass
+- 190 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -3078,6 +3093,8 @@ Latest implementation update:
 - Added build-time RTL CSS diagnostics for folder CSS and `.vd` style blocks.
 - Added UTF-8 app-shell diagnostics and scoped CSS `:global(...)` escapes for
   document-level direction selectors.
+- Added optional `createRtlFlipStyles()` CSS generation and recorded i18n as
+  separate future plugin research.
 - Added optional direction management through `createDirectionPlugin()` and
   compiler support for explicit `vd-rtl-flip` directional icon markers.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
