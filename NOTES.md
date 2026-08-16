@@ -192,6 +192,9 @@
 - Request hooks are configured once through `createApp({ requestHooks })`.
   They stay outside templates unless a specific request opts into an
   `onSuccess` callback through `vd-request-config`.
+- Validation remains deliberately native and optional. The V1 API is
+  `createValidationPlugin()` plus `vd-validate`, with invalid state expressed
+  through `data-vd-invalid` and `data-vd-field-invalid`.
 - Direction management is optional and plugin-owned. RTL presentation support
   currently covers document `lang`/`dir`, reactive `$direction` reads, and
   explicit `vd-rtl-flip` markers; logical CSS diagnostics and translation

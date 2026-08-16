@@ -1542,9 +1542,19 @@ form values.
 Validation remains optional. Install `createValidationPlugin()` and mark only
 the forms that should be checked with `vd-validate`. The plugin uses native
 browser validation attributes such as `required`, `minlength`, `maxlength`, and
-`pattern`. Invalid validated forms are stopped before declarative request
-handlers run, and the plugin marks invalid forms/fields with
-`data-vd-invalid` and `data-vd-field-invalid`.
+`min`, `max`, and `pattern`. Invalid validated forms are stopped before
+declarative request handlers run, and the plugin marks invalid forms/fields
+with `data-vd-invalid` and `data-vd-field-invalid`.
+
+The validation API is intentionally small:
+
+- `vd-validate` opts a form into validation.
+- `createValidationPlugin()` installs the native validation bridge.
+- `data-vd-invalid` marks an invalid validated form.
+- `data-vd-field-invalid` marks each invalid control.
+
+This keeps common forms HTML-first while leaving schema validation and custom
+business rules to application code or optional future extensions.
 
 ### Recipe: Create, Update, and Delete Forms
 
@@ -3002,7 +3012,7 @@ Latest local verification on 2026-07-10:
 - Core documentation audit passes for 55 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 179 automated tests pass
+- 180 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -3043,6 +3053,8 @@ Latest implementation update:
   `redirectOnAuthFailure` in request config.
 - Added global `requestHooks.beforeRequest` / `requestHooks.afterRequest` and
   per-request `onSuccess` callbacks.
+- Verified the optional native validation API, built-in required/min/max/pattern
+  handling, error marker conventions, and request-flow integration.
 - Added optional direction management through `createDirectionPlugin()` and
   compiler support for explicit `vd-rtl-flip` directional icon markers.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
@@ -3133,8 +3145,8 @@ These features are not implemented and should not be described as available:
 
 - public V1 API/name freeze
 - npm publication and final npm account/package reservation
-- schema-based validation, custom validation rules, and validation error state
-  conventions beyond the optional native validation plugin
+- schema-based validation and custom validation rules beyond the optional
+  native validation plugin
 - declarative request cache
 - full translation/i18n dictionaries, pluralization, message formatting, and
   locale routing

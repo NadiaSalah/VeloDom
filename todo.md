@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**258 of 326 tasks completed — 79.1%**
+**264 of 326 tasks completed — 81.0%**
 
 `[################----]`
 
-Remaining tasks: **68**
+Remaining tasks: **62**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -419,12 +419,12 @@ and `src/api`.
 
 ### 11. Forms and Validation
 
-- [ ] Design a simple validation API
-- [ ] Add built-in required validation
-- [ ] Add built-in min/max validation
-- [ ] Add built-in pattern validation
-- [ ] Add validation error state conventions
-- [ ] Integrate form validation with request flow
+- [x] Design a simple validation API
+- [x] Add built-in required validation
+- [x] Add built-in min/max validation
+- [x] Add built-in pattern validation
+- [x] Add validation error state conventions
+- [x] Integrate form validation with request flow
 
 ### 11.1 Accessibility and Recovery
 

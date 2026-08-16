@@ -73,7 +73,9 @@ package versions.
   per-request `redirectOnAuthFailure` configuration.
 - Added global `requestHooks.beforeRequest` / `requestHooks.afterRequest` and
   per-request `onSuccess` callbacks for declarative requests.
-- Brought the automated suite to 179 passing tests.
+- Verified the optional native validation API, required/min/max/pattern
+  handling, invalid form/field marker conventions, and request-flow blocking.
+- Brought the automated suite to 180 passing tests.
 
 ### RTL and Multilingual CSS
 
