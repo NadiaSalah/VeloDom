@@ -13,6 +13,11 @@ const BENCHMARKS = Object.freeze({
     WARMUP: 8,
     INITIAL_ITEMS: 120,
     UPDATED_ITEMS: 180
+  }),
+  STABLE_LOOP_RENDERING: Object.freeze({
+    ITERATIONS: 80,
+    WARMUP: 10,
+    ITEMS: 160
   })
 });
 
@@ -23,6 +28,7 @@ try {
 
   results.push(await benchmarkPageBindings());
   results.push(await benchmarkLoopRendering());
+  results.push(await benchmarkStableLoopRendering());
 
   console.log("VeloDom rendering benchmark");
   console.log("==========================");
@@ -99,6 +105,39 @@ async function benchmarkLoopRendering() {
       const cleanup = await applyDirectives(root, state);
 
       state.items = createItems(BENCHMARKS.LOOP_RENDERING.UPDATED_ITEMS, "done");
+
+      cleanup();
+      root.remove();
+    }
+  });
+}
+
+async function benchmarkStableLoopRendering() {
+  return runBenchmark({
+    name: "stable loop update: 160 items with unchanged structure",
+    iterations: BENCHMARKS.STABLE_LOOP_RENDERING.ITERATIONS,
+    warmup: BENCHMARKS.STABLE_LOOP_RENDERING.WARMUP,
+    run: async () => {
+      const root = document.createElement("main");
+
+      root.innerHTML = `
+        <ul>
+          <li data-vd-for="item in items" data-vd-key="item.id">
+            <span data-vd-text="theme + ': ' + item.title"></span>
+            <em data-vd-text="item.status"></em>
+          </li>
+        </ul>
+      `;
+      document.body.append(root);
+
+      const state = createState({
+        items: createItems(BENCHMARKS.STABLE_LOOP_RENDERING.ITEMS, "new"),
+        theme: "Initial"
+      });
+
+      const cleanup = await applyDirectives(root, state);
+
+      state.theme = "Updated";
 
       cleanup();
       root.remove();

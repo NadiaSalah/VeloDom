@@ -76,6 +76,8 @@ VeloDom currently provides:
 - source-aware adapter and user-file loader errors for pages, layouts,
   components, and page config files
 - a repeatable local rendering benchmark for common page bindings and loops
+- enforced JavaScript performance budgets for generated route chunks and
+  package runtime modules
 - compiler accessibility warnings for common image, form-control, anchor,
   click-target, and heading mistakes
 - generated ESM and TypeScript declarations for the intended package surface
@@ -110,6 +112,7 @@ npm run check
 npm run package:check
 npm run pack:check
 npm run benchmark:rendering
+npm run performance:check
 npm run test:browser
 npm run build
 npm run preview
@@ -125,8 +128,9 @@ What the main checks do:
 | `npm run package:check` | Builds ESM/types and tests an installed local tarball consumer. |
 | `npm run pack:check` | Runs package checks and inspects the npm tarball dry-run contents. |
 | `npm run benchmark:rendering` | Runs local happy-dom page-binding and loop-rendering benchmarks. |
+| `npm run performance:check` | Enforces JavaScript size budgets for generated chunks and package runtime modules after build artifacts exist. |
 | `npm run test:browser` | Builds the showcase and runs the Playwright browser matrix. Chromium/Chrome/Edge is required; Firefox, WebKit, and mobile WebKit run when installed. |
-| `npm run build` | Runs all quality/package gates, then builds the showcase. |
+| `npm run build` | Runs all quality/package gates, builds the showcase, then checks performance budgets. |
 
 Generated `dist/`, `lib/`, and `types/` folders are build output and should not
 be edited manually.
@@ -3042,16 +3046,17 @@ choices, not VeloDom Core dependencies or requirements.
 
 ## Verification
 
-Latest local verification on 2026-07-10:
+Latest local verification on 2026-08-16:
 
 - Core documentation audit passes for 57 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 190 automated tests pass
+- 191 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
 - local rendering benchmark script passes
+- JavaScript performance budget check passes
 - production showcase build passes
 
 Latest implementation update:
@@ -3095,6 +3100,12 @@ Latest implementation update:
   document-level direction selectors.
 - Added optional `createRtlFlipStyles()` CSS generation and recorded i18n as
   separate future plugin research.
+- Optimized loop rendering so unchanged item structures keep existing DOM nodes
+  while nested directives still update normally.
+- Reduced unnecessary DOM writes in text, attribute, value, boolean, class, and
+  style bindings when evaluated values are unchanged.
+- Expanded `npm run benchmark:rendering` with a stable-loop update case and
+  added `npm run performance:check` to enforce generated JavaScript budgets.
 - Added optional direction management through `createDirectionPlugin()` and
   compiler support for explicit `vd-rtl-flip` directional icon markers.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
@@ -3117,6 +3128,7 @@ Test coverage includes:
   optional validation, optional request cache/retry, and optional devtools
   bridge behavior
 - real DOM directives, components, navigation, errors, and requests
+- loop structural rerender skipping for unchanged item identities
 - recoverable page and component error-boundary fallback and retry behavior
 - keyboard modifier, focusable-order, and semantic fallback output integration
   checks

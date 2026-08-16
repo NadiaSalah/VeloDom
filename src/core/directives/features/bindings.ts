@@ -61,11 +61,11 @@ function applyAttributeBinding(
       });
 
       if (value === null || value === undefined || value === false) {
-        el.removeAttribute(attrName);
+        removeAttributeIfPresent(el, attrName);
         return;
       }
 
-      el.setAttribute(attrName, String(value));
+      setAttributeIfChanged(el, attrName, String(value));
     };
 
     update();
@@ -90,9 +90,13 @@ function applyValueBinding({
         directive: VD.VALUE
       });
       const input = el as HTMLInputElement;
+      const nextValue = String(value ?? "");
 
-      input.value = String(value ?? "");
-      input.setAttribute("value", String(value ?? ""));
+      if (input.value !== nextValue) {
+        input.value = nextValue;
+      }
+
+      setAttributeIfChanged(input, "value", nextValue);
     };
 
     update();
@@ -126,12 +130,14 @@ function applyBooleanBinding(
       );
       const input = el as HTMLInputElement;
 
-      input[attrName] = value;
+      if (input[attrName] !== value) {
+        input[attrName] = value;
+      }
 
       if (value) {
-        input.setAttribute(attrName, "");
+        setAttributeIfChanged(input, attrName, "");
       } else {
-        input.removeAttribute(attrName);
+        removeAttributeIfPresent(input, attrName);
       }
     };
 
@@ -156,15 +162,22 @@ function applyClassBinding(runtime: DirectiveFeatureRuntime) {
     const update = () => {
       if (isConditionallyInactive(el)) return;
 
-      applied.forEach(name => el.classList.remove(name));
-
       const next = normalizeClassValue(
         evaluate(expression, state, null, el, context.props, {
           directive: VD.CLASS
         })
       );
 
-      next.forEach(name => el.classList.add(name));
+      applied.forEach(name => {
+        if (!next.has(name)) {
+          el.classList.remove(name);
+        }
+      });
+      next.forEach(name => {
+        if (!applied.has(name)) {
+          el.classList.add(name);
+        }
+      });
       applied = next;
     };
 
@@ -202,13 +215,15 @@ function applyStyleBinding(runtime: DirectiveFeatureRuntime) {
       const style = (el as HTMLElement).style;
 
       if (typeof value === "string") {
-        style.cssText = value;
+        if (style.cssText !== value) {
+          style.cssText = value;
+        }
         appliedKeys = [];
         return;
       }
 
       if (!value || typeof value !== "object") {
-        el.removeAttribute("style");
+        removeAttributeIfPresent(el, "style");
         appliedKeys = [];
         return;
       }
@@ -217,12 +232,12 @@ function applyStyleBinding(runtime: DirectiveFeatureRuntime) {
 
       appliedKeys.forEach(key => {
         if (!(key in styles)) {
-          style.setProperty(toCssProperty(key), "");
+          removeStyleProperty(style, key);
         }
       });
 
       Object.entries(styles).forEach(([key, styleValue]) => {
-        style.setProperty(toCssProperty(key), String(styleValue ?? ""));
+        setStylePropertyIfChanged(style, key, String(styleValue ?? ""));
       });
 
       appliedKeys = Object.keys(styles);
@@ -254,7 +269,7 @@ function applyAttrBinding(runtime: DirectiveFeatureRuntime) {
       });
 
       if (!value || typeof value !== "object") {
-        appliedKeys.forEach(key => el.removeAttribute(key));
+        appliedKeys.forEach(key => removeAttributeIfPresent(el, key));
         appliedKeys = [];
         return;
       }
@@ -263,7 +278,7 @@ function applyAttrBinding(runtime: DirectiveFeatureRuntime) {
 
       appliedKeys.forEach(key => {
         if (!(key in attributes)) {
-          el.removeAttribute(key);
+          removeAttributeIfPresent(el, key);
         }
       });
 
@@ -316,18 +331,54 @@ function addClassNames(classes: Set<string>, value: string) {
 
 function setAttributeValue(el: Element, key: string, value: unknown) {
   if (value === null || value === undefined || value === false) {
-    el.removeAttribute(key);
+    removeAttributeIfPresent(el, key);
     return;
   }
 
   if (value === true) {
-    el.setAttribute(key, "");
+    setAttributeIfChanged(el, key, "");
     return;
   }
 
-  el.setAttribute(key, String(value));
+  setAttributeIfChanged(el, key, String(value));
 }
 
 function toCssProperty(key: string) {
   return key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
+}
+
+function setAttributeIfChanged(
+  el: Element,
+  name: string,
+  value: string
+) {
+  if (el.getAttribute(name) !== value) {
+    el.setAttribute(name, value);
+  }
+}
+
+function removeAttributeIfPresent(el: Element, name: string) {
+  if (el.hasAttribute(name)) {
+    el.removeAttribute(name);
+  }
+}
+
+function setStylePropertyIfChanged(
+  style: CSSStyleDeclaration,
+  key: string,
+  value: string
+) {
+  const property = toCssProperty(key);
+
+  if (style.getPropertyValue(property) !== value) {
+    style.setProperty(property, value);
+  }
+}
+
+function removeStyleProperty(style: CSSStyleDeclaration, key: string) {
+  const property = toCssProperty(key);
+
+  if (style.getPropertyValue(property) !== "") {
+    style.setProperty(property, "");
+  }
 }

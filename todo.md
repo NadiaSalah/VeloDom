@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**270 of 326 tasks completed — 82.8%**
+**275 of 326 tasks completed — 84.4%**
 
-`[################----]`
+`[#################---]`
 
-Remaining tasks: **56**
+Remaining tasks: **51**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -447,11 +447,11 @@ and `src/api`.
 
 ### 12. Performance
 
-- [ ] Review re-render behavior in loops
-- [ ] Reduce unnecessary full-block updates where possible
-- [ ] Improve granular updates for large pages
-- [ ] Benchmark common UI cases
-- [ ] Enforce agreed runtime and generated-chunk performance budgets
+- [x] Review re-render behavior in loops
+- [x] Reduce unnecessary full-block updates where possible
+- [x] Improve granular updates for large pages
+- [x] Benchmark common UI cases
+- [x] Enforce agreed runtime and generated-chunk performance budgets
 - [x] Split runtime directive features into manifest-selectable modules
 - [x] Type remaining dynamic mount, directive, and request orchestrator boundaries
 

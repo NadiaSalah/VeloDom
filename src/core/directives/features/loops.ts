@@ -29,6 +29,11 @@ interface RenderedLoopItem {
   cleanup: DirectiveCleanup;
 }
 
+interface LoopSnapshot {
+  source: unknown;
+  items: unknown[];
+}
+
 /** Applies loop templates using the feature set already loaded by the parent. */
 export const applyLoops: DirectiveFeature = ({
   root,
@@ -59,14 +64,13 @@ export const applyLoops: DirectiveFeature = ({
     const marker = document.createComment(`vd-for: ${expression}`);
     const template = el.cloneNode(true) as Element;
     const rendered: RenderedLoopItem[] = [];
+    let snapshot: LoopSnapshot | null = null;
 
     template.removeAttribute(VD.FOR);
     el.replaceWith(marker);
 
     const update = () => {
       if (isConditionallyInactive(el)) return;
-
-      clearRenderedLoop(rendered);
 
       const items = evaluate(
         config.source,
@@ -80,6 +84,8 @@ export const applyLoops: DirectiveFeature = ({
       ) ?? [];
 
       if (!isIterable(items)) {
+        clearRenderedLoop(rendered);
+        snapshot = null;
         reportUserActionError("Loop source is not iterable", {
           title: "Invalid Loop Source",
           directive: VD.FOR,
@@ -92,9 +98,20 @@ export const applyLoops: DirectiveFeature = ({
         return;
       }
 
-      let cursor: ChildNode = marker;
+      const nextItems = [...items];
 
-      [...items].forEach((item, index) => {
+      // Keep existing loop nodes when the iterable structure is unchanged.
+      // Child directive subscriptions still receive the same state update, so
+      // text/class/style changes inside each item remain reactive.
+      if (snapshot && isSameLoopStructure(snapshot, items, nextItems)) {
+        return;
+      }
+
+      clearRenderedLoop(rendered);
+
+      const fragment = document.createDocumentFragment();
+
+      nextItems.forEach((item, index) => {
         const clone = template.cloneNode(true) as Element;
         const scoped = createScope(state, {
           [config.item]: item,
@@ -103,13 +120,18 @@ export const applyLoops: DirectiveFeature = ({
         });
         const cleanup = applyNested(clone, scoped, context);
 
-        cursor.after(clone);
-        cursor = clone;
+        fragment.append(clone);
         rendered.push({
           node: clone,
           cleanup
         });
       });
+
+      marker.parentNode?.insertBefore(fragment, marker.nextSibling);
+      snapshot = {
+        source: items,
+        items: nextItems
+      };
     };
 
     update();
@@ -127,6 +149,22 @@ function clearRenderedLoop(rendered: RenderedLoopItem[]) {
   });
 
   rendered.length = 0;
+}
+
+function isSameLoopStructure(
+  snapshot: LoopSnapshot,
+  source: unknown,
+  items: unknown[]
+) {
+  if (snapshot.source === source && snapshot.items.length !== items.length) {
+    return false;
+  }
+
+  if (snapshot.items.length !== items.length) {
+    return false;
+  }
+
+  return items.every((item, index) => Object.is(item, snapshot.items[index]));
 }
 
 function parseFor(expression: string) {

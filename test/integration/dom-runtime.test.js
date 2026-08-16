@@ -296,6 +296,67 @@ test("loops render scoped state and clean detached event handlers", async () => 
   cleanup();
 });
 
+test("loops skip structural rerender when item identity is unchanged", async () => {
+  const root = document.createElement("ul");
+  const first = {
+    id: 1,
+    name: "First"
+  };
+  const second = {
+    id: 2,
+    name: "Second"
+  };
+
+  root.innerHTML = `
+    <li data-vd-for="item in items">
+      <span data-vd-text="theme + ': ' + item.name"></span>
+    </li>
+  `;
+  document.body.append(root);
+
+  const state = createState({
+    items: [
+      first,
+      second
+    ],
+    theme: "Light"
+  });
+  const cleanup = await applyDirectives(root, state);
+  const firstNode = root.querySelector("li");
+
+  assert.deepEqual(
+    [...root.querySelectorAll("span")].map(node => node.textContent),
+    ["Light: First", "Light: Second"]
+  );
+
+  state.theme = "Dark";
+  first.name = "Updated";
+  state._notify();
+
+  assert.equal(root.querySelector("li"), firstNode);
+  assert.deepEqual(
+    [...root.querySelectorAll("span")].map(node => node.textContent),
+    ["Dark: Updated", "Dark: Second"]
+  );
+
+  state.items = [
+    first,
+    second,
+    {
+      id: 3,
+      name: "Third"
+    }
+  ];
+
+  assert.notEqual(root.querySelector("li"), firstNode);
+  assert.deepEqual(
+    [...root.querySelectorAll("span")].map(node => node.textContent),
+    ["Dark: Updated", "Dark: Second", "Dark: Third"]
+  );
+
+  cleanup();
+});
+
 test("components integrate props, slots, refs, expose, and cleanup", async () => {
   const root = document.createElement("div");
   root.innerHTML = `

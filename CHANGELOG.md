@@ -4,6 +4,19 @@ All important local changes to VeloDom are recorded here. The project is not
 published yet, so entries describe development milestones rather than released
 package versions.
 
+## 2026-08-16
+
+### Performance Pass
+
+- Reviewed loop rerender behavior and avoided structural loop rerenders when
+  the iterable item identity sequence is unchanged.
+- Reduced unnecessary DOM writes across text, attribute, value, boolean, class,
+  and style bindings when evaluated values do not change.
+- Expanded `npm run benchmark:rendering` with a stable-loop update case.
+- Added `npm run performance:check` and wired it into `npm run build` to
+  enforce JavaScript budgets for generated chunks and package runtime modules.
+- Brought the automated suite to 191 passing tests.
+
 ## 2026-07-10
 
 ### Request Status Naming

@@ -27,14 +27,21 @@ export const applyText: DirectiveFeature = ({
     if (isInsideForTemplate(el, VD.FOR)) return;
 
     const expression = el.getAttribute(VD.TEXT);
+    let currentText: string | null = null;
     const update = () => {
       if (isConditionallyInactive(el)) return;
 
-      el.textContent = String(
+      const nextText = String(
         evaluate(expression, state, null, el, context.props, {
           directive: VD.TEXT
         }) ?? ""
       );
+
+      // Avoid unnecessary text-node replacement on unrelated state updates.
+      if (nextText !== currentText) {
+        el.textContent = nextText;
+        currentText = nextText;
+      }
     };
 
     update();

@@ -265,6 +265,18 @@
 - `npm run benchmark:rendering` is a local diagnostic baseline for common page
   bindings and loop updates. It intentionally uses happy-dom for repeatability
   and must not be treated as a browser-matrix performance budget.
+- Loop rendering now distinguishes structural changes from ordinary reactive
+  updates. When the evaluated item identity sequence is unchanged, VeloDom
+  keeps existing DOM nodes and lets nested directive subscriptions update
+  their own text, class, style, and event-bound state.
+- Binding directives avoid DOM writes when evaluated values are unchanged.
+  This keeps large pages quieter without adding dependency tracking,
+  virtual-DOM reconciliation, or a more complex state model.
+- `npm run performance:check` enforces conservative JavaScript size budgets for
+  generated route chunks and package runtime modules after build artifacts
+  exist. CSS is intentionally not budgeted yet because the showcase's
+  Tailwind/daisyUI output is application-owned and needs a separate design
+  decision before strict limits are useful.
 - Future DX tooling should default to static analysis, compiler manifests,
   Vite/build metadata, and local CLI output. It should improve developer
   confidence without adding mandatory browser runtime features.

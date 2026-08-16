@@ -55,7 +55,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run check && npm run package:check && vite build",
+    "build": "npm run check && npm run package:check && vite build && npm run performance:check",
     "preview": "vite preview",
     "test": "node --test",
     "docs:check": "node scripts/check-core-docs.mjs",
@@ -68,6 +68,7 @@
     "package:check": "npm run package:build && node scripts/check-package.mjs && node scripts/check-package-consumer.mjs",
     "pack:check": "npm run package:check && node scripts/check-pack-dry-run.mjs",
     "benchmark:rendering": "node scripts/benchmark-rendering.mjs",
+    "performance:check": "node scripts/check-performance-budgets.mjs",
     "test:browser": "npm run build && node scripts/check-browser-e2e.mjs",
     "lint": "eslint .",
     "check": "npm run docs:check && npm run typecheck && npm run lint",
