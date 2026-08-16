@@ -51,6 +51,7 @@ export const VD = Object.freeze({
   STATE: "data-vd-state",
   LOADING: "data-vd-loading",
   ERROR: "data-vd-error",
+  RTL_FLIP: "data-vd-rtl-flip",
   COMPONENT_TAG_SELECTOR: "vd-component[name], component[name]",
   SLOT_TAG_SELECTOR: "vd-child, child, chiled",
 
@@ -268,6 +269,19 @@ export const VD_REQUEST = Object.freeze({
   })
 });
 
+/** Locale and direction values used by the optional direction plugin. */
+export const VD_DIRECTION = Object.freeze({
+  DEFAULT_LOCALE: "en",
+  DEFAULT_LANG: "en",
+  DEFAULT_DIRECTION: "ltr",
+  STATE_KEY: "$direction",
+  DIRECTIONS: Object.freeze([
+    "ltr",
+    "rtl",
+    "auto"
+  ])
+});
+
 /** State keys that application bindings and expose APIs may not replace. */
 export const VD_PROTECTED_STATE_KEYS = Object.freeze([
   "__proto__",
@@ -282,6 +296,7 @@ export const VD_PROTECTED_STATE_KEYS = Object.freeze([
   "_notify",
   "_dispose",
   "$allowExternalWrite",
+  "$direction",
   "__vdPageName"
 ]);
 
@@ -336,6 +351,7 @@ export const VD_COMPILER_FEATURES = Object.freeze({
   NAVIGATION: "navigation",
   REFS: "refs",
   REQUESTS: "requests",
+  RTL_FLIP: "rtl-flip",
   SLOTS: "slots",
   TEXT: "text",
   VISIBILITY: "visibility"

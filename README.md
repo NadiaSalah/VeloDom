@@ -30,6 +30,7 @@ JavaScript or TypeScript independently for every page and component.
 - [Requests](#requests)
 - [Middleware](#middleware)
 - [Authentication](#authentication)
+- [RTL and Multilingual CSS](#rtl-and-multilingual-css)
 - [SEO and Static Route HTML](#seo-and-static-route-html)
 - [Deployment and Static Hosting](#deployment-and-static-hosting)
 - [Plugins](#plugins)
@@ -65,6 +66,7 @@ VeloDom currently provides:
   middleware, debounce, and cancellation
 - optional request cache, retry wrapper, and devtools bridge helpers
 - optional native-form validation plugin for `vd-validate` request forms
+- optional direction plugin for document `lang`/`dir` and RTL-aware templates
 - configurable server-session and demonstration localStorage auth providers
 - runtime head management and static SEO HTML generated from page `config.js`
 - a safe expression parser/evaluator with no `eval` or `new Function`
@@ -1921,6 +1923,126 @@ This helper is for demonstrations and local prototypes. Secure applications
 must use server-controlled sessions/tokens and enforce authorization on the
 backend.
 
+## RTL and Multilingual CSS
+
+VeloDom separates language translation from presentation direction. It does
+not provide a full i18n translation system yet, but it does provide a small
+optional direction plugin and compiler support for explicit RTL presentation
+markers.
+
+Install the direction plugin only when an application needs runtime locale or
+direction changes:
+
+```js
+import {
+  createApp,
+  createDirectionPlugin
+} from "velodom";
+
+createApp({
+  adapter,
+  plugins: [
+    createDirectionPlugin({
+      defaultLocale: "en",
+      locales: {
+        en: {
+          lang: "en",
+          direction: "ltr"
+        },
+        ar: {
+          lang: "ar",
+          direction: "rtl"
+        }
+      }
+    })
+  ]
+});
+```
+
+The plugin updates the document root:
+
+```html
+<html lang="ar" dir="rtl">
+```
+
+It also exposes a controlled application API:
+
+```js
+app.direction.setLocale("ar");
+app.direction.setDirection("ltr");
+console.log(app.direction.locale);
+console.log(app.direction.lang);
+console.log(app.direction.direction);
+console.log(app.direction.isRTL);
+```
+
+Pages and components can read direction through `ctx.direction`, and templates
+can use the reactive `$direction` state handle:
+
+```html
+<aside vd-class="{ 'is-rtl': $direction.isRTL }"></aside>
+<p vd-text="$direction.direction"></p>
+```
+
+Prefer logical CSS properties so most layouts adapt automatically:
+
+```css
+.card {
+  margin-inline-start: 1rem;
+  padding-inline-end: 1rem;
+  border-inline-start: 4px solid currentColor;
+  text-align: start;
+}
+```
+
+Avoid physical directional properties when the layout must work in both LTR
+and RTL:
+
+```css
+.card {
+  margin-left: 1rem;
+  padding-right: 1rem;
+  border-left: 4px solid currentColor;
+  text-align: left;
+}
+```
+
+Use browser-native direction selectors when a real visual difference is needed:
+
+```css
+.card:dir(rtl) {
+  border-inline-start-width: 0;
+  border-inline-end-width: 4px;
+}
+```
+
+For directional icons, opt in explicitly:
+
+```html
+<svg vd-rtl-flip aria-hidden="true"></svg>
+```
+
+The compiler normalizes this to `data-vd-rtl-flip` and records the
+`rtl-flip` manifest feature. VeloDom does not flip icons automatically because
+logos, play icons, clocks, search icons, images, and text should not be
+mirrored blindly.
+
+Use a project stylesheet that composes transforms safely:
+
+```css
+[data-vd-rtl-flip] {
+  --vd-icon-transform: scaleX(1);
+  transform: var(--vd-icon-transform);
+}
+
+html[dir="rtl"] [data-vd-rtl-flip] {
+  --vd-icon-transform: scaleX(-1);
+}
+```
+
+If an icon already needs a transform, compose it through a project-owned custom
+property rather than relying on hidden framework rewriting.
+
 ## SEO and Static Route HTML
 
 SEO is declared in each page's existing `config.js`:
@@ -2648,6 +2770,7 @@ Runtime:
 
 - `createApp`
 - `createDevtoolsPlugin`
+- `createDirectionPlugin`
 - `createPluginManager`
 - `createRequestCache`
 - `createSharedState`
@@ -2665,8 +2788,9 @@ Runtime:
 - `VD_REQUEST`
 
 Public types include page/component contexts, route/auth/request/plugin
-contracts, optional cache/retry/devtools contracts, shared-state contracts,
-validation plugin options, SEO contracts, application options, and HTTP options.
+contracts, optional cache/retry/devtools contracts, direction plugin contracts,
+shared-state contracts, validation plugin options, SEO contracts, application
+options, and HTTP options.
 
 ### `velodom/vite`
 
@@ -2725,10 +2849,10 @@ choices, not VeloDom Core dependencies or requirements.
 
 Latest local verification on 2026-07-10:
 
-- Core documentation audit passes for 54 TypeScript files
+- Core documentation audit passes for 55 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 161 automated tests pass
+- 166 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2761,6 +2885,8 @@ Latest implementation update:
   shared from one application-owned layout instead of repeated in every page.
 - Added declarative request debounce through `debounceMs` in request config and
   the `vd-debounce` shorthand attribute.
+- Added optional direction management through `createDirectionPlugin()` and
+  compiler support for explicit `vd-rtl-flip` directional icon markers.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
   `VeloDom_Master_Architecture_Prompt.md` to distinguish client takeover from
   true SSR hydration.
@@ -2852,6 +2978,10 @@ These features are not implemented and should not be described as available:
 - schema-based validation, custom validation rules, and validation error state
   conventions beyond the optional native validation plugin
 - declarative request throttle, retry, or cache
+- full translation/i18n dictionaries, pluralization, message formatting, and
+  locale routing
+- CSS logical-property diagnostics, UTF-8 shell diagnostics, and automatic RTL
+  stylesheet generation
 - broader keyboard/focus UX beyond the current integration coverage
 - advanced shared-state patterns beyond the optional `createSharedState()`
   helper

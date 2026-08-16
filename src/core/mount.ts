@@ -349,7 +349,8 @@ function getProps(el, parentState) {
       VD.TARGET,
       VD.STATE,
       VD.LOADING,
-      VD.ERROR
+      VD.ERROR,
+      VD.RTL_FLIP
     ];
 
     if (ignore.includes(attr.name)) return;

@@ -65,6 +65,16 @@ package versions.
   or page cleanup.
 - Brought the automated suite to 161 passing tests.
 
+### RTL and Multilingual CSS
+
+- Added optional `createDirectionPlugin()` for controlled document `lang` and
+  `dir` updates.
+- Exposed direction data through `app.direction`, `ctx.direction`, and the
+  reactive template state key `$direction`.
+- Added compiler normalization for `vd-rtl-flip` / `data-vd-rtl-flip` and the
+  `rtl-flip` runtime manifest feature without loading mandatory RTL runtime.
+- Brought the automated suite to 166 passing tests.
+
 ## 2026-07-09
 
 ### Router UX

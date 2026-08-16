@@ -22,6 +22,10 @@ export type {
   ComponentExpose,
   ComponentScriptContext,
   DevtoolsPluginOptions,
+  DirectionController,
+  DirectionLocaleDefinition,
+  DirectionPluginOptions,
+  DirectionValue,
   ErrorBoundaryContext,
   ErrorBoundaryFallback,
   ErrorBoundaryHook,
@@ -61,6 +65,11 @@ export type {
   VeloDomAppOptions,
   VeloDomPlugin
 } from "./types.ts";
+
+/** Optional locale and document-direction helper. */
+export {
+  createDirectionPlugin
+} from "./direction.ts";
 
 /** Optional application-owned shared state helper. */
 export {

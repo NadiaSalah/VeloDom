@@ -290,6 +290,8 @@ function resolveRuntimeFeature(directive: string) {
     case "data-vd-nav":
     case "data-vd-prefetch":
       return VD_COMPILER_FEATURES.NAVIGATION;
+    case "data-vd-rtl-flip":
+      return VD_COMPILER_FEATURES.RTL_FLIP;
     default:
       return "";
   }

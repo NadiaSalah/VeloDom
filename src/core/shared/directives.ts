@@ -39,6 +39,7 @@ export const PREFERRED_DIRECTIVES = Object.freeze([
   "request",
   "request-config",
   "request-state",
+  "rtl-flip",
   "show",
   "src",
   "state",

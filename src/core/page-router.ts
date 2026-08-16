@@ -17,6 +17,7 @@ import { createPageEventHub } from "./events.ts";
 import {
   VD,
   VD_COMPILER_FEATURES,
+  VD_DIRECTION,
   VD_INTERNAL,
   VD_LAYOUT,
   VD_ROUTER
@@ -40,6 +41,7 @@ import type {
   RuntimeFeatureManifest
 } from "./compiler/types.ts";
 import type {
+  DirectionController,
   ErrorBoundaryHook,
   RouterOptions,
   StateRecord
@@ -63,7 +65,10 @@ interface PageRouter {
 export function createPageRouter(
   adapter: unknown = {},
   options: RouterOptions = {},
-  errorBoundary: ErrorBoundaryHook | null = null
+  errorBoundary: ErrorBoundaryHook | null = null,
+  appContext: {
+    direction?: DirectionController;
+  } = {}
 ): PageRouter {
   const resources = validateResourceAdapter(adapter);
   const pageResources = resources.pages;
@@ -230,6 +235,10 @@ export function createPageRouter(
       const state = getOrCreatePageState(page, runtime);
       state.__vdPageName = page;
       state.components = {};
+      const directionCleanup = attachDirectionToPageState(
+        state,
+        appContext.direction
+      );
       const events = createPageEventHub();
       const lifecycle = createLifecycleScope(
         createPageContext(state, events, runtime, route)
@@ -282,6 +291,7 @@ export function createPageRouter(
       activePageCleanup = onceAsync(async () => {
         await componentsCleanup?.();
         directivesCleanup?.();
+        directionCleanup?.();
         await runModuleHook(pageModule?.destroy, hookArgs);
         await lifecycle.dispose();
         events.clear();
@@ -631,6 +641,28 @@ function attachEventApiToState(state, events) {
   state.emit = events.emit;
 }
 
+function attachDirectionToPageState(
+  state,
+  direction: DirectionController | undefined
+) {
+  if (!direction) return null;
+
+  state[VD_DIRECTION.STATE_KEY] = direction;
+
+  const internal = direction as DirectionController & {
+    _subscribe?: (callback: () => void) => () => void;
+  };
+  const subscriber = typeof internal._subscribe === "function"
+      ? internal._subscribe
+      : null;
+
+  if (!subscriber) return null;
+
+  return subscriber(() => {
+    state._notify?.();
+  });
+}
+
 function createPageContext(state, events, runtime, route) {
   return {
     page: state.__vdPageName || "",
@@ -638,6 +670,7 @@ function createPageContext(state, events, runtime, route) {
     params: route.params || {},
     query: route.query || {},
     meta: route.meta || {},
+    direction: state[VD_DIRECTION.STATE_KEY],
     get components() {
       return state.components;
     },

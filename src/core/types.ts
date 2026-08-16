@@ -237,6 +237,31 @@ export interface AuthOptions {
   providers?: Record<string, AuthProvider>;
 }
 
+/** Document direction values supported by multilingual helpers. */
+export type DirectionValue = "ltr" | "rtl" | "auto";
+
+/** One locale entry accepted by the optional direction plugin. */
+export interface DirectionLocaleDefinition {
+  lang?: string;
+  direction: DirectionValue;
+}
+
+/** Configuration for createDirectionPlugin(). */
+export interface DirectionPluginOptions {
+  defaultLocale?: string;
+  locales?: Record<string, DirectionLocaleDefinition>;
+}
+
+/** Runtime direction controller installed only by createDirectionPlugin(). */
+export interface DirectionController {
+  readonly locale: string;
+  readonly lang: string;
+  readonly direction: DirectionValue;
+  readonly isRTL: boolean;
+  setLocale(locale: string): void;
+  setDirection(direction: DirectionValue): void;
+}
+
 /** Runtime values supplied to request handlers and middleware. */
 export interface RequestContext {
   routeName?: string;
@@ -377,6 +402,7 @@ export interface VeloDomApp {
   mount(): Promise<unknown>;
   destroy(): Promise<void>;
   navigate(path: string, pagePath?: string): Promise<unknown>;
+  direction?: DirectionController;
   shared?: Record<string, SharedState>;
 }
 

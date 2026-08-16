@@ -25,13 +25,14 @@ export function createApp(options: VeloDomAppOptions): VeloDomApp {
     middleware: options.middleware,
     auth: options.auth
   });
+  const app = {} as VeloDomApp;
   const router = createPageRouter(
     options.adapter,
     options.router,
-    options.errorBoundary || null
+    options.errorBoundary || null,
+    app
   );
   registerGlobalErrorHandlers();
-  const app = {} as VeloDomApp;
   const plugins = createPluginManager(
     options.plugins || [],
     () => ({

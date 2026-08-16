@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**250 of 318 tasks completed — 78.6%**
+**252 of 326 tasks completed — 77.3%**
 
-`[################----]`
+`[###############-----]`
 
-Remaining tasks: **68**
+Remaining tasks: **74**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -433,6 +433,17 @@ and `src/api`.
 - [x] Define an optional component-level error boundary
 - [x] Support retry or safe navigation from recoverable runtime failures
 - [x] Add keyboard, focus-order, and semantic-output integration tests
+
+### 11.2 RTL and Multilingual CSS
+
+- [x] Add optional direction plugin for document `lang` and `dir`
+- [x] Add explicit `vd-rtl-flip` marker and manifest feature
+- [ ] Add advisory logical-property diagnostics for folder CSS and `.vd` style blocks
+- [ ] Add UTF-8 application-shell diagnostics
+- [ ] Add scoped CSS `:global(...)` escape for ancestor direction selectors
+- [ ] Add optional project-owned RTL icon flip stylesheet helper
+- [ ] Add full `.vd` style-block RTL diagnostics coverage
+- [ ] Research a future i18n translation plugin separately from RTL presentation
 
 ### 12. Performance
 

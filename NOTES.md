@@ -181,6 +181,10 @@
 - Request debounce is intentionally request-local. It cancels pending timers
   per element and delays loading state until the latest request actually
   starts, preserving the existing cancellation semantics for active requests.
+- Direction management is optional and plugin-owned. RTL presentation support
+  currently covers document `lang`/`dir`, reactive `$direction` reads, and
+  explicit `vd-rtl-flip` markers; logical CSS diagnostics and translation
+  systems remain separate roadmap work.
 - Page SEO is application-owned and declared in each page's existing
   `config.js`; validation, runtime head synchronization, and static rendering
   are generic framework responsibilities under `src/core`.

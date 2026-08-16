@@ -335,6 +335,23 @@ test("compiler normalizes request debounce directives", () => {
   ]);
 });
 
+test("compiler normalizes rtl flip markers and records the manifest feature", () => {
+  const result = compileTemplate(`
+    <button>
+      <svg vd-rtl-flip></svg>
+    </button>
+  `);
+
+  assert.deepEqual(result.diagnostics, []);
+  assert.equal(result.html.includes("data-vd-rtl-flip"), true);
+  assert.deepEqual(result.manifest.features, [
+    "rtl-flip"
+  ]);
+  assert.deepEqual(result.manifest.directives, [
+    "data-vd-rtl-flip"
+  ]);
+});
+
 test("compiler accepts optional validation directive without runtime feature", () => {
   const result = compileTemplate(`
     <form vd-validate>
