@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**287 of 326 tasks completed — 88.0%**
+**289 of 326 tasks completed — 88.7%**
 
 `[##################--]`
 
-Remaining tasks: **39**
+Remaining tasks: **37**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -512,7 +512,7 @@ scaffold normal `index.html`, `script.js`/`script.ts`, `style.css`, and
 - [ ] Add `vd graph` to export project relationships as JSON and Mermaid without requiring a browser devtool — Fit: compiler/build-time output; Value: easier onboarding and audits; Complexity: medium; Target: V2
 - [ ] Add `vd benchmark` for repeatable page, loop, request, and component rendering benchmarks — Fit: performance-budget roadmap; Value: prevents anecdotal optimization; Complexity: medium; Target: V2
 - [x] Add a route explorer command that prints route paths, params, guards, metadata, SEO, and generated static entries — Fit: folder-first router transparency; Value: easier deployment/debugging; Complexity: low; Target: V1.x
-- [ ] Add a build report command or Vite output section for bundle, directive, route, component, and SEO summaries — Fit: build intelligence without runtime cost; Value: clear production feedback; Complexity: medium; Target: V1.x
+- [x] Add a build report command or Vite output section for bundle, directive, route, component, and SEO summaries — Fit: build intelligence without runtime cost; Value: clear production feedback; Complexity: medium; Target: V1.x
 
 ### 14.4 Visual Project Graph
 
@@ -543,7 +543,7 @@ suggest optimizations rather than silently changing application behavior.
 - [ ] Report largest pages, largest components, largest route chunks, and repeated heavy dependencies after production build — Fit: build-time only; Value: practical performance work; Complexity: medium; Target: V1.x
 - [ ] Report unused directives and unused runtime feature modules based on compiler manifests — Fit: compiler-first tree-shaking; Value: keeps runtime small; Complexity: medium; Target: V1.x
 - [ ] Suggest route-level prefetch, component splitting, or template simplification without enabling them automatically — Fit: runtime-lightweight; Value: informed optimization; Complexity: medium; Target: V2
-- [ ] Emit machine-readable build reports for CI dashboards and future tooling — Fit: package/tooling boundary; Value: automation without runtime cost; Complexity: low; Target: V1.x
+- [x] Emit machine-readable build reports for CI dashboards and future tooling — Fit: package/tooling boundary; Value: automation without runtime cost; Complexity: low; Target: V1.x
 
 ### 14.7 Documentation Generator
 

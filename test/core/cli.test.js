@@ -116,6 +116,30 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
         "/"
       ]
     );
+
+    output.length = 0;
+
+    const reportCode = await runVeloDomCli([
+      "build-report",
+      "--json",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+    const report = JSON.parse(output.join("\n"));
+
+    assert.equal(reportCode, 0);
+    assert.equal(report.project.pages, 2);
+    assert.equal(report.project.components, 1);
+    assert.deepEqual(report.project.compilerFeatures, [
+      "bindings",
+      "text"
+    ]);
+    assert.ok(report.project.unusedRuntimeFeatures.includes("loops"));
+    assert.equal(report.dist.jsTotalBytes, Buffer.byteLength("console.log('app');"));
+    assert.equal(report.dist.cssTotalBytes, Buffer.byteLength("body { color: red; }"));
   } finally {
     await removeFixture(root);
   }
@@ -294,6 +318,16 @@ async function createFixture() {
     root,
     "src/api/middleware.js",
     "export default {};"
+  );
+  await writeFixtureFile(
+    root,
+    "dist/assets/main.js",
+    "console.log('app');"
+  );
+  await writeFixtureFile(
+    root,
+    "dist/assets/main.css",
+    "body { color: red; }"
   );
 
   return root;

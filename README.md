@@ -150,6 +150,7 @@ vd inspect
 vd doctor
 vd stats
 vd routes
+vd build-report --json
 vd create page blog/posts/[id] --ts
 vd create component shared/post-card --single-file
 vd create api posts
@@ -170,6 +171,9 @@ directives, compiler feature manifests, SEO coverage, and test-file signals
 without adding any browser runtime behavior.
 `vd doctor` adds actionable checks for compiler diagnostics, missing component
 references, broken request references, and simple page config mistakes.
+`vd build-report` summarizes project counts, SEO coverage, compiler features,
+unused runtime feature modules, largest pages/components, and generated
+JavaScript/CSS chunks in text or JSON for CI dashboards.
 
 ## Testing Utilities
 
@@ -3176,6 +3180,7 @@ Latest implementation update:
   project stats, route listing, and convention-first scaffolding.
 - Added `vd doctor` for local static diagnostics covering compiler issues,
   missing components, broken request references, and page config path mistakes.
+- Added `vd build-report` for machine-readable build/project intelligence.
 - Added `velodom/testing` with `mountTestPage()` and `mountTestComponent()`
   for public DOM test helpers.
 - Added optional direction management through `createDirectionPlugin()` and

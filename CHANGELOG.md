@@ -24,6 +24,9 @@ package versions.
   intelligence commands.
 - Added `vd doctor` for static compiler diagnostics, missing component
   references, broken request references, and simple page config mistakes.
+- Added `vd build-report` for text or JSON summaries of project counts, SEO
+  coverage, compiler features, unused runtime feature modules, largest source
+  templates, and generated JS/CSS chunks.
 - Added convention-first scaffolding for pages, components, API files, demo
   pages, middleware files, plugins, and starter projects.
 - Extended package contract checks to include the CLI wrappers in the

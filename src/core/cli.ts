@@ -13,6 +13,7 @@ import {
   mkdir,
   readFile,
   readdir,
+  stat,
   writeFile
 } from "node:fs/promises";
 import {
@@ -23,6 +24,7 @@ import {
   resolve
 } from "node:path";
 import { pathToFileURL } from "node:url";
+import { VD_DIRECTIVE_RUNTIME_FEATURES } from "./constants.ts";
 import { compileTemplate } from "./compiler/index.ts";
 
 interface CliContext {
@@ -72,6 +74,12 @@ interface DoctorIssue {
   message: string;
 }
 
+interface FileSizeReport {
+  bytes: number;
+  name: string;
+  source: string;
+}
+
 const HELP = `VeloDom CLI
 
 Usage:
@@ -79,6 +87,7 @@ Usage:
   vd doctor [--json] [--root <dir>]
   vd stats [--json] [--root <dir>]
   vd routes [--json] [--root <dir>]
+  vd build-report [--json] [--root <dir>]
   vd create page <name> [--ts] [--single-file] [--root <dir>]
   vd create component <name> [--ts] [--single-file] [--root <dir>]
   vd create api <name> [--root <dir>]
@@ -126,6 +135,9 @@ export async function runVeloDomCli(
         return 0;
       case "routes":
         await printRoutes(context, parsed.flags.has("json"));
+        return 0;
+      case "build-report":
+        await printBuildReport(context, parsed.flags.has("json"));
         return 0;
       case "create":
         await createResource(context, values, parsed.flags);
@@ -251,6 +263,28 @@ async function printRoutes(context: CliContext, json: boolean) {
   });
 }
 
+async function printBuildReport(context: CliContext, json: boolean) {
+  const report = await createBuildReport(context.cwd);
+
+  if (json) {
+    context.stdout(JSON.stringify(report, null, 2));
+    return;
+  }
+
+  context.stdout("VeloDom build report");
+  context.stdout("====================");
+  context.stdout(`Pages: ${report.project.pages}`);
+  context.stdout(`Components: ${report.project.components}`);
+  context.stdout(`SEO coverage: ${report.project.seoCoverage.pagesWithSeo}/${report.project.seoCoverage.totalPages}`);
+  context.stdout(`Compiler features: ${report.project.compilerFeatures.join(", ") || "none"}`);
+  context.stdout(`Unused runtime features: ${report.project.unusedRuntimeFeatures.join(", ") || "none"}`);
+  context.stdout(`Dist JS total: ${formatBytes(report.dist.jsTotalBytes)}`);
+  context.stdout(`Dist CSS total: ${formatBytes(report.dist.cssTotalBytes)}`);
+  printSizeGroup(context, "Largest pages", report.project.largestPages);
+  printSizeGroup(context, "Largest components", report.project.largestComponents);
+  printSizeGroup(context, "Largest JS chunks", report.dist.largestJsChunks);
+}
+
 async function runDoctor(root: string) {
   const inspection = await inspectProject(root);
   const issues: DoctorIssue[] = [];
@@ -353,6 +387,37 @@ async function inspectProject(root: string): Promise<ProjectInspection> {
   };
 }
 
+async function createBuildReport(root: string) {
+  const inspection = await inspectProject(root);
+  const usedFeatures = new Set(inspection.compilerFeatures);
+  const unusedRuntimeFeatures = VD_DIRECTIVE_RUNTIME_FEATURES.filter(feature => (
+    !usedFeatures.has(feature)
+  ));
+  const jsAssets = await readAssetSizes(root, ".js");
+  const cssAssets = await readAssetSizes(root, ".css");
+
+  return {
+    generatedAt: new Date().toISOString(),
+    project: {
+      pages: inspection.pages.length,
+      components: inspection.components.length,
+      layouts: inspection.layouts.length,
+      requestRoutes: inspection.requestRoutes.length,
+      compilerFeatures: inspection.compilerFeatures,
+      unusedRuntimeFeatures,
+      seoCoverage: inspection.seo,
+      largestPages: await readModuleSizes(root, inspection.pages),
+      largestComponents: await readModuleSizes(root, inspection.components)
+    },
+    dist: {
+      jsTotalBytes: sumSizeReports(jsAssets),
+      cssTotalBytes: sumSizeReports(cssAssets),
+      largestJsChunks: topSizes(jsAssets),
+      largestCssChunks: topSizes(cssAssets)
+    }
+  };
+}
+
 async function discoverModules(
   root: string,
   directory: string,
@@ -396,6 +461,48 @@ async function discoverModules(
   return resolved.flat().sort((left, right) => (
     left.name.localeCompare(right.name)
   ));
+}
+
+async function readModuleSizes(
+  root: string,
+  modules: DiscoveredModule[]
+) {
+  const sizes = await Promise.all(modules.map(async module => ({
+    bytes: await readFileSize(join(root, module.source)),
+    name: module.name,
+    source: module.source
+  })));
+
+  return topSizes(sizes);
+}
+
+async function readAssetSizes(root: string, extension: string) {
+  const files = await discoverFiles(root, "dist/assets", [extension]);
+  const sizes = await Promise.all(files.map(async file => ({
+    bytes: await readFileSize(join(root, file)),
+    name: file.split("/").at(-1) || file,
+    source: file
+  })));
+
+  return topSizes(sizes, 10);
+}
+
+async function readFileSize(file: string) {
+  try {
+    return (await stat(file)).size;
+  } catch {
+    return 0;
+  }
+}
+
+function sumSizeReports(files: FileSizeReport[]) {
+  return files.reduce((total, file) => total + file.bytes, 0);
+}
+
+function topSizes(files: FileSizeReport[], count = 5) {
+  return [...files]
+    .sort((left, right) => right.bytes - left.bytes)
+    .slice(0, count);
 }
 
 async function readRouteOverride(
@@ -807,6 +914,23 @@ function printModuleGroup(
 function printList(context: CliContext, title: string, values: string[]) {
   context.stdout(`${title}: ${values.length}`);
   values.forEach(value => context.stdout(`  - ${value}`));
+}
+
+function printSizeGroup(
+  context: CliContext,
+  title: string,
+  values: FileSizeReport[]
+) {
+  context.stdout(`${title}:`);
+  values.forEach(value => {
+    context.stdout(
+      `  - ${value.name}: ${formatBytes(value.bytes)} (${value.source})`
+    );
+  });
+}
+
+function formatBytes(bytes: number) {
+  return `${(bytes / 1024).toFixed(1)} kB`;
 }
 
 function readStaticPath(source: string) {

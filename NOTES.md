@@ -285,6 +285,10 @@
   and simple project references first; deeper semantic checks such as full
   state/control-flow analysis should remain future DX work until they can stay
   deterministic and lightweight.
+- `vd build-report` is the first machine-readable build intelligence surface.
+  It intentionally reports what can be proven from folders, compiler manifests,
+  SEO config presence, and generated assets; dependency-level bundle attribution
+  should wait for a more precise Vite/Rollup metadata design.
 - Package CLI wrappers live in `bin/` and call generated `lib/cli.js`; the
   implementation remains TypeScript under `src/core` so it shares framework
   quality gates while staying outside the application folders.
