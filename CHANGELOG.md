@@ -26,6 +26,14 @@ package versions.
 - Included linked focused docs, engineering notes, and the roadmap in the npm
   allowlist, and expanded package-contract checks to cover asset/devtools
   subpaths so installed-package documentation and exports remain complete.
+- Split CLI filesystem analysis, output formatting, shared contracts, and
+  scaffolding templates into focused internal modules. The command entry file
+  is roughly one-third smaller while CLI syntax and output remain compatible.
+- Updated performance-budget classification so the new Node-only `cli/`
+  modules remain excluded from browser-runtime package measurements.
+- Retried the strict browser matrix; Chromium and all build/package gates
+  passed, but local Firefox headless startup stalled again, leaving that
+  environment-specific release gate open for CI.
 
 ## 2026-08-16
 

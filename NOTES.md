@@ -342,6 +342,10 @@
 - Package CLI wrappers live in `bin/` and call generated `lib/cli.js`; the
   implementation remains TypeScript under `src/core` so it shares framework
   quality gates while staying outside the application folders.
+- CLI filesystem conventions, human-readable reporters, generated templates,
+  and shared contracts now live under `src/core/cli/`. The public `cli.ts`
+  entry remains the command orchestrator so package binaries and command
+  output contracts do not change during internal maintenance.
 - CLI scaffolding creates normal VeloDom folders or optional `.vd` files. It
   must continue producing HTML-first files rather than introducing JSX,
   component render functions, or configuration-heavy templates.

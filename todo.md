@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**373 of 380 tasks completed — 98%**
+**374 of 380 tasks completed — 98%**
 
 `[###################-]`
 
-Remaining tasks: **7**
+Remaining tasks: **6**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -96,8 +96,10 @@ runtime features.
 
 Strict browser note: Firefox and WebKit Playwright binaries were installed
 locally on 2026-08-16. Strict WebKit and mobile WebKit passed, but Firefox
-headless timed out with a local graphics/compositor launch error, so the full
-strict matrix remains pending for CI or a Firefox-capable release machine.
+headless timed out with a local graphics/compositor launch error. A strict
+retry on 2026-08-17 again stalled during Firefox startup after Chromium and all
+build/package gates passed, so the full matrix remains pending for CI or a
+Firefox-capable release machine.
 
 ---
 
@@ -121,7 +123,7 @@ while preserving the explicit `createApp()` path for advanced integrations.
   so stack-derived locations survive refactors.
 - [x] Replace the showcase's full daisyUI stylesheet import with its Tailwind
   plugin, reducing production CSS from about 1.16 MB to about 91 KB.
-- [ ] Split the large CLI implementation into analyzer, reporter, and scaffold
+- [x] Split the large CLI implementation into analyzer, reporter, and scaffold
   modules without changing commands or output contracts — Target: V1.x.
 - [ ] Design build-time support for typed page config without breaking static
   SEO loading or requiring TypeScript from Vanilla projects — Target: V1.x.

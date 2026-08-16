@@ -53,7 +53,8 @@ Before publication, the owner must confirm:
   mobile WebKit after installing the missing Playwright browser binaries
 - `VELODOM_BROWSER_STRICT=1 npm run test:browser`: still pending because
   Firefox headless startup timed out locally with a graphics/compositor launch
-  error; rerun on a Firefox-capable release or CI machine before public V1
+  error and stalled again on 2026-08-17; rerun on a Firefox-capable release or
+  CI machine before public V1
 - Deployment/static SEO contract: passed locally for `/`, `/features/`,
   `/blog/posts/html-first/`, and an unknown SPA fallback route
 

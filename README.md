@@ -307,6 +307,7 @@ bin/                        package CLI wrappers
 src/
   core/                       framework-owned TypeScript
     adapters/                 build-tool resource discovery
+    cli/                      static analysis, reporters, scaffolds, contracts
     compiler/                 HTML compiler and optimizer contracts
     directives/features/      lazy directive runtime modules
     errors/                   structured error reporting
@@ -3356,7 +3357,7 @@ choices, not VeloDom Core dependencies or requirements.
 
 Latest local verification on 2026-08-17:
 
-- Core documentation audit passes for 64 TypeScript files
+- Core documentation audit passes for 68 TypeScript files
 - TypeScript check passes
 - ESLint passes
 - 214 automated tests pass
@@ -3379,6 +3380,9 @@ Latest local verification on 2026-08-17:
 
 Latest implementation update:
 
+- Split the monolithic CLI implementation into focused analyzer, reporter,
+  scaffold, and shared-contract modules while preserving command/output
+  compatibility; `cli.ts` now concentrates on command orchestration.
 - Added the beginner-first `mountVeloDom()` Vite bootstrap with automatic
   request-route and application-middleware registry discovery.
 - Kept `createViteApp()` and generic `createApp()` as progressively more
