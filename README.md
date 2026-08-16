@@ -2176,6 +2176,13 @@ Use browser-native direction selectors when a real visual difference is needed:
 }
 ```
 
+During development and production builds, VeloDom emits advisory warnings for
+physical directional CSS inside `src/pages`, `src/components`, `src/layouts`,
+and `.vd` `<style>` blocks. For example, `margin-left` suggests
+`margin-inline-start`, and `text-align: right` suggests `text-align: end`.
+These warnings do not block the build; they exist to make RTL review cheaper
+without adding runtime CSS rewriting.
+
 For directional icons, opt in explicitly:
 
 ```html
@@ -3009,10 +3016,10 @@ choices, not VeloDom Core dependencies or requirements.
 
 Latest local verification on 2026-07-10:
 
-- Core documentation audit passes for 55 TypeScript files
+- Core documentation audit passes for 56 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 180 automated tests pass
+- 182 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -3055,6 +3062,7 @@ Latest implementation update:
   per-request `onSuccess` callbacks.
 - Verified the optional native validation API, built-in required/min/max/pattern
   handling, error marker conventions, and request-flow integration.
+- Added build-time RTL CSS diagnostics for folder CSS and `.vd` style blocks.
 - Added optional direction management through `createDirectionPlugin()` and
   compiler support for explicit `vd-rtl-flip` directional icon markers.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and

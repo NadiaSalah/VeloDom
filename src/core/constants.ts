@@ -299,6 +299,31 @@ export const VD_DIRECTION = Object.freeze({
   ])
 });
 
+/** CSS diagnostics that guide applications toward RTL-safe logical properties. */
+export const VD_RTL_CSS = Object.freeze({
+  CODE: "VD_RTL_PHYSICAL_CSS",
+  PHYSICAL_PROPERTY_ALTERNATIVES: Object.freeze({
+    left: "inset-inline-start",
+    right: "inset-inline-end",
+    "margin-left": "margin-inline-start",
+    "margin-right": "margin-inline-end",
+    "padding-left": "padding-inline-start",
+    "padding-right": "padding-inline-end",
+    "border-left": "border-inline-start",
+    "border-right": "border-inline-end",
+    "border-left-color": "border-inline-start-color",
+    "border-right-color": "border-inline-end-color",
+    "border-left-style": "border-inline-start-style",
+    "border-right-style": "border-inline-end-style",
+    "border-left-width": "border-inline-start-width",
+    "border-right-width": "border-inline-end-width"
+  }),
+  TEXT_ALIGN_VALUES: Object.freeze({
+    left: "start",
+    right: "end"
+  })
+});
+
 /** State keys that application bindings and expose APIs may not replace. */
 export const VD_PROTECTED_STATE_KEYS = Object.freeze([
   "__proto__",

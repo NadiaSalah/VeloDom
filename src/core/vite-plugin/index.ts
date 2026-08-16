@@ -19,6 +19,9 @@ import {
   generateStaticSeoPages
 } from "./seo-renderer.ts";
 import {
+  analyzeRtlCss
+} from "./rtl-css-diagnostics.ts";
+import {
   createSingleFileConfigModule,
   createSingleFileScriptModule,
   createSingleFileStyleModule,
@@ -59,6 +62,17 @@ export interface TemplateModuleOptions extends VeloDomVitePluginOptions {
   mode?: CompilerMode;
 }
 
+interface ViteWarningContext {
+  warn(warning: {
+    id: string;
+    message: string;
+    loc: {
+      line: number;
+      column: number;
+    };
+  }): void;
+}
+
 /** Creates the Vite plugin that compiles VeloDom raw HTML modules. */
 export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
   let mode: CompilerMode = "development";
@@ -84,6 +98,12 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
     transform(code, id) {
       if (isSingleFileModule(id)) {
         const descriptor = parseVeloDomSingleFile(code, id);
+
+        warnRtlCssDiagnostics(
+          this,
+          descriptor.style,
+          `${id}<style>`
+        );
         const module = createTemplateModule(descriptor.template, {
           ...options,
           filename: `${id}<template>`,
@@ -108,6 +128,10 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
           code: createSingleFileRuntimeModule(descriptor, module.code),
           map: null
         };
+      }
+
+      if (isVeloDomStyleFile(id)) {
+        warnRtlCssDiagnostics(this, code, id);
       }
 
       if (!isPageConfigFile(id)) return null;
@@ -280,4 +304,34 @@ function isSingleFileModule(filename: string) {
   return filename
     .split("?", 1)[0]
     .endsWith(VD_SINGLE_FILE.EXTENSION);
+}
+
+function isVeloDomStyleFile(filename: string) {
+  const normalized = filename
+    .split("?", 1)[0]
+    .replace(/\\/g, "/");
+
+  return (
+    normalized.endsWith(".css")
+    && /\/src\/(?:pages|components|layouts)\//.test(normalized)
+  );
+}
+
+function warnRtlCssDiagnostics(
+  context: ViteWarningContext,
+  source: string,
+  filename: string
+) {
+  if (!source.trim()) return;
+
+  analyzeRtlCss(source, filename).forEach(diagnostic => {
+    context.warn({
+      id: diagnostic.filename,
+      message: `[${diagnostic.code}] ${diagnostic.message}`,
+      loc: {
+        line: diagnostic.line,
+        column: diagnostic.column
+      }
+    });
+  });
 }
