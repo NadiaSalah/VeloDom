@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**275 of 326 tasks completed — 84.4%**
+**284 of 326 tasks completed — 87.1%**
 
 `[#################---]`
 
-Remaining tasks: **51**
+Remaining tasks: **42**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -467,11 +467,11 @@ and `src/api`.
 
 ### 14. Developer Tooling
 
-- [ ] Create a `create-velodom` project scaffolding command
-- [ ] Create CLI for page scaffolding
-- [ ] Create CLI for component scaffolding
-- [ ] Create CLI for API file scaffolding
-- [ ] Create CLI for demo scaffolding
+- [x] Create a `create-velodom` project scaffolding command
+- [x] Create CLI for page scaffolding
+- [x] Create CLI for component scaffolding
+- [x] Create CLI for API file scaffolding
+- [x] Create CLI for demo scaffolding
 - [ ] Add public test utilities for mounting pages and components
 - [ ] Add a development command to inspect discovered routes and feature manifests
 
@@ -494,12 +494,12 @@ directives, route configs, and compiler metadata already describe most project
 relationships. The first version should be static, local, and deterministic.
 
 - [ ] Design a project analyzer manifest that reads pages, components, API routes, middleware, CSS, refs, events, and SEO configs — Fit: compiler/folder-first; Value: one source of project truth; Complexity: medium; Target: V1.x
-- [ ] Add `vd inspect` to list discovered pages, components, routes, request routes, middleware, and compiler features — Fit: convention over configuration; Value: explains automatic discovery; Complexity: medium; Target: V1.x
+- [x] Add `vd inspect` to list discovered pages, components, routes, request routes, middleware, and compiler features — Fit: convention over configuration; Value: explains automatic discovery; Complexity: medium; Target: V1.x
 - [ ] Add `vd doctor` to detect missing components, broken component paths, invalid `vd-*` usage, invalid config shapes, and broken request references — Fit: compile-time validation; Value: catches common mistakes early; Complexity: medium; Target: V1.x
 - [ ] Detect broken refs, duplicate state names used across one template scope, unknown event handlers, and unsafe directive expressions before runtime — Fit: compiler-first; Value: fewer runtime surprises; Complexity: medium; Target: V1.x
 - [ ] Detect unused components, unused routes, unused middleware, dead API handlers, and unreachable showcase files without deleting anything automatically — Fit: static analysis; Value: reduces project clutter; Complexity: medium; Target: V2
 - [ ] Detect circular component dependencies and large page/component folders with actionable warnings — Fit: folder-first maintainability; Value: prevents slow builds and confusing composition; Complexity: medium; Target: V2
-- [ ] Generate `vd stats` project statistics for route count, component count, directive usage, request usage, SEO coverage, and test coverage signals — Fit: build-time metadata; Value: clear project health snapshot; Complexity: low; Target: V1.x
+- [x] Generate `vd stats` project statistics for route count, component count, directive usage, request usage, SEO coverage, and test coverage signals — Fit: build-time metadata; Value: clear project health snapshot; Complexity: low; Target: V1.x
 
 ### 14.3 CLI Experience
 
@@ -507,11 +507,11 @@ CLI work should reduce boilerplate around VeloDom's conventions. It should
 scaffold normal `index.html`, `script.js`/`script.ts`, `style.css`, and
 `config.js` files, not introduce a new component authoring model.
 
-- [ ] Extend CLI planning to include `vd middleware` and `vd plugin` scaffolding — Fit: keeps custom code outside core; Value: faster setup for advanced users; Complexity: low; Target: V1.x
+- [x] Extend CLI planning to include `vd middleware` and `vd plugin` scaffolding — Fit: keeps custom code outside core; Value: faster setup for advanced users; Complexity: low; Target: V1.x
 - [ ] Add `vd health` as a summarized wrapper over doctor, stats, SEO, accessibility, and build checks — Fit: local static tooling; Value: one command before release; Complexity: medium; Target: V2
 - [ ] Add `vd graph` to export project relationships as JSON and Mermaid without requiring a browser devtool — Fit: compiler/build-time output; Value: easier onboarding and audits; Complexity: medium; Target: V2
 - [ ] Add `vd benchmark` for repeatable page, loop, request, and component rendering benchmarks — Fit: performance-budget roadmap; Value: prevents anecdotal optimization; Complexity: medium; Target: V2
-- [ ] Add a route explorer command that prints route paths, params, guards, metadata, SEO, and generated static entries — Fit: folder-first router transparency; Value: easier deployment/debugging; Complexity: low; Target: V1.x
+- [x] Add a route explorer command that prints route paths, params, guards, metadata, SEO, and generated static entries — Fit: folder-first router transparency; Value: easier deployment/debugging; Complexity: low; Target: V1.x
 - [ ] Add a build report command or Vite output section for bundle, directive, route, component, and SEO summaries — Fit: build intelligence without runtime cost; Value: clear production feedback; Complexity: medium; Target: V1.x
 
 ### 14.4 Visual Project Graph

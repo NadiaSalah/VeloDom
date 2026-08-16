@@ -16,6 +16,7 @@ JavaScript or TypeScript independently for every page and component.
 
 - [What Works Today](#what-works-today)
 - [Requirements and Commands](#requirements-and-commands)
+- [CLI and Project Intelligence](#cli-and-project-intelligence)
 - [Project Structure](#project-structure)
 - [Folder Conventions](#folder-conventions)
 - [Layouts](#layouts)
@@ -78,6 +79,8 @@ VeloDom currently provides:
 - a repeatable local rendering benchmark for common page bindings and loops
 - enforced JavaScript performance budgets for generated route chunks and
   package runtime modules
+- local static CLI tooling for project inspection, route listing, stats, and
+  convention-first scaffolding
 - compiler accessibility warnings for common image, form-control, anchor,
   click-target, and heading mistakes
 - generated ESM and TypeScript declarations for the intended package surface
@@ -135,9 +138,37 @@ What the main checks do:
 Generated `dist/`, `lib/`, and `types/` folders are build output and should not
 be edited manually.
 
+## CLI and Project Intelligence
+
+VeloDom includes package binaries for local, static developer tooling:
+
+```bash
+vd inspect
+vd stats
+vd routes
+vd create page blog/posts/[id] --ts
+vd create component shared/post-card --single-file
+vd create api posts
+vd create demo features/demo
+vd create middleware
+vd create plugin analytics
+create-velodom my-site
+```
+
+Inside this repository, run `npm run package:build` first, then use
+`node bin/vd.js ...` because the wrappers load the generated `lib/cli.js`.
+After installation from npm, the `vd` and `create-velodom` binaries are
+available directly through the package manager.
+
+The CLI is intentionally static and local. `vd inspect` and `vd stats` read
+folders, `.vd` files, API route registrations, middleware files, template
+directives, compiler feature manifests, SEO coverage, and test-file signals
+without adding any browser runtime behavior.
+
 ## Project Structure
 
 ```text
+bin/                        package CLI wrappers
 src/
   core/                       framework-owned TypeScript
     adapters/                 build-tool resource discovery
@@ -3048,10 +3079,10 @@ choices, not VeloDom Core dependencies or requirements.
 
 Latest local verification on 2026-08-16:
 
-- Core documentation audit passes for 57 TypeScript files
+- Core documentation audit passes for 58 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 191 automated tests pass
+- 193 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -3106,6 +3137,8 @@ Latest implementation update:
   style bindings when evaluated values are unchanged.
 - Expanded `npm run benchmark:rendering` with a stable-loop update case and
   added `npm run performance:check` to enforce generated JavaScript budgets.
+- Added `vd` / `create-velodom` package binaries for static inspection,
+  project stats, route listing, and convention-first scaffolding.
 - Added optional direction management through `createDirectionPlugin()` and
   compiler support for explicit `vd-rtl-flip` directional icon markers.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
@@ -3139,6 +3172,7 @@ Test coverage includes:
 - frozen public runtime, compiler, Vite adapter, Vite plugin, type, and package
   subpath exports
 - package-boundary guardrails that keep SSR and hydration APIs deferred
+- CLI inspection, stats, route listing, and scaffolding behavior
 - source-aware adapter errors and user-file loader failure reporting
 - a real-browser Playwright matrix for Chromium/Chrome/Edge plus optional
   Firefox, WebKit, and mobile WebKit coverage of routing, form model updates,

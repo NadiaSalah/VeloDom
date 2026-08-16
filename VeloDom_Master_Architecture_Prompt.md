@@ -445,6 +445,11 @@ Aligned future tooling:
 - route explorer
 - documentation generator
 
+Current CLI tooling should remain static and local. Commands such as
+`vd inspect`, `vd stats`, `vd routes`, and `vd create ...` may read folders,
+templates, compiler manifests, and package metadata, but they must not add
+mandatory browser runtime features.
+
 Optional AI tooling, if researched, must be provider-based and never required.
 VeloDom must work without API keys, network access, telemetry, or hosted
 services.

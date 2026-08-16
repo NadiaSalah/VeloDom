@@ -277,6 +277,16 @@
   exist. CSS is intentionally not budgeted yet because the showcase's
   Tailwind/daisyUI output is application-owned and needs a separate design
   decision before strict limits are useful.
+- The first VeloDom CLI is static/offline developer tooling. `vd inspect`,
+  `vd stats`, and `vd routes` read folders, `.vd` templates, API route
+  registrations, compiler manifests, SEO config presence, and test-file
+  signals without adding browser runtime weight.
+- Package CLI wrappers live in `bin/` and call generated `lib/cli.js`; the
+  implementation remains TypeScript under `src/core` so it shares framework
+  quality gates while staying outside the application folders.
+- CLI scaffolding creates normal VeloDom folders or optional `.vd` files. It
+  must continue producing HTML-first files rather than introducing JSX,
+  component render functions, or configuration-heavy templates.
 - Future DX tooling should default to static analysis, compiler manifests,
   Vite/build metadata, and local CLI output. It should improve developer
   confidence without adding mandatory browser runtime features.

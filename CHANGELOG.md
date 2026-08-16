@@ -17,6 +17,17 @@ package versions.
   enforce JavaScript budgets for generated chunks and package runtime modules.
 - Brought the automated suite to 191 passing tests.
 
+### Developer Tooling CLI
+
+- Added package binaries for `vd` and `create-velodom`.
+- Added `vd inspect`, `vd stats`, and `vd routes` as local static project
+  intelligence commands.
+- Added convention-first scaffolding for pages, components, API files, demo
+  pages, middleware files, plugins, and starter projects.
+- Extended package contract checks to include the CLI wrappers in the
+  publishable file allowlist.
+- Brought the automated suite to 193 passing tests.
+
 ## 2026-07-10
 
 ### Request Status Naming

@@ -9,7 +9,12 @@
   "module": "./lib/index.js",
   "types": "./types/index.d.ts",
   "sideEffects": false,
+  "bin": {
+    "vd": "./bin/vd.js",
+    "create-velodom": "./bin/create-velodom.js"
+  },
   "files": [
+    "bin",
     "lib",
     "types",
     "README.md",

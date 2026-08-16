@@ -42,6 +42,7 @@ const allowedPackageFiles = new Set([
   "CHANGELOG.md",
   "README.md",
   "RELEASING.md",
+  "bin",
   "lib",
   "types"
 ]);
@@ -61,6 +62,19 @@ for (const required of allowedPackageFiles) {
 for (const entry of packageFiles) {
   if (!allowedPackageFiles.has(entry)) {
     violations.push(`package files allowlist contains unexpected "${entry}"`);
+  }
+}
+
+for (const [name, target] of Object.entries(manifest.bin || {})) {
+  if (typeof target !== "string" || !target.startsWith("./bin/")) {
+    violations.push(`bin "${name}" must point at ./bin/*.js`);
+    continue;
+  }
+
+  try {
+    await access(target.slice(2));
+  } catch {
+    violations.push(`bin "${name}" target is missing: ${target}`);
   }
 }
 

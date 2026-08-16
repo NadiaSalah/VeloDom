@@ -19,7 +19,12 @@ test("published package boundaries use built allowlisted artifacts", () => {
 
   assert.equal(manifest.private, true);
   assert.match(manifest.version, /^\d+\.\d+\.\d+(?:-[\w.-]+)?$/);
+  assert.deepEqual(manifest.bin, {
+    "vd": "./bin/vd.js",
+    "create-velodom": "./bin/create-velodom.js"
+  });
   assert.deepEqual(manifest.files, [
+    "bin",
     "lib",
     "types",
     "README.md",
