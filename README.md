@@ -81,7 +81,8 @@ VeloDom currently provides:
 - optional native-form validation plugin for `vd-validate` request forms
 - optional direction plugin for document `lang`/`dir` and RTL-aware templates
 - configurable server-session and demonstration localStorage auth providers
-- runtime head management and static SEO HTML generated from page `config.js`
+- runtime head management and static SEO HTML generated from page
+  `config.js` or optional `config.ts`
 - optional build-time content helpers through `velodom/content` for Markdown
   collections, SEO entries, sitemap records, RSS XML, and local search indexes
 - a safe expression parser/evaluator with no `eval` or `new Function`
@@ -352,6 +353,7 @@ src/pages/example/
   script.js           optional, preferred
   script.ts           optional TypeScript alternative
   config.js           optional route, policy, and SEO config
+  config.ts           optional typed config alternative
   *.css               optional scoped styles
 ```
 
@@ -376,10 +378,11 @@ src/layouts/dashboard/
   style.css                   optional scoped layout styles
 ```
 
-Compatibility filenames `page.js`, `page.config.js`, and `component.js` are
-still discovered, but new application code should prefer `script.js`,
-`config.js`, and `script.ts` where typing is wanted. Page config is currently
-JavaScript (`config.js`), not TypeScript.
+Compatibility filenames `page.js`, `page.config.js`, `page.config.ts`, and
+`component.js` are still discovered. New application code should prefer
+`script.js` plus `config.js`, or `script.ts` plus `config.ts` when typing is
+wanted. If variants coexist, TypeScript config has priority; keep one config
+file per page so the source of route and SEO policy stays obvious.
 
 ## Layouts
 
@@ -497,6 +500,7 @@ Supported blocks:
   `destroy`.
 - `<style>` is optional and is scoped through the existing folder-style engine.
 - `<config>` is optional for pages and follows the same shape as `config.js`.
+  V1 `.vd` blocks use JavaScript; choose folder mode for TypeScript page config.
 
 Components can also use `.vd`:
 
@@ -2419,7 +2423,7 @@ mandatory i18n runtime.
 
 ## SEO and Static Route HTML
 
-SEO is declared in each page's existing `config.js`:
+SEO is declared in each page's `config.js` or optional `config.ts`:
 
 ```js
 export default {
@@ -3119,6 +3123,30 @@ export function init({
 }
 ```
 
+Typed page configuration is also optional:
+
+```ts
+// src/pages/example/config.ts
+import type { PageConfig } from "velodom";
+
+export default {
+  path: "/example",
+  seo: {
+    title: "Typed page config",
+    description: "Checked by TypeScript and rendered into static SEO HTML."
+  }
+} satisfies PageConfig;
+```
+
+`config.ts` is compiled only by build tooling and requires `typescript` as an
+application dev dependency. Keep it self-contained and use type-only imports;
+runtime imports belong in `script.ts` or application API modules. Vanilla
+projects using `config.js` do not install or execute TypeScript.
+
+```bash
+npm install --save-dev typescript
+```
+
 Framework Core enforces `@typescript-eslint/no-explicit-any`. Application
 authors are not forced to use TypeScript.
 
@@ -3360,7 +3388,7 @@ Latest local verification on 2026-08-17:
 - Core documentation audit passes for 68 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 214 automated tests pass
+- 215 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - package dry-run validation passes
@@ -3380,6 +3408,9 @@ Latest local verification on 2026-08-17:
 
 Latest implementation update:
 
+- Added optional typed `config.ts` for folder pages across Vite runtime
+  discovery, static SEO generation, CLI analysis, doctor/docs output, and
+  `vd create page --ts`; Vanilla `config.js` remains dependency-free.
 - Split the monolithic CLI implementation into focused analyzer, reporter,
   scaffold, and shared-contract modules while preserving command/output
   compatibility; `cli.ts` now concentrates on command orchestration.
@@ -3623,13 +3654,11 @@ AI and migration research lives in
 [docs/FUTURE_RESEARCH.md](docs/FUTURE_RESEARCH.md), and VeloDom positioning
 lives in [docs/FRAMEWORK_IDENTITY.md](docs/FRAMEWORK_IDENTITY.md).
 
-The current V1 implementation checklist is complete. The remaining practical
-work before a public release is release governance: npm ownership, final
-publication approval, and a strict browser run in a Firefox-capable CI or
-release environment. The next deliberately scoped roadmap is documented in
-Phase 19 of `todo.md`: adapter compatibility, opt-in authoring types,
-build-time asset quality, editor intelligence, static-rendering research,
-progressive forms, localization, and development-only inspection. None of
+The local V1 release candidate is functionally complete. Remaining unchecked
+items combine release governance with bounded V1.x improvements: npm ownership,
+final publication approval, a strict Firefox-capable browser run, optional CSS
+budgets, and starter presets. Phase 19 records longer-term adapter, editor,
+static-rendering, progressive-form, localization, and inspection work. None of
 these items authorizes a mandatory virtual DOM, JSX, CMS, global store, or
 universal SSR runtime.
 

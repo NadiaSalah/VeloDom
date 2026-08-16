@@ -100,7 +100,9 @@ const pageModuleFiles = import.meta.glob([
 ]);
 const pageConfigFiles = import.meta.glob(
   [
+    "/src/pages/**/config.ts",
     "/src/pages/**/config.js",
+    "/src/pages/**/page.config.ts",
     "/src/pages/**/page.config.js"
   ],
   {
@@ -259,7 +261,9 @@ export function createViteAdapter(): ResourceAdapter {
           pageConfigFiles,
           "/src/pages/",
           [
+            "/config.ts",
             "/config.js",
+            "/page.config.ts",
             "/page.config.js"
           ]
         )

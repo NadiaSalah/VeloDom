@@ -29,7 +29,9 @@ import {
   discoverFiles,
   discoverModules,
   normalizeModuleName,
+  pageConfigPaths,
   readOptionalText,
+  readPageConfigSource,
   readStaticPath,
   toRoutePath
 } from "./cli/analyzer.ts";
@@ -703,8 +705,10 @@ async function createDocumentationReport(root: string) {
     const script = await readModuleScript(root, page.source);
     const configSource = page.source.endsWith(".vd")
       ? await readOptionalText(join(root, page.source))
-      : await readOptionalText(join(root, dirname(page.source), "config.js"))
-        || await readOptionalText(join(root, dirname(page.source), "page.config.js"));
+      : (await readPageConfigSource(
+        root,
+        dirname(page.source)
+      ))?.source || "";
 
     return {
       name: page.name,
@@ -1182,10 +1186,7 @@ async function discoverSeoConfigFiles(
     }
 
     const folder = dirname(page.source);
-    const candidates = [
-      `${folder}/config.js`,
-      `${folder}/page.config.js`
-    ];
+    const candidates = pageConfigPaths(folder);
 
     await Promise.all(candidates.map(async file => {
       const source = await readOptionalText(join(root, file));
@@ -1247,11 +1248,10 @@ async function discoverSeoCoverage(
   const results = await Promise.all(pages.map(async page => {
     const source = page.source.endsWith(".vd")
       ? await readOptionalText(join(root, page.source))
-      : await readOptionalText(
-        join(root, dirname(page.source), "config.js")
-      ) || await readOptionalText(
-        join(root, dirname(page.source), "page.config.js")
-      );
+      : (await readPageConfigSource(
+        root,
+        dirname(page.source)
+      ))?.source || "";
 
     return /\bseo\s*:/.test(source);
   }));
@@ -1967,18 +1967,8 @@ async function validatePageConfigText(
 }
 
 async function findConfigFile(root: string, folder: string) {
-  const candidates = [
-    `${folder}/config.js`,
-    `${folder}/page.config.js`
-  ];
-
-  for (const candidate of candidates) {
-    if (await readOptionalText(join(root, candidate))) {
-      return candidate;
-    }
-  }
-
-  return candidates[0];
+  return (await readPageConfigSource(root, folder))?.file
+    || pageConfigPaths(folder)[0];
 }
 
 function parseArgs(args: string[]): ParsedArgs {

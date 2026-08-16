@@ -260,7 +260,7 @@ export function validateRequestBindingAccess(
         title: "External Page Write Not Allowed",
         directive: meta.directive || VD.TARGET,
         expression: `${targetPage}.${binding.path}`,
-        hint: `Allow it in ${targetPage}/config.js with export default { allowExternalWrite: ["${topLevelKey}"] }.`
+        hint: `Allow it in ${targetPage}/config.js or config.ts with export default { allowExternalWrite: ["${topLevelKey}"] }.`
       }
     );
   }
@@ -273,7 +273,7 @@ export function validateRequestBindingAccess(
         title: "Invalid External Write Allowlist",
         directive: meta.directive || VD.TARGET,
         expression: `${targetPage}.allowExternalWrite`,
-        hint: "Set allowExternalWrite in config.js to an array of top-level state keys."
+        hint: "Set allowExternalWrite in config.js or config.ts to an array of top-level state keys."
       }
     );
   }
@@ -286,7 +286,7 @@ export function validateRequestBindingAccess(
         title: "External Page State Blocked",
         directive: meta.directive || VD.TARGET,
         expression: `${targetPage}.${binding.path}`,
-        hint: `Add "${topLevelKey}" to allowExternalWrite in ${targetPage}/config.js.`
+        hint: `Add "${topLevelKey}" to allowExternalWrite in ${targetPage}/config.js or config.ts.`
       }
     );
   }

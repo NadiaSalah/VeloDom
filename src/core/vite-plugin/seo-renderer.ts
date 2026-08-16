@@ -3,7 +3,8 @@
  * Module: Static SEO Renderer
  * ----------------------------------------
  *
- * Reads page-owned config.js files after a Vite build and emits route-specific
+ * Reads page-owned config.js/config.ts files after a Vite build and emits
+ * route-specific
  * HTML containing metadata plus a concise, visible content fallback.
  * ----------------------------------------
  */
@@ -25,6 +26,7 @@ import {
 } from "node:path";
 import { pathToFileURL } from "node:url";
 import {
+  VD_RESOURCE_ADAPTER,
   VD_SEO,
   VD_SINGLE_FILE
 } from "../constants.ts";
@@ -90,7 +92,7 @@ interface RenderSeoDocumentOptions {
 }
 
 /**
- * Generates route HTML, sitemap, and robots artifacts from page config.js SEO.
+ * Generates route HTML, sitemap, and robots artifacts from page config SEO.
  */
 export async function generateStaticSeoPages(
   options: StaticSeoBuildOptions
@@ -433,15 +435,14 @@ async function loadPageConfig(
 
   const pageDirectory = dirname(source.path);
 
-  for (const filename of ["config.js", "page.config.js"]) {
+  for (const filename of VD_RESOURCE_ADAPTER.FILES.CONFIG_VARIANTS) {
     const path = join(pageDirectory, filename);
 
     try {
       const details = await stat(path);
-      const url = pathToFileURL(path);
-
-      url.searchParams.set("vd-seo", String(details.mtimeMs));
-      const module = await import(url.href);
+      const module = filename.endsWith(".ts")
+        ? await loadTypeScriptPageConfig(path)
+        : await importVersionedModule(path, details.mtimeMs);
 
       return module.default as PageConfig | undefined;
     } catch (error) {
@@ -458,6 +459,61 @@ async function loadPageConfig(
   }
 
   return undefined;
+}
+
+async function loadTypeScriptPageConfig(path: string) {
+  const source = await readFile(path, "utf8");
+  let typescript: typeof import("typescript");
+
+  try {
+    typescript = await import("typescript");
+  } catch (error) {
+    throw new Error(
+      `[VeloDom] ${path} requires TypeScript as an application dev dependency.`,
+      {
+        cause: error
+      }
+    );
+  }
+
+  const transformed = typescript.transpileModule(source, {
+    compilerOptions: {
+      module: typescript.ModuleKind.ESNext,
+      target: typescript.ScriptTarget.ES2022,
+      verbatimModuleSyntax: false
+    },
+    fileName: path,
+    reportDiagnostics: true
+  });
+  const diagnostic = transformed.diagnostics?.find(item => (
+    item.category === typescript.DiagnosticCategory.Error
+  ));
+
+  if (diagnostic) {
+    throw new SyntaxError(
+      `[VeloDom] ${path}: ${typescript.flattenDiagnosticMessageText(diagnostic.messageText, "\n")}`
+    );
+  }
+
+  try {
+    return await import(
+      `data:text/javascript;charset=utf-8,${encodeURIComponent(transformed.outputText)}`
+    );
+  } catch (error) {
+    throw new Error(
+      `[VeloDom] Could not evaluate ${path}. Keep config.ts self-contained and use type-only imports.`,
+      {
+        cause: error
+      }
+    );
+  }
+}
+
+async function importVersionedModule(path: string, version: number) {
+  const url = pathToFileURL(path);
+
+  url.searchParams.set("vd-seo", String(version));
+  return import(url.href);
 }
 
 async function loadSingleFilePageConfig(

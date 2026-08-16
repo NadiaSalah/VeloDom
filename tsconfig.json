@@ -9,6 +9,11 @@
     ],
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "paths": {
+      "velodom": [
+        "./src/core/index.ts"
+      ]
+    },
     "allowImportingTsExtensions": true,
     "types": [
       "node",

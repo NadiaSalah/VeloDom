@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**374 of 380 tasks completed — 98%**
+**375 of 380 tasks completed — 99%**
 
 `[###################-]`
 
-Remaining tasks: **6**
+Remaining tasks: **5**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -125,7 +125,7 @@ while preserving the explicit `createApp()` path for advanced integrations.
   plugin, reducing production CSS from about 1.16 MB to about 91 KB.
 - [x] Split the large CLI implementation into analyzer, reporter, and scaffold
   modules without changing commands or output contracts — Target: V1.x.
-- [ ] Design build-time support for typed page config without breaking static
+- [x] Design build-time support for typed page config without breaking static
   SEO loading or requiring TypeScript from Vanilla projects — Target: V1.x.
 - [ ] Add an optional CSS budget to build intelligence after choosing a safe
   default that does not punish application design-system choices — Target:

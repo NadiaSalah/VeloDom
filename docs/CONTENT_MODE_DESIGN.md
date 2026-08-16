@@ -89,7 +89,7 @@ Content stays readable and portable.
 Dynamic pages can expose explicit SEO entries from local content:
 
 ```js
-// src/pages/blog/[slug]/config.js
+// src/pages/blog/[slug]/config.js (or config.ts)
 import { loadContentCollection } from "velodom/content";
 
 export default {

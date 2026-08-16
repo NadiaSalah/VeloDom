@@ -317,3 +317,53 @@ test("static SEO renderer reads single-file page config blocks", async () => {
     });
   }
 });
+
+test("static SEO renderer transpiles self-contained TypeScript page config", async () => {
+  const root = await mkdtemp(join(tmpdir(), "vd-seo-ts-config-"));
+
+  try {
+    await mkdir(join(root, "dist"), {
+      recursive: true
+    });
+    await mkdir(join(root, "src", "pages", "typed"), {
+      recursive: true
+    });
+    await writeFile(join(root, "dist", "index.html"), shell);
+    await writeFile(
+      join(root, "src", "pages", "typed", "index.html"),
+      "<main>Typed config</main>"
+    );
+    await writeFile(
+      join(root, "src", "pages", "typed", "config.ts"),
+      `
+        import type { PageConfig } from "velodom";
+
+        export default {
+          path: "/typed",
+          seo: {
+            title: "Typed config",
+            description: "SEO loaded from TypeScript configuration."
+          }
+        } satisfies PageConfig;
+      `
+    );
+
+    const result = await generateStaticSeoPages({
+      root,
+      outDir: "dist"
+    });
+    const html = await readFile(
+      join(root, "dist", "typed", "index.html"),
+      "utf8"
+    );
+
+    assert.deepEqual(result.routes, ["/typed"]);
+    assert.match(html, /<title>Typed config<\/title>/);
+    assert.match(html, /SEO loaded from TypeScript configuration/);
+  } finally {
+    await rm(root, {
+      recursive: true,
+      force: true
+    });
+  }
+});

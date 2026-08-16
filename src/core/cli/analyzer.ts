@@ -19,6 +19,13 @@ import {
   relative
 } from "node:path";
 import type { DiscoveredModule } from "./types.ts";
+import { VD_RESOURCE_ADAPTER } from "../constants.ts";
+
+/** One discovered page config and its source text. */
+export interface PageConfigSource {
+  file: string;
+  source: string;
+}
 
 /** Discovers folder and optional single-file resources under one app folder. */
 export async function discoverModules(
@@ -84,6 +91,32 @@ export async function readOptionalText(file: string): Promise<string> {
   }
 }
 
+/** Returns ordered config paths for one page folder. */
+export function pageConfigPaths(folder: string): string[] {
+  return VD_RESOURCE_ADAPTER.FILES.CONFIG_VARIANTS.map(
+    filename => `${folder}/${filename}`
+  );
+}
+
+/** Reads the highest-priority JavaScript or TypeScript page config. */
+export async function readPageConfigSource(
+  root: string,
+  folder: string
+): Promise<PageConfigSource | undefined> {
+  for (const file of pageConfigPaths(folder)) {
+    const source = await readOptionalText(join(root, file));
+
+    if (source) {
+      return {
+        file,
+        source
+      };
+    }
+  }
+
+  return undefined;
+}
+
 /** Extracts a statically declared page path from config source. */
 export function readStaticPath(source: string): string {
   return source.match(/\bpath\s*:\s*["']([^"']+)["']/)?.[1] || "";
@@ -113,10 +146,9 @@ async function readRouteOverride(
   folder: string,
   name: string
 ) {
-  const config = await readOptionalText(join(root, folder, "config.js"))
-    || await readOptionalText(join(root, folder, "page.config.js"));
+  const config = await readPageConfigSource(root, folder);
 
-  return readStaticPath(config) || toRoutePath(name);
+  return readStaticPath(config?.source || "") || toRoutePath(name);
 }
 
 async function readSingleFileRouteOverride(

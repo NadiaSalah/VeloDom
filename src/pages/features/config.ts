@@ -1,3 +1,5 @@
+import type { PageConfig } from "velodom";
+
 export default {
   meta: {
     title: "Framework Features",
@@ -23,4 +25,4 @@ export default {
       text: "Working examples of reactive state, directives, components, lifecycle hooks, routing, and local request routes."
     }
   }
-};
+} satisfies PageConfig;

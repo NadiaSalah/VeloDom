@@ -73,6 +73,18 @@ if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?$/.test(manif
 
 const packageFiles = new Set(manifest.files || []);
 
+if (manifest.peerDependencies?.typescript !== ">=5.7") {
+  violations.push(
+    "typescript must remain an optional >=5.7 peer for typed config builds"
+  );
+}
+
+if (manifest.peerDependenciesMeta?.typescript?.optional !== true) {
+  violations.push(
+    "typescript peer dependency must remain optional for Vanilla projects"
+  );
+}
+
 for (const required of allowedPackageFiles) {
   if (!packageFiles.has(required)) {
     violations.push(`package files allowlist is missing "${required}"`);

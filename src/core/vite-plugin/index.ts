@@ -308,7 +308,7 @@ function shouldEmitMetadata(
 }
 
 function isPageConfigFile(filename: string) {
-  return /\/src\/pages\/.*\/(?:page\.)?config\.js$/.test(
+  return /\/src\/pages\/.*\/(?:page\.)?config\.[jt]s$/.test(
     filename.replace(/\\/g, "/")
   );
 }

@@ -26,6 +26,10 @@
   production builds.
 - Application source may use `script.js` or `script.ts` per folder with no API
   differences and no JSX/TSX.
+- Page policy/SEO may use `config.js` or self-contained `config.ts`. Typed
+  config is transpiled only during Vite build tooling, accepts type-only
+  imports, and requires TypeScript only as an optional application development
+  dependency; Vanilla projects keep no TypeScript requirement.
 - The public application import boundary is the `velodom` package export backed
   by `src/core/index.ts`; other core modules are internal until promoted.
 - V1 public names are frozen by package-boundary tests. Changes to

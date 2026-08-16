@@ -166,7 +166,7 @@ export type SeoEntriesHook = (
   context: SeoEntriesContext
 ) => MaybePromise<SeoRouteEntry[]>;
 
-/** SEO declaration stored in a page's existing config.js file. */
+/** SEO declaration stored in a page's config.js or optional config.ts file. */
 export interface SeoConfig extends SeoMetadata {
   entries?: SeoRouteEntry[] | SeoEntriesHook;
 }

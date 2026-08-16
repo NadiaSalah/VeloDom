@@ -34,6 +34,12 @@ package versions.
 - Retried the strict browser matrix; Chromium and all build/package gates
   passed, but local Firefox headless startup stalled again, leaving that
   environment-specific release gate open for CI.
+- Added optional folder-mode `config.ts` discovery across the Vite adapter,
+  static SEO renderer, CLI inspection, doctor/docs reports, and `--ts`
+  scaffolding. TypeScript remains an optional peer used only by typed config
+  builds; Vanilla `config.js` projects add no compiler requirement.
+- Converted the showcase Features page to typed config and added regression
+  coverage for TypeScript SEO evaluation and CLI generation.
 
 ## 2026-08-16
 

@@ -12,7 +12,8 @@ the lightweight client router.
 
 ## Proposed Contract
 
-A future page `config.js` may opt into a build-only `prerender` section:
+A future page `config.js` or `config.ts` may opt into a build-only `prerender`
+section:
 
 ```js
 export default {

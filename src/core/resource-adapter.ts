@@ -251,7 +251,7 @@ function validateConfigMap(
       if (!name.trim() || !isPlainObject(config)) {
         throw createAdapterError(
           `Adapter config "${label}.${name}" must be a plain object`,
-          "Export a default object from config.js."
+          "Export a default object from config.js or config.ts."
         );
       }
 

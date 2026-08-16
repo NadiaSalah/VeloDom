@@ -23,6 +23,11 @@ test("published package boundaries use built allowlisted artifacts", () => {
 
   assert.equal(manifest.private, true);
   assert.match(manifest.version, /^\d+\.\d+\.\d+(?:-[\w.-]+)?$/);
+  assert.equal(manifest.peerDependencies.typescript, ">=5.7");
+  assert.equal(
+    manifest.peerDependenciesMeta.typescript.optional,
+    true
+  );
   assert.deepEqual(manifest.bin, {
     "vd": "./bin/vd.js",
     "create-velodom": "./bin/create-velodom.js"

@@ -71,7 +71,7 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
     assert.ok(
       inspection.exposes.some(expose => expose.owner === "home" && expose.name === "announce")
     );
-    assert.deepEqual(inspection.seoConfigs, ["src/pages/home/config.js"]);
+    assert.deepEqual(inspection.seoConfigs, ["src/pages/home/config.ts"]);
     assert.deepEqual(inspection.compilerFeatures, [
       "events",
       "bindings",
@@ -350,6 +350,7 @@ test("CLI create scaffolds convention-first project resources", async () => {
 
     await assertFile(join(root, "src/pages/blog/posts/[id]/index.html"));
     await assertFile(join(root, "src/pages/blog/posts/[id]/script.ts"));
+    await assertFile(join(root, "src/pages/blog/posts/[id]/config.ts"));
     await assertFile(join(root, "src/components/shared/post-card.vd"));
     await assertFile(join(root, "src/api/posts.js"));
     await assertFile(join(root, "src/pages/features/demo/index.html"));
@@ -358,7 +359,7 @@ test("CLI create scaffolds convention-first project resources", async () => {
     await assertFile(join(root, "starter/src/pages/home/config.js"));
 
     const config = await readFile(
-      join(root, "src/pages/blog/posts/[id]/config.js"),
+      join(root, "src/pages/blog/posts/[id]/config.ts"),
       "utf8"
     );
     const starterMain = await readFile(
@@ -371,6 +372,7 @@ test("CLI create scaffolds convention-first project resources", async () => {
     );
 
     assert.match(config, /path: "\/blog\/posts\/:id"/);
+    assert.match(config, /satisfies PageConfig/);
     assert.match(starterMain, /await mountVeloDom\(\)/);
     assert.doesNotMatch(starterMain, /createViteAdapter/);
     assert.match(starterShell, /<!doctype html>/i);
@@ -456,7 +458,7 @@ async function createFixture() {
   );
   await writeFixtureFile(
     root,
-    "src/pages/home/config.js",
+    "src/pages/home/config.ts",
     "export default { path: '/', seo: { title: 'Home' } };"
   );
   await writeFixtureFile(

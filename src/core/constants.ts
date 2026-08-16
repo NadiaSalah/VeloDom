@@ -217,6 +217,12 @@ export const VD_RESOURCE_ADAPTER = Object.freeze({
   }),
   FILES: Object.freeze({
     CONFIG: "config.js",
+    CONFIG_VARIANTS: Object.freeze([
+      "config.ts",
+      "config.js",
+      "page.config.ts",
+      "page.config.js"
+    ]),
     HTML: "index.html",
     MODULE: "script.js",
     STYLE: "style.css"
