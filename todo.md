@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**289 of 326 tasks completed — 88.7%**
+**304 of 326 tasks completed — 93.3%**
 
-`[##################--]`
+`[###################-]`
 
-Remaining tasks: **37**
+Remaining tasks: **22**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -483,9 +483,9 @@ analysis, compiler metadata, build reports, and optional providers. It must not
 add mandatory runtime state, JSX/TSX authoring, virtual-DOM concepts, or hidden
 configuration-heavy behavior.
 
-- [ ] Define a DX feature rubric before implementation — Fit: protects HTML-first/compiler-first decisions; Value: prevents feature bloat; Complexity: low; Target: V1.x
-- [ ] Keep every DX feature usable without AI or cloud services — Fit: preserves Vanilla Friendly and offline workflows; Value: predictable local development; Complexity: low; Target: V1.x
-- [ ] Keep DX analysis outside the browser runtime by default — Fit: preserves Runtime Lightweight; Value: safer diagnostics without app-size cost; Complexity: medium; Target: V1.x
+- [x] Define a DX feature rubric before implementation — Fit: protects HTML-first/compiler-first decisions; Value: prevents feature bloat; Complexity: low; Target: V1.x
+- [x] Keep every DX feature usable without AI or cloud services — Fit: preserves Vanilla Friendly and offline workflows; Value: predictable local development; Complexity: low; Target: V1.x
+- [x] Keep DX analysis outside the browser runtime by default — Fit: preserves Runtime Lightweight; Value: safer diagnostics without app-size cost; Complexity: medium; Target: V1.x
 
 ### 14.2 Project Intelligence
 
@@ -561,11 +561,11 @@ AI can be valuable, but it must be optional and provider-based like auth. The
 framework should work fully without AI, internet access, API keys, or hosted
 services.
 
-- [ ] Research an optional AI provider interface with OpenAI, OpenRouter, Ollama, Gemini, and custom providers — Fit: provider pattern without mandatory dependency; Value: user choice and local-first options; Complexity: medium; Target: Future Research
-- [ ] Keep AI CLI commands such as `vd ai review`, `vd ai explain`, `vd ai generate`, and `vd ai optimize` outside the runtime package — Fit: runtime-lightweight; Value: assistance without app bloat; Complexity: medium; Target: Future Research
-- [ ] Require AI tools to read compiler/project manifests instead of guessing project structure — Fit: compiler-first; Value: more accurate suggestions; Complexity: medium; Target: Future Research
-- [ ] Treat `vd-ai`, `vd-ai-prompt`, and `vd-ai-target` directives as research-only until security, privacy, offline behavior, and runtime cost are proven acceptable — Fit: protects HTML-first simplicity; Value: prevents premature directive bloat; Complexity: high; Target: Future Research
-- [ ] Add clear privacy controls for files, prompts, secrets, and provider telemetry before any AI integration is considered usable — Fit: safe developer tooling; Value: trust and compliance; Complexity: high; Target: Future Research
+- [x] Research an optional AI provider interface with OpenAI, OpenRouter, Ollama, Gemini, and custom providers — Fit: provider pattern without mandatory dependency; Value: user choice and local-first options; Complexity: medium; Target: Future Research
+- [x] Keep AI CLI commands such as `vd ai review`, `vd ai explain`, `vd ai generate`, and `vd ai optimize` outside the runtime package — Fit: runtime-lightweight; Value: assistance without app bloat; Complexity: medium; Target: Future Research
+- [x] Require AI tools to read compiler/project manifests instead of guessing project structure — Fit: compiler-first; Value: more accurate suggestions; Complexity: medium; Target: Future Research
+- [x] Treat `vd-ai`, `vd-ai-prompt`, and `vd-ai-target` directives as research-only until security, privacy, offline behavior, and runtime cost are proven acceptable — Fit: protects HTML-first simplicity; Value: prevents premature directive bloat; Complexity: high; Target: Future Research
+- [x] Add clear privacy controls for files, prompts, secrets, and provider telemetry before any AI integration is considered usable — Fit: safe developer tooling; Value: trust and compliance; Complexity: high; Target: Future Research
 
 ### 14.9 Migration Tools
 
@@ -573,16 +573,16 @@ Migration helpers are acceptable only as optional project-conversion assistants.
 They should produce normal VeloDom folders and HTML, not compatibility layers
 that emulate React or Vue at runtime.
 
-- [ ] Research `HTML -> VeloDom` migration helpers that add folder structure, `vd-*` directives, and `script.js` state incrementally — Fit: HTML-first adoption; Value: easiest migration path; Complexity: medium; Target: V2
-- [ ] Research limited `React -> VeloDom` and `Vue -> VeloDom` codemods that generate reviewable VeloDom folders for simple components only — Fit: optional conversion tooling; Value: helps teams experiment; Complexity: high; Target: Future Research
+- [x] Research `HTML -> VeloDom` migration helpers that add folder structure, `vd-*` directives, and `script.js` state incrementally — Fit: HTML-first adoption; Value: easiest migration path; Complexity: medium; Target: V2
+- [x] Research limited `React -> VeloDom` and `Vue -> VeloDom` codemods that generate reviewable VeloDom folders for simple components only — Fit: optional conversion tooling; Value: helps teams experiment; Complexity: high; Target: Future Research
 
 ### 15. Framework Identity
 
-- [ ] Write a one-paragraph positioning statement
-- [ ] Define who VeloDom is for
-- [ ] Define what VeloDom does better than plain JS
-- [ ] Define when to choose VeloDom over heavier frameworks
-- [ ] Define what problems VeloDom intentionally does not solve
+- [x] Write a one-paragraph positioning statement
+- [x] Define who VeloDom is for
+- [x] Define what VeloDom does better than plain JS
+- [x] Define when to choose VeloDom over heavier frameworks
+- [x] Define what problems VeloDom intentionally does not solve
 
 ---
 

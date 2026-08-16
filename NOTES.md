@@ -299,6 +299,9 @@
   export. They compile preferred `vd-*` syntax for tests and mount in-memory
   pages/components against an already-installed DOM environment such as
   happy-dom, jsdom, or a real browser.
+- DX, AI, migration, and identity research is documented under `docs/` so the
+  roadmap can distinguish accepted tooling direction from features that should
+  not be implemented yet.
 - Future DX tooling should default to static analysis, compiler manifests,
   Vite/build metadata, and local CLI output. It should improve developer
   confidence without adding mandatory browser runtime features.

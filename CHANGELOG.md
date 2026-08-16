@@ -42,6 +42,16 @@ package versions.
   with props, slots, module hooks, styles, and optional manifest overrides.
 - Brought the automated suite to 196 passing tests.
 
+### Roadmap Research and Identity
+
+- Added `docs/DX_RUBRIC.md` to define the acceptance rules for future
+  developer-experience features.
+- Added `docs/FUTURE_RESEARCH.md` to record optional AI-provider and migration
+  helper research without adding runtime features.
+- Added `docs/FRAMEWORK_IDENTITY.md` to capture positioning, audience, plain
+  JavaScript tradeoffs, heavier-framework tradeoffs, and intentional
+  non-goals.
+
 ## 2026-07-10
 
 ### Request Status Naming

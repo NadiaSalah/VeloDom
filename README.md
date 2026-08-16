@@ -222,6 +222,7 @@ src/
 
 test/                         automated tests
 test-support/                 reusable test environment helpers
+docs/                         DX, future research, and identity notes
 examples/package-consumer/    installed-package verification fixture
 ```
 
@@ -3183,6 +3184,7 @@ Latest implementation update:
 - Added `vd build-report` for machine-readable build/project intelligence.
 - Added `velodom/testing` with `mountTestPage()` and `mountTestComponent()`
   for public DOM test helpers.
+- Added DX, future research, and framework identity documents under `docs/`.
 - Added optional direction management through `createDirectionPlugin()` and
   compiler support for explicit `vd-rtl-flip` directional icon markers.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
@@ -3281,21 +3283,18 @@ These features are not implemented and should not be described as available:
 - declarative request cache
 - full translation/i18n dictionaries, pluralization, message formatting, and
   locale routing
-- CSS logical-property diagnostics, UTF-8 shell diagnostics, and automatic RTL
-  stylesheet generation
 - broader keyboard/focus UX beyond the current integration coverage
 - advanced shared-state patterns beyond the optional `createSharedState()`
   helper
-- project/page/component scaffolding CLI
-- official test-utility package
 - dedicated browser extension/devtools panel beyond the optional devtools
   bridge plugin
 - full page SSR, full static content rendering, or hydration
 - full-content API/CMS pre-rendering beyond build-time SEO metadata hooks
 - guaranteed strict CI browser availability for every Firefox/WebKit/mobile
   WebKit target
-- project intelligence, health reports, visual graphs, build intelligence,
-  documentation generation, migration helpers, and optional AI tooling
+- advanced project intelligence, health reports, visual graphs, documentation
+  generation, migration helpers, and optional AI tooling beyond the current
+  static CLI foundation
 
 The current reactive state is shallow. Static SEO emits metadata and concise
 fallback content, not the complete interactive page.
@@ -3306,6 +3305,10 @@ The prioritized roadmap and progress counter live in [todo.md](todo.md).
 Important milestone history lives in [CHANGELOG.md](CHANGELOG.md). Architecture
 decisions and deferred ideas live in [NOTES.md](NOTES.md). Release rules live
 in [RELEASING.md](RELEASING.md).
+DX acceptance rules live in [docs/DX_RUBRIC.md](docs/DX_RUBRIC.md), optional
+AI and migration research lives in
+[docs/FUTURE_RESEARCH.md](docs/FUTURE_RESEARCH.md), and VeloDom positioning
+lives in [docs/FRAMEWORK_IDENTITY.md](docs/FRAMEWORK_IDENTITY.md).
 
 Current roadmap order:
 
