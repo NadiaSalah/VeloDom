@@ -736,6 +736,142 @@ test("invalid request throttle reports a configuration error", async () => {
   });
 });
 
+test("request config retry repeats transient request failures", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.save"
+      data-vd-request-config="{
+        params: { title },
+        target: 'result',
+        error: 'error',
+        retry: 2,
+        retryDelayMs: 1
+      }"
+    >Save</button>
+  `);
+  let attempts = 0;
+
+  configureRequestRuntime({
+    routes: {
+      "posts.save": params => {
+        attempts += 1;
+
+        if (attempts < 3) {
+          throw new Error("Temporary failure");
+        }
+
+        return {
+          title: params.title
+        };
+      }
+    }
+  });
+
+  const state = createState({
+    error: "",
+    result: null,
+    title: "Recovered"
+  });
+  const cleanup = await applyDirectives(root, state);
+
+  root.querySelector("button").click();
+
+  await waitFor(() => {
+    assert.deepEqual(state.result, {
+      title: "Recovered"
+    });
+  });
+
+  assert.equal(attempts, 3);
+  assert.equal(state.error, "");
+
+  cleanup();
+});
+
+test("request config retry true performs one extra attempt", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.save"
+      data-vd-request-config="{
+        target: 'result',
+        retry: true
+      }"
+    >Save</button>
+  `);
+  let attempts = 0;
+
+  configureRequestRuntime({
+    routes: {
+      "posts.save": () => {
+        attempts += 1;
+
+        if (attempts === 1) {
+          throw new Error("Retry once");
+        }
+
+        return "saved";
+      }
+    }
+  });
+
+  const state = createState({
+    result: ""
+  });
+  const cleanup = await applyDirectives(root, state);
+
+  root.querySelector("button").click();
+
+  await waitFor(() => {
+    assert.equal(state.result, "saved");
+  });
+  assert.equal(attempts, 2);
+
+  cleanup();
+});
+
+test("invalid request retry reports a configuration error", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.save"
+      data-vd-request-config="{ retry: -1 }"
+    >Save</button>
+  `);
+  let handlerCalls = 0;
+
+  configureRequestRuntime({
+    routes: {
+      "posts.save": () => {
+        handlerCalls += 1;
+      }
+    }
+  });
+
+  const events = createPageEventHub();
+  const errors = [];
+  events.on(VD_REQUEST.EVENTS.ERROR, event => {
+    errors.push(event);
+  });
+  const state = createState({
+    emit: events.emit
+  });
+
+  await withoutConsoleError(async messages => {
+    const cleanup = await applyDirectives(root, state);
+
+    root.querySelector("button").click();
+    await waitFor(() => {
+      assert.equal(errors.length, 1);
+    });
+
+    assert.equal(handlerCalls, 0);
+    assert.equal(errors[0].stage, VD_REQUEST.STAGES.CONFIG);
+    assert.equal(errors[0].code, VD_REQUEST.CODES.INVALID_CONFIG);
+    assert.match(messages[0], /Invalid Request Config Value/);
+
+    cleanup();
+  });
+});
+
 function createRoot(html) {
   const root = document.createElement("div");
   root.innerHTML = html;

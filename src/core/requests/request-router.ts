@@ -54,6 +54,11 @@ interface RequestRuntimeOptions {
   auth?: unknown;
 }
 
+interface RequestRetryRuntimeOptions {
+  delayMs: number;
+  retries: number;
+}
+
 interface RequestDirectiveState extends DirectiveState {
   emit?: (eventName: string, payload: unknown) => unknown;
 }
@@ -278,6 +283,7 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
   const errorAttr = getRequestConfigText(el, requestConfig, "error", VD.ERROR);
   const requestStateEnabled = hasRequestStateAutomation(el, requestConfig);
   const paramsInput = getRequestParamsInput(el, requestConfig);
+  const retryOptions = getRequestRetryOptions(requestConfig);
   const params = getRequestParams(
     el,
     state,
@@ -405,15 +411,11 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
       session,
       signal: activeRequest.controller.signal
     };
-    const execution = await executeRequestMiddleware({
-      middleware: routeConfig.middleware,
+    const execution = await executeRequestWithRetry({
+      routeConfig,
       params,
-      context: requestContext,
-      handler: finalParams => callApiRoute(
-        routeConfig,
-        finalParams,
-        requestContext
-      )
+      requestContext,
+      retryOptions
     });
     const finalParams = execution.params;
     const result = execution.result;
@@ -577,7 +579,97 @@ function getRequestConfig(el, state, context, event, evaluate, routeName) {
     }
   }
 
+  for (const key of VD_REQUEST.RETRY_KEYS) {
+    if (
+      evaluated[key] !== undefined
+      && !isValidRequestRetryCount(evaluated[key])
+    ) {
+      reportRequestDirectiveProblem(state, el, routeName, `request config "${key}" must be a non-negative integer or boolean`, {
+        title: "Invalid Request Config Value",
+        directive: VD.REQUEST_CONFIG,
+        expression,
+        hint: `Set ${key} to true, false, or a non-negative retry count. Example: { ${key}: 2 }`
+      });
+
+      return VD_INTERNAL.REQUEST_ABORT;
+    }
+  }
+
+  for (const key of VD_REQUEST.RETRY_DELAY_KEYS) {
+    if (
+      evaluated[key] !== undefined
+      && !isValidRequestDelay(evaluated[key])
+    ) {
+      reportRequestDirectiveProblem(state, el, routeName, `request config "${key}" must be a non-negative number`, {
+        title: "Invalid Request Config Value",
+        directive: VD.REQUEST_CONFIG,
+        expression,
+        hint: `Set ${key} to a non-negative number of milliseconds. Example: { ${key}: 100 }`
+      });
+
+      return VD_INTERNAL.REQUEST_ABORT;
+    }
+  }
+
   return evaluated;
+}
+
+async function executeRequestWithRetry({
+  routeConfig,
+  params,
+  requestContext,
+  retryOptions
+}) {
+  let failures = 0;
+
+  for (;;) {
+    try {
+      return await executeRequestMiddleware({
+        middleware: routeConfig.middleware,
+        params,
+        context: requestContext,
+        handler: finalParams => callApiRoute(
+          routeConfig,
+          finalParams,
+          requestContext
+        )
+      });
+    } catch (error) {
+      if (
+        failures >= retryOptions.retries
+        || requestContext.signal?.aborted
+        || error?.name === "AbortError"
+      ) {
+        throw error;
+      }
+
+      failures += 1;
+
+      if (retryOptions.delayMs > 0) {
+        await waitForRetryDelay(retryOptions.delayMs, requestContext.signal);
+      }
+    }
+  }
+}
+
+function getRequestRetryOptions(
+  requestConfig
+): RequestRetryRuntimeOptions {
+  const retryKey = VD_REQUEST.RETRY_KEYS.find(name => (
+    requestConfig?.[name] !== undefined
+  ));
+  const delayKey = VD_REQUEST.RETRY_DELAY_KEYS.find(name => (
+    requestConfig?.[name] !== undefined
+  ));
+
+  return {
+    retries: retryKey
+      ? normalizeRequestRetryCount(requestConfig[retryKey])
+      : 0,
+    delayMs: delayKey
+      ? Number(requestConfig[delayKey])
+      : 0
+  };
 }
 
 function getRequestThrottleMs(
@@ -701,6 +793,58 @@ function isValidRequestDelay(value) {
     && Number.isFinite(value)
     && value >= 0
   );
+}
+
+function isValidRequestRetryCount(value) {
+  return (
+    typeof value === "boolean"
+    || (
+      Number.isInteger(value)
+      && Number(value) >= 0
+    )
+  );
+}
+
+function normalizeRequestRetryCount(value) {
+  if (value === true) return 1;
+  if (value === false || value === undefined) return 0;
+
+  return Number(value);
+}
+
+function waitForRetryDelay(ms, signal) {
+  if (!signal) {
+    return new Promise(resolve => {
+      setTimeout(resolve, ms);
+    });
+  }
+
+  if (signal.aborted) {
+    return Promise.reject(createRequestAbortError());
+  }
+
+  return new Promise((resolve, reject) => {
+    function abort() {
+      clearTimeout(timer);
+      signal.removeEventListener("abort", abort);
+      reject(createRequestAbortError());
+    }
+
+    const timer = setTimeout(() => {
+      signal.removeEventListener("abort", abort);
+      resolve(undefined);
+    }, ms);
+    signal.addEventListener("abort", abort, {
+      once: true
+    });
+  });
+}
+
+function createRequestAbortError() {
+  const error = new Error("Request aborted");
+
+  error.name = "AbortError";
+  return error;
 }
 
 function getRequestParamsInput(el, requestConfig) {

@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**253 of 326 tasks completed — 77.6%**
+**254 of 326 tasks completed — 77.9%**
 
-`[###############-----]`
+`[################----]`
 
-Remaining tasks: **73**
+Remaining tasks: **72**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -411,7 +411,7 @@ and `src/api`.
 - [x] Add automatic request cancellation on supersede and unmount
 - [x] Add request debounce support
 - [x] Add request throttle support
-- [ ] Add request retry option
+- [x] Add request retry option
 - [ ] Add redirect behavior on auth failure
 - [ ] Add global before-request hook
 - [ ] Add global after-request hook

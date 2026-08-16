@@ -63,7 +63,7 @@ VeloDom currently provides:
 - named and unnamed slots plus folder-scoped CSS
 - optional application-owned shared state through `createSharedState()`
 - declarative requests with params, result/loading/error state, events, auth,
-  middleware, debounce, throttle, and cancellation
+  middleware, debounce, throttle, retry, and cancellation
 - optional request cache, retry wrapper, and devtools bridge helpers
 - optional native-form validation plugin for `vd-validate` request forms
 - optional direction plugin for document `lang`/`dir` and RTL-aware templates
@@ -1408,6 +1408,33 @@ Attribute shorthand:
 
 `vd-throttle` is compiled to `data-vd-throttle` and accepts a safe expression
 that must resolve to a non-negative number of milliseconds.
+
+### Request Retry
+
+Use retry for transient failures such as short network interruptions or
+temporary API instability. Retry is disabled by default and must be enabled
+per request in `vd-request-config`.
+
+```html
+<button
+  type="button"
+  vd-request="posts.save"
+  vd-request-config="{
+    params: { title: draft.title },
+    target: 'saveResult',
+    error: 'saveError',
+    retry: 2,
+    retryDelayMs: 100
+  }"
+>
+  Save
+</button>
+```
+
+`retry: true` performs one extra attempt. `retry: 2` or `retries: 2` performs
+up to two retries after the first failed attempt. `retryDelayMs` / `delayMs`
+adds an optional delay between attempts. Auth and configuration failures are
+not retried; retry applies only after a request is configured and authorized.
 
 ### Forms
 
@@ -2893,7 +2920,7 @@ Latest local verification on 2026-07-10:
 - Core documentation audit passes for 55 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 170 automated tests pass
+- 173 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2928,6 +2955,8 @@ Latest implementation update:
   the `vd-debounce` shorthand attribute.
 - Added declarative request throttle through `throttleMs` in request config and
   the `vd-throttle` shorthand attribute.
+- Added declarative request retry through `retry`, `retries`, and
+  `retryDelayMs` in request config.
 - Added optional direction management through `createDirectionPlugin()` and
   compiler support for explicit `vd-rtl-flip` directional icon markers.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
@@ -3020,7 +3049,7 @@ These features are not implemented and should not be described as available:
 - npm publication and final npm account/package reservation
 - schema-based validation, custom validation rules, and validation error state
   conventions beyond the optional native validation plugin
-- declarative request retry or cache
+- declarative request cache
 - full translation/i18n dictionaries, pluralization, message formatting, and
   locale routing
 - CSS logical-property diagnostics, UTF-8 shell diagnostics, and automatic RTL

@@ -67,7 +67,9 @@ package versions.
   `vd-request-config` and the `vd-throttle` shorthand attribute.
 - Throttled requests run on the leading trigger and ignore repeated triggers
   inside the configured window.
-- Brought the automated suite to 170 passing tests.
+- Added declarative request retry via `retry`, `retries`, and `retryDelayMs`
+  in `vd-request-config`.
+- Brought the automated suite to 173 passing tests.
 
 ### RTL and Multilingual CSS
 

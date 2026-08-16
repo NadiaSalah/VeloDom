@@ -254,6 +254,14 @@ export const VD_REQUEST = Object.freeze({
     "throttleMs",
     "throttle"
   ]),
+  RETRY_KEYS: Object.freeze([
+    "retries",
+    "retry"
+  ]),
+  RETRY_DELAY_KEYS: Object.freeze([
+    "retryDelayMs",
+    "delayMs"
+  ]),
   STATUS_SUFFIXES: Object.freeze({
     RESULT: "Result",
     LOADING: "Loading",
