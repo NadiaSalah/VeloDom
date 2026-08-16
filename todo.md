@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**286 of 326 tasks completed — 87.7%**
+**287 of 326 tasks completed — 88.0%**
 
 `[##################--]`
 
-Remaining tasks: **40**
+Remaining tasks: **39**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -495,7 +495,7 @@ relationships. The first version should be static, local, and deterministic.
 
 - [ ] Design a project analyzer manifest that reads pages, components, API routes, middleware, CSS, refs, events, and SEO configs — Fit: compiler/folder-first; Value: one source of project truth; Complexity: medium; Target: V1.x
 - [x] Add `vd inspect` to list discovered pages, components, routes, request routes, middleware, and compiler features — Fit: convention over configuration; Value: explains automatic discovery; Complexity: medium; Target: V1.x
-- [ ] Add `vd doctor` to detect missing components, broken component paths, invalid `vd-*` usage, invalid config shapes, and broken request references — Fit: compile-time validation; Value: catches common mistakes early; Complexity: medium; Target: V1.x
+- [x] Add `vd doctor` to detect missing components, broken component paths, invalid `vd-*` usage, invalid config shapes, and broken request references — Fit: compile-time validation; Value: catches common mistakes early; Complexity: medium; Target: V1.x
 - [ ] Detect broken refs, duplicate state names used across one template scope, unknown event handlers, and unsafe directive expressions before runtime — Fit: compiler-first; Value: fewer runtime surprises; Complexity: medium; Target: V1.x
 - [ ] Detect unused components, unused routes, unused middleware, dead API handlers, and unreachable showcase files without deleting anything automatically — Fit: static analysis; Value: reduces project clutter; Complexity: medium; Target: V2
 - [ ] Detect circular component dependencies and large page/component folders with actionable warnings — Fit: folder-first maintainability; Value: prevents slow builds and confusing composition; Complexity: medium; Target: V2

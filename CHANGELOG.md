@@ -22,11 +22,13 @@ package versions.
 - Added package binaries for `vd` and `create-velodom`.
 - Added `vd inspect`, `vd stats`, and `vd routes` as local static project
   intelligence commands.
+- Added `vd doctor` for static compiler diagnostics, missing component
+  references, broken request references, and simple page config mistakes.
 - Added convention-first scaffolding for pages, components, API files, demo
   pages, middleware files, plugins, and starter projects.
 - Extended package contract checks to include the CLI wrappers in the
   publishable file allowlist.
-- Brought the automated suite to 193 passing tests.
+- Brought the automated suite to 197 passing tests.
 
 ### Public Testing Utilities
 

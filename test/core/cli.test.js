@@ -201,6 +201,56 @@ test("CLI create scaffolds convention-first project resources", async () => {
   }
 });
 
+test("CLI doctor reports static project problems", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-cli-"));
+  const output = [];
+
+  try {
+    await writeFixtureFile(
+      root,
+      "src/pages/home/index.html",
+      `
+        <main>
+          <vd-component name="missing-card"></vd-component>
+          <button vd-on:click="broken("></button>
+          <button vd-request="posts.missing"></button>
+        </main>
+      `
+    );
+    await writeFixtureFile(
+      root,
+      "src/pages/home/config.js",
+      "export default { path: 'bad' };"
+    );
+    await writeFixtureFile(
+      root,
+      "src/api/routes.js",
+      "export default { \"posts.getAll\": () => [] };"
+    );
+
+    const code = await runVeloDomCli([
+      "doctor",
+      "--json",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+    const report = JSON.parse(output.join("\n"));
+    const messages = report.issues.map(issue => issue.message).join("\n");
+
+    assert.equal(code, 1);
+    assert.equal(report.ok, false);
+    assert.match(messages, /Component "missing-card"/);
+    assert.match(messages, /Request "posts.missing"/);
+    assert.match(messages, /Expected an expression/);
+    assert.match(messages, /path should start/);
+  } finally {
+    await removeFixture(root);
+  }
+});
+
 async function createFixture() {
   const root = await mkdtemp(join(tmpdir(), "velodom-cli-"));
 

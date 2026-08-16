@@ -147,6 +147,7 @@ VeloDom includes package binaries for local, static developer tooling:
 
 ```bash
 vd inspect
+vd doctor
 vd stats
 vd routes
 vd create page blog/posts/[id] --ts
@@ -167,6 +168,8 @@ The CLI is intentionally static and local. `vd inspect` and `vd stats` read
 folders, `.vd` files, API route registrations, middleware files, template
 directives, compiler feature manifests, SEO coverage, and test-file signals
 without adding any browser runtime behavior.
+`vd doctor` adds actionable checks for compiler diagnostics, missing component
+references, broken request references, and simple page config mistakes.
 
 ## Testing Utilities
 
@@ -3114,7 +3117,7 @@ Latest local verification on 2026-08-16:
 - Core documentation audit passes for 59 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 196 automated tests pass
+- 197 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -3171,6 +3174,8 @@ Latest implementation update:
   added `npm run performance:check` to enforce generated JavaScript budgets.
 - Added `vd` / `create-velodom` package binaries for static inspection,
   project stats, route listing, and convention-first scaffolding.
+- Added `vd doctor` for local static diagnostics covering compiler issues,
+  missing components, broken request references, and page config path mistakes.
 - Added `velodom/testing` with `mountTestPage()` and `mountTestComponent()`
   for public DOM test helpers.
 - Added optional direction management through `createDirectionPlugin()` and

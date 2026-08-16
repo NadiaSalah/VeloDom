@@ -66,10 +66,17 @@ interface ProjectInspection {
   tests: string[];
 }
 
+interface DoctorIssue {
+  file: string;
+  level: "error" | "warning";
+  message: string;
+}
+
 const HELP = `VeloDom CLI
 
 Usage:
   vd inspect [--json] [--root <dir>]
+  vd doctor [--json] [--root <dir>]
   vd stats [--json] [--root <dir>]
   vd routes [--json] [--root <dir>]
   vd create page <name> [--ts] [--single-file] [--root <dir>]
@@ -112,6 +119,8 @@ export async function runVeloDomCli(
       case "inspect":
         await printInspection(context, parsed.flags.has("json"));
         return 0;
+      case "doctor":
+        return printDoctor(context, parsed.flags.has("json"));
       case "stats":
         await printStats(context, parsed.flags.has("json"));
         return 0;
@@ -149,6 +158,35 @@ async function printInspection(context: CliContext, json: boolean) {
   printList(context, "Request routes", inspection.requestRoutes);
   printList(context, "Middleware files", inspection.middleware);
   printList(context, "Compiler features", inspection.compilerFeatures);
+}
+
+async function printDoctor(context: CliContext, json: boolean) {
+  const issues = await runDoctor(context.cwd);
+  const hasErrors = issues.some(issue => issue.level === "error");
+
+  if (json) {
+    context.stdout(JSON.stringify({
+      ok: !hasErrors,
+      issues
+    }, null, 2));
+    return hasErrors ? 1 : 0;
+  }
+
+  context.stdout("VeloDom doctor");
+  context.stdout("==============");
+
+  if (!issues.length) {
+    context.stdout("No project issues found.");
+    return 0;
+  }
+
+  issues.forEach(issue => {
+    context.stdout(
+      `  - ${issue.level.toUpperCase()} ${issue.file}: ${issue.message}`
+    );
+  });
+
+  return hasErrors ? 1 : 0;
 }
 
 async function printStats(context: CliContext, json: boolean) {
@@ -211,6 +249,79 @@ async function printRoutes(context: CliContext, json: boolean) {
       `  - ${route.path} (${route.name}, ${route.kind}) -> ${route.source}`
     );
   });
+}
+
+async function runDoctor(root: string) {
+  const inspection = await inspectProject(root);
+  const issues: DoctorIssue[] = [];
+  const componentNames = new Set(
+    inspection.components.map(component => component.name)
+  );
+  const requestRoutes = new Set(inspection.requestRoutes);
+  const templates = [
+    ...inspection.pages,
+    ...inspection.components,
+    ...inspection.layouts
+  ];
+
+  await Promise.all(templates.map(async template => {
+    const source = await readOptionalText(join(root, template.source));
+    const html = template.source.endsWith(".vd")
+      ? source.match(/<template\b[^>]*>([\s\S]*?)<\/template>/i)?.[1] || ""
+      : source;
+
+    try {
+      const result = compileTemplate(html, {
+        filename: template.source,
+        mode: "development"
+      });
+
+      result.diagnostics.forEach(diagnostic => {
+        issues.push({
+          file: diagnostic.filename,
+          level: diagnostic.severity,
+          message: diagnostic.message
+        });
+      });
+    } catch (error) {
+      issues.push({
+        file: template.source,
+        level: "error",
+        message: error instanceof Error ? error.message : String(error)
+      });
+    }
+
+    findComponentReferences(html).forEach(component => {
+      if (!componentNames.has(component)) {
+        issues.push({
+          file: template.source,
+          level: "error",
+          message: `Component "${component}" was referenced but not discovered.`
+        });
+      }
+    });
+
+    findRequestReferences(html).forEach(request => {
+      if (!requestRoutes.has(request)) {
+        issues.push({
+          file: template.source,
+          level: "error",
+          message: `Request "${request}" was referenced but not registered in src/api/routes.`
+        });
+      }
+    });
+  }));
+
+  await Promise.all(inspection.pages.map(async page => {
+    const configIssues = await validatePageConfigText(root, page);
+
+    issues.push(...configIssues);
+  }));
+
+  return issues.sort((left, right) => (
+    `${left.level}:${left.file}:${left.message}`
+      .localeCompare(`${right.level}:${right.file}:${right.message}`)
+  ));
 }
 
 async function inspectProject(root: string): Promise<ProjectInspection> {
@@ -390,6 +501,75 @@ async function discoverSeoCoverage(
     pagesWithSeo: results.filter(Boolean).length,
     totalPages: pages.length
   };
+}
+
+function findComponentReferences(source: string) {
+  const names = new Set<string>();
+
+  for (const match of source.matchAll(/<vd-component\b[^>]*\bname=["']([^"']+)["'][^>]*>/gi)) {
+    names.add(normalizeModuleName(match[1]));
+  }
+
+  for (const match of source.matchAll(/\b(?:data-)?vd-component=["']([^"']+)["']/gi)) {
+    names.add(normalizeModuleName(match[1]));
+  }
+
+  return [...names].filter(Boolean).sort();
+}
+
+function findRequestReferences(source: string) {
+  return [...source.matchAll(/\b(?:data-)?vd-request=["']([^"'{]+)["']/gi)]
+    .map(match => match[1].trim())
+    .filter(Boolean)
+    .sort();
+}
+
+async function validatePageConfigText(
+  root: string,
+  page: DiscoveredModule
+) {
+  const issues: DoctorIssue[] = [];
+  const configFile = page.source.endsWith(".vd")
+    ? page.source
+    : await findConfigFile(root, dirname(page.source));
+  const source = await readOptionalText(join(root, configFile));
+
+  if (!source) return issues;
+
+  if (!/export\s+default\s+/.test(source)) {
+    issues.push({
+      file: configFile,
+      level: "error",
+      message: "Page config should export a default object."
+    });
+  }
+
+  const route = readStaticPath(source);
+
+  if (route && !route.startsWith("/")) {
+    issues.push({
+      file: configFile,
+      level: "error",
+      message: "Page config path should start with '/'."
+    });
+  }
+
+  return issues;
+}
+
+async function findConfigFile(root: string, folder: string) {
+  const candidates = [
+    `${folder}/config.js`,
+    `${folder}/page.config.js`
+  ];
+
+  for (const candidate of candidates) {
+    if (await readOptionalText(join(root, candidate))) {
+      return candidate;
+    }
+  }
+
+  return candidates[0];
 }
 
 async function createResource(

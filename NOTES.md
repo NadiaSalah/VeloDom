@@ -281,6 +281,10 @@
   `vd stats`, and `vd routes` read folders, `.vd` templates, API route
   registrations, compiler manifests, SEO config presence, and test-file
   signals without adding browser runtime weight.
+- `vd doctor` is intentionally advisory/static. It reuses compiler diagnostics
+  and simple project references first; deeper semantic checks such as full
+  state/control-flow analysis should remain future DX work until they can stay
+  deterministic and lightweight.
 - Package CLI wrappers live in `bin/` and call generated `lib/cli.js`; the
   implementation remains TypeScript under `src/core` so it shares framework
   quality gates while staying outside the application folders.
