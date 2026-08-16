@@ -162,6 +162,19 @@
   feature set synchronously.
 - Missing manifests intentionally select every directive feature, preserving
   compatibility for custom resource adapters and direct runtime usage.
+- Project intelligence belongs to the Node CLI, not the browser runtime.
+  `vd inspect`, `vd doctor`, `vd graph`, `vd health`, `vd build-report`, and
+  `vd docs` reuse folder conventions, template source, compiler manifests, and
+  generated assets so diagnostics improve developer experience without adding
+  mandatory runtime code.
+- Static analyzer warnings must stay conservative and non-destructive. Unused
+  components, request routes, middleware, circular dependencies, large
+  templates, and unreachable showcase files are reported for humans to review;
+  the framework never deletes application files automatically.
+- Build intelligence suggests route prefetch, component splitting, template
+  simplification, and dependency review only as advice. VeloDom should not
+  silently enable optimizations that change application behavior or routing
+  semantics.
 - Text interpolation is a compiler feature, not a browser runtime parser.
   `{{ expression }}` is lowered to `data-vd-text` spans and uses the existing
   safe expression engine and text directive.

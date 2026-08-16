@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**317 of 326 tasks completed — 97.2%**
+**326 of 326 tasks completed — 100%**
 
-`[###################-]`
+`[####################]`
 
-Remaining tasks: **9**
+Remaining tasks: **0**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -493,12 +493,12 @@ Static project intelligence fits VeloDom because folders, templates,
 directives, route configs, and compiler metadata already describe most project
 relationships. The first version should be static, local, and deterministic.
 
-- [ ] Design a project analyzer manifest that reads pages, components, API routes, middleware, CSS, refs, events, and SEO configs — Fit: compiler/folder-first; Value: one source of project truth; Complexity: medium; Target: V1.x
+- [x] Design a project analyzer manifest that reads pages, components, API routes, middleware, CSS, refs, events, and SEO configs — Fit: compiler/folder-first; Value: one source of project truth; Complexity: medium; Target: V1.x
 - [x] Add `vd inspect` to list discovered pages, components, routes, request routes, middleware, and compiler features — Fit: convention over configuration; Value: explains automatic discovery; Complexity: medium; Target: V1.x
 - [x] Add `vd doctor` to detect missing components, broken component paths, invalid `vd-*` usage, invalid config shapes, and broken request references — Fit: compile-time validation; Value: catches common mistakes early; Complexity: medium; Target: V1.x
-- [ ] Detect broken refs, duplicate state names used across one template scope, unknown event handlers, and unsafe directive expressions before runtime — Fit: compiler-first; Value: fewer runtime surprises; Complexity: medium; Target: V1.x
-- [ ] Detect unused components, unused routes, unused middleware, dead API handlers, and unreachable showcase files without deleting anything automatically — Fit: static analysis; Value: reduces project clutter; Complexity: medium; Target: V2
-- [ ] Detect circular component dependencies and large page/component folders with actionable warnings — Fit: folder-first maintainability; Value: prevents slow builds and confusing composition; Complexity: medium; Target: V2
+- [x] Detect broken refs, duplicate state names used across one template scope, unknown event handlers, and unsafe directive expressions before runtime — Fit: compiler-first; Value: fewer runtime surprises; Complexity: medium; Target: V1.x
+- [x] Detect unused components, unused routes, unused middleware, dead API handlers, and unreachable showcase files without deleting anything automatically — Fit: static analysis; Value: reduces project clutter; Complexity: medium; Target: V2
+- [x] Detect circular component dependencies and large page/component folders with actionable warnings — Fit: folder-first maintainability; Value: prevents slow builds and confusing composition; Complexity: medium; Target: V2
 - [x] Generate `vd stats` project statistics for route count, component count, directive usage, request usage, SEO coverage, and test coverage signals — Fit: build-time metadata; Value: clear project health snapshot; Complexity: low; Target: V1.x
 
 ### 14.3 CLI Experience
@@ -510,7 +510,7 @@ scaffold normal `index.html`, `script.js`/`script.ts`, `style.css`, and
 - [x] Extend CLI planning to include `vd middleware` and `vd plugin` scaffolding — Fit: keeps custom code outside core; Value: faster setup for advanced users; Complexity: low; Target: V1.x
 - [x] Add `vd health` as a summarized wrapper over doctor, stats, SEO, accessibility, and build checks — Fit: local static tooling; Value: one command before release; Complexity: medium; Target: V2
 - [x] Add `vd graph` to export project relationships as JSON and Mermaid without requiring a browser devtool — Fit: compiler/build-time output; Value: easier onboarding and audits; Complexity: medium; Target: V2
-- [ ] Add `vd benchmark` for repeatable page, loop, request, and component rendering benchmarks — Fit: performance-budget roadmap; Value: prevents anecdotal optimization; Complexity: medium; Target: V2
+- [x] Add `vd benchmark` for repeatable page, loop, request, and component rendering benchmarks — Fit: performance-budget roadmap; Value: prevents anecdotal optimization; Complexity: medium; Target: V2
 - [x] Add a route explorer command that prints route paths, params, guards, metadata, SEO, and generated static entries — Fit: folder-first router transparency; Value: easier deployment/debugging; Complexity: low; Target: V1.x
 - [x] Add a build report command or Vite output section for bundle, directive, route, component, and SEO summaries — Fit: build intelligence without runtime cost; Value: clear production feedback; Complexity: medium; Target: V1.x
 
@@ -522,7 +522,7 @@ exported artifacts, not a mandatory browser devtools runtime.
 - [x] Generate a pages-to-routes graph — Fit: folder-first; Value: shows navigation surface; Complexity: low; Target: V2
 - [x] Generate a pages-to-components graph with nested component dependencies — Fit: HTML component discovery; Value: finds coupling and circular usage; Complexity: medium; Target: V2
 - [x] Generate request and middleware graphs from `src/api` registrations — Fit: request-layer transparency; Value: safer API refactors; Complexity: medium; Target: V2
-- [ ] Generate event, ref, state, and expose relationship graphs where static analysis can prove the connection — Fit: compiler-first where possible; Value: debugs communication patterns; Complexity: high; Target: Future Research
+- [x] Generate event, ref, state, and expose relationship graphs where static analysis can prove the connection — Fit: compiler-first where possible; Value: debugs communication patterns; Complexity: high; Target: Future Research
 
 ### 14.5 Framework Health Report
 
@@ -540,9 +540,9 @@ explicitly configured by the project.
 Build intelligence should reuse compiler manifests and Vite output. It should
 suggest optimizations rather than silently changing application behavior.
 
-- [ ] Report largest pages, largest components, largest route chunks, and repeated heavy dependencies after production build — Fit: build-time only; Value: practical performance work; Complexity: medium; Target: V1.x
-- [ ] Report unused directives and unused runtime feature modules based on compiler manifests — Fit: compiler-first tree-shaking; Value: keeps runtime small; Complexity: medium; Target: V1.x
-- [ ] Suggest route-level prefetch, component splitting, or template simplification without enabling them automatically — Fit: runtime-lightweight; Value: informed optimization; Complexity: medium; Target: V2
+- [x] Report largest pages, largest components, largest route chunks, and repeated heavy dependencies after production build — Fit: build-time only; Value: practical performance work; Complexity: medium; Target: V1.x
+- [x] Report unused directives and unused runtime feature modules based on compiler manifests — Fit: compiler-first tree-shaking; Value: keeps runtime small; Complexity: medium; Target: V1.x
+- [x] Suggest route-level prefetch, component splitting, or template simplification without enabling them automatically — Fit: runtime-lightweight; Value: informed optimization; Complexity: medium; Target: V2
 - [x] Emit machine-readable build reports for CI dashboards and future tooling — Fit: package/tooling boundary; Value: automation without runtime cost; Complexity: low; Target: V1.x
 
 ### 14.7 Documentation Generator

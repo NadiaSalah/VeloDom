@@ -10,6 +10,10 @@
  */
 
 import {
+  spawn,
+  type SpawnOptions
+} from "node:child_process";
+import {
   mkdir,
   readFile,
   readdir,
@@ -26,6 +30,7 @@ import {
 import { pathToFileURL } from "node:url";
 import { VD_DIRECTIVE_RUNTIME_FEATURES } from "./constants.ts";
 import { compileTemplate } from "./compiler/index.ts";
+import { PREFERRED_DIRECTIVES } from "./shared/directives.ts";
 
 interface CliContext {
   cwd: string;
@@ -56,15 +61,39 @@ interface ProjectInspection {
   apis: string[];
   compilerFeatures: string[];
   components: DiscoveredModule[];
+  css: string[];
   directiveUsage: Record<string, number>;
+  events: Array<{
+    event: string;
+    expression: string;
+    handler?: string;
+    owner: string;
+    source: string;
+  }>;
+  exposes: Array<{
+    name: string;
+    owner: string;
+    source: string;
+  }>;
   layouts: DiscoveredModule[];
   middleware: string[];
   pages: DiscoveredModule[];
+  refs: Array<{
+    name: string;
+    owner: string;
+    source: string;
+  }>;
   requestRoutes: string[];
   seo: {
     pagesWithSeo: number;
     totalPages: number;
   };
+  seoConfigs: string[];
+  state: Array<{
+    name: string;
+    owner: string;
+    source: string;
+  }>;
   tests: string[];
 }
 
@@ -102,6 +131,7 @@ Usage:
   vd routes [--json] [--root <dir>]
   vd graph [--json] [--mermaid] [--root <dir>]
   vd health [--json] [--min-score <0-100>] [--root <dir>]
+  vd benchmark [--root <dir>]
   vd build-report [--json] [--root <dir>]
   vd docs [--json] [--root <dir>]
   vd create page <name> [--ts] [--single-file] [--root <dir>]
@@ -157,6 +187,8 @@ export async function runVeloDomCli(
         return 0;
       case "health":
         return printHealth(context, parsed);
+      case "benchmark":
+        return runBenchmarkCommand(context);
       case "build-report":
         await printBuildReport(context, parsed.flags.has("json"));
         return 0;
@@ -191,9 +223,21 @@ async function printInspection(context: CliContext, json: boolean) {
   printModuleGroup(context, "Components", inspection.components);
   printModuleGroup(context, "Layouts", inspection.layouts);
   printList(context, "API files", inspection.apis);
+  printList(context, "CSS files", inspection.css);
   printList(context, "Request routes", inspection.requestRoutes);
   printList(context, "Middleware files", inspection.middleware);
   printList(context, "Compiler features", inspection.compilerFeatures);
+  printList(context, "SEO config files", inspection.seoConfigs);
+  printList(context, "Refs", inspection.refs.map(ref => `${ref.owner}.${ref.name}`));
+  printList(context, "Events", inspection.events.map(event => (
+    `${event.owner}.${event.event} -> ${event.expression}`
+  )));
+  printList(context, "State", inspection.state.map(state => (
+    `${state.owner}.${state.name}`
+  )));
+  printList(context, "Exposes", inspection.exposes.map(expose => (
+    `${expose.owner}.${expose.name}`
+  )));
 }
 
 async function printDoctor(context: CliContext, json: boolean) {
@@ -232,10 +276,16 @@ async function printStats(context: CliContext, json: boolean) {
     components: inspection.components.length,
     layouts: inspection.layouts.length,
     apiFiles: inspection.apis.length,
+    cssFiles: inspection.css.length,
     compilerFeatures: inspection.compilerFeatures.length,
+    eventBindings: inspection.events.length,
+    exposeNames: inspection.exposes.length,
     middlewareFiles: inspection.middleware.length,
+    refs: inspection.refs.length,
     requestRoutes: inspection.requestRoutes.length,
     seoCoverage: inspection.seo,
+    seoConfigFiles: inspection.seoConfigs.length,
+    stateKeys: inspection.state.length,
     testFiles: inspection.tests.length,
     directiveUsage: inspection.directiveUsage
   };
@@ -251,10 +301,16 @@ async function printStats(context: CliContext, json: boolean) {
   context.stdout(`Components: ${stats.components}`);
   context.stdout(`Layouts: ${stats.layouts}`);
   context.stdout(`API files: ${stats.apiFiles}`);
+  context.stdout(`CSS files: ${stats.cssFiles}`);
   context.stdout(`Request routes: ${stats.requestRoutes}`);
   context.stdout(`Middleware files: ${stats.middlewareFiles}`);
   context.stdout(`Compiler features: ${stats.compilerFeatures}`);
+  context.stdout(`Refs: ${stats.refs}`);
+  context.stdout(`Event bindings: ${stats.eventBindings}`);
+  context.stdout(`State keys: ${stats.stateKeys}`);
+  context.stdout(`Expose names: ${stats.exposeNames}`);
   context.stdout(`SEO coverage: ${stats.seoCoverage.pagesWithSeo}/${stats.seoCoverage.totalPages}`);
+  context.stdout(`SEO config files: ${stats.seoConfigFiles}`);
   context.stdout(`Test files: ${stats.testFiles}`);
   context.stdout("Directive usage:");
   Object.entries(stats.directiveUsage)
@@ -301,12 +357,16 @@ async function printBuildReport(context: CliContext, json: boolean) {
   context.stdout(`Components: ${report.project.components}`);
   context.stdout(`SEO coverage: ${report.project.seoCoverage.pagesWithSeo}/${report.project.seoCoverage.totalPages}`);
   context.stdout(`Compiler features: ${report.project.compilerFeatures.join(", ") || "none"}`);
+  context.stdout(`Unused directives: ${report.project.unusedDirectives.join(", ") || "none"}`);
   context.stdout(`Unused runtime features: ${report.project.unusedRuntimeFeatures.join(", ") || "none"}`);
   context.stdout(`Dist JS total: ${formatBytes(report.dist.jsTotalBytes)}`);
   context.stdout(`Dist CSS total: ${formatBytes(report.dist.cssTotalBytes)}`);
   printSizeGroup(context, "Largest pages", report.project.largestPages);
   printSizeGroup(context, "Largest components", report.project.largestComponents);
   printSizeGroup(context, "Largest JS chunks", report.dist.largestJsChunks);
+  printSizeGroup(context, "Largest route chunks", report.dist.largestRouteChunks);
+  printDependencySignals(context, report.dist.repeatedHeavyDependencies);
+  printList(context, "Suggestions", report.suggestions);
 }
 
 async function printGraph(context: CliContext, flags: Set<string>) {
@@ -363,6 +423,27 @@ async function printHealth(context: CliContext, parsed: ParsedArgs) {
   return health.ok ? 0 : 1;
 }
 
+async function runBenchmarkCommand(context: CliContext) {
+  const manifestSource = await readOptionalText(join(context.cwd, "package.json"));
+
+  if (!manifestSource || !manifestSource.includes("\"benchmark:rendering\"")) {
+    context.stderr(
+      "vd benchmark requires a project package.json with a benchmark:rendering script."
+    );
+    return 1;
+  }
+
+  const command = process.platform === "win32" ? "npm.cmd" : "npm";
+
+  return runChild(command, [
+    "run",
+    "benchmark:rendering"
+  ], {
+    cwd: context.cwd,
+    stdio: "inherit"
+  });
+}
+
 async function printGeneratedDocs(context: CliContext, json: boolean) {
   const docs = await createDocumentationReport(context.cwd);
 
@@ -392,6 +473,7 @@ async function runDoctor(root: string) {
     const html = template.source.endsWith(".vd")
       ? source.match(/<template\b[^>]*>([\s\S]*?)<\/template>/i)?.[1] || ""
       : source;
+    const script = await readModuleScript(root, template.source);
 
     try {
       const result = compileTemplate(html, {
@@ -433,6 +515,43 @@ async function runDoctor(root: string) {
         });
       }
     });
+
+    findMissingRefUsages(html).forEach(ref => {
+      if (!findRefReferences(html).includes(ref)) {
+        issues.push({
+          file: template.source,
+          level: "warning",
+          message: `Ref "${ref}" is used in an expression but no matching vd-ref was found in this template.`
+        });
+      }
+    });
+
+    findEventBindings(html).forEach(binding => {
+      if (!binding.handler) return;
+      if (hasScriptSymbol(script, binding.handler)) return;
+
+      issues.push({
+        file: template.source,
+        level: "warning",
+        message: `Event handler "${binding.handler}" used by "${binding.event}" was not found in the paired script.`
+      });
+    });
+
+    findDuplicateValues(findStateDeclarationReferences(html)).forEach(name => {
+      issues.push({
+        file: template.source,
+        level: "warning",
+        message: `State key "${name}" is declared more than once in the same template scope.`
+      });
+    });
+
+    findUnsafeDirectiveExpressions(html).forEach(expression => {
+      issues.push({
+        file: template.source,
+        level: "warning",
+        message: `Directive expression "${expression}" uses unsafe dynamic evaluation.`
+      });
+    });
   }));
 
   await Promise.all(inspection.pages.map(async page => {
@@ -440,6 +559,10 @@ async function runDoctor(root: string) {
 
     issues.push(...configIssues);
   }));
+
+  issues.push(...await findUnusedProjectWarnings(root, inspection));
+  issues.push(...await findComponentCycleWarnings(root, inspection));
+  issues.push(...await findLargeModuleWarnings(root, templates));
 
   return issues.sort((left, right) => (
     `${left.level}:${left.file}:${left.message}`
@@ -456,22 +579,29 @@ async function inspectProject(root: string): Promise<ProjectInspection> {
   const middleware = apis.filter(file => (
     /(^|\/)middleware\.(?:js|ts)$/.test(file)
   ));
-  const templateSources = [
+  const templates = [
     ...pages,
     ...components,
     ...layouts
-  ].map(module => module.source);
+  ];
+  const templateSources = templates.map(module => module.source);
 
   return {
     apis,
     compilerFeatures: await discoverCompilerFeatures(root, templateSources),
     components,
+    css: await discoverFiles(root, "src", [".css"]),
     directiveUsage: await countDirectives(root, templateSources),
+    events: await discoverTemplateEvents(root, templates),
+    exposes: await discoverTemplateExposes(root, templates),
     layouts,
     middleware,
     pages,
+    refs: await discoverTemplateRefs(root, templates),
     requestRoutes,
     seo: await discoverSeoCoverage(root, pages),
+    seoConfigs: await discoverSeoConfigFiles(root, pages),
+    state: await discoverTemplateState(root, templates),
     tests: await discoverFiles(root, "test", [".js", ".ts"])
   };
 }
@@ -484,6 +614,14 @@ async function createBuildReport(root: string) {
   ));
   const jsAssets = await readAssetSizes(root, ".js");
   const cssAssets = await readAssetSizes(root, ".css");
+  const unusedDirectives = findUnusedDirectives(inspection.directiveUsage);
+  const repeatedHeavyDependencies = await findRepeatedHeavyDependencySignals(
+    root,
+    jsAssets
+  );
+  const largestPages = await readModuleSizes(root, inspection.pages);
+  const largestComponents = await readModuleSizes(root, inspection.components);
+  const largestJsChunks = topSizes(jsAssets);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -493,17 +631,27 @@ async function createBuildReport(root: string) {
       layouts: inspection.layouts.length,
       requestRoutes: inspection.requestRoutes.length,
       compilerFeatures: inspection.compilerFeatures,
+      unusedDirectives,
       unusedRuntimeFeatures,
       seoCoverage: inspection.seo,
-      largestPages: await readModuleSizes(root, inspection.pages),
-      largestComponents: await readModuleSizes(root, inspection.components)
+      largestPages,
+      largestComponents
     },
     dist: {
       jsTotalBytes: sumSizeReports(jsAssets),
       cssTotalBytes: sumSizeReports(cssAssets),
-      largestJsChunks: topSizes(jsAssets),
-      largestCssChunks: topSizes(cssAssets)
-    }
+      largestJsChunks,
+      largestRouteChunks: largestJsChunks,
+      largestCssChunks: topSizes(cssAssets),
+      repeatedHeavyDependencies
+    },
+    suggestions: createBuildSuggestions({
+      largestComponents,
+      largestJsChunks,
+      largestPages,
+      unusedDirectives,
+      unusedRuntimeFeatures
+    })
   };
 }
 
@@ -561,6 +709,7 @@ async function createDocumentationReport(root: string) {
   const plugins = await discoverFiles(root, "src/plugins", [".js", ".ts"]);
   const pageDetails = await Promise.all(inspection.pages.map(async page => {
     const source = await readTemplateSource(root, page.source);
+    const script = await readModuleScript(root, page.source);
     const configSource = page.source.endsWith(".vd")
       ? await readOptionalText(join(root, page.source))
       : await readOptionalText(join(root, dirname(page.source), "config.js"))
@@ -574,12 +723,15 @@ async function createDocumentationReport(root: string) {
       requests: findRequestReferences(source),
       refs: findRefReferences(source),
       events: findEventReferences(source),
+      state: findStateAssignments(script),
+      exposes: findExposeNames(script),
       hasSeo: /\bseo\s*:/.test(configSource)
     };
   }));
   const componentDetails = await Promise.all(inspection.components.map(
     async component => {
       const source = await readTemplateSource(root, component.source);
+      const script = await readModuleScript(root, component.source);
 
       return {
         name: component.name,
@@ -587,6 +739,8 @@ async function createDocumentationReport(root: string) {
         components: findComponentReferences(source),
         refs: findRefReferences(source),
         events: findEventReferences(source),
+        state: findStateAssignments(script),
+        exposes: findExposeNames(script),
         slots: findSlotReferences(source)
       };
     }
@@ -653,6 +807,7 @@ async function createProjectGraph(root: string): Promise<ProjectGraph> {
   await Promise.all(templates.map(async template => {
     const ownerId = `${template.ownerType}:${template.name}`;
     const source = await readTemplateSource(root, template.source);
+    const script = await readModuleScript(root, template.source);
 
     findComponentReferences(source).forEach(component => {
       addGraphNode(nodes, `component:${component}`, component, "component");
@@ -669,6 +824,58 @@ async function createProjectGraph(root: string): Promise<ProjectGraph> {
         from: ownerId,
         label: "requests",
         to: `request:${request}`
+      });
+    });
+
+    findRefReferences(source).forEach(ref => {
+      addGraphNode(nodes, `ref:${template.name}:${ref}`, ref, "ref");
+      edges.push({
+        from: ownerId,
+        label: "declares ref",
+        to: `ref:${template.name}:${ref}`
+      });
+    });
+
+    findEventBindings(source).forEach(binding => {
+      const eventId = `event:${template.name}:${binding.event}:${binding.expression}`;
+
+      addGraphNode(nodes, eventId, `${binding.event}: ${binding.expression}`, "event");
+      edges.push({
+        from: ownerId,
+        label: "handles event",
+        to: eventId
+      });
+
+      if (!binding.handler) return;
+
+      addGraphNode(
+        nodes,
+        `state:${template.name}:${binding.handler}`,
+        binding.handler,
+        "state"
+      );
+      edges.push({
+        from: eventId,
+        label: "calls",
+        to: `state:${template.name}:${binding.handler}`
+      });
+    });
+
+    findStateAssignments(script).forEach(state => {
+      addGraphNode(nodes, `state:${template.name}:${state}`, state, "state");
+      edges.push({
+        from: ownerId,
+        label: "owns state",
+        to: `state:${template.name}:${state}`
+      });
+    });
+
+    findExposeNames(script).forEach(name => {
+      addGraphNode(nodes, `expose:${template.name}:${name}`, name, "expose");
+      edges.push({
+        from: ownerId,
+        label: "exposes",
+        to: `expose:${template.name}:${name}`
       });
     });
   }));
@@ -759,7 +966,7 @@ async function readAssetSizes(root: string, extension: string) {
     source: file
   })));
 
-  return topSizes(sizes, 10);
+  return sizes.sort((left, right) => right.bytes - left.bytes);
 }
 
 async function readFileSize(file: string) {
@@ -778,6 +985,136 @@ function topSizes(files: FileSizeReport[], count = 5) {
   return [...files]
     .sort((left, right) => right.bytes - left.bytes)
     .slice(0, count);
+}
+
+function findUnusedDirectives(usage: Record<string, number>) {
+  const used = new Set(
+    Object.keys(usage).map(normalizeDirectiveAttribute)
+  );
+
+  return PREFERRED_DIRECTIVES.filter(directive => {
+    if (directive.endsWith("-")) {
+      return ![...used].some(name => name.startsWith(directive));
+    }
+
+    return !used.has(directive);
+  });
+}
+
+async function findRepeatedHeavyDependencySignals(
+  root: string,
+  assets: FileSizeReport[]
+) {
+  const dependencies = new Map<string, {
+    chunks: Set<string>;
+    totalChunkBytes: number;
+  }>();
+
+  await Promise.all(assets.map(async asset => {
+    const source = await readOptionalText(join(root, asset.source));
+    const names = new Set<string>();
+
+    for (const match of source.matchAll(/node_modules[\\/](?:\.pnpm[\\/])?(@?[^\\/@\s"']+(?:[\\/][^\\/\s"']+)?)?/g)) {
+      const name = normalizeDependencyName(match[1] || "");
+
+      if (name) names.add(name);
+    }
+
+    for (const match of source.matchAll(/\bfrom\s+["'](@?[^."'/][^"']*)["']/g)) {
+      const name = normalizeDependencyName(match[1]);
+
+      if (name) names.add(name);
+    }
+
+    names.forEach(name => {
+      const record = dependencies.get(name) || {
+        chunks: new Set<string>(),
+        totalChunkBytes: 0
+      };
+
+      record.chunks.add(asset.source);
+      record.totalChunkBytes += asset.bytes;
+      dependencies.set(name, record);
+    });
+  }));
+
+  return [...dependencies.entries()]
+    .filter(([, record]) => record.chunks.size > 1 && record.totalChunkBytes > 10_000)
+    .map(([name, record]) => ({
+      chunks: [...record.chunks].sort(),
+      name,
+      totalChunkBytes: record.totalChunkBytes
+    }))
+    .sort((left, right) => right.totalChunkBytes - left.totalChunkBytes)
+    .slice(0, 10);
+}
+
+function createBuildSuggestions(input: {
+  largestComponents: FileSizeReport[];
+  largestJsChunks: FileSizeReport[];
+  largestPages: FileSizeReport[];
+  unusedDirectives: string[];
+  unusedRuntimeFeatures: string[];
+}) {
+  const suggestions: string[] = [];
+  const largePage = input.largestPages.find(page => page.bytes > 30_000);
+  const largeComponent = input.largestComponents.find(component => (
+    component.bytes > 20_000
+  ));
+  const largeChunk = input.largestJsChunks.find(chunk => chunk.bytes > 120_000);
+
+  if (largePage) {
+    suggestions.push(
+      `Consider route-level prefetch or splitting "${largePage.name}" because its source is ${formatBytes(largePage.bytes)}.`
+    );
+  }
+
+  if (largeComponent) {
+    suggestions.push(
+      `Consider component splitting for "${largeComponent.name}" because its source is ${formatBytes(largeComponent.bytes)}.`
+    );
+  }
+
+  if (largeChunk) {
+    suggestions.push(
+      `Review production chunk "${largeChunk.name}" (${formatBytes(largeChunk.bytes)}) for lazy routes or heavy dependencies.`
+    );
+  }
+
+  if (input.unusedDirectives.length) {
+    suggestions.push(
+      "Unused directive families were not found in templates; keep optional examples/docs separate from runtime-critical pages."
+    );
+  }
+
+  if (input.unusedRuntimeFeatures.length) {
+    suggestions.push(
+      "Unused runtime feature modules were detected from the compiler manifest; verify tree-shaking before publishing."
+    );
+  }
+
+  return suggestions;
+}
+
+function normalizeDirectiveAttribute(attribute: string) {
+  return attribute
+    .replace(/^data-vd-/, "")
+    .replace(/^vd-/, "");
+}
+
+function normalizeDependencyName(name: string) {
+  const clean = name.replaceAll("\\", "/").replace(/^\.pnpm\//, "");
+
+  if (!clean || clean.startsWith(".")) return "";
+  if (clean.startsWith("@")) {
+    return clean.split("/").slice(0, 2).join("/");
+  }
+
+  return clean.split("/")[0];
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 async function readRouteOverride(
@@ -818,6 +1155,123 @@ async function countDirectives(
   }));
 
   return usage;
+}
+
+async function discoverTemplateRefs(
+  root: string,
+  modules: DiscoveredModule[]
+) {
+  const refs: ProjectInspection["refs"] = [];
+
+  await Promise.all(modules.map(async module => {
+    const source = await readTemplateSource(root, module.source);
+
+    findRefReferences(source).forEach(name => {
+      refs.push({
+        name,
+        owner: module.name,
+        source: module.source
+      });
+    });
+  }));
+
+  return refs.sort(compareInspectionItem);
+}
+
+async function discoverTemplateEvents(
+  root: string,
+  modules: DiscoveredModule[]
+) {
+  const events: ProjectInspection["events"] = [];
+
+  await Promise.all(modules.map(async module => {
+    const source = await readTemplateSource(root, module.source);
+
+    findEventBindings(source).forEach(binding => {
+      events.push({
+        ...binding,
+        owner: module.name,
+        source: module.source
+      });
+    });
+  }));
+
+  return events.sort(compareInspectionItem);
+}
+
+async function discoverTemplateState(
+  root: string,
+  modules: DiscoveredModule[]
+) {
+  const state: ProjectInspection["state"] = [];
+
+  await Promise.all(modules.map(async module => {
+    const source = await readModuleScript(root, module.source);
+
+    findStateAssignments(source).forEach(name => {
+      state.push({
+        name,
+        owner: module.name,
+        source: module.source
+      });
+    });
+  }));
+
+  return state.sort(compareInspectionItem);
+}
+
+async function discoverTemplateExposes(
+  root: string,
+  modules: DiscoveredModule[]
+) {
+  const exposes: ProjectInspection["exposes"] = [];
+
+  await Promise.all(modules.map(async module => {
+    const source = await readModuleScript(root, module.source);
+
+    findExposeNames(source).forEach(name => {
+      exposes.push({
+        name,
+        owner: module.name,
+        source: module.source
+      });
+    });
+  }));
+
+  return exposes.sort(compareInspectionItem);
+}
+
+async function discoverSeoConfigFiles(
+  root: string,
+  pages: DiscoveredModule[]
+) {
+  const files: string[] = [];
+
+  await Promise.all(pages.map(async page => {
+    if (page.source.endsWith(".vd")) {
+      const source = await readOptionalText(join(root, page.source));
+
+      if (/<config\b[^>]*>[\s\S]*?\bseo\s*:/i.test(source)) {
+        files.push(page.source);
+      }
+
+      return;
+    }
+
+    const folder = dirname(page.source);
+    const candidates = [
+      `${folder}/config.js`,
+      `${folder}/page.config.js`
+    ];
+
+    await Promise.all(candidates.map(async file => {
+      const source = await readOptionalText(join(root, file));
+
+      if (/\bseo\s*:/.test(source)) files.push(file);
+    }));
+  }));
+
+  return files.sort();
 }
 
 async function discoverCompilerFeatures(
@@ -906,6 +1360,30 @@ function findRequestReferences(source: string) {
     .sort();
 }
 
+function findDirectiveExpressions(source: string) {
+  const expressions: Array<{
+    directive: string;
+    expression: string;
+  }> = [];
+
+  for (const match of source.matchAll(/\b((?:data-)?vd-[\w:-]+)=["']([^"']+)["']/gi)) {
+    expressions.push({
+      directive: match[1],
+      expression: match[2].trim()
+    });
+  }
+
+  return expressions;
+}
+
+function findUnsafeDirectiveExpressions(source: string) {
+  return findDirectiveExpressions(source)
+    .filter(item => /\b(?:eval|Function)\s*\(/.test(item.expression)
+      || /\bnew\s+Function\s*\(/.test(item.expression))
+    .map(item => `${item.directive}=${item.expression}`)
+    .sort();
+}
+
 function findRefReferences(source: string) {
   return [...source.matchAll(/\b(?:data-)?vd-ref=["']([^"']+)["']/gi)]
     .map(match => match[1].trim())
@@ -913,18 +1391,56 @@ function findRefReferences(source: string) {
     .sort();
 }
 
+function findMissingRefUsages(source: string) {
+  const refs = new Set<string>();
+
+  for (const match of source.matchAll(/\$refs\.([A-Za-z_$][\w$]*)/g)) {
+    refs.add(match[1]);
+  }
+
+  for (const match of source.matchAll(/\$refs\[['"]([^'"]+)['"]\]/g)) {
+    refs.add(match[1].trim());
+  }
+
+  return [...refs].filter(Boolean).sort();
+}
+
 function findEventReferences(source: string) {
-  const events = new Set<string>();
+  return findEventBindings(source).map(binding => (
+    `${binding.event} -> ${binding.expression}`
+  ));
+}
+
+function findEventBindings(source: string) {
+  const events = new Map<string, {
+    event: string;
+    expression: string;
+    handler?: string;
+  }>();
 
   for (const match of source.matchAll(/\bvd-on:([\w:-]+)=["']([^"']+)["']/gi)) {
-    events.add(`${match[1]} -> ${match[2].trim()}`);
+    const expression = match[2].trim();
+
+    events.set(`${match[1]}:${expression}`, {
+      event: match[1],
+      expression,
+      handler: findHandlerName(expression)
+    });
   }
 
   for (const match of source.matchAll(/\bdata-vd-on-([\w:-]+)=["']([^"']+)["']/gi)) {
-    events.add(`${match[1]} -> ${match[2].trim()}`);
+    const expression = match[2].trim();
+
+    events.set(`${match[1]}:${expression}`, {
+      event: match[1],
+      expression,
+      handler: findHandlerName(expression)
+    });
   }
 
-  return [...events].sort();
+  return [...events.values()].sort((left, right) => (
+    `${left.event}:${left.expression}`.localeCompare(`${right.event}:${right.expression}`)
+  ));
 }
 
 function findSlotReferences(source: string) {
@@ -935,6 +1451,73 @@ function findSlotReferences(source: string) {
   }
 
   return [...slots].sort();
+}
+
+function findHandlerName(expression: string) {
+  return expression.match(/^([A-Za-z_$][\w$]*)\s*(?:\(|$)/)?.[1];
+}
+
+function findStateAssignments(source: string) {
+  const names: string[] = [];
+
+  for (const match of source.matchAll(/\bstate\s*\.\s*([A-Za-z_$][\w$]*)\s*=/g)) {
+    names.push(match[1]);
+  }
+
+  return names;
+}
+
+function findStateDeclarationReferences(source: string) {
+  return [...source.matchAll(/\b(?:data-)?vd-state=["']([^"']+)["']/gi)]
+    .map(match => match[1].trim())
+    .filter(Boolean)
+    .sort();
+}
+
+function findExposeNames(source: string) {
+  const names = new Set<string>();
+  const arraySource = source.match(/\bexpose\s*[:=]\s*\[([^\]]*)\]/)?.[1] || "";
+
+  for (const match of arraySource.matchAll(/["']([^"']+)["']/g)) {
+    names.add(match[1].trim());
+  }
+
+  for (const match of source.matchAll(/\bexpose\s*\(\s*["']([^"']+)["']\s*\)/g)) {
+    names.add(match[1].trim());
+  }
+
+  return [...names].filter(Boolean).sort();
+}
+
+function hasScriptSymbol(source: string, name: string) {
+  if (!source.trim()) return false;
+
+  const escaped = escapeRegExp(name);
+  const patterns = [
+    new RegExp(`\\bstate\\s*\\.\\s*${escaped}\\s*=`),
+    new RegExp(`\\bfunction\\s+${escaped}\\s*\\(`),
+    new RegExp(`\\bexport\\s+(?:async\\s+)?function\\s+${escaped}\\s*\\(`),
+    new RegExp(`\\b(?:const|let|var)\\s+${escaped}\\b`),
+    new RegExp(`\\b${escaped}\\s*:\\s*(?:async\\s*)?(?:function|\\(|[A-Za-z_$][\\w$]*\\s*=>)`)
+  ];
+
+  return patterns.some(pattern => pattern.test(source));
+}
+
+function findDuplicateValues(values: string[]) {
+  const seen = new Set<string>();
+  const duplicates = new Set<string>();
+
+  values.forEach(value => {
+    if (seen.has(value)) {
+      duplicates.add(value);
+      return;
+    }
+
+    seen.add(value);
+  });
+
+  return [...duplicates].sort();
 }
 
 function toMarkdownDocs(docs: Awaited<ReturnType<typeof createDocumentationReport>>) {
@@ -951,6 +1534,8 @@ function toMarkdownDocs(docs: Awaited<ReturnType<typeof createDocumentationRepor
     pushNestedList(lines, "requests", route.requests);
     pushNestedList(lines, "refs", route.refs);
     pushNestedList(lines, "events", route.events);
+    pushNestedList(lines, "state", route.state);
+    pushNestedList(lines, "exposes", route.exposes);
     lines.push(`  - seo: ${route.hasSeo ? "yes" : "no"}`);
   });
 
@@ -961,6 +1546,8 @@ function toMarkdownDocs(docs: Awaited<ReturnType<typeof createDocumentationRepor
     pushNestedList(lines, "slots", component.slots);
     pushNestedList(lines, "refs", component.refs);
     pushNestedList(lines, "events", component.events);
+    pushNestedList(lines, "state", component.state);
+    pushNestedList(lines, "exposes", component.exposes);
   });
 
   lines.push("", "## Requests", "");
@@ -1006,6 +1593,39 @@ async function readTemplateSource(root: string, file: string) {
     : source;
 }
 
+async function readModuleScript(root: string, file: string) {
+  if (file.endsWith(".vd")) {
+    const source = await readOptionalText(join(root, file));
+
+    return source.match(/<script\b[^>]*>([\s\S]*?)<\/script>/i)?.[1] || "";
+  }
+
+  const folder = dirname(file);
+
+  return await readOptionalText(join(root, folder, "script.ts"))
+    || await readOptionalText(join(root, folder, "script.js"))
+    || await readOptionalText(join(root, folder, "page.ts"))
+    || await readOptionalText(join(root, folder, "page.js"))
+    || await readOptionalText(join(root, folder, "component.ts"))
+    || await readOptionalText(join(root, folder, "component.js"));
+}
+
+function compareInspectionItem(
+  left: {
+    name?: string;
+    owner: string;
+    source: string;
+  },
+  right: {
+    name?: string;
+    owner: string;
+    source: string;
+  }
+) {
+  return `${left.owner}:${left.name || ""}:${left.source}`
+    .localeCompare(`${right.owner}:${right.name || ""}:${right.source}`);
+}
+
 async function discoverRequestMiddlewareEdges(root: string) {
   const files = [
     "src/api/routes.js",
@@ -1033,6 +1653,220 @@ async function discoverRequestMiddlewareEdges(root: string) {
   }));
 
   return edges;
+}
+
+async function findUnusedProjectWarnings(
+  root: string,
+  inspection: ProjectInspection
+) {
+  const issues: DoctorIssue[] = [];
+  const referencedComponents = new Set<string>();
+  const referencedRequests = new Set<string>();
+  const middlewareEdges = await discoverRequestMiddlewareEdges(root);
+  const referencedMiddleware = new Set(
+    middlewareEdges.map(edge => edge.middleware)
+  );
+  const declaredMiddleware = await discoverMiddlewareNames(root, inspection.middleware);
+  const templates = [
+    ...inspection.pages,
+    ...inspection.components,
+    ...inspection.layouts
+  ];
+
+  await Promise.all(templates.map(async template => {
+    const source = await readTemplateSource(root, template.source);
+
+    findComponentReferences(source).forEach(component => {
+      referencedComponents.add(component);
+    });
+    findRequestReferences(source).forEach(request => {
+      referencedRequests.add(request);
+    });
+  }));
+
+  inspection.components.forEach(component => {
+    if (referencedComponents.has(component.name)) return;
+
+    issues.push({
+      file: component.source,
+      level: "warning",
+      message: `Component "${component.name}" is not referenced by any discovered template.`
+    });
+  });
+
+  inspection.requestRoutes.forEach(route => {
+    if (referencedRequests.has(route)) return;
+
+    issues.push({
+      file: "src/api/routes.js",
+      level: "warning",
+      message: `Request route "${route}" is not referenced by any declarative template.`
+    });
+  });
+
+  referencedMiddleware.forEach(name => {
+    if (declaredMiddleware.has(name)) return;
+
+    issues.push({
+      file: "src/api/routes.js",
+      level: "warning",
+      message: `Middleware "${name}" is used by a request route but was not found in src/api/middleware.`
+    });
+  });
+
+  declaredMiddleware.forEach(name => {
+    if (referencedMiddleware.has(name)) return;
+
+    issues.push({
+      file: "src/api/middleware.js",
+      level: "warning",
+      message: `Middleware "${name}" is declared but not used by any request route.`
+    });
+  });
+
+  (await discoverFiles(root, "src/showcase", [".html", ".vd", ".js", ".ts"]))
+    .forEach(file => {
+      issues.push({
+        file,
+        level: "warning",
+        message: "Showcase file is outside the routed pages tree; verify that it is intentionally unreachable."
+      });
+    });
+
+  return issues;
+}
+
+async function discoverMiddlewareNames(
+  root: string,
+  files: string[]
+) {
+  const names = new Set<string>();
+
+  await Promise.all(files.map(async file => {
+    const source = await readOptionalText(join(root, file));
+    const defaultObject = source.match(/export\s+default\s+\{([\s\S]*?)\}\s*;?/m)?.[1]
+      || "";
+
+    for (const match of defaultObject.matchAll(/(?:^|,)\s*([A-Za-z_$][\w$]*)\s*:/g)) {
+      names.add(match[1]);
+    }
+
+    for (const match of defaultObject.matchAll(/(?:^|,)\s*["']([^"']+)["']\s*:/g)) {
+      names.add(match[1]);
+    }
+
+    for (const match of source.matchAll(/\bexport\s+(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/g)) {
+      names.add(match[1]);
+    }
+
+    for (const match of source.matchAll(/\bexport\s+const\s+([A-Za-z_$][\w$]*)\b/g)) {
+      names.add(match[1]);
+    }
+  }));
+
+  return names;
+}
+
+async function findComponentCycleWarnings(
+  root: string,
+  inspection: ProjectInspection
+) {
+  const issues: DoctorIssue[] = [];
+  const componentByName = new Map(
+    inspection.components.map(component => [
+      component.name,
+      component
+    ])
+  );
+  const graph = new Map<string, string[]>();
+
+  await Promise.all(inspection.components.map(async component => {
+    const source = await readTemplateSource(root, component.source);
+    const dependencies = findComponentReferences(source)
+      .filter(name => componentByName.has(name));
+
+    graph.set(component.name, dependencies);
+  }));
+
+  findCycles(graph).forEach(cycle => {
+    const first = componentByName.get(cycle[0]);
+
+    issues.push({
+      file: first?.source || "src/components",
+      level: "warning",
+      message: `Circular component dependency detected: ${cycle.join(" -> ")}.`
+    });
+  });
+
+  return issues;
+}
+
+async function findLargeModuleWarnings(
+  root: string,
+  modules: DiscoveredModule[]
+) {
+  const issues: DoctorIssue[] = [];
+  const warningSize = 30_000;
+
+  await Promise.all(modules.map(async module => {
+    const bytes = await readFileSize(join(root, module.source));
+
+    if (bytes <= warningSize) return;
+
+    issues.push({
+      file: module.source,
+      level: "warning",
+      message: `Large template source (${formatBytes(bytes)}). Consider splitting components or simplifying the page template.`
+    });
+  }));
+
+  return issues;
+}
+
+function findCycles(graph: Map<string, string[]>) {
+  const cycles: string[][] = [];
+  const visited = new Set<string>();
+  const stack = new Set<string>();
+  const path: string[] = [];
+
+  function visit(node: string) {
+    if (stack.has(node)) {
+      const start = path.indexOf(node);
+      const cycle = [
+        ...path.slice(start),
+        node
+      ];
+
+      cycles.push(cycle);
+      return;
+    }
+
+    if (visited.has(node)) return;
+
+    visited.add(node);
+    stack.add(node);
+    path.push(node);
+    (graph.get(node) || []).forEach(visit);
+    path.pop();
+    stack.delete(node);
+  }
+
+  [...graph.keys()].forEach(visit);
+
+  return dedupeCycles(cycles);
+}
+
+function dedupeCycles(cycles: string[][]) {
+  const seen = new Set<string>();
+
+  return cycles.filter(cycle => {
+    const key = [...cycle].sort().join("\0");
+
+    if (seen.has(key)) return false;
+
+    seen.add(key);
+    return true;
+  });
 }
 
 function addGraphNode(
@@ -1089,6 +1923,22 @@ function toMermaidId(value: string) {
 
 function escapeMermaidLabel(value: string) {
   return value.replaceAll("\"", "&quot;");
+}
+
+function runChild(
+  command: string,
+  args: string[],
+  options: SpawnOptions
+) {
+  return new Promise<number>(resolvePromise => {
+    const child = spawn(command, args, {
+      ...options,
+      shell: false
+    });
+
+    child.on("error", () => resolvePromise(1));
+    child.on("exit", code => resolvePromise(code ?? 1));
+  });
 }
 
 async function runSecurityScan(root: string) {
@@ -1458,6 +2308,28 @@ function printSizeGroup(
   values.forEach(value => {
     context.stdout(
       `  - ${value.name}: ${formatBytes(value.bytes)} (${value.source})`
+    );
+  });
+}
+
+function printDependencySignals(
+  context: CliContext,
+  values: Array<{
+    chunks: string[];
+    name: string;
+    totalChunkBytes: number;
+  }>
+) {
+  context.stdout("Repeated heavy dependencies:");
+
+  if (!values.length) {
+    context.stdout("  - none detected from generated chunk text");
+    return;
+  }
+
+  values.forEach(value => {
+    context.stdout(
+      `  - ${value.name}: ${formatBytes(value.totalChunkBytes)} across ${value.chunks.length} chunk(s)`
     );
   });
 }

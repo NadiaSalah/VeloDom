@@ -22,19 +22,32 @@ package versions.
 - Added package binaries for `vd` and `create-velodom`.
 - Added `vd inspect`, `vd stats`, and `vd routes` as local static project
   intelligence commands.
+- Extended the project analyzer manifest to include CSS files, refs, events,
+  state keys, exposed names, and SEO config files.
 - Added `vd doctor` for static compiler diagnostics, missing component
   references, broken request references, and simple page config mistakes.
+- Extended `vd doctor` with warnings for broken `$refs`, duplicate declarative
+  `vd-state` names, unknown event handlers, unsafe dynamic directive
+  expressions, unused components/request routes/middleware, unreachable
+  showcase files, circular component dependencies, and large templates.
 - Added `vd build-report` for text or JSON summaries of project counts, SEO
   coverage, compiler features, unused runtime feature modules, largest source
   templates, and generated JS/CSS chunks.
+- Extended `vd build-report` with unused directive families, largest route
+  chunks, repeated heavy-dependency signals when visible in generated chunk
+  text, and advisory optimization suggestions.
 - Added `vd graph` to export page-route, template-component, request, and
   middleware relationships as text, JSON, or Mermaid.
+- Extended `vd graph` to include statically provable ref, event, state, and
+  expose relationships.
 - Added `vd health` as a non-blocking score over doctor issues, SEO coverage,
   accessibility/compiler warnings, simple security checks, generated asset
   size, and unused runtime feature signals with optional threshold enforcement.
 - Added `vd docs` for Markdown or JSON documentation covering routes,
-  components, requests, middleware, plugins, refs, events, slots, and SEO
-  coverage where static analysis can prove the relationship.
+  components, requests, middleware, plugins, refs, events, state, expose,
+  slots, and SEO coverage where static analysis can prove the relationship.
+- Added `vd benchmark` as a wrapper around the local rendering benchmark
+  script.
 - Refined performance budget checks so package runtime budgets exclude
   Node-only CLI and testing utility modules.
 - Added convention-first scaffolding for pages, components, API files, demo

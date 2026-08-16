@@ -56,12 +56,30 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
       ["default"]
     );
     assert.equal(inspection.directiveUsage["vd-text"], 2);
+    assert.equal(inspection.css.length, 1);
+    assert.deepEqual(
+      inspection.refs.map(ref => `${ref.owner}:${ref.name}`),
+      ["home:titleEl"]
+    );
+    assert.deepEqual(
+      inspection.events.map(event => `${event.owner}:${event.event}:${event.handler}`),
+      ["home:click:announce"]
+    );
+    assert.ok(
+      inspection.state.some(state => state.owner === "home" && state.name === "title")
+    );
+    assert.ok(
+      inspection.exposes.some(expose => expose.owner === "home" && expose.name === "announce")
+    );
+    assert.deepEqual(inspection.seoConfigs, ["src/pages/home/config.js"]);
     assert.deepEqual(inspection.compilerFeatures, [
+      "events",
       "bindings",
       "components",
+      "refs",
       "requests",
       "text"
-    ]);
+    ].sort());
     assert.deepEqual(inspection.requestRoutes, [
       "posts.getAll"
     ]);
@@ -89,12 +107,18 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
     assert.equal(stats.components, 1);
     assert.equal(stats.layouts, 1);
     assert.equal(stats.apiFiles, 3);
+    assert.equal(stats.cssFiles, 1);
     assert.equal(stats.requestRoutes, 1);
-    assert.equal(stats.compilerFeatures, 4);
+    assert.equal(stats.compilerFeatures, 6);
+    assert.equal(stats.refs, 1);
+    assert.equal(stats.eventBindings, 1);
+    assert.ok(stats.stateKeys >= 1);
+    assert.equal(stats.exposeNames, 1);
     assert.deepEqual(stats.seoCoverage, {
       pagesWithSeo: 1,
       totalPages: 2
     });
+    assert.equal(stats.seoConfigFiles, 1);
     assert.equal(stats.testFiles, 0);
 
     output.length = 0;
@@ -136,14 +160,20 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
     assert.equal(report.project.pages, 2);
     assert.equal(report.project.components, 1);
     assert.deepEqual(report.project.compilerFeatures, [
+      "events",
       "bindings",
       "components",
+      "refs",
       "requests",
       "text"
-    ]);
+    ].sort());
+    assert.ok(report.project.unusedDirectives.includes("for"));
     assert.ok(report.project.unusedRuntimeFeatures.includes("loops"));
     assert.equal(report.dist.jsTotalBytes, Buffer.byteLength("console.log('app');"));
     assert.equal(report.dist.cssTotalBytes, Buffer.byteLength("body { color: red; }"));
+    assert.ok(Array.isArray(report.dist.largestRouteChunks));
+    assert.ok(Array.isArray(report.dist.repeatedHeavyDependencies));
+    assert.ok(Array.isArray(report.suggestions));
 
     output.length = 0;
 
@@ -165,6 +195,9 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
     assert.ok(edgeLabels.includes("page:home:route:route:/"));
     assert.ok(edgeLabels.includes("page:home:uses component:component:shared/card"));
     assert.ok(edgeLabels.includes("page:home:requests:request:posts.getAll"));
+    assert.ok(edgeLabels.includes("page:home:declares ref:ref:home:titleEl"));
+    assert.ok(edgeLabels.includes("page:home:owns state:state:home:title"));
+    assert.ok(edgeLabels.includes("page:home:exposes:expose:home:announce"));
     assert.ok(edgeLabels.includes("request:posts.getAll:middleware:middleware:trimStringFields"));
 
     output.length = 0;
@@ -236,6 +269,20 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
 
     assert.equal(markdownCode, 0);
     assert.match(output.join("\n"), /# VeloDom Project Documentation/);
+
+    output.length = 0;
+
+    const benchmarkCode = await runVeloDomCli([
+      "benchmark",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+
+    assert.equal(benchmarkCode, 1);
+    assert.match(output.join("\n"), /benchmark:rendering/);
   } finally {
     await removeFixture(root);
   }
@@ -380,6 +427,7 @@ async function createFixture() {
     `
       <main>
         <h1 vd-text="title"></h1>
+        <button vd-ref="titleEl" vd-on:click="announce()">Announce</button>
         <vd-component name="shared/card"></vd-component>
         <button vd-request="posts.getAll"></button>
       </main>
@@ -387,8 +435,22 @@ async function createFixture() {
   );
   await writeFixtureFile(
     root,
+    "src/pages/home/script.js",
+    `export function init({ state }) {
+      state.title = "Home";
+      state.announce = () => {};
+      expose = ["announce"];
+    }`
+  );
+  await writeFixtureFile(
+    root,
     "src/pages/home/config.js",
     "export default { path: '/', seo: { title: 'Home' } };"
+  );
+  await writeFixtureFile(
+    root,
+    "src/pages/home/style.css",
+    "main { display: block; }"
   );
   await writeFixtureFile(
     root,
@@ -419,7 +481,7 @@ async function createFixture() {
   await writeFixtureFile(
     root,
     "src/api/middleware.js",
-    "export default {};"
+    "export default { trimStringFields: value => value };"
   );
   await writeFixtureFile(
     root,

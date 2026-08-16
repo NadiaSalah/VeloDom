@@ -25,10 +25,12 @@ export function normalizeFolderPath(value: unknown): string {
 
 /** Finds the first protected key referenced by a state path. */
 export function findProtectedStatePathKey(value: unknown): string {
-  const keys = String(value || "").match(/[A-Za-z_$][\w$]*/g) || [];
+  const keys: string[] = String(value || "").match(/[A-Za-z_$][\w$]*/g)
+    ?.map(key => key) || [];
+  const protectedKeys: readonly string[] = VD_PROTECTED_STATE_KEYS;
 
   return keys.find(key => (
     key.startsWith("__vd")
-    || VD_PROTECTED_STATE_KEYS.includes(key)
+    || protectedKeys.includes(key)
   )) || "";
 }

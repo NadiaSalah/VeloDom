@@ -80,8 +80,9 @@ VeloDom currently provides:
 - a repeatable local rendering benchmark for common page bindings and loops
 - enforced JavaScript performance budgets for generated route chunks and
   package runtime modules
-- local static CLI tooling for project inspection, route listing, stats, and
-  convention-first scaffolding
+- local static CLI tooling for project inspection, doctor diagnostics, route
+  listing, graphs, health reports, build intelligence, generated docs,
+  benchmarks, and convention-first scaffolding
 - public `velodom/testing` utilities for mounting pages and components in
   browser-like test environments
 - compiler accessibility warnings for common image, form-control, anchor,
@@ -89,8 +90,8 @@ VeloDom currently provides:
 - generated ESM and TypeScript declarations for the intended package surface
 
 VeloDom deliberately does not currently provide a mandatory global store,
-virtual DOM, JSX, schema-heavy validation system, full SSR/hydration, CLI, or a
-full browser devtools panel.
+virtual DOM, JSX, schema-heavy validation system, full SSR/hydration, or a full
+browser devtools panel.
 
 ## Requirements and Commands
 
@@ -152,6 +153,7 @@ vd stats
 vd routes
 vd graph --mermaid
 vd health --min-score 80
+vd benchmark
 vd build-report --json
 vd docs
 vd create page blog/posts/[id] --ts
@@ -170,22 +172,32 @@ available directly through the package manager.
 
 The CLI is intentionally static and local. `vd inspect` and `vd stats` read
 folders, `.vd` files, API route registrations, middleware files, template
-directives, compiler feature manifests, SEO coverage, and test-file signals
-without adding any browser runtime behavior.
+directives, CSS files, refs, events, state keys, exposed names, compiler
+feature manifests, SEO configs, and test-file signals without adding any
+browser runtime behavior.
 `vd doctor` adds actionable checks for compiler diagnostics, missing component
-references, broken request references, and simple page config mistakes.
+references, broken request references, broken `$refs` usage, duplicate
+declarative `vd-state` names, unknown event handlers, unsafe dynamic
+directive expressions, unused components/request routes/middleware,
+unreachable showcase files, circular component dependencies, large templates,
+and simple page config mistakes.
 `vd build-report` summarizes project counts, SEO coverage, compiler features,
-unused runtime feature modules, largest pages/components, and generated
-JavaScript/CSS chunks in text or JSON for CI dashboards.
+unused directive families, unused runtime feature modules, largest pages/
+components, largest route chunks, repeated heavy-dependency signals visible in
+generated chunk text, generated JavaScript/CSS chunks, and optimization
+suggestions in text or JSON for CI dashboards.
 `vd graph` exports page-route, page/component dependency, request, and
-middleware relationships as text, JSON, or Mermaid.
+middleware relationships plus statically provable refs, events, state keys, and
+exposed names as text, JSON, or Mermaid.
 `vd health` summarizes doctor issues, SEO coverage, accessibility/compiler
 warnings, security link checks, generated bundle size, and unused runtime
 feature signals into a non-blocking score. It fails only when `--min-score` or
 `.velodom-health.json` config asks it to enforce a threshold.
 `vd docs` generates Markdown or JSON documentation for routes, components,
-requests, middleware, plugins, refs, events, slots, and SEO coverage where
-static analysis can prove the relationship.
+requests, middleware, plugins, refs, events, state, exposed names, slots, and
+SEO coverage where static analysis can prove the relationship.
+`vd benchmark` delegates to the project's `benchmark:rendering` script so
+performance checks stay repeatable and outside the browser runtime.
 
 ## Testing Utilities
 
@@ -3198,6 +3210,19 @@ Latest implementation update:
 - Added `vd health` with an advisory score, optional thresholds, SEO and
   accessibility signals, and simple security checks.
 - Added `vd docs` for generated Markdown/JSON project documentation.
+- Extended the project analyzer manifest to include CSS files, refs, events,
+  state keys, exposed names, and SEO config files.
+- Extended `vd doctor` with warnings for broken `$refs`, duplicate declarative
+  `vd-state` names, unknown event handlers, unsafe dynamic directive
+  expressions, unused components/request routes/middleware, unreachable
+  showcase files, circular component dependencies, and large templates.
+- Extended `vd graph` with statically provable ref, event, state, and expose
+  relationships.
+- Extended `vd build-report` with unused directive families, largest route
+  chunks, repeated heavy-dependency signals where visible in generated chunks,
+  and advisory optimization suggestions.
+- Added `vd benchmark` as a CLI wrapper around the repeatable local rendering
+  benchmark script.
 - Added `velodom/testing` with `mountTestPage()` and `mountTestComponent()`
   for public DOM test helpers.
 - Added DX, future research, and framework identity documents under `docs/`.
@@ -3234,9 +3259,11 @@ Test coverage includes:
 - frozen public runtime, compiler, Vite adapter, Vite plugin, type, and package
   subpath exports
 - package-boundary guardrails that keep SSR and hydration APIs deferred
-- CLI inspection, stats, route listing, and scaffolding behavior
-- JSON and Mermaid project graph generation
-- generated route/component/request/reference documentation
+- CLI inspection, stats, route listing, benchmark delegation, diagnostics,
+  build reporting, and scaffolding behavior
+- JSON and Mermaid project graph generation, including static refs/events/
+  state/expose relationships
+- generated route/component/request/reference/state/expose documentation
 - public page/component testing utilities
 - source-aware adapter errors and user-file loader failure reporting
 - a real-browser Playwright matrix for Chromium/Chrome/Edge plus optional
@@ -3310,9 +3337,8 @@ These features are not implemented and should not be described as available:
 - full-content API/CMS pre-rendering beyond build-time SEO metadata hooks
 - guaranteed strict CI browser availability for every Firefox/WebKit/mobile
   WebKit target
-- advanced project intelligence, health reports, visual graphs, documentation
-  generation, migration helpers, and optional AI tooling beyond the current
-  static CLI foundation
+- optional AI provider tooling and migration helpers; both remain documented
+  future research and are not required for VeloDom projects
 
 The current reactive state is shallow. Static SEO emits metadata and concise
 fallback content, not the complete interactive page.
@@ -3328,14 +3354,10 @@ AI and migration research lives in
 [docs/FUTURE_RESEARCH.md](docs/FUTURE_RESEARCH.md), and VeloDom positioning
 lives in [docs/FRAMEWORK_IDENTITY.md](docs/FRAMEWORK_IDENTITY.md).
 
-Current roadmap order:
-
-1. freeze public names and package boundaries
-2. finish task-oriented documentation and recipes
-3. add real-browser E2E coverage for the documented browser matrix
-4. extend real-browser navigation/accessibility coverage
-5. complete optional form/request UX
-6. add tooling and performance budgets
+The current `todo.md` checklist is complete. The remaining practical work
+before a public release is release governance: npm ownership, final publication
+approval, optional stricter browser CI availability, and deciding which future
+research items deserve a new roadmap phase.
 7. add local Future DX tooling such as project intelligence, doctor/inspect,
    build reports, generated docs, and visual graphs
 8. research optional provider-based AI tooling and migration assistants without
