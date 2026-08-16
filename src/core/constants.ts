@@ -324,6 +324,12 @@ export const VD_RTL_CSS = Object.freeze({
   })
 });
 
+/** HTML shell diagnostics used by build integrations. */
+export const VD_HTML_SHELL = Object.freeze({
+  UTF8_CODE: "VD_HTML_SHELL_UTF8",
+  UTF8_PATTERN: "utf-8"
+});
+
 /** State keys that application bindings and expose APIs may not replace. */
 export const VD_PROTECTED_STATE_KEYS = Object.freeze([
   "__proto__",

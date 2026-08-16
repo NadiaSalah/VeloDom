@@ -19,6 +19,9 @@ import {
   generateStaticSeoPages
 } from "./seo-renderer.ts";
 import {
+  analyzeHtmlShell
+} from "./html-shell-diagnostics.ts";
+import {
   analyzeRtlCss
 } from "./rtl-css-diagnostics.ts";
 import {
@@ -93,6 +96,16 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
       mode = config.mode === "production"
         ? "production"
         : "development";
+    },
+
+    transformIndexHtml(html, context) {
+      warnHtmlShellDiagnostics(
+        this,
+        html,
+        context.filename || "index.html"
+      );
+
+      return html;
     },
 
     transform(code, id) {
@@ -325,6 +338,23 @@ function warnRtlCssDiagnostics(
   if (!source.trim()) return;
 
   analyzeRtlCss(source, filename).forEach(diagnostic => {
+    context.warn({
+      id: diagnostic.filename,
+      message: `[${diagnostic.code}] ${diagnostic.message}`,
+      loc: {
+        line: diagnostic.line,
+        column: diagnostic.column
+      }
+    });
+  });
+}
+
+function warnHtmlShellDiagnostics(
+  context: ViteWarningContext,
+  source: string,
+  filename: string
+) {
+  analyzeHtmlShell(source, filename).forEach(diagnostic => {
     context.warn({
       id: diagnostic.filename,
       message: `[${diagnostic.code}] ${diagnostic.message}`,

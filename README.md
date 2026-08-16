@@ -2183,6 +2183,19 @@ and `.vd` `<style>` blocks. For example, `margin-left` suggests
 These warnings do not block the build; they exist to make RTL review cheaper
 without adding runtime CSS rewriting.
 
+The Vite plugin also checks the app shell for `<meta charset="UTF-8">`, which
+is required for reliable multilingual content delivery.
+
+Scoped page/component styles support `:global(...)` escapes for document-level
+direction selectors:
+
+```css
+:global(html[dir="rtl"]) .card {
+  border-inline-start-width: 0;
+  border-inline-end-width: 4px;
+}
+```
+
 For directional icons, opt in explicitly:
 
 ```html
@@ -3016,10 +3029,10 @@ choices, not VeloDom Core dependencies or requirements.
 
 Latest local verification on 2026-07-10:
 
-- Core documentation audit passes for 56 TypeScript files
+- Core documentation audit passes for 57 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 182 automated tests pass
+- 188 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -3063,6 +3076,8 @@ Latest implementation update:
 - Verified the optional native validation API, built-in required/min/max/pattern
   handling, error marker conventions, and request-flow integration.
 - Added build-time RTL CSS diagnostics for folder CSS and `.vd` style blocks.
+- Added UTF-8 app-shell diagnostics and scoped CSS `:global(...)` escapes for
+  document-level direction selectors.
 - Added optional direction management through `createDirectionPlugin()` and
   compiler support for explicit `vd-rtl-flip` directional icon markers.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and

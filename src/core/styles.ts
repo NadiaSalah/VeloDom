@@ -54,7 +54,8 @@ export async function applyScopedFolderStyles(
   root.prepend(style);
 }
 
-function scopeCss(css, scopeSelector, sourceFile) {
+/** Scopes one CSS string while preserving explicit :global(...) selectors. */
+export function scopeCss(css, scopeSelector, sourceFile = "") {
   return scopeCssBlock(css, scopeSelector, sourceFile);
 }
 
@@ -132,6 +133,10 @@ function scopeSelectorList(selectorList, scopeSelector) {
 function scopeSingleSelector(selector, scopeSelector) {
   if (!selector) return scopeSelector;
 
+  if (selector.includes(":global(")) {
+    return scopeSelectorWithGlobal(selector, scopeSelector);
+  }
+
   if (selector.includes(":scope")) {
     return selector.replaceAll(":scope", scopeSelector);
   }
@@ -145,4 +150,27 @@ function scopeSingleSelector(selector, scopeSelector) {
   }
 
   return `${scopeSelector} ${selector}`;
+}
+
+function scopeSelectorWithGlobal(selector, scopeSelector) {
+  const leadingGlobal = selector.match(/^:global\(([^)]*)\)(.*)$/);
+
+  if (leadingGlobal) {
+    const globalSelector = leadingGlobal[1].trim();
+    const rest = replaceGlobalSelectors(leadingGlobal[2]).trim();
+
+    if (!rest) return globalSelector;
+    if (/^[>+~]/.test(rest)) return `${globalSelector} ${scopeSelector}${rest}`;
+
+    return `${globalSelector} ${scopeSelector} ${rest}`;
+  }
+
+  return scopeSingleSelector(
+    replaceGlobalSelectors(selector),
+    scopeSelector
+  );
+}
+
+function replaceGlobalSelectors(selector) {
+  return selector.replace(/:global\(([^)]*)\)/g, "$1");
 }

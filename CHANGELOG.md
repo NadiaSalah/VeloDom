@@ -77,7 +77,9 @@ package versions.
   handling, invalid form/field marker conventions, and request-flow blocking.
 - Added advisory RTL CSS diagnostics for physical directional properties in
   folder CSS and `.vd` style blocks.
-- Brought the automated suite to 182 passing tests.
+- Added app-shell UTF-8 diagnostics and `:global(...)` escapes for scoped CSS
+  ancestor direction selectors.
+- Brought the automated suite to 188 passing tests.
 
 ### RTL and Multilingual CSS
 

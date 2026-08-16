@@ -197,6 +197,8 @@
   through `data-vd-invalid` and `data-vd-field-invalid`.
 - RTL CSS diagnostics are advisory build-time warnings only. They suggest
   logical properties but never rewrite application CSS or add browser runtime.
+- Scoped CSS `:global(...)` is intended for document-level selectors such as
+  `html[dir="rtl"]`; it should not become a broad CSS preprocessor feature.
 - Direction management is optional and plugin-owned. RTL presentation support
   currently covers document `lang`/`dir`, reactive `$direction` reads, and
   explicit `vd-rtl-flip` markers; logical CSS diagnostics and translation
