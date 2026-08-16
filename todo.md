@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**326 of 326 tasks completed — 100%**
+**332 of 332 tasks completed — 100%**
 
 `[####################]`
 
@@ -586,6 +586,33 @@ that emulate React or Vue at runtime.
 
 ---
 
+## Post-V1 Competitive Priorities
+
+These tasks are ordered by launch value and fit with VeloDom's identity:
+HTML-first, Compiler-first, Folder-first, Convention over Configuration,
+Runtime Lightweight, and Vanilla Friendly.
+
+### 16. V1 Launch Readiness
+
+- [x] Mark the local package identity as V1 while keeping `private: true`
+- [x] Run `npm run pack:check` after the V1 identity update
+- [x] Create a final release decision note covering npm ownership, access,
+      2FA, and publication approval
+
+### 17. Content and SEO Mode
+
+- [x] Design a compiler/build-time content collection system for Markdown and
+      local content files without adding browser runtime weight
+- [x] Generate routes, SEO entries, sitemap data, RSS/search-index data, and
+      typed content metadata from content collections
+
+### 18. Deployment Story
+
+- [x] Add deployment recipes for static hosting, Vercel, Netlify, Cloudflare
+      Pages, and Node preview without adding provider lock-in
+
+---
+
 ## Suggested Order
 
 1. Tests
@@ -609,3 +636,9 @@ that emulate React or Vue at runtime.
   application files, rebuilt the example as a local VeloDom framework blog,
   kept Core unchanged, and verified the app with static project diagnostics,
   production build, automated tests, and Chromium browser E2E.
+- 2026-08-16 V1 identity pass: package metadata now uses local version
+  `1.0.0` while keeping `private: true`; publication still requires explicit
+  npm ownership and release approval.
+- 2026-08-16 Content Mode pass: added optional `velodom/content` build-time
+  helpers for Markdown collections, SEO entries, sitemap records, RSS XML,
+  search-index records, and typed content metadata.

@@ -1,7 +1,7 @@
 {
   "name": "velodom",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Compiler-first, HTML-first frontend framework with reactive state, routing, components, and requests.",
   "license": "MIT",
   "type": "module",
@@ -20,6 +20,7 @@
     "README.md",
     "BROWSERS.md",
     "CHANGELOG.md",
+    "RELEASE_DECISION.md",
     "RELEASING.md"
   ],
   "engines": {
@@ -45,6 +46,11 @@
       "types": "./types/compiler/index.d.ts",
       "import": "./lib/compiler/index.js",
       "default": "./lib/compiler/index.js"
+    },
+    "./content": {
+      "types": "./types/content.d.ts",
+      "import": "./lib/content.js",
+      "default": "./lib/content.js"
     },
     "./vite": {
       "types": "./types/adapters/vite.d.ts",

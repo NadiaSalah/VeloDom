@@ -2560,7 +2560,7 @@ function createProjectManifest(name: string) {
       preview: "vite preview"
     },
     dependencies: {
-      velodom: "^0.1.0"
+      velodom: "^1.0.0"
     },
     devDependencies: {
       vite: "^8.1.3"

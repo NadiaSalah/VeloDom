@@ -13,6 +13,7 @@ test("published package boundaries use built allowlisted artifacts", () => {
   const publicEntries = [
     ".",
     "./compiler",
+    "./content",
     "./testing",
     "./vite",
     "./vite-plugin"
@@ -31,6 +32,7 @@ test("published package boundaries use built allowlisted artifacts", () => {
     "README.md",
     "BROWSERS.md",
     "CHANGELOG.md",
+    "RELEASE_DECISION.md",
     "RELEASING.md"
   ]);
 

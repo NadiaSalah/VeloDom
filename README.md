@@ -8,9 +8,10 @@ route-aware lifecycle hooks, and an optional request layer without JSX or TSX.
 The framework source is TypeScript. Application authors may choose Vanilla
 JavaScript or TypeScript independently for every page and component.
 
-> Project status: active pre-release development. The package is currently
-> `private` and is not published to npm. Public API names are frozen locally as
-> a V1 candidate and protected by package-boundary tests.
+> Project status: local V1 release candidate. The package metadata is
+> `1.0.0`, but `private: true` intentionally remains enabled and the package is
+> not published to npm. Public API names are frozen locally and protected by
+> package-boundary tests.
 
 ## Contents
 
@@ -42,6 +43,7 @@ JavaScript or TypeScript independently for every page and component.
 - [Public Package Boundaries](#public-package-boundaries)
 - [Showcase Routes](#showcase-routes)
 - [Verification](#verification)
+- [Release Decision](#release-decision)
 - [Browser Support](#browser-support)
 - [Best Practices](#best-practices)
 - [Current Limitations](#current-limitations)
@@ -72,6 +74,8 @@ VeloDom currently provides:
 - optional direction plugin for document `lang`/`dir` and RTL-aware templates
 - configurable server-session and demonstration localStorage auth providers
 - runtime head management and static SEO HTML generated from page `config.js`
+- optional build-time content helpers through `velodom/content` for Markdown
+  collections, SEO entries, sitemap records, RSS XML, and local search indexes
 - a safe expression parser/evaluator with no `eval` or `new Function`
 - a Vite template compiler, source-aware diagnostics, optimizer hooks, and
   runtime feature manifests
@@ -92,6 +96,15 @@ VeloDom currently provides:
 VeloDom deliberately does not currently provide a mandatory global store,
 virtual DOM, JSX, schema-heavy validation system, full SSR/hydration, or a full
 browser devtools panel.
+
+Post-V1 content work is described in
+[docs/CONTENT_MODE_DESIGN.md](docs/CONTENT_MODE_DESIGN.md). The first content
+helper layer is intentionally build-time tooling, not a mandatory browser
+runtime layer.
+
+Planned post-V1 content work is described in
+[docs/CONTENT_MODE_DESIGN.md](docs/CONTENT_MODE_DESIGN.md). It is intentionally
+designed as build-time tooling, not a mandatory browser runtime layer.
 
 ## Requirements and Commands
 
@@ -2514,7 +2527,55 @@ Broader SSR can be reconsidered only after static rendering, hydration design,
 browser coverage, and runtime stability are mature enough to protect the
 HTML-first authoring model.
 
+### Content Mode Helpers
+
+`velodom/content` is an optional Node/build-time subpath for Markdown and local
+content workflows. It can parse frontmatter, generate safe HTML, produce SEO
+entries, sitemap records, RSS XML, and search-index records without adding a
+mandatory browser runtime feature.
+
+```js
+// src/pages/blog/[slug]/config.js
+import { loadContentCollection } from "velodom/content";
+
+export default {
+  path: "/blog/:slug",
+  seo: {
+    entries: async () => {
+      const posts = await loadContentCollection({
+        root: "src/content",
+        collection: "posts",
+        basePath: "/blog"
+      });
+
+      return posts.seoEntries;
+    }
+  }
+};
+```
+
+```js
+import {
+  createContentRssFeed,
+  loadContentCollection
+} from "velodom/content";
+
+const posts = await loadContentCollection({
+  root: "src/content",
+  collection: "posts",
+  basePath: "/blog"
+});
+
+const rss = createContentRssFeed(posts.entries, {
+  title: "VeloDom Blog",
+  siteUrl: "https://example.com"
+});
+```
+
 ## Deployment and Static Hosting
+
+Detailed provider recipes live in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+The short version is:
 
 Build the application with:
 
@@ -3136,10 +3197,10 @@ choices, not VeloDom Core dependencies or requirements.
 
 Latest local verification on 2026-08-16:
 
-- Core documentation audit passes for 59 TypeScript files
+- Core documentation audit passes for 60 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 196 automated tests pass
+- 201 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -3151,6 +3212,13 @@ Latest local verification on 2026-08-16:
 
 Latest implementation update:
 
+- Marked the local package identity as `1.0.0` while keeping `private: true`.
+- Added `RELEASE_DECISION.md` as the publication approval note for npm
+  ownership, access, 2FA, final version, and tagging decisions.
+- Added provider-neutral deployment recipes in `docs/DEPLOYMENT.md`.
+- Added optional `velodom/content` build-time helpers for Markdown
+  collections, SEO entries, sitemap records, RSS XML, search-index records,
+  and typed content metadata.
 - Added optional static SEO content rendering through `seo.renderPage`.
 - Updated framework contracts, SEO constants, Vite plugin options, and static
   renderer behavior in `src/core`.
@@ -3255,6 +3323,13 @@ Test coverage includes:
 - real DOM directives, components, navigation, errors, and requests
 - loop structural rerender skipping for unchanged item identities
 - recoverable page and component error-boundary fallback and retry behavior
+
+## Release Decision
+
+The repository is now aligned as a local `1.0.0` release candidate, but npm
+publication is intentionally blocked by `private: true`.
+[RELEASE_DECISION.md](RELEASE_DECISION.md) records the current owner-approval
+requirements before publishing, tagging, or removing the private package guard.
 - keyboard modifier, focusable-order, and semantic fallback output integration
   checks
 - auth providers, role checks, middleware modes, request bindings, and HTTP

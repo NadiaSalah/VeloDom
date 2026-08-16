@@ -59,6 +59,19 @@ package versions.
 - Converted the application showcase into the first VeloDom framework site:
   a local documentation blog with V1 positioning, feature articles, live
   directive/component/request examples, dynamic article routes, and SEO entries.
+- Marked the local package identity as `1.0.0` while keeping `private: true`
+  so the repository represents a V1 release candidate without authorizing npm
+  publication.
+- Added `RELEASE_DECISION.md` to record npm ownership, access, 2FA, version,
+  tagging, and publication approval gates before any public release.
+- Added provider-neutral deployment recipes for static hosting, Vercel,
+  Netlify, Cloudflare Pages, Nginx, Apache, and GitHub Pages.
+- Added a planned Content Mode design for Markdown/local content collections,
+  generated SEO data, RSS/search-index artifacts, and build-time diagnostics
+  without adding browser runtime weight.
+- Added the optional `velodom/content` package subpath with Markdown
+  frontmatter parsing, safe HTML output, SEO route entries, sitemap records,
+  RSS XML generation, search-index records, and typed content metadata.
 - Removed obsolete DummyJSON, login, category, CRUD studio, application auth,
   application middleware, and form-shell files from the example application.
 - Simplified `src/main.js` so the site mounts with the Vite adapter and one

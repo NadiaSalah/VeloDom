@@ -4,10 +4,15 @@ VeloDom follows Semantic Versioning for the public package entry points:
 
 - `velodom`
 - `velodom/compiler`
+- `velodom/content`
 - `velodom/vite`
 - `velodom/vite-plugin`
 
 ## Version Rules
+
+Current repository package identity: `1.0.0` local release candidate. This
+does not imply npm publication because `private: true` remains enabled until
+the publication gates below are approved.
 
 While VeloDom is below `1.0.0`:
 
@@ -36,7 +41,8 @@ Completing local checks never implies permission to publish.
 - Confirm the release scope: patch, minor, major, or pre-release.
 - Confirm the package version follows the rules above.
 - Confirm `CHANGELOG.md` describes all user-visible changes.
-- Confirm `README.md`, `todo.md`, and `NOTES.md` match the current behavior.
+- Confirm `README.md`, `RELEASE_DECISION.md`, `todo.md`, and `NOTES.md`
+  match the current behavior.
 - Confirm `BROWSERS.md` matches the current browser-support and E2E target
   policy.
 - Confirm public API changes, if any, were intentional and are reflected in the
@@ -84,11 +90,13 @@ The checks must confirm:
 - Confirm `package.json#exports` exposes only:
   - `velodom`
   - `velodom/compiler`
+  - `velodom/content`
   - `velodom/vite`
   - `velodom/vite-plugin`
   - `velodom/package.json`
 - Confirm application folders, tests, source config, assets, and local build
   scaffolding are not included in the npm tarball.
+- Confirm `RELEASE_DECISION.md` is included when README links to it.
 - Confirm public API freeze tests pass before changing any export names.
 
 ### 5. Publication Approval
@@ -100,6 +108,8 @@ The checks must confirm:
 
 ## Current Publication Blockers
 
+- The local package version is `1.0.0`, but this repository is still private
+  and unpublished.
 - npm registry returned 404 for `velodom` on 2026-07-09, so the package name
   appears available, but it has not been reserved by an approved npm account in
   this workspace.

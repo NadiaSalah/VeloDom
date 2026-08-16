@@ -21,10 +21,13 @@
   differences and no JSX/TSX.
 - The public application import boundary is the `velodom` package export backed
   by `src/core/index.ts`; other core modules are internal until promoted.
-- V1 candidate public names are frozen by package-boundary tests. Changes to
+- V1 public names are frozen by package-boundary tests. Changes to
   runtime exports, public type declarations, compiler exports, Vite adapter
   exports, Vite plugin exports, or package subpaths require an intentional
   architecture decision and documentation update.
+- `package.json` now uses local version `1.0.0` to match the first VeloDom
+  release-candidate identity. `private: true` remains the publication guard;
+  this is not an npm release.
 - Build-specific framework features use explicit subpath exports:
   `velodom/vite`, `velodom/vite-plugin`, and `velodom/compiler`.
 - Package exports target generated ESM in `lib` and declarations in `types`;
@@ -103,7 +106,7 @@
 - Browser-like runtime integration uses happy-dom only in tests. The helper
   lives under `test-support` so Node test discovery does not count it as an
   empty test file.
-- Browser support is documented as an evergreen V1 candidate policy in
+- Browser support is documented as an evergreen V1 policy in
   `BROWSERS.md` and mirrored by `package.json#browserslist`. The Playwright
   smoke suite now attempts Chromium/Chrome/Edge, Firefox, WebKit, and a mobile
   WebKit viewport profile. Chromium remains required locally; optional targets

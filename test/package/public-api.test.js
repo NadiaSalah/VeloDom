@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import * as compilerApi from "../../src/core/compiler/index.ts";
+import * as contentApi from "../../src/core/content.ts";
 import * as runtimeApi from "../../src/core/index.ts";
 import * as testingApi from "../../src/core/testing.ts";
 import * as vitePluginApi from "../../src/core/vite-plugin/index.ts";
@@ -9,6 +10,7 @@ import * as vitePluginApi from "../../src/core/vite-plugin/index.ts";
 const adapterEntrySource = await readSource("../../src/core/adapters/vite.ts");
 const rootEntrySource = await readSource("../../src/core/index.ts");
 const compilerEntrySource = await readSource("../../src/core/compiler/index.ts");
+const contentEntrySource = await readSource("../../src/core/content.ts");
 const testingEntrySource = await readSource("../../src/core/testing.ts");
 const vitePluginEntrySource = await readSource("../../src/core/vite-plugin/index.ts");
 const manifest = JSON.parse(await readSource("../../package.json"));
@@ -122,6 +124,33 @@ test("compiler public exports are frozen for build integrations", () => {
   ]);
 });
 
+test("content public exports are frozen for build-time integrations", () => {
+  assert.deepEqual(Object.keys(contentApi).sort(), [
+    "createContentCollection",
+    "createContentRssFeed",
+    "createContentSearchIndex",
+    "createContentSeoEntries",
+    "createContentSitemap",
+    "loadContentCollection",
+    "parseMarkdownContent"
+  ]);
+  assert.deepEqual(readInterfaceExportNames(contentEntrySource), [
+    "ContentCollection",
+    "ContentCollectionOptions",
+    "ContentEntry",
+    "ContentFileLoadOptions",
+    "ContentGenerationOptions",
+    "ContentRssOptions",
+    "ContentSearchRecord",
+    "ContentSitemapEntry",
+    "ContentSource"
+  ]);
+  assert.deepEqual(readTypeExportNames(contentEntrySource, "local"), [
+    "ContentFrontmatter",
+    "ContentFrontmatterValue"
+  ]);
+});
+
 test("vite adapter and plugin public exports are frozen", () => {
   assert.deepEqual(readFunctionExportNames(adapterEntrySource), [
     "createViteAdapter"
@@ -154,6 +183,7 @@ test("package subpath exports are frozen", () => {
   assert.deepEqual(Object.keys(manifest.exports).sort(), [
     ".",
     "./compiler",
+    "./content",
     "./package.json",
     "./testing",
     "./vite",
@@ -188,6 +218,12 @@ async function readSource(relativePath) {
 }
 
 function readTypeExportNames(source, specifier) {
+  if (specifier === "local") {
+    return [...source.matchAll(/export\s+type\s+(\w+)/g)]
+      .map(match => match[1])
+      .sort();
+  }
+
   const escapedSpecifier = specifier.replaceAll(".", "\\.");
   const pattern = new RegExp(
     `export\\s+type\\s+\\{([^}]*)\\}\\s+from\\s+"${escapedSpecifier}";`
