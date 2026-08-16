@@ -11,6 +11,7 @@
 import type {
   RuntimeFeatureManifest
 } from "./compiler/types.ts";
+import { VD_ADAPTER } from "./constants.ts";
 
 /** A value that may be returned directly or through a Promise. */
 export type MaybePromise<T> = T | Promise<T>;
@@ -35,8 +36,22 @@ export interface ResourceGroup {
   >;
 }
 
+/** Capability names an adapter may explicitly declare and verify. */
+export type ResourceAdapterCapability =
+  | "resource-discovery"
+  | "page-config"
+  | "layouts"
+  | "compiler-manifests";
+
+/** Current version of the public resource-adapter contract. */
+export type ResourceAdapterVersion = typeof VD_ADAPTER.VERSION;
+
 /** Build-tool-independent page and component resources. */
 export interface ResourceAdapter {
+  /** Optional explicit contract version; omitted adapters remain compatible. */
+  version?: ResourceAdapterVersion;
+  /** Optional verified features provided by this adapter implementation. */
+  capabilities?: readonly ResourceAdapterCapability[];
   pages: ResourceGroup;
   components?: ResourceGroup;
   layouts?: ResourceGroup;

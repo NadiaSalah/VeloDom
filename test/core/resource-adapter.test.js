@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { validateResourceAdapter } from "../../src/core/resource-adapter.ts";
+import {
+  assertResourceAdapterConformance,
+  validateResourceAdapter
+} from "../../src/core/resource-adapter.ts";
 
 test("resource adapter accepts lazy nested resource maps", () => {
   const manifestLoader = async () => ({
@@ -28,6 +31,63 @@ test("resource adapter accepts lazy nested resource maps", () => {
 
   assert.equal(typeof adapter.pages.html.home, "function");
   assert.notEqual(adapter.pages.manifests.home, manifestLoader);
+});
+
+test("resource adapter accepts the documented versioned capability contract", () => {
+  const adapter = validateResourceAdapter({
+    version: 1,
+    capabilities: [
+      "resource-discovery",
+      "page-config",
+      "layouts",
+      "compiler-manifests"
+    ],
+    pages: {
+      html: {
+        home: async () => "<main></main>"
+      }
+    }
+  });
+
+  assert.equal(adapter.version, 1);
+  assert.deepEqual(adapter.capabilities, [
+    "resource-discovery",
+    "page-config",
+    "layouts",
+    "compiler-manifests"
+  ]);
+  assert.doesNotThrow(() => assertResourceAdapterConformance({
+    pages: {
+      html: {
+        home: async () => "<main></main>"
+      }
+    }
+  }));
+});
+
+test("resource adapter rejects unsupported versions and capabilities", () => {
+  assert.throws(
+    () => assertResourceAdapterConformance({
+      version: 2,
+      pages: {
+        html: {
+          home: async () => "<main></main>"
+        }
+      }
+    }),
+    /Unsupported resource adapter contract version/
+  );
+  assert.throws(
+    () => assertResourceAdapterConformance({
+      capabilities: ["server-runtime"],
+      pages: {
+        html: {
+          home: async () => "<main></main>"
+        }
+      }
+    }),
+    /unsupported capability/
+  );
 });
 
 test("resource adapter accepts optional layout resource maps", () => {

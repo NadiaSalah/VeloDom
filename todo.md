@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**344 of 369 tasks completed — 93%**
+**349 of 369 tasks completed — 95%**
 
 `[###################-]`
 
@@ -664,21 +664,21 @@ browser runtime small, and remain optional where a project does not need it.
 
 #### 19.1 Adapter Stability and Authoring Types — V1.x
 
-- [ ] Publish an adapter capability contract and compatibility guarantees for
+- [x] Publish an adapter capability contract and compatibility guarantees for
       discovery, compilation, static output, and development diagnostics — Fit:
       preserves a generic Core; Value: future adapters can evolve without
       coupling applications to Vite; Complexity: medium; Target: V1.x
-- [ ] Add an adapter conformance fixture suite instead of promising adapters
+- [x] Add an adapter conformance fixture suite instead of promising adapters
       that are not tested — Fit: compiler-first verification; Value: reliable
       ecosystem extension; Complexity: medium; Target: V1.x
-- [ ] Provide optional `definePageConfig`, request, and plugin declaration
+- [x] Provide optional `definePageConfig`, request, and plugin declaration
       helpers that are type-only at runtime — Fit: Vanilla Friendly; Value:
       autocomplete and safer configuration without forcing TypeScript;
       Complexity: low; Target: V1.x
-- [ ] Publish equivalent JSDoc types and JavaScript examples for all new
+- [x] Publish equivalent JSDoc types and JavaScript examples for all new
       declaration helpers — Fit: JavaScript remains first-class; Value: editor
       assistance for Vanilla projects; Complexity: low; Target: V1.x
-- [ ] Add installed-package type fixtures covering both JavaScript and
+- [x] Add installed-package type fixtures covering both JavaScript and
       TypeScript consumers — Fit: public-contract testing; Value: avoids
       framework-only type regressions; Complexity: low; Target: V1.x
 

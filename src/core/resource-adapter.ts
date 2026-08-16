@@ -9,13 +9,15 @@
  */
 
 import { isPlainObject } from "./shared/object.ts";
-import { VD_RESOURCE_ADAPTER } from "./constants.ts";
+import { VD_ADAPTER, VD_RESOURCE_ADAPTER } from "./constants.ts";
 import { normalizeSeoConfig } from "./seo.ts";
 import type {
   RuntimeFeatureManifest
 } from "./compiler/types.ts";
 import type {
   PageConfig,
+  ResourceAdapter,
+  ResourceAdapterCapability,
   ResourceLoader,
   UnknownRecord
 } from "./types.ts";
@@ -44,6 +46,8 @@ export interface ValidatedResourceGroup {
 
 /** Validated runtime resource adapter with page and component groups. */
 export interface ValidatedResourceAdapter {
+  version: number;
+  capabilities: ResourceAdapterCapability[];
   pages: ValidatedResourceGroup;
   components: ValidatedResourceGroup;
   layouts: ValidatedResourceGroup;
@@ -59,6 +63,9 @@ export function validateResourceAdapter(
       "Pass createViteAdapter() through createApp({ adapter })."
     );
   }
+
+  const version = validateAdapterVersion(adapter.version);
+  const capabilities = validateAdapterCapabilities(adapter.capabilities);
 
   const pages = validateResourceGroup(adapter.pages, "pages", {
     requireHtml: true,
@@ -82,10 +89,63 @@ export function validateResourceAdapter(
   );
 
   return {
+    version,
+    capabilities,
     pages,
     components,
     layouts
   };
+}
+
+/**
+ * Checks an adapter implementation against the stable VeloDom resource
+ * contract without mounting an application. Adapter authors can run this in
+ * their own conformance fixtures.
+ */
+export function assertResourceAdapterConformance(
+  adapter: ResourceAdapter
+): void {
+  validateResourceAdapter(adapter);
+}
+
+function validateAdapterVersion(value: unknown) {
+  if (value === undefined) return VD_ADAPTER.VERSION;
+
+  if (value !== VD_ADAPTER.VERSION) {
+    throw createAdapterError(
+      `Unsupported resource adapter contract version: ${String(value)}`,
+      `Use version: ${VD_ADAPTER.VERSION} or omit the version for legacy adapter compatibility.`
+    );
+  }
+
+  return value;
+}
+
+function validateAdapterCapabilities(
+  value: unknown
+): ResourceAdapterCapability[] {
+  if (value === undefined) return [];
+
+  if (!Array.isArray(value)) {
+    throw createAdapterError(
+      "Adapter capabilities must be an array of known capability names",
+      "Use adapter capabilities only to document supported resource features."
+    );
+  }
+
+  const supported = new Set<string>(VD_ADAPTER.CAPABILITIES);
+  const capabilities = [...new Set(value)];
+
+  if (capabilities.some(capability => (
+    typeof capability !== "string" || !supported.has(capability)
+  ))) {
+    throw createAdapterError(
+      "Adapter capabilities include an unsupported capability name",
+      `Supported capabilities: ${VD_ADAPTER.CAPABILITIES.join(", ")}.`
+    );
+  }
+
+  return capabilities as ResourceAdapterCapability[];
 }
 
 function validateResourceGroup(

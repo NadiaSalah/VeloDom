@@ -409,6 +409,10 @@
   implemented only as optional compiler/build or development capabilities.
   VeloDom must not add a mandatory virtual DOM, JSX, CMS, global store, or
   universal SSR runtime merely to match another framework's feature list.
+- Resource adapters now have an optional versioned capability declaration and
+  public conformance assertion. This documents adapter responsibilities without
+  leaking build-tool discovery into the router; legacy adapters remain valid
+  when they omit the new metadata.
 
 ## Handoff Guidance
 

@@ -38,6 +38,7 @@ JavaScript or TypeScript independently for every page and component.
 - [Deployment and Static Hosting](#deployment-and-static-hosting)
 - [Plugins](#plugins)
 - [Compiler and Vite Integration](#compiler-and-vite-integration)
+- [Adapter Contract and Optional Types](#adapter-contract-and-optional-types)
 - [JavaScript and TypeScript](#javascript-and-typescript)
 - [Error and Security Model](#error-and-security-model)
 - [Public Package Boundaries](#public-package-boundaries)
@@ -3106,6 +3107,11 @@ Intended public imports:
 Runtime:
 
 - `createApp`
+- `definePageConfig`
+- `defineRequestRoute`
+- `definePlugin`
+- `defineResourceAdapter`
+- `assertResourceAdapterConformance`
 - `createDevtoolsPlugin`
 - `createDirectionPlugin`
 - `createPluginManager`
@@ -3129,6 +3135,31 @@ Public types include page/component contexts, route/auth/request/plugin
 contracts, request hook payloads, optional cache/retry/devtools contracts,
 direction plugin contracts, shared-state contracts, validation plugin options,
 SEO contracts, application options, and HTTP options.
+
+## Adapter Contract and Optional Types
+
+VeloDom Core accepts build-tool-neutral lazy resources. The built-in Vite
+adapter implements the documented versioned contract; future adapters can use
+the same contract and verify it without importing router internals. See
+[docs/ADAPTERS.md](docs/ADAPTERS.md) for resource groups, capabilities, and a
+conformance example.
+
+JavaScript remains fully supported. TypeScript and JSDoc-aware editors can
+optionally use `definePageConfig()`, `defineRequestRoute()`, `definePlugin()`,
+and `defineResourceAdapter()` to retain inferred types without changing the
+object's runtime shape:
+
+```js
+import { definePageConfig } from "velodom";
+
+export default definePageConfig({
+  path: "/about",
+  seo: {
+    title: "About",
+    description: "A normal JavaScript VeloDom page config."
+  }
+});
+```
 
 ### `velodom/vite`
 

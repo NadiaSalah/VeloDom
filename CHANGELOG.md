@@ -15,6 +15,9 @@ package versions.
 - Recorded the architectural guardrail that these initiatives must not turn
   VeloDom into a mandatory virtual-DOM, JSX, CMS, global-store, or universal
   SSR framework.
+- Added the versioned V1 resource-adapter contract, a public conformance
+  assertion, adapter fixtures, and optional inference helpers for page config,
+  request routes, plugins, and adapters in both JavaScript and TypeScript.
 
 ### V1 Release Polish
 

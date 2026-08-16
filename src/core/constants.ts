@@ -61,6 +61,17 @@ export const VD = Object.freeze({
   }
 });
 
+/** Public resource-adapter contract version and supported capabilities. */
+export const VD_ADAPTER = Object.freeze({
+  VERSION: 1,
+  CAPABILITIES: Object.freeze([
+    "resource-discovery",
+    "page-config",
+    "layouts",
+    "compiler-manifests"
+  ])
+});
+
 /** Authentication provider names, defaults, aliases, and valid credentials. */
 export const VD_AUTH = Object.freeze({
   STORAGE_KEY: "vd-user-session",

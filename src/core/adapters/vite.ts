@@ -23,6 +23,7 @@ import type {
   RuntimeFeatureManifest
 } from "../compiler/types.ts";
 import type { ResourceAdapter } from "../types.ts";
+import { VD_ADAPTER } from "../constants.ts";
 
 const pageTemplateFiles = import.meta.glob(
   "/src/pages/**/index.html",
@@ -192,6 +193,13 @@ const layoutSingleFileStyles = mapLoaderExports<string>(
  */
 export function createViteAdapter(): ResourceAdapter {
   return {
+    version: VD_ADAPTER.VERSION,
+    capabilities: [
+      "resource-discovery",
+      "page-config",
+      "layouts",
+      "compiler-manifests"
+    ],
     pages: {
       html: {
         ...indexSingleFiles(pageSingleFileHtmlFiles, "/src/pages/"),

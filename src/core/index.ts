@@ -13,6 +13,19 @@ export {
   createApp
 } from "./velodom.ts";
 
+/** Optional inference helpers for JavaScript and TypeScript application code. */
+export {
+  definePageConfig,
+  definePlugin,
+  defineRequestRoute,
+  defineResourceAdapter
+} from "./authoring.ts";
+
+/** Public adapter conformance assertion for adapter implementation tests. */
+export {
+  assertResourceAdapterConformance
+} from "./resource-adapter.ts";
+
 /** Public TypeScript contracts for pages, components, requests, and plugins. */
 export type {
   AuthOptions,
@@ -46,6 +59,8 @@ export type {
   RequestRoute,
   RequestRouteRegistry,
   ResourceAdapter,
+  ResourceAdapterCapability,
+  ResourceAdapterVersion,
   ResourceGroup,
   RouteHandler,
   RouteLocation,
