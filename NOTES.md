@@ -181,6 +181,9 @@
 - Request debounce is intentionally request-local. It cancels pending timers
   per element and delays loading state until the latest request actually
   starts, preserving the existing cancellation semantics for active requests.
+- Request throttle is also request-local and intentionally leading-only. It
+  prevents repeated user triggers inside the configured window without queuing
+  hidden trailing requests that might surprise application code.
 - Direction management is optional and plugin-owned. RTL presentation support
   currently covers document `lang`/`dir`, reactive `$direction` reads, and
   explicit `vd-rtl-flip` markers; logical CSS diagnostics and translation

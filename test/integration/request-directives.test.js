@@ -594,6 +594,148 @@ test("invalid request debounce reports a configuration error", async () => {
   });
 });
 
+test("request config throttle limits rapid repeated requests", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.save"
+      data-vd-request-config="{
+        params: { title },
+        target: 'result',
+        throttleMs: 25
+      }"
+    >Save</button>
+  `);
+  const calls = [];
+
+  configureRequestRuntime({
+    routes: {
+      "posts.save": params => {
+        calls.push(params);
+
+        return params.title;
+      }
+    }
+  });
+
+  const state = createState({
+    result: "",
+    title: "first"
+  });
+  const cleanup = await applyDirectives(root, state);
+  const button = root.querySelector("button");
+
+  button.click();
+  state.title = "ignored";
+  button.click();
+  button.click();
+
+  await waitFor(() => {
+    assert.equal(state.result, "first");
+  });
+  assert.equal(calls.length, 1);
+
+  await delay(35);
+  state.title = "second";
+  button.click();
+
+  await waitFor(() => {
+    assert.equal(state.result, "second");
+  });
+  assert.deepEqual(calls, [
+    {
+      title: "first"
+    },
+    {
+      title: "second"
+    }
+  ]);
+
+  cleanup();
+});
+
+test("request throttle attribute accepts expression values", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.save"
+      data-vd-throttle="saveDelay"
+      data-vd-params="{ title }"
+      data-vd-target="result"
+    >Save</button>
+  `);
+  let handlerCalls = 0;
+
+  configureRequestRuntime({
+    routes: {
+      "posts.save": params => {
+        handlerCalls += 1;
+
+        return params.title;
+      }
+    }
+  });
+
+  const state = createState({
+    result: "",
+    saveDelay: 25,
+    title: "draft"
+  });
+  const cleanup = await applyDirectives(root, state);
+  const button = root.querySelector("button");
+
+  button.click();
+  button.click();
+
+  await waitFor(() => {
+    assert.equal(state.result, "draft");
+  });
+  assert.equal(handlerCalls, 1);
+
+  cleanup();
+});
+
+test("invalid request throttle reports a configuration error", async () => {
+  const root = createRoot(`
+    <button
+      data-vd-request="posts.save"
+      data-vd-throttle="-1"
+    >Save</button>
+  `);
+  let handlerCalls = 0;
+
+  configureRequestRuntime({
+    routes: {
+      "posts.save": () => {
+        handlerCalls += 1;
+      }
+    }
+  });
+
+  const events = createPageEventHub();
+  const errors = [];
+  events.on(VD_REQUEST.EVENTS.ERROR, event => {
+    errors.push(event);
+  });
+  const state = createState({
+    emit: events.emit
+  });
+
+  await withoutConsoleError(async messages => {
+    const cleanup = await applyDirectives(root, state);
+
+    root.querySelector("button").click();
+    await waitFor(() => {
+      assert.equal(errors.length, 1);
+    });
+
+    assert.equal(handlerCalls, 0);
+    assert.equal(errors[0].stage, VD_REQUEST.STAGES.CONFIG);
+    assert.equal(errors[0].code, VD_REQUEST.CODES.INVALID_CONFIG);
+    assert.match(messages[0], /Invalid Request Throttle/);
+
+    cleanup();
+  });
+});
+
 function createRoot(html) {
   const root = document.createElement("div");
   root.innerHTML = html;

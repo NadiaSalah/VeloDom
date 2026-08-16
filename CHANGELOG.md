@@ -63,7 +63,11 @@ package versions.
   `vd-request-config` and the `vd-debounce` shorthand attribute.
 - Pending debounced requests are cancelled on repeated triggers and component
   or page cleanup.
-- Brought the automated suite to 161 passing tests.
+- Added declarative request throttle via `throttleMs` / `throttle` in
+  `vd-request-config` and the `vd-throttle` shorthand attribute.
+- Throttled requests run on the leading trigger and ignore repeated triggers
+  inside the configured window.
+- Brought the automated suite to 170 passing tests.
 
 ### RTL and Multilingual CSS
 

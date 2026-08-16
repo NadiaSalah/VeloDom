@@ -63,7 +63,7 @@ VeloDom currently provides:
 - named and unnamed slots plus folder-scoped CSS
 - optional application-owned shared state through `createSharedState()`
 - declarative requests with params, result/loading/error state, events, auth,
-  middleware, debounce, and cancellation
+  middleware, debounce, throttle, and cancellation
 - optional request cache, retry wrapper, and devtools bridge helpers
 - optional native-form validation plugin for `vd-validate` request forms
 - optional direction plugin for document `lang`/`dir` and RTL-aware templates
@@ -1366,6 +1366,47 @@ Attribute shorthand:
 ```
 
 `vd-debounce` is compiled to `data-vd-debounce` and accepts a safe expression
+that must resolve to a non-negative number of milliseconds.
+
+### Request Throttle
+
+Use throttle for save buttons, destructive actions, refresh controls, and any
+request that should run immediately but not repeatedly during a short time
+window. VeloDom uses leading throttle: the first trigger runs, repeated
+triggers inside the window are ignored, and a later trigger can run after the
+window expires.
+
+Config form:
+
+```html
+<button
+  type="button"
+  vd-request="posts.save"
+  vd-request-config="{
+    params: { title: draft.title },
+    target: 'saveResult',
+    throttleMs: 1000
+  }"
+>
+  Save
+</button>
+```
+
+Attribute shorthand:
+
+```html
+<button
+  type="button"
+  vd-request="posts.save"
+  vd-throttle="saveDelay"
+  vd-params="{ title: draft.title }"
+  vd-target="saveResult"
+>
+  Save
+</button>
+```
+
+`vd-throttle` is compiled to `data-vd-throttle` and accepts a safe expression
 that must resolve to a non-negative number of milliseconds.
 
 ### Forms
@@ -2852,7 +2893,7 @@ Latest local verification on 2026-07-10:
 - Core documentation audit passes for 55 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 166 automated tests pass
+- 170 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
@@ -2885,6 +2926,8 @@ Latest implementation update:
   shared from one application-owned layout instead of repeated in every page.
 - Added declarative request debounce through `debounceMs` in request config and
   the `vd-debounce` shorthand attribute.
+- Added declarative request throttle through `throttleMs` in request config and
+  the `vd-throttle` shorthand attribute.
 - Added optional direction management through `createDirectionPlugin()` and
   compiler support for explicit `vd-rtl-flip` directional icon markers.
 - Updated `todo.md`, `NOTES.md`, `CHANGELOG.md`, and
@@ -2977,7 +3020,7 @@ These features are not implemented and should not be described as available:
 - npm publication and final npm account/package reservation
 - schema-based validation, custom validation rules, and validation error state
   conventions beyond the optional native validation plugin
-- declarative request throttle, retry, or cache
+- declarative request retry or cache
 - full translation/i18n dictionaries, pluralization, message formatting, and
   locale routing
 - CSS logical-property diagnostics, UTF-8 shell diagnostics, and automatic RTL

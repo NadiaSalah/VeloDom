@@ -335,6 +335,25 @@ test("compiler normalizes request debounce directives", () => {
   ]);
 });
 
+test("compiler normalizes request throttle directives", () => {
+  const result = compileTemplate(`
+    <button
+      vd-request="posts.save"
+      vd-throttle="saveDelay"
+    >Save</button>
+  `);
+
+  assert.deepEqual(result.diagnostics, []);
+  assert.equal(result.html.includes("data-vd-throttle=\"saveDelay\""), true);
+  assert.deepEqual(result.manifest.features, [
+    "requests"
+  ]);
+  assert.deepEqual(result.manifest.directives, [
+    "data-vd-request",
+    "data-vd-throttle"
+  ]);
+});
+
 test("compiler normalizes rtl flip markers and records the manifest feature", () => {
   const result = compileTemplate(`
     <button>

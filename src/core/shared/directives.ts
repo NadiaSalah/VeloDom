@@ -46,6 +46,7 @@ export const PREFERRED_DIRECTIVES = Object.freeze([
   "style",
   "target",
   "text",
+  "throttle",
   "validate",
   "value",
   "error"

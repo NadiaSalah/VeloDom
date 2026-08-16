@@ -45,6 +45,7 @@ export const VD = Object.freeze({
   REQUEST_CONFIG: "data-vd-request-config",
   REQUEST_STATE: "data-vd-request-state",
   DEBOUNCE: "data-vd-debounce",
+  THROTTLE: "data-vd-throttle",
   AUTO_STATE: "data-vd-auto-state",
   PARAMS: "data-vd-params",
   TARGET: "data-vd-target",
@@ -248,6 +249,10 @@ export const VD_REQUEST = Object.freeze({
   DEBOUNCE_KEYS: Object.freeze([
     "debounceMs",
     "debounce"
+  ]),
+  THROTTLE_KEYS: Object.freeze([
+    "throttleMs",
+    "throttle"
   ]),
   STATUS_SUFFIXES: Object.freeze({
     RESULT: "Result",

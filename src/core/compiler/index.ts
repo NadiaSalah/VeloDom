@@ -63,6 +63,7 @@ const EXPRESSION_DIRECTIVES = new Set([
   "data-vd-src",
   "data-vd-style",
   "data-vd-text",
+  "data-vd-throttle",
   "data-vd-value"
 ]);
 

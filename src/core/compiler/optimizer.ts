@@ -272,6 +272,7 @@ function resolveRuntimeFeature(directive: string) {
     case "data-vd-request-state":
     case "data-vd-auto-state":
     case "data-vd-params":
+    case "data-vd-throttle":
     case "data-vd-target":
     case "data-vd-state":
     case "data-vd-loading":
