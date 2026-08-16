@@ -334,12 +334,13 @@ examples/
       assets/                 application-owned static assets
       main.js                 one-call application bootstrap
 
-test/                         automated tests
-test-fixtures/package-consumer/
-                              installed-package verification fixture
-test-support/                 reusable test environment helpers
 docs/                         DX, future research, and identity notes
-tools/scripts/                workspace release and quality checks
+tools/
+  scripts/                    workspace release and quality checks
+  tests/                      automated framework test suites
+  test-support/               reusable test environment helpers
+  test-fixtures/package-consumer/
+                              installed-package verification fixture
 ```
 
 Ownership rule:
@@ -350,13 +351,13 @@ Ownership rule:
   the consuming application's `src/pages`, `src/components`, and `src/api`.
 - The blog is a real workspace consumer under `examples/blog`; it does not
   import framework source or carry a private copy of Core.
-- `test-fixtures/package-consumer` verifies the packed npm artifact; it is not
+- `tools/test-fixtures/package-consumer` verifies the packed npm artifact; it is not
   an application example or a published package file.
 - `packages/velodom-vscode` is an optional editor integration with its own
   lifecycle. It consumes the public compiler API and is never a runtime
   dependency of a VeloDom site.
-- Repository-wide TypeScript, ESLint, tests, and release scripts stay at the
-  workspace level. Application Vite/Tailwind configuration belongs to the app.
+- Repository-wide TypeScript, ESLint, tests, and release scripts stay under
+  `tools/`. Application Vite/Tailwind configuration belongs to the app.
 
 Use the [documentation map](DOCUMENTATION_MAP.md) to distinguish shipped V1
 capabilities from optional tooling and approved future research.
@@ -3495,7 +3496,7 @@ Latest implementation update:
 - Added optional static SEO content rendering through `seo.renderPage`.
 - Updated framework contracts, SEO constants, Vite plugin options, and static
   renderer behavior in `packages/velodom/src`.
-- Added focused coverage in `test/compiler/seo-renderer.test.js`.
+- Added focused coverage in `tools/tests/compiler/seo-renderer.test.js`.
 - Added reusable structured-data fixtures for WebSite, BlogPosting,
   BreadcrumbList, FAQPage, and Product JSON-LD validation coverage.
 - Added an internal naming guard that freezes `page-router.ts` and

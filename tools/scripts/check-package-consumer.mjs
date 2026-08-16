@@ -56,7 +56,7 @@ const npmArguments = process.platform === "win32"
 
 try {
   await cp(
-    join(workspaceRoot, "test-fixtures", "package-consumer"),
+    join(workspaceRoot, "tools", "test-fixtures", "package-consumer"),
     consumerRoot,
     {
       recursive: true

@@ -129,7 +129,7 @@
   and parent ref APIs. Exposed members are merged into component state before
   directives mount, while protected framework state names are rejected.
 - Browser-like runtime integration uses happy-dom only in tests. The helper
-  lives under `test-support` so Node test discovery does not count it as an
+  lives under `tools/test-support` so Node test discovery does not count it as an
   empty test file.
 - Browser support is documented as an evergreen V1 policy in
   `BROWSERS.md` and mirrored by `package.json#browserslist`. The Playwright
