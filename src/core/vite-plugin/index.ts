@@ -133,7 +133,7 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
           this.error({
             id,
             message: `[${diagnostic.code}] ${diagnostic.message}`,
-            pos: diagnostic.offset
+            pos: descriptor.templateOffset + diagnostic.offset
           });
         }
 

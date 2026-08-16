@@ -417,6 +417,10 @@
   builds standards-based responsive-image attributes from explicit variants.
   It intentionally does not select a CDN or transform files: image generation
   remains an application/deployment decision and adds no VeloDom runtime code.
+- Editor intelligence begins with a compiler-backed, dependency-free language
+  service instead of an editor-specific runtime. It maps `.vd` template
+  diagnostics back to original file locations and leaves editor UI, project
+  navigation, and code actions as optional integration work.
 
 ## Handoff Guidance
 

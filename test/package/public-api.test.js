@@ -113,9 +113,11 @@ test("runtime public type exports are frozen for application authors", () => {
 
 test("compiler public exports are frozen for build integrations", () => {
   assert.deepEqual(Object.keys(compilerApi).sort(), [
+    "analyzeVeloDomDocument",
     "compileTemplate",
     "createRuntimeFeatureManifest",
     "defineTemplateOptimizer",
+    "getVeloDomDirectiveCompletions",
     "runTemplateOptimizers"
   ]);
   assert.deepEqual(readTypeExportNames(compilerEntrySource, "./types.ts"), [
@@ -130,6 +132,11 @@ test("compiler public exports are frozen for build integrations", () => {
     "TemplateOptimizer",
     "TemplateOptimizerContext",
     "TemplateOptimizerResult"
+  ]);
+  assert.deepEqual(readTypeExportNames(compilerEntrySource, "../language-service.ts"), [
+    "VeloDomDirectiveCompletion",
+    "VeloDomLanguageAnalysis",
+    "VeloDomLanguageDocument"
   ]);
 });
 

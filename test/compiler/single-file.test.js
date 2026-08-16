@@ -41,6 +41,7 @@ test("single-file modules parse VeloDom blocks", () => {
   `, "src/pages/about.vd");
 
   assert.match(descriptor.template, /vd-text="title"/);
+  assert.equal(descriptor.templateOffset > 0, true);
   assert.match(descriptor.script, /export function init/);
   assert.match(descriptor.style, /padding: 2rem/);
   assert.match(descriptor.config, /path: "\/about"/);

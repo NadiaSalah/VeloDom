@@ -13,6 +13,8 @@ import { VD_SINGLE_FILE } from "../constants.ts";
 
 /** Parsed top-level blocks from one .vd page or component file. */
 export interface VeloDomSingleFileDescriptor {
+  /** Zero-based offset of the trimmed template in the original `.vd` source. */
+  templateOffset: number;
   template: string;
   script: string;
   style: string;
@@ -22,6 +24,7 @@ export interface VeloDomSingleFileDescriptor {
 interface BlockMatch {
   name: string;
   content: string;
+  contentStart: number;
   start: number;
   end: number;
 }
@@ -34,6 +37,7 @@ export function parseVeloDomSingleFile(
   const blocks = findSingleFileBlocks(source);
   const usedBlocks = new Set<string>();
   const descriptor: VeloDomSingleFileDescriptor = {
+    templateOffset: 0,
     template: "",
     script: "",
     style: "",
@@ -55,7 +59,15 @@ export function parseVeloDomSingleFile(
     }
 
     usedBlocks.add(block.name);
-    descriptor[block.name as keyof VeloDomSingleFileDescriptor] = block.content.trim();
+    const content = block.content.trim();
+    const field = block.name as "template" | "script" | "style" | "config";
+    descriptor[field] = content;
+
+    if (field === VD_SINGLE_FILE.TAGS.TEMPLATE) {
+      descriptor.templateOffset = block.contentStart + (
+        block.content.length - block.content.trimStart().length
+      );
+    }
   }
 
   if (!descriptor.template) {
@@ -167,6 +179,7 @@ function findSingleFileBlocks(source: string) {
     blocks.push({
       name,
       content: source.slice(contentStart, contentEnd),
+      contentStart,
       start: match.index,
       end: closeEnd
     });

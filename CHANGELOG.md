@@ -21,6 +21,9 @@ package versions.
 - Added optional Node-only image inspection and responsive attribute helpers,
   plus compiler diagnostics for image dimensions, without a browser asset
   runtime or image-provider dependency.
+- Added compiler-backed editor analysis and preferred-directive completions;
+  `.vd` template diagnostics now retain original-document line locations in
+  both the Vite error path and optional language-service output.
 
 ### V1 Release Polish
 

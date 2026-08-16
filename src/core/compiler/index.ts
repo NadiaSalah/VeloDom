@@ -46,6 +46,19 @@ export type {
   TemplateOptimizerResult
 } from "./types.ts";
 
+/** Optional compiler-backed language-service helpers for editor integrations. */
+export {
+  analyzeVeloDomDocument,
+  getVeloDomDirectiveCompletions
+} from "../language-service.ts";
+
+/** Public editor-integration contracts. */
+export type {
+  VeloDomDirectiveCompletion,
+  VeloDomLanguageAnalysis,
+  VeloDomLanguageDocument
+} from "../language-service.ts";
+
 const EXPRESSION_DIRECTIVES = new Set([
   "data-vd-alt",
   "data-vd-attr",

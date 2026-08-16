@@ -11,7 +11,7 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**351 of 369 tasks completed — 95%**
+**353 of 369 tasks completed — 96%**
 
 `[###################-]`
 
@@ -699,7 +699,7 @@ browser runtime small, and remain optional where a project does not need it.
 
 #### 19.3 Editor Intelligence — V2
 
-- [ ] Research a language-service layer that reuses compiler diagnostics for
+- [x] Research a language-service layer that reuses compiler diagnostics for
       `.html`, `.vd`, `config.js`, and folder conventions — Fit:
       compiler-first; Value: errors appear while authors write code;
       Complexity: high; Target: V2
@@ -707,7 +707,7 @@ browser runtime small, and remain optional where a project does not need it.
       hover documentation, and go-to component/route support before designing
       a general editor protocol — Fit: convention over configuration; Value:
       a gentler beginner workflow; Complexity: high; Target: V2
-- [ ] Carry resource/block line information through diagnostics so editor
+- [x] Carry resource/block line information through diagnostics so editor
       highlights remain accurate for `.vd` template, script, style, and config
       blocks — Fit: source-aware compiler; Value: actionable errors;
       Complexity: high; Target: V2
