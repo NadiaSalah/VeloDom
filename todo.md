@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**308 of 326 tasks completed — 94.5%**
+**313 of 326 tasks completed — 96.0%**
 
 `[###################-]`
 
-Remaining tasks: **18**
+Remaining tasks: **13**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -508,7 +508,7 @@ scaffold normal `index.html`, `script.js`/`script.ts`, `style.css`, and
 `config.js` files, not introduce a new component authoring model.
 
 - [x] Extend CLI planning to include `vd middleware` and `vd plugin` scaffolding — Fit: keeps custom code outside core; Value: faster setup for advanced users; Complexity: low; Target: V1.x
-- [ ] Add `vd health` as a summarized wrapper over doctor, stats, SEO, accessibility, and build checks — Fit: local static tooling; Value: one command before release; Complexity: medium; Target: V2
+- [x] Add `vd health` as a summarized wrapper over doctor, stats, SEO, accessibility, and build checks — Fit: local static tooling; Value: one command before release; Complexity: medium; Target: V2
 - [x] Add `vd graph` to export project relationships as JSON and Mermaid without requiring a browser devtool — Fit: compiler/build-time output; Value: easier onboarding and audits; Complexity: medium; Target: V2
 - [ ] Add `vd benchmark` for repeatable page, loop, request, and component rendering benchmarks — Fit: performance-budget roadmap; Value: prevents anecdotal optimization; Complexity: medium; Target: V2
 - [x] Add a route explorer command that prints route paths, params, guards, metadata, SEO, and generated static entries — Fit: folder-first router transparency; Value: easier deployment/debugging; Complexity: low; Target: V1.x
@@ -530,10 +530,10 @@ A health report fits VeloDom when it is advisory and generated from existing
 compiler/build/test signals. It must not block builds until thresholds are
 explicitly configured by the project.
 
-- [ ] Define a non-blocking health score model covering performance, accessibility, SEO, security, bundle size, dead code, and maintainability — Fit: convention-guided quality; Value: one release-readiness signal; Complexity: medium; Target: V2
-- [ ] Add configurable project thresholds for health checks without hard-coded framework opinions — Fit: convention over configuration with opt-in strictness; Value: adapts to different site types; Complexity: medium; Target: V2
-- [ ] Report security concerns such as unsafe links, risky HTML injection patterns, weak auth demos in production, and external-write policy gaps — Fit: existing structured diagnostics; Value: safer apps; Complexity: medium; Target: V2
-- [ ] Report SEO and accessibility coverage from page configs and compiled templates — Fit: compile-time HTML analysis; Value: fewer missed metadata and semantic issues; Complexity: medium; Target: V1.x
+- [x] Define a non-blocking health score model covering performance, accessibility, SEO, security, bundle size, dead code, and maintainability — Fit: convention-guided quality; Value: one release-readiness signal; Complexity: medium; Target: V2
+- [x] Add configurable project thresholds for health checks without hard-coded framework opinions — Fit: convention over configuration with opt-in strictness; Value: adapts to different site types; Complexity: medium; Target: V2
+- [x] Report security concerns such as unsafe links, risky HTML injection patterns, weak auth demos in production, and external-write policy gaps — Fit: existing structured diagnostics; Value: safer apps; Complexity: medium; Target: V2
+- [x] Report SEO and accessibility coverage from page configs and compiled templates — Fit: compile-time HTML analysis; Value: fewer missed metadata and semantic issues; Complexity: medium; Target: V1.x
 
 ### 14.6 Build Intelligence
 

@@ -101,6 +101,7 @@ Usage:
   vd stats [--json] [--root <dir>]
   vd routes [--json] [--root <dir>]
   vd graph [--json] [--mermaid] [--root <dir>]
+  vd health [--json] [--min-score <0-100>] [--root <dir>]
   vd build-report [--json] [--root <dir>]
   vd create page <name> [--ts] [--single-file] [--root <dir>]
   vd create component <name> [--ts] [--single-file] [--root <dir>]
@@ -153,6 +154,8 @@ export async function runVeloDomCli(
       case "graph":
         await printGraph(context, parsed.flags);
         return 0;
+      case "health":
+        return printHealth(context, parsed);
       case "build-report":
         await printBuildReport(context, parsed.flags.has("json"));
         return 0;
@@ -324,6 +327,38 @@ async function printGraph(context: CliContext, flags: Set<string>) {
   });
 }
 
+async function printHealth(context: CliContext, parsed: ParsedArgs) {
+  const health = await createHealthReport(
+    context.cwd,
+    parsed.options["min-score"]
+  );
+  const json = parsed.flags.has("json");
+
+  if (json) {
+    context.stdout(JSON.stringify(health, null, 2));
+    return health.ok ? 0 : 1;
+  }
+
+  context.stdout("VeloDom health report");
+  context.stdout("=====================");
+  context.stdout(`Score: ${health.score}/100`);
+  context.stdout(`Threshold: ${health.threshold ?? "not configured"}`);
+  context.stdout(`Status: ${health.ok ? "ok" : "below threshold"}`);
+  context.stdout("Signals:");
+  health.signals.forEach(signal => {
+    context.stdout(`  - ${signal}`);
+  });
+  context.stdout("Issues:");
+  if (!health.issues.length) {
+    context.stdout("  - none");
+  }
+  health.issues.forEach(issue => {
+    context.stdout(`  - ${issue.level.toUpperCase()} ${issue.file}: ${issue.message}`);
+  });
+
+  return health.ok ? 0 : 1;
+}
+
 async function runDoctor(root: string) {
   const inspection = await inspectProject(root);
   const issues: DoctorIssue[] = [];
@@ -454,6 +489,55 @@ async function createBuildReport(root: string) {
       largestJsChunks: topSizes(jsAssets),
       largestCssChunks: topSizes(cssAssets)
     }
+  };
+}
+
+async function createHealthReport(
+  root: string,
+  rawThreshold: string | undefined
+) {
+  const [
+    doctorIssues,
+    buildReport,
+    securityIssues
+  ] = await Promise.all([
+    runDoctor(root),
+    createBuildReport(root),
+    runSecurityScan(root)
+  ]);
+  const issues = [
+    ...doctorIssues,
+    ...securityIssues
+  ];
+  const threshold = await resolveHealthThreshold(root, rawThreshold);
+  const errorCount = issues.filter(issue => issue.level === "error").length;
+  const warningCount = issues.filter(issue => issue.level === "warning").length;
+  const seoMissing = Math.max(
+    0,
+    buildReport.project.seoCoverage.totalPages
+      - buildReport.project.seoCoverage.pagesWithSeo
+  );
+  const score = Math.max(
+    0,
+    100
+      - (errorCount * 12)
+      - (warningCount * 3)
+      - (seoMissing * 4)
+  );
+
+  return {
+    ok: threshold === null || score >= threshold,
+    score,
+    threshold,
+    signals: [
+      `${errorCount} error(s)`,
+      `${warningCount} warning(s)`,
+      `${buildReport.project.seoCoverage.pagesWithSeo}/${buildReport.project.seoCoverage.totalPages} page(s) with SEO config`,
+      `${formatBytes(buildReport.dist.jsTotalBytes)} generated JavaScript`,
+      `${buildReport.project.unusedRuntimeFeatures.length} unused runtime feature module(s)`
+    ],
+    issues,
+    build: buildReport
   };
 }
 
@@ -848,6 +932,75 @@ function escapeMermaidLabel(value: string) {
   return value.replaceAll("\"", "&quot;");
 }
 
+async function runSecurityScan(root: string) {
+  const inspection = await inspectProject(root);
+  const issues: DoctorIssue[] = [];
+  const templates = [
+    ...inspection.pages,
+    ...inspection.components,
+    ...inspection.layouts
+  ];
+
+  await Promise.all(templates.map(async template => {
+    const source = await readTemplateSource(root, template.source);
+
+    if (/href\s*=\s*["']javascript:/i.test(source)) {
+      issues.push({
+        file: template.source,
+        level: "error",
+        message: "Avoid javascript: links in templates."
+      });
+    }
+
+    for (const match of source.matchAll(/<a\b[^>]*target=["']_blank["'][^>]*>/gi)) {
+      if (!/\brel=["'][^"']*\bnoopener\b/i.test(match[0])) {
+        issues.push({
+          file: template.source,
+          level: "warning",
+          message: "Links with target=\"_blank\" should include rel=\"noopener\"."
+        });
+      }
+    }
+  }));
+
+  return issues;
+}
+
+async function resolveHealthThreshold(
+  root: string,
+  rawThreshold: string | undefined
+) {
+  if (rawThreshold !== undefined) {
+    return normalizeHealthThreshold(rawThreshold, "--min-score");
+  }
+
+  const source = await readOptionalText(join(root, ".velodom-health.json"));
+
+  if (!source) return null;
+
+  try {
+    const config = JSON.parse(source) as {
+      minScore?: unknown;
+    };
+
+    return config.minScore === undefined
+      ? null
+      : normalizeHealthThreshold(config.minScore, ".velodom-health.json:minScore");
+  } catch {
+    throw new Error("Invalid .velodom-health.json file.");
+  }
+}
+
+function normalizeHealthThreshold(value: unknown, label: string) {
+  const score = Number(value);
+
+  if (!Number.isFinite(score) || score < 0 || score > 100) {
+    throw new Error(`${label} must be a number between 0 and 100.`);
+  }
+
+  return score;
+}
+
 async function validatePageConfigText(
   root: string,
   page: DiscoveredModule
@@ -1082,6 +1235,10 @@ function parseArgs(args: string[]): ParsedArgs {
   const flags = new Set<string>();
   const options: Record<string, string> = {};
   const values: string[] = [];
+  const valueOptions = new Set([
+    "min-score",
+    "root"
+  ]);
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
@@ -1093,14 +1250,14 @@ function parseArgs(args: string[]): ParsedArgs {
 
     const name = arg.slice(2);
 
-    if (name === "root") {
+    if (valueOptions.has(name)) {
       const value = args[index + 1];
 
       if (!value || value.startsWith("--")) {
-        throw new Error("--root requires a directory value.");
+        throw new Error(`--${name} requires a value.`);
       }
 
-      options.root = value;
+      options[name] = value;
       index += 1;
       continue;
     }

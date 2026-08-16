@@ -151,6 +151,7 @@ vd doctor
 vd stats
 vd routes
 vd graph --mermaid
+vd health --min-score 80
 vd build-report --json
 vd create page blog/posts/[id] --ts
 vd create component shared/post-card --single-file
@@ -177,6 +178,10 @@ unused runtime feature modules, largest pages/components, and generated
 JavaScript/CSS chunks in text or JSON for CI dashboards.
 `vd graph` exports page-route, page/component dependency, request, and
 middleware relationships as text, JSON, or Mermaid.
+`vd health` summarizes doctor issues, SEO coverage, accessibility/compiler
+warnings, security link checks, generated bundle size, and unused runtime
+feature signals into a non-blocking score. It fails only when `--min-score` or
+`.velodom-health.json` config asks it to enforce a threshold.
 
 ## Testing Utilities
 
@@ -3186,6 +3191,8 @@ Latest implementation update:
   missing components, broken request references, and page config path mistakes.
 - Added `vd build-report` for machine-readable build/project intelligence.
 - Added `vd graph` for JSON/Mermaid project relationship graphs.
+- Added `vd health` with an advisory score, optional thresholds, SEO and
+  accessibility signals, and simple security checks.
 - Added `velodom/testing` with `mountTestPage()` and `mountTestComponent()`
   for public DOM test helpers.
 - Added DX, future research, and framework identity documents under `docs/`.

@@ -29,6 +29,11 @@ package versions.
   templates, and generated JS/CSS chunks.
 - Added `vd graph` to export page-route, template-component, request, and
   middleware relationships as text, JSON, or Mermaid.
+- Added `vd health` as a non-blocking score over doctor issues, SEO coverage,
+  accessibility/compiler warnings, simple security checks, generated asset
+  size, and unused runtime feature signals with optional threshold enforcement.
+- Refined performance budget checks so package runtime budgets exclude
+  Node-only CLI and testing utility modules.
 - Added convention-first scaffolding for pages, components, API files, demo
   pages, middleware files, plugins, and starter projects.
 - Extended package contract checks to include the CLI wrappers in the

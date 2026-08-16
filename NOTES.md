@@ -293,6 +293,12 @@
   pages-to-routes, templates-to-components, templates-to-requests, and
   request-to-middleware registrations. Event/ref/state graphs remain separate
   research until inference is reliable.
+- `vd health` is advisory by default. It only fails when a project sets
+  `--min-score` or `.velodom-health.json`, keeping quality thresholds
+  project-owned rather than framework-imposed.
+- Performance budgets intentionally measure browser runtime package modules,
+  excluding Node-only CLI and public testing utilities from the largest-runtime
+  module threshold.
 - Package CLI wrappers live in `bin/` and call generated `lib/cli.js`; the
   implementation remains TypeScript under `src/core` so it shares framework
   quality gates while staying outside the application folders.

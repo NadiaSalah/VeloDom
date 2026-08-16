@@ -43,6 +43,9 @@ const packageFiles = existsSync(path.join(root, "lib"))
 
 const distStats = await readStats(distFiles);
 const packageStats = await readStats(packageFiles);
+const packageRuntimeStats = packageStats.filter(item => (
+  !isPackageToolingModule(item.file)
+));
 
 checkBudget(
   "dist total JavaScript",
@@ -60,13 +63,13 @@ checkBudget(
   budgets.distLargestJsChunkGzipBytes
 );
 checkBudget(
-  "package total JavaScript",
-  sumBytes(packageStats),
+  "package runtime JavaScript",
+  sumBytes(packageRuntimeStats),
   budgets.packageTotalJsBytes
 );
 checkBudget(
-  "package largest JavaScript module",
-  largestBytes(packageStats),
+  "package largest runtime JavaScript module",
+  largestBytes(packageRuntimeStats),
   budgets.packageLargestJsModuleBytes
 );
 
@@ -128,6 +131,10 @@ function largestBytes(stats) {
 
 function largestGzipBytes(stats) {
   return Math.max(0, ...stats.map(item => item.gzipBytes));
+}
+
+function isPackageToolingModule(file) {
+  return /[/\\](?:cli|testing)\.js$/.test(file);
 }
 
 function printChecks() {

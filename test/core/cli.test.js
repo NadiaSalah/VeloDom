@@ -181,6 +181,26 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
 
     assert.equal(mermaidCode, 0);
     assert.match(output.join("\n"), /flowchart TD/);
+
+    output.length = 0;
+
+    const healthCode = await runVeloDomCli([
+      "health",
+      "--json",
+      "--min-score",
+      "1",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+    const health = JSON.parse(output.join("\n"));
+
+    assert.equal(healthCode, 0);
+    assert.equal(health.threshold, 1);
+    assert.equal(typeof health.score, "number");
+    assert.ok(Array.isArray(health.signals));
   } finally {
     await removeFixture(root);
   }
