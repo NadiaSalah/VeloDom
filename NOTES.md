@@ -57,9 +57,20 @@
 - Application examples use kebab-case folders, preferred `script`/`config`
   filenames, and compiler-facing `vd-*` syntax. Legacy names and
   `data-vd-*` remain framework compatibility inputs, not preferred examples.
-- The showcase application is now a VeloDom-branded DummyJSON blog. It should
-  stay application-owned under `src/pages`, `src/components`, and `src/api`;
-  DummyJSON-specific business logic must not move into `src/core`.
+- The showcase application is now the first VeloDom framework site: a local
+  documentation blog that explains V1 capabilities while using VeloDom pages,
+  components, dynamic routes, local request routes, layouts, and SEO config.
+  It should stay application-owned under `src/pages`, `src/components`, and
+  `src/api`; framework-neutral behavior must stay in `src/core`.
+- Showcase `src/api/routes.js` is the declarative request registry for
+  `vd-request`, not a list of every helper exported by `src/api`. Page scripts
+  may still import API helpers directly when imperative loading is clearer.
+- The V1 site intentionally does not ship application middleware, auth, or CRUD
+  example pages. Those framework features remain documented and tested in Core,
+  while the public site stays focused on launch messaging and learning paths.
+- Browser E2E now follows the V1 documentation site, not the removed CRUD
+  showcase. It verifies the landing page, features page, one-file page,
+  dynamic article route, local `vd-request` example, and no-JavaScript SEO.
 - Components inside `vd-for` should be used carefully until component props
   can receive loop scope values reliably. The showcase uses direct HTML cards
   for repeated posts and keeps the reusable post-card component outside loops.

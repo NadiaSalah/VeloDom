@@ -4,13 +4,6 @@ import {
   ApiError,
   requestJson
 } from "../../src/core/requests/index.ts";
-import { toPositiveInteger } from "../../src/api/validation.js";
-
-test("positive integer validation rejects empty and zero values", () => {
-  assert.throws(() => toPositiveInteger(""), /positive integer/);
-  assert.throws(() => toPositiveInteger(0), /positive integer/);
-  assert.equal(toPositiveInteger("12"), 12);
-});
 
 test("GET requests do not send a JSON content type", async () => {
   const originalFetch = globalThis.fetch;

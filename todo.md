@@ -605,3 +605,7 @@ that emulate React or Vue at runtime.
 - Keep the framework HTML-first and simple for the user.
 - Prefer conventions that reduce boilerplate.
 - Protect framework power features with clear guardrails and strong error messages.
+- 2026-08-16 V1 site pass: removed obsolete DummyJSON/login/category/CRUD
+  application files, rebuilt the example as a local VeloDom framework blog,
+  kept Core unchanged, and verified the app with static project diagnostics,
+  production build, automated tests, and Chromium browser E2E.

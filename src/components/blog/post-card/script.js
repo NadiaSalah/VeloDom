@@ -3,7 +3,7 @@ export function init({ props, state, ctx }) {
   state.highlighted = false;
   state.summary = state.post?.body
     ? `${state.post.body.slice(0, 140)}…`
-    : "A reusable VeloDom post card waiting for data.";
+    : "A reusable VeloDom article card waiting for data.";
 
   function toggleHighlight() {
     state.highlighted = !state.highlighted;

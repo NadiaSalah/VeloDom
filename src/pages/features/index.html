@@ -3,8 +3,8 @@
     <p class="text-sm font-medium text-primary">Living documentation</p>
     <h1 class="text-4xl font-bold">Framework features</h1>
     <p class="mt-3 max-w-3xl opacity-70">
-      Every section is a working example. This page intentionally uses the preferred
-      <code>vd-*</code> syntax compiled by the VeloDom Vite plugin.
+      Every section is a working example from the V1 framework site. This page
+      intentionally uses preferred <code>vd-*</code> syntax compiled by VeloDom.
     </p>
   </header>
 
@@ -43,6 +43,7 @@
           <input
             vd-ref="nameInput"
             vd-model="profile.name"
+            aria-label="Your name"
             class="input input-bordered w-full"
             placeholder="Your name"
           />
@@ -50,10 +51,23 @@
             Hello, <strong>{{ profile.name || 'reader' }}</strong>
           </p>
           <label class="label cursor-pointer justify-start gap-3">
-            <input type="checkbox" vd-model="accepted" class="checkbox" />
+            <input
+              type="checkbox"
+              vd-model="accepted"
+              aria-label="Accept HTML-first approach"
+              class="checkbox"
+            />
             <span>I accept the HTML-first approach</span>
           </label>
-          <input type="color" vd-model="color" class="h-10 w-full" />
+          <label class="form-control">
+            <span class="label-text">Accent color</span>
+            <input
+              type="color"
+              vd-model="color"
+              aria-label="Accent color"
+              class="h-10 w-full"
+            />
+          </label>
           <div
             vd-class="{ 'font-bold': accepted }"
             vd-style="{ color: color }"
@@ -113,54 +127,39 @@
       </vd-child>
     </vd-component>
 
-    <vd-component name="shared/demo-panel">
-      <vd-child name="header">Requests and middleware</vd-child>
-      <vd-child>
-        <div class="flex flex-wrap gap-2">
-          <button
-            vd-request="posts.getOne"
-            vd-request-config="{ params: { id: 1 }, target: 'demoResult', autoState: true }"
-            class="btn btn-sm btn-primary"
-          >
-            Load post 1
-          </button>
-          <button
-            vd-request="posts.getOne"
-            vd-request-config="{ params: { id: 2 }, target: 'demoResult', autoState: true }"
-            class="btn btn-sm btn-secondary"
-          >
-            Supersede with post 2
-          </button>
-          <button
-            vd-request="demo.middlewarePost"
-            vd-request-config="{ params: { id: ' 3 ' }, target: 'demoResult', autoState: true }"
-            class="btn btn-sm btn-outline"
-          >
-            Middleware pipeline
-          </button>
-          <button
-            vd-request="posts.getOne"
-            vd-request-config="{ params: { id: 6 }, target: 'home', state: 'externalPostResult', autoState: true }"
-            class="btn btn-sm btn-accent"
-          >
-            Write safely to home
-          </button>
-        </div>
+    <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-xl font-bold">Requests</h2>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <button
+          vd-request="articles.getOne"
+          vd-request-config="{ params: { id: 'html-first' }, target: 'demoResult', autoState: true }"
+          class="btn btn-sm btn-primary"
+        >
+          Load HTML-first article
+        </button>
+        <button
+          vd-request="articles.getOne"
+          vd-request-config="{ params: { id: 'compiler-first' }, target: 'demoResult', autoState: true }"
+          class="btn btn-sm btn-secondary"
+        >
+          Supersede with compiler article
+        </button>
+      </div>
 
-        <p vd-show="demoLoading" class="mt-3">Loading request…</p>
-        <p
-          vd-if="demoError !== ''"
-          vd-text="demoError"
-          class="alert alert-error mt-3"
-        ></p>
-        <div vd-if="Boolean(demoResult?.id)" class="alert alert-success mt-3">
-          <span vd-text="'Loaded: ' + demoResult.title"></span>
-        </div>
-      </vd-child>
-      <vd-child name="footer">
+      <p vd-show="demoLoading" class="mt-3">Loading request…</p>
+      <p
+        vd-if="demoError !== ''"
+        vd-text="demoError"
+        class="alert alert-error mt-3"
+      ></p>
+      <div class="alert alert-success mt-3">
+        <span vd-text="demoResult?.title ? 'Loaded: ' + demoResult.title : 'No article loaded yet.'"></span>
+      </div>
+
+      <div class="mt-4">
         <span class="badge badge-outline">result / loading / error / cancellation</span>
-      </vd-child>
-    </vd-component>
+      </div>
+    </article>
 
     <vd-component name="shared/demo-panel">
       <vd-child name="header">Slots and modal expose</vd-child>
@@ -201,11 +200,9 @@
   <section class="mt-8 rounded-2xl bg-base-200 p-6">
     <h2 class="text-2xl font-bold">More examples</h2>
     <div class="mt-4 flex flex-wrap gap-3">
-      <a href="/login" vd-nav class="btn btn-outline">Auth login</a>
-      <a href="/studio" vd-nav class="btn btn-outline">CRUD requests</a>
-      <a href="/categories" vd-nav class="btn btn-outline">Categories and loops</a>
       <a href="/single-file" vd-nav class="btn btn-outline">One-file .vd</a>
       <a href="/" vd-nav class="btn btn-outline">Blog showcase</a>
+      <a href="/blog/posts/runtime-lightweight" vd-nav class="btn btn-outline">Runtime article</a>
     </div>
   </section>
 
@@ -225,7 +222,7 @@
     <article class="rounded-2xl border border-slate-200 bg-white p-5">
       <h3 class="font-bold">Runtime-lightweight</h3>
       <p class="mt-2 text-sm text-slate-600">
-        API calls, auth, validation, and shared state remain optional.
+        API calls, auth, validation, middleware, and shared state remain optional.
       </p>
     </article>
   </section>

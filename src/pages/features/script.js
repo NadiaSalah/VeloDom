@@ -47,8 +47,8 @@ export function init({ state, ctx, refs }) {
 export function mounted({ state, ctx }) {
   state.eventLog = [
     "features page mounted",
-    "DummyJSON blog routes are available",
-    "CRUD studio demonstrates request directives"
+    "component refs are ready",
+    "request examples use local VeloDom articles"
   ];
 
   ctx.onCleanup(() => {

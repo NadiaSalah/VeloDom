@@ -3,14 +3,14 @@
  * Module: Browser E2E Smoke Test
  * ----------------------------------------
  *
- * Serves the production build and drives real local browsers through VeloDom
- * routing, forms, requests, and static SEO fallback checks.
+ * Serves the production build and drives real local browsers through the V1
+ * VeloDom site routes, request examples, one-file pages, and static SEO
+ * fallback checks.
  * ----------------------------------------
  */
 
 import {
   access,
-  readdir,
   readFile,
   stat
 } from "node:fs/promises";
@@ -45,7 +45,6 @@ const results = [];
 
 try {
   await assertStaticSeo(server.origin);
-  await assertBuildOnlySeoHooksStayServerSide();
 
   for (const target of selectedTargets) {
     results.push(await runBrowserTarget(target, server.origin));
@@ -256,39 +255,40 @@ async function assertInteractiveSmoke(browser, target, origin) {
   const context = await browser.newContext(target.contextOptions);
 
   try {
-    await installDemoApiRoute(context, target.name);
-
-    const page = await context.newPage();
-
-    if (debugBrowserE2e) {
-      page.on("console", message => {
-        console.log(`[browser:${target.name}:${message.type()}] ${message.text()}`);
-      });
-      page.on("pageerror", error => {
-        console.log(`[browser:${target.name}:error] ${error.message}`);
-      });
-    }
-
-    await assertRouting(page, origin);
-    await assertSingleFilePage(page, origin);
-    await assertFormRequest(page, origin);
+    await runInteractiveStep(context, target, async page => {
+      await assertRouting(page, origin);
+    });
+    await runInteractiveStep(context, target, async page => {
+      await assertSingleFilePage(page, origin);
+    });
+    await runInteractiveStep(context, target, async page => {
+      await assertRequestExamples(page, origin);
+    });
+    await runInteractiveStep(context, target, async page => {
+      await assertArticlePage(page, origin);
+    });
   } finally {
     await context.close();
   }
 }
 
-async function installDemoApiRoute(context, targetName) {
-  await context.route("https://dummyjson.com/**", route => {
-    if (debugBrowserE2e) {
-      console.log(`[browser:${targetName}:route] ${route.request().url()}`);
-    }
+async function runInteractiveStep(context, target, callback) {
+  const page = await context.newPage();
 
-    return route.fulfill({
-      status: 200,
-      contentType: "application/json; charset=utf-8",
-      body: JSON.stringify(createDemoResponse(route.request().url()))
+  if (debugBrowserE2e) {
+    page.on("console", message => {
+      console.log(`[browser:${target.name}:${message.type()}] ${message.text()}`);
     });
-  });
+    page.on("pageerror", error => {
+      console.log(`[browser:${target.name}:error] ${error.message}`);
+    });
+  }
+
+  try {
+    await callback(page);
+  } finally {
+    await page.close();
+  }
 }
 
 async function assertStaticSeo(origin) {
@@ -297,33 +297,15 @@ async function assertStaticSeo(origin) {
   assertIncludes(html, "<title>VeloDom Framework Features</title>");
   assertIncludes(
     html,
-    'name="description" content="Try working examples of VeloDom reactive state, directives, components, lifecycle hooks, routing, and requests."'
+    'name="description" content="Try working examples of VeloDom V1 reactive state, directives, components, lifecycle hooks, routing, and local request routes."'
   );
   assertIncludes(html, "data-vd-seo-fallback");
   assertIncludes(html, "VeloDom framework features");
 }
 
-async function assertBuildOnlySeoHooksStayServerSide() {
-  const assets = await listFiles(join(distRoot, "assets"));
-  const javascriptAssets = assets.filter(file => file.endsWith(".js"));
-
-  for (const file of javascriptAssets) {
-    const source = await readFile(file, "utf8");
-
-    if (
-      source.includes("loadSeoPosts")
-      || source.includes("dummyjson.com/posts?limit=6")
-    ) {
-      throw new Error(
-        `Build-only SEO entry hook leaked into browser asset: ${file}`
-      );
-    }
-  }
-}
-
 async function assertRouting(page, origin) {
   await page.goto(`${origin}/`);
-  await waitForPageText(page, "E2E Browser Post");
+  await waitForPageText(page, "Framework articles");
 
   await page.click('a[href="/features"]');
   await page.waitForURL(`${origin}/features`);
@@ -348,32 +330,25 @@ async function assertSingleFilePage(page, origin) {
   await waitForPageText(page, "single-file-card.vd");
 }
 
-async function assertFormRequest(page, origin) {
-  await page.goto(`${origin}/studio`);
-  await waitForPageText(page, "VeloDom Studio");
-  await waitForPageText(page, "POST /posts/add");
+async function assertRequestExamples(page, origin) {
+  await page.goto(`${origin}/features`);
+  await waitForPageText(page, "Requests");
+  await waitForPageText(page, "No article loaded yet.");
+  await page.locator('[data-vd-request="articles.getOne"]').nth(1).waitFor();
 
-  if (debugBrowserE2e) {
-    console.log(await page.locator('form[data-vd-request="posts.create"]').evaluate(form => form.outerHTML));
-  }
+  await page.locator('[data-vd-request="articles.getOne"]').nth(0).dispatchEvent("click");
+  await waitForPageText(page, "Loaded: HTML-first is the center of VeloDom");
 
-  const createForm = page.locator('form[data-vd-request="posts.create"]');
+  await page.locator('[data-vd-request="articles.getOne"]').nth(1).dispatchEvent("click");
+  await waitForPageText(page, "Loaded: Compiler-first without hiding the DOM");
+}
 
-  await page.waitForFunction(() => {
-    const tags = document.querySelector(
-      'form[data-vd-request="posts.create"] [name="tags"]'
-    );
+async function assertArticlePage(page, origin) {
+  await page.goto(`${origin}/blog/posts/html-first`);
+  await waitForPageText(page, "HTML-first is the center of VeloDom");
 
-    return tags?.value === "velodom, framework";
-  });
-
-  await createForm.locator('[name="title"]').fill("E2E Browser Draft");
-  await createForm.locator('[name="body"]').fill(
-    "Created by the real-browser VeloDom smoke test."
-  );
-  await createForm.locator('[name="tags"]').fill("e2e, browser");
-  await createForm.locator('button[type="submit"]').click();
-  await waitForPageText(page, "Created post #101");
+  await page.click('button:has-text("Reload through vd-request")');
+  await waitForPageText(page, "Declarative reload through");
 }
 
 async function waitForPageText(page, text) {
@@ -393,56 +368,6 @@ async function waitForPageText(page, text) {
       cause: error
     });
   }
-}
-
-function createDemoResponse(rawUrl) {
-  const url = new URL(rawUrl);
-
-  if (url.pathname === "/posts/add") {
-    return {
-      id: 101,
-      title: "E2E Browser Draft",
-      body: "Created by the real-browser VeloDom smoke test.",
-      tags: [
-        "e2e",
-        "browser"
-      ]
-    };
-  }
-
-  if (url.pathname === "/posts/tag-list") {
-    return [
-      "e2e",
-      "browser",
-      "html-first"
-    ];
-  }
-
-  if (url.pathname.startsWith("/posts/")) {
-    return createDemoPost(Number(url.pathname.split("/").at(-1)) || 1);
-  }
-
-  return {
-    posts: [
-      createDemoPost(1),
-      createDemoPost(2)
-    ]
-  };
-}
-
-function createDemoPost(id) {
-  return {
-    id,
-    title: id === 1
-      ? "E2E Browser Post"
-      : `E2E Browser Post ${id}`,
-    body: "This post was served by the browser E2E request fixture.",
-    tags: [
-      "e2e",
-      "velodom"
-    ],
-    views: 42
-  };
 }
 
 async function createStaticServer(root) {
@@ -532,21 +457,6 @@ function getContentType(file) {
     default:
       return "application/octet-stream";
   }
-}
-
-async function listFiles(directory) {
-  const entries = await readdir(directory, {
-    withFileTypes: true
-  });
-  const files = await Promise.all(entries.map(async entry => {
-    const fullPath = join(directory, entry.name);
-
-    return entry.isDirectory()
-      ? listFiles(fullPath)
-      : [fullPath];
-  }));
-
-  return files.flat();
 }
 
 async function fetchText(url) {

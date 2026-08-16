@@ -1,11 +1,17 @@
 <div
   vd-if="opened"
-  vd-on:click="close()"
   class="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"
 >
+  <button
+    type="button"
+    vd-on:click="close()"
+    aria-label="Close modal"
+    class="absolute inset-0 h-full w-full cursor-default bg-transparent"
+  ></button>
   <div
-    vd-on:click.stop="true"
-    class="card w-full max-w-md bg-base-100 shadow-2xl"
+    role="dialog"
+    aria-modal="true"
+    class="card relative w-full max-w-md bg-base-100 shadow-2xl"
   >
     <div class="card-body">
       <h2 vd-text="title || 'VeloDom modal'" class="card-title"></h2>

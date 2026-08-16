@@ -430,36 +430,34 @@ The showcase includes `/single-file` and
 
 ## Application Bootstrap
 
-The application injects its adapter, request routes, middleware, auth
-providers, plugins, and router options into `createApp`.
+The V1 documentation site keeps the application bootstrap intentionally small:
+Core stays generic, while the site only registers the adapter and the local
+request routes it actually uses.
 
 ```js
 // src/main.js
 import "./style.css";
-import {
-  createApp,
-  createLocalStorageAuthProvider,
-  createServerSessionAuthProvider,
-  createValidationPlugin,
-  VD_AUTH
-} from "velodom";
+import { createApp } from "velodom";
 import { createViteAdapter } from "velodom/vite";
 import routes from "./api/routes.js";
-import middleware from "./api/middleware.js";
+
+createApp({
+  adapter: createViteAdapter(),
+  routes
+}).mount();
+```
+
+Applications can opt into middleware, auth providers, plugins, and router
+guards when they need them:
+
+```js
+import { createValidationPlugin } from "velodom";
 
 const app = createApp({
   adapter: createViteAdapter(),
   routes,
-  middleware,
   auth: {
-    defaultProvider: VD_AUTH.PROVIDERS.SERVER,
-    providers: {
-      server: createServerSessionAuthProvider({
-        sessionUrl: "/api/auth/session",
-        credentials: "include"
-      }),
-      demo: createLocalStorageAuthProvider()
-    }
+    providers: {}
   },
   router: {
     notFoundPage: "404",
@@ -606,15 +604,12 @@ Folders become routes:
 ```text
 src/pages/home/index.html                    -> /
 src/pages/features/index.html                -> /features
-src/pages/login/index.html                   -> /login
-src/pages/categories/index.html              -> /categories
-src/pages/studio/index.html                  -> /studio
 src/pages/single-file.vd                     -> /single-file
 src/pages/blog/posts/[id]/index.html         -> /blog/posts/:id
 ```
 
-Static routes are ranked ahead of dynamic routes, so `/studio` and
-`/categories` stay independent from dynamic post routes.
+Static routes are ranked ahead of dynamic routes, so `/features` and
+`/single-file` stay independent from dynamic article routes.
 
 ### Navigation Links
 
@@ -1793,9 +1788,9 @@ export function init({ state }) {
 }
 ```
 
-The showcase route `/studio` contains the full working version using
-DummyJSON, Tailwind CSS, optional validation, and automatic request status
-state.
+This recipe is intentionally generic. The current V1 site keeps its application
+surface smaller and demonstrates request state through local article routes
+instead of shipping a CRUD studio page.
 
 ### Cross-Page State Writes
 
@@ -2432,9 +2427,8 @@ export default {
 
 The hook runs only during production static SEO generation. It is not bundled
 into the browser runtime, and it should return concrete route metadata rather
-than full interactive page HTML. The VeloDom showcase uses this pattern for
-DummyJSON post detail pages and falls back gracefully if the API is unavailable
-during a local build.
+than full interactive page HTML. The current V1 site uses this pattern for
+local framework article detail pages.
 
 Parameterized folders without entries are handled by the client router but are
 not emitted as fake static paths.
@@ -2535,7 +2529,7 @@ documents such as:
 ```text
 dist/index.html
 dist/features/index.html
-dist/studio/index.html
+dist/single-file/index.html
 dist/404/index.html
 dist/sitemap.xml
 dist/robots.txt
@@ -3124,15 +3118,14 @@ explicit publication approval.
 
 ## Showcase Routes
 
-The repository includes a DummyJSON-powered blog showcase:
+The repository now includes the first VeloDom framework site. It is a polished
+local documentation blog that explains the framework while using VeloDom
+features itself.
 
 | Route | Demonstrates |
 | --- | --- |
-| `/` | DummyJSON post lists, search, tags, loops, requests, and reusable components |
-| `/blog/posts/1` | dynamic params, post details, comments, loading/error state |
-| `/categories` | tag/category filtering and reactive list updates |
-| `/studio` | create, update, and delete post workflows with `vd-model` and `vd-request` |
-| `/login` | DummyJSON auth login, validation, loading/error/result state |
+| `/` | V1 landing page, article loops, reusable components, routing, and SEO |
+| `/blog/posts/html-first` | dynamic article route, local API data, and `vd-request` reload |
 | `/features` | framework feature documentation with live directive examples |
 | `/single-file` | optional `.vd` page/component authoring with scoped style and config blocks |
 
@@ -3146,13 +3139,15 @@ Latest local verification on 2026-08-16:
 - Core documentation audit passes for 59 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 197 automated tests pass
+- 196 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - an isolated local-tarball TypeScript/Vite consumer passes
 - local rendering benchmark script passes
 - JavaScript performance budget check passes
 - production showcase build passes
+- browser E2E passes on Chromium/Chrome/Edge; Firefox/WebKit/mobile WebKit
+  targets skip locally when their Playwright binaries are not installed
 
 Latest implementation update:
 
@@ -3223,6 +3218,16 @@ Latest implementation update:
   and advisory optimization suggestions.
 - Added `vd benchmark` as a CLI wrapper around the repeatable local rendering
   benchmark script.
+- Converted the application showcase into the first VeloDom framework site: a
+  local documentation blog with V1 positioning, framework articles, examples,
+  and SEO entries.
+- Removed obsolete DummyJSON, login, category, and CRUD studio application
+  files from `src/pages`, `src/api`, and `src/components`.
+- Simplified `src/main.js` to mount the V1 site with the Vite adapter and the
+  one local article request route used by examples.
+- Fixed modal overlay semantics and the footer external-link security signal.
+- Updated the browser E2E smoke path to cover the V1 site routes,
+  one-file page, local request examples, article page, and no-JavaScript SEO.
 - Added `velodom/testing` with `mountTestPage()` and `mountTestComponent()`
   for public DOM test helpers.
 - Added DX, future research, and framework identity documents under `docs/`.
@@ -3358,11 +3363,6 @@ The current `todo.md` checklist is complete. The remaining practical work
 before a public release is release governance: npm ownership, final publication
 approval, optional stricter browser CI availability, and deciding which future
 research items deserve a new roadmap phase.
-7. add local Future DX tooling such as project intelligence, doctor/inspect,
-   build reports, generated docs, and visual graphs
-8. research optional provider-based AI tooling and migration assistants without
-   making them runtime requirements
-9. add API/CMS SEO hooks and optional hydration only after runtime stability
 
 When continuing development:
 

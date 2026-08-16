@@ -1,133 +1,75 @@
-import { requestJson } from "velodom";
-import { removeEmptyFields, trimStringFields } from "./middleware.js";
-import { toPositiveInteger } from "./validation.js";
+const articles = [
+  {
+    id: "html-first",
+    title: "HTML-first is the center of VeloDom",
+    excerpt: "VeloDom keeps pages readable as HTML and moves behavior into small scripts.",
+    body: "VeloDom starts from real HTML files. A page can remain a folder with index.html, script.js, style.css, and config.js, or it can use one optional .vd file when co-location is clearer. The important rule is that HTML remains the authoring surface, while the compiler prepares the runtime work.",
+    category: "Architecture",
+    readTime: "4 min",
+    tags: [
+      "HTML-first",
+      "folder-first",
+      "compiler"
+    ]
+  },
+  {
+    id: "compiler-first",
+    title: "Compiler-first without hiding the DOM",
+    excerpt: "Directives are validated and lowered before the browser runtime starts.",
+    body: "The compiler understands VeloDom directives, text interpolation, single-file blocks, route metadata, and runtime feature manifests. That lets the framework catch common mistakes early and keep the browser runtime focused on the features each page actually uses.",
+    category: "Compiler",
+    readTime: "5 min",
+    tags: [
+      "compiler",
+      "directives",
+      "diagnostics"
+    ]
+  },
+  {
+    id: "runtime-lightweight",
+    title: "Runtime-lightweight by design",
+    excerpt: "VeloDom avoids virtual DOM and keeps power features optional.",
+    body: "Routing, directives, components, requests, validation, shared state, and developer tooling are designed as clear modules. The framework does not require JSX, a mandatory store, full SSR, or a browser devtools extension to be useful.",
+    category: "Runtime",
+    readTime: "3 min",
+    tags: [
+      "runtime",
+      "vanilla",
+      "performance"
+    ]
+  },
+  {
+    id: "developer-experience",
+    title: "Developer experience stays local and static",
+    excerpt: "VeloDom CLI commands inspect the project without adding browser weight.",
+    body: "Commands like vd inspect, vd doctor, vd graph, vd health, vd build-report, and vd docs read folders, templates, route configs, API route registrations, middleware, compiler manifests, and generated assets. This gives practical feedback while preserving the runtime-lightweight principle.",
+    category: "Tooling",
+    readTime: "6 min",
+    tags: [
+      "CLI",
+      "doctor",
+      "build report"
+    ]
+  }
+];
 
-const baseUrl = "https://dummyjson.com/posts";
-const commentsUrl = "https://dummyjson.com/comments";
-
-export async function getAll({ limit = 20 } = {}, { signal } = {}) {
-  const safeLimit = toPositiveInteger(limit, "posts limit");
-  const data = await requestJson(`${baseUrl}?limit=${safeLimit}&select=title,body,tags,reactions,views,userId`, {
-    signal
-  });
-
-  return data;
+export async function listArticles() {
+  return {
+    posts: articles
+  };
 }
 
-export async function search({ q = "", limit = 12 } = {}, { signal } = {}) {
-  const safeLimit = toPositiveInteger(limit, "posts search limit");
-  const query = encodeURIComponent(String(q || "").trim());
-  const url = query
-    ? `${baseUrl}/search?q=${query}&limit=${safeLimit}`
-    : `${baseUrl}?limit=${safeLimit}`;
+export async function getOne(input = {}) {
+  const id = input.id ?? input.params?.id;
+  const article = articles.find(item => item.id === String(id || ""));
 
-  return requestJson(url, {
-    signal
-  });
-}
-
-export async function getTags(_params = {}, { signal } = {}) {
-  const tags = await requestJson(`${baseUrl}/tag-list`, {
-    signal
-  });
-
-  return tags ?? [];
-}
-
-export async function getByTag({ tag, limit = 12 } = {}, { signal } = {}) {
-  const safeLimit = toPositiveInteger(limit, "tag posts limit");
-  const safeTag = encodeURIComponent(String(tag || "").trim());
-
-  if (!safeTag) {
-    throw new Error("posts.getByTag requires a tag");
+  if (!article) {
+    throw new Error(`Article "${id}" was not found`);
   }
 
-  return requestJson(`${baseUrl}/tag/${safeTag}?limit=${safeLimit}`, {
-    signal
-  });
+  return article;
 }
 
-export async function getOne({ id } = {}, { signal } = {}) {
-  const postId = toPositiveInteger(id, "post id");
-
-  return requestJson(`${baseUrl}/${postId}`, {
-    signal
-  });
-}
-
-export async function getComments({ id } = {}, { signal } = {}) {
-  const postId = toPositiveInteger(id, "post id");
-
-  return requestJson(`${baseUrl}/${postId}/comments`, {
-    signal
-  });
-}
-
-export async function create(payload = {}, { signal } = {}) {
-  const cleanedPayload = cleanPayload(payload);
-  const title = String(cleanedPayload.title || "").trim();
-
-  if (!title) {
-    throw new Error("posts.create requires a non-empty title");
-  }
-
-  return requestJson(`${baseUrl}/add`, {
-    method: "POST",
-    body: {
-      ...cleanedPayload,
-      title
-    },
-    signal
-  });
-}
-
-export async function update({ id, ...payload } = {}, { signal } = {}) {
-  const postId = toPositiveInteger(id, "post id");
-  const cleanedPayload = cleanPayload(payload);
-
-  if (Object.keys(cleanedPayload).length === 0) {
-    throw new Error("posts.update requires at least one field to update");
-  }
-
-  return requestJson(`${baseUrl}/${postId}`, {
-    method: "PUT",
-    body: cleanedPayload,
-    signal
-  });
-}
-
-export async function remove({ id } = {}, { signal } = {}) {
-  const postId = toPositiveInteger(id, "post id");
-
-  return requestJson(`${baseUrl}/${postId}`, {
-    method: "DELETE",
-    signal
-  });
-}
-
-export async function addComment(payload = {}, { signal } = {}) {
-  const cleanedPayload = cleanPayload(payload);
-  const body = String(cleanedPayload.body || "").trim();
-  const postId = toPositiveInteger(cleanedPayload.postId, "comment post id");
-  const userId = toPositiveInteger(cleanedPayload.userId || 1, "comment user id");
-
-  if (!body) {
-    throw new Error("comments.create requires a non-empty body");
-  }
-
-  return requestJson(`${commentsUrl}/add`, {
-    method: "POST",
-    body: {
-      body,
-      postId,
-      userId
-    },
-    signal
-  });
-}
-
-function cleanPayload(payload) {
-  return removeEmptyFields(
-    trimStringFields(payload)
-  );
+export function getArticleEntries() {
+  return articles;
 }

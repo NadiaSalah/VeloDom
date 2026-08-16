@@ -5,7 +5,7 @@ export default {
   },
   seo: {
     title: "VeloDom Framework Features",
-    description: "Try working examples of VeloDom reactive state, directives, components, lifecycle hooks, routing, and requests.",
+    description: "Try working examples of VeloDom V1 reactive state, directives, components, lifecycle hooks, routing, and local request routes.",
     canonical: "/features",
     lang: "en",
     robots: "index,follow",
@@ -20,7 +20,7 @@ export default {
     },
     summary: {
       heading: "VeloDom framework features",
-      text: "Working examples of reactive state, directives, components, lifecycle hooks, routing, and requests."
+      text: "Working examples of reactive state, directives, components, lifecycle hooks, routing, and local request routes."
     }
   }
 };

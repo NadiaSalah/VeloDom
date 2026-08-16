@@ -1,76 +1,32 @@
-import {
-  getAll as getPosts,
-  getTags,
-  search
-} from "../../api/posts.js";
+import { listArticles } from "../../api/posts.js";
 
-export async function init({ state, ctx }) {
+export async function init({ state }) {
   state.posts = [];
-  state.tags = [];
-  state.postsLimit = 9;
-  state.postsLoading = true;
-  state.postsError = "";
   state.featuredPost = null;
-  state.query = "";
-
-  state.loadMore = async () => {
-    state.postsLimit += 6;
-    await loadPosts(state, ctx);
-  };
-
-  state.searchPosts = async () => {
-    state.postsLoading = true;
-    state.postsError = "";
-
-    try {
-      const result = await search({
-        q: state.query,
-        limit: state.postsLimit
-      }, {
-        signal: ctx.signal
-      });
-
-      state.posts = result.posts || [];
-      state.featuredPost = state.posts[0] || null;
-    } catch (error) {
-      if (error?.name !== "AbortError") {
-        state.postsError = error?.message || "Failed to search posts";
-      }
-    } finally {
-      state.postsLoading = false;
+  state.principles = [
+    "HTML-first authoring",
+    "Compiler-first validation",
+    "Folder-first conventions",
+    "Runtime-lightweight modules",
+    "Vanilla or TypeScript user code"
+  ];
+  state.metrics = [
+    {
+      label: "Core docs",
+      value: "59 files"
+    },
+    {
+      label: "Tests",
+      value: "197 passing"
+    },
+    {
+      label: "TODO",
+      value: "100%"
     }
-  };
+  ];
 
-  const [postsResult, tagsResult] = await Promise.allSettled([
-    loadPosts(state, ctx),
-    getTags({}, {
-      signal: ctx.signal
-    })
-  ]);
+  const result = await listArticles();
 
-  if (postsResult.status === "rejected" && postsResult.reason?.name !== "AbortError") {
-    state.postsError = postsResult.reason?.message || "Failed to load posts";
-  }
-
-  if (tagsResult.status === "fulfilled") {
-    state.tags = tagsResult.value;
-  }
-}
-
-async function loadPosts(state, ctx) {
-  state.postsLoading = true;
-  state.postsError = "";
-
-  try {
-    const result = await getPosts({
-      limit: state.postsLimit
-    }, {
-      signal: ctx.signal
-    });
-
-    state.posts = result.posts || [];
-    state.featuredPost = state.posts[0] || null;
-  } finally {
-    state.postsLoading = false;
-  }
+  state.posts = result.posts;
+  state.featuredPost = state.posts[0] || null;
 }

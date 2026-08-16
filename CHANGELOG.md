@@ -48,13 +48,33 @@ package versions.
   slots, and SEO coverage where static analysis can prove the relationship.
 - Added `vd benchmark` as a wrapper around the local rendering benchmark
   script.
+- Improved static project intelligence so expose object shorthand is detected
+  in `vd inspect`, `vd graph`, and `vd docs`.
+- Deduplicated repeated static state/ref entries in the inspection manifest so
+  project reports describe unique relationships instead of repeated
+  assignments.
+
+### V1 Framework Site
+
+- Converted the application showcase into the first VeloDom framework site:
+  a local documentation blog with V1 positioning, feature articles, live
+  directive/component/request examples, dynamic article routes, and SEO entries.
+- Removed obsolete DummyJSON, login, category, CRUD studio, application auth,
+  application middleware, and form-shell files from the example application.
+- Simplified `src/main.js` so the site mounts with the Vite adapter and one
+  local article request route used by `vd-request` examples.
+- Improved modal overlay semantics, footer external-link security, and
+  accessible control names so `vd doctor` reports no project issues.
+- Updated the browser E2E smoke path to verify V1 routes, one-file pages,
+  local request examples, dynamic article pages, and no-JavaScript SEO.
 - Refined performance budget checks so package runtime budgets exclude
   Node-only CLI and testing utility modules.
 - Added convention-first scaffolding for pages, components, API files, demo
   pages, middleware files, plugins, and starter projects.
 - Extended package contract checks to include the CLI wrappers in the
   publishable file allowlist.
-- Brought the automated suite to 197 passing tests.
+- Brought the automated suite to 196 passing tests after removing an obsolete
+  application-validation test tied to deleted demo files.
 
 ### Public Testing Utilities
 

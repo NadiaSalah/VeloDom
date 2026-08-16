@@ -1,39 +1,35 @@
 export default {
   meta: {
-    title: "VeloDom Blog",
-    description: "HTML-first framework showcase"
+    title: "VeloDom V1",
+    description: "HTML-first, compiler-first frontend framework"
   },
   seo: {
-    title: "VeloDom Blog | DummyJSON CRUD Framework Showcase",
-    description: "Explore a real VeloDom blog example with login, posts, comments, categories, CRUD requests, reusable components, and Tailwind CSS.",
+    title: "VeloDom V1 | HTML-first Frontend Framework",
+    description: "Explore the first VeloDom framework site: HTML-first pages, compiler-first validation, folder conventions, optional one-file modules, routing, requests, and local DX tooling.",
     canonical: "/",
     lang: "en",
     robots: "index,follow",
     keywords: [
       "VeloDom",
       "HTML-first framework",
-      "reactive JavaScript",
-      "frontend framework"
+      "compiler-first frontend",
+      "vanilla JavaScript framework",
+      "folder-first routing"
     ],
     openGraph: {
       type: "website",
-      title: "VeloDom Blog",
-      description: "A complete HTML-first VeloDom showcase application."
+      title: "VeloDom V1",
+      description: "A focused first-version site for the VeloDom HTML-first framework."
     },
     summary: {
-      heading: "VeloDom Blog",
-      text: "A complete HTML-first framework showcase with DummyJSON posts, comments, auth, CRUD requests, routing, and reusable components."
+      heading: "VeloDom V1",
+      text: "VeloDom is an HTML-first, compiler-first frontend framework for folder-based apps, declarative directives, components, routing, requests, SEO metadata, and local developer tooling."
     },
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      name: "VeloDom Blog",
+      name: "VeloDom",
       url: "/"
     }
-  },
-  allowExternalWrite: [
-    "externalPostResult",
-    "externalPostLoading",
-    "externalPostError"
-  ]
+  }
 };
