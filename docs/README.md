@@ -311,6 +311,8 @@ props, slots, module hooks, style, and manifest overrides.
 packages/
   velodom/                    publishable npm package named "velodom"
     package.json              public exports, peers, binaries, publish guard
+    scripts/                  private package build helpers
+    tsconfig.base.json        shared package compiler settings
     tsconfig.build.json       package ESM build configuration
     tsconfig.types.json       package declaration build configuration
     bin/                      vd and create-velodom CLI wrappers
@@ -337,7 +339,6 @@ examples/
       main.js                 one-call application bootstrap
 
 docs/                         DX, future research, and identity notes
-tsconfig.base.json            shared TypeScript compiler settings
 tsconfig.json                 workspace type-check configuration
 tools/
   scripts/                    workspace release and quality checks

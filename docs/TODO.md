@@ -857,8 +857,8 @@ browser runtime small, and remain optional where a project does not need it.
       `tools/` without publishing or executing fixtures as test files — Fit:
       clean repository ownership; Value: a pure application/framework surface
       with unchanged quality coverage; Complexity: low; Target: V1
-- [x] Co-locate package build and declaration TypeScript configurations with
-      `packages/velodom`, while keeping shared compiler and workspace-check
-      configuration at the repository root — Fit: explicit package ownership;
+- [x] Co-locate package build, declaration, and private build-helper
+      configurations with `packages/velodom`, while keeping workspace checking
+      at the repository root — Fit: explicit package ownership;
       Value: a cleaner source tree with reproducible package outputs;
       Complexity: low; Target: V1

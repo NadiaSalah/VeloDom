@@ -30,9 +30,8 @@ and production build checks. The roadmap is [docs/TODO.md](docs/TODO.md);
 remaining work is release governance, a strict Firefox-capable browser run,
 optional CSS budgets, and starter presets.
 
-TypeScript keeps shared compiler settings in `tsconfig.base.json`, workspace
-checking in `tsconfig.json`, and package build/type output settings beside
-`packages/velodom`.
+TypeScript build settings and the declaration rewriter live with
+`packages/velodom`; `tsconfig.json` remains the workspace type-check entry.
 
 Git does not retain dependency or build output folders. Restore the toolchain
 with `npm install`; regenerate output with the documented npm scripts.

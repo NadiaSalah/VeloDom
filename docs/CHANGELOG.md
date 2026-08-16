@@ -69,9 +69,9 @@ package versions.
   fixture under `tools/`, and made the test command target only
   `tools/tests/**/*.test.js` so fixtures cannot be mistaken for executable
   test files.
-- Split shared TypeScript options into root `tsconfig.base.json`, retained the
-  workspace check at `tsconfig.json`, and moved package build/declaration
-  configs beside `packages/velodom`.
+- Retained the workspace check at root `tsconfig.json` and moved package
+  TypeScript options, build/declaration configs, and declaration rewriter
+  beside `packages/velodom` so package builds no longer depend on `tools/`.
 - Kept generated dependency and build output excluded from Git; the lockfile
   and npm scripts remain the reproducible source of installation and build
   state.

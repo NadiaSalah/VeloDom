@@ -60,9 +60,10 @@
 - Release preparation is intentionally separated from publication. The
   checklist in `RELEASING.md` records gates, but only explicit human approval
   for an exact version can authorize removing `private: true` or publishing.
-- `npm run pack:check` intentionally invokes package verification before an
-  isolated-cache npm dry-run helper; this avoids recursive `prepack` execution
-  and avoids dependence on the user's global npm cache permissions.
+- `npm run pack:check` is a workspace verification command that runs package
+  checks before an isolated-cache npm dry-run helper. The package's `prepack`
+  hook only builds its own artifacts, avoiding recursive checks and dependence
+  on workspace-only tooling.
 - Vite adapter globs are rooted at `/src` so discovery is relative to the
   consuming Vite project rather than the installed adapter file.
 - The package uses the MIT License, but stays private until npm name ownership,
