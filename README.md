@@ -153,6 +153,7 @@ vd routes
 vd graph --mermaid
 vd health --min-score 80
 vd build-report --json
+vd docs
 vd create page blog/posts/[id] --ts
 vd create component shared/post-card --single-file
 vd create api posts
@@ -182,6 +183,9 @@ middleware relationships as text, JSON, or Mermaid.
 warnings, security link checks, generated bundle size, and unused runtime
 feature signals into a non-blocking score. It fails only when `--min-score` or
 `.velodom-health.json` config asks it to enforce a threshold.
+`vd docs` generates Markdown or JSON documentation for routes, components,
+requests, middleware, plugins, refs, events, slots, and SEO coverage where
+static analysis can prove the relationship.
 
 ## Testing Utilities
 
@@ -3193,6 +3197,7 @@ Latest implementation update:
 - Added `vd graph` for JSON/Mermaid project relationship graphs.
 - Added `vd health` with an advisory score, optional thresholds, SEO and
   accessibility signals, and simple security checks.
+- Added `vd docs` for generated Markdown/JSON project documentation.
 - Added `velodom/testing` with `mountTestPage()` and `mountTestComponent()`
   for public DOM test helpers.
 - Added DX, future research, and framework identity documents under `docs/`.
@@ -3231,6 +3236,7 @@ Test coverage includes:
 - package-boundary guardrails that keep SSR and hydration APIs deferred
 - CLI inspection, stats, route listing, and scaffolding behavior
 - JSON and Mermaid project graph generation
+- generated route/component/request/reference documentation
 - public page/component testing utilities
 - source-aware adapter errors and user-file loader failure reporting
 - a real-browser Playwright matrix for Chromium/Chrome/Edge plus optional

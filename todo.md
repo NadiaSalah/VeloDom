@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**313 of 326 tasks completed — 96.0%**
+**317 of 326 tasks completed — 97.2%**
 
 `[###################-]`
 
-Remaining tasks: **13**
+Remaining tasks: **9**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -550,10 +550,10 @@ suggest optimizations rather than silently changing application behavior.
 Generated docs fit VeloDom when they document discovered conventions and public
 contracts. They should not replace human-written tutorials in `README.md`.
 
-- [ ] Generate route documentation from folders and `config.js` metadata — Fit: folder-first; Value: always-current route map; Complexity: low; Target: V1.x
-- [ ] Generate component documentation from props, slots, refs, exposed methods, and examples found in templates — Fit: HTML-first components; Value: easier reuse; Complexity: medium; Target: V2
-- [ ] Generate request/API documentation from route handlers, middleware, auth, params, and result conventions — Fit: request-layer clarity; Value: safer backend/frontend coordination; Complexity: medium; Target: V2
-- [ ] Generate event, ref, state, plugin, and SEO documentation where static analysis is reliable — Fit: compiler metadata; Value: searchable project reference; Complexity: high; Target: Future Research
+- [x] Generate route documentation from folders and `config.js` metadata — Fit: folder-first; Value: always-current route map; Complexity: low; Target: V1.x
+- [x] Generate component documentation from props, slots, refs, exposed methods, and examples found in templates — Fit: HTML-first components; Value: easier reuse; Complexity: medium; Target: V2
+- [x] Generate request/API documentation from route handlers, middleware, auth, params, and result conventions — Fit: request-layer clarity; Value: safer backend/frontend coordination; Complexity: medium; Target: V2
+- [x] Generate event, ref, state, plugin, and SEO documentation where static analysis is reliable — Fit: compiler metadata; Value: searchable project reference; Complexity: high; Target: Future Research
 
 ### 14.8 Optional AI-Native Tooling
 

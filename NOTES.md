@@ -296,6 +296,9 @@
 - `vd health` is advisory by default. It only fails when a project sets
   `--min-score` or `.velodom-health.json`, keeping quality thresholds
   project-owned rather than framework-imposed.
+- `vd docs` is generated documentation, not a replacement for human tutorials.
+  It only documents relationships visible in folders, templates, route
+  registrations, and config text.
 - Performance budgets intentionally measure browser runtime package modules,
   excluding Node-only CLI and public testing utilities from the largest-runtime
   module threshold.

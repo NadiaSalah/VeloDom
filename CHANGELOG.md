@@ -32,6 +32,9 @@ package versions.
 - Added `vd health` as a non-blocking score over doctor issues, SEO coverage,
   accessibility/compiler warnings, simple security checks, generated asset
   size, and unused runtime feature signals with optional threshold enforcement.
+- Added `vd docs` for Markdown or JSON documentation covering routes,
+  components, requests, middleware, plugins, refs, events, slots, and SEO
+  coverage where static analysis can prove the relationship.
 - Refined performance budget checks so package runtime budgets exclude
   Node-only CLI and testing utility modules.
 - Added convention-first scaffolding for pages, components, API files, demo

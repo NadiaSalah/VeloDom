@@ -103,6 +103,7 @@ Usage:
   vd graph [--json] [--mermaid] [--root <dir>]
   vd health [--json] [--min-score <0-100>] [--root <dir>]
   vd build-report [--json] [--root <dir>]
+  vd docs [--json] [--root <dir>]
   vd create page <name> [--ts] [--single-file] [--root <dir>]
   vd create component <name> [--ts] [--single-file] [--root <dir>]
   vd create api <name> [--root <dir>]
@@ -158,6 +159,9 @@ export async function runVeloDomCli(
         return printHealth(context, parsed);
       case "build-report":
         await printBuildReport(context, parsed.flags.has("json"));
+        return 0;
+      case "docs":
+        await printGeneratedDocs(context, parsed.flags.has("json"));
         return 0;
       case "create":
         await createResource(context, values, parsed.flags);
@@ -359,6 +363,17 @@ async function printHealth(context: CliContext, parsed: ParsedArgs) {
   return health.ok ? 0 : 1;
 }
 
+async function printGeneratedDocs(context: CliContext, json: boolean) {
+  const docs = await createDocumentationReport(context.cwd);
+
+  if (json) {
+    context.stdout(JSON.stringify(docs, null, 2));
+    return;
+  }
+
+  context.stdout(toMarkdownDocs(docs));
+}
+
 async function runDoctor(root: string) {
   const inspection = await inspectProject(root);
   const issues: DoctorIssue[] = [];
@@ -538,6 +553,58 @@ async function createHealthReport(
     ],
     issues,
     build: buildReport
+  };
+}
+
+async function createDocumentationReport(root: string) {
+  const inspection = await inspectProject(root);
+  const plugins = await discoverFiles(root, "src/plugins", [".js", ".ts"]);
+  const pageDetails = await Promise.all(inspection.pages.map(async page => {
+    const source = await readTemplateSource(root, page.source);
+    const configSource = page.source.endsWith(".vd")
+      ? await readOptionalText(join(root, page.source))
+      : await readOptionalText(join(root, dirname(page.source), "config.js"))
+        || await readOptionalText(join(root, dirname(page.source), "page.config.js"));
+
+    return {
+      name: page.name,
+      path: page.route || toRoutePath(page.name),
+      source: page.source,
+      components: findComponentReferences(source),
+      requests: findRequestReferences(source),
+      refs: findRefReferences(source),
+      events: findEventReferences(source),
+      hasSeo: /\bseo\s*:/.test(configSource)
+    };
+  }));
+  const componentDetails = await Promise.all(inspection.components.map(
+    async component => {
+      const source = await readTemplateSource(root, component.source);
+
+      return {
+        name: component.name,
+        source: component.source,
+        components: findComponentReferences(source),
+        refs: findRefReferences(source),
+        events: findEventReferences(source),
+        slots: findSlotReferences(source)
+      };
+    }
+  ));
+
+  return {
+    routes: pageDetails,
+    components: componentDetails,
+    requests: inspection.requestRoutes.map(route => ({
+      name: route,
+      source: "src/api/routes.js"
+    })),
+    middleware: inspection.middleware,
+    plugins,
+    seo: {
+      pagesWithSeo: pageDetails.filter(page => page.hasSeo).length,
+      totalPages: pageDetails.length
+    }
   };
 }
 
@@ -837,6 +904,98 @@ function findRequestReferences(source: string) {
     .map(match => match[1].trim())
     .filter(Boolean)
     .sort();
+}
+
+function findRefReferences(source: string) {
+  return [...source.matchAll(/\b(?:data-)?vd-ref=["']([^"']+)["']/gi)]
+    .map(match => match[1].trim())
+    .filter(Boolean)
+    .sort();
+}
+
+function findEventReferences(source: string) {
+  const events = new Set<string>();
+
+  for (const match of source.matchAll(/\bvd-on:([\w:-]+)=["']([^"']+)["']/gi)) {
+    events.add(`${match[1]} -> ${match[2].trim()}`);
+  }
+
+  for (const match of source.matchAll(/\bdata-vd-on-([\w:-]+)=["']([^"']+)["']/gi)) {
+    events.add(`${match[1]} -> ${match[2].trim()}`);
+  }
+
+  return [...events].sort();
+}
+
+function findSlotReferences(source: string) {
+  const slots = new Set<string>();
+
+  for (const match of source.matchAll(/\b(?:data-)?vd-get-child=["']([^"']*)["']/gi)) {
+    slots.add(match[1].trim() || "default");
+  }
+
+  return [...slots].sort();
+}
+
+function toMarkdownDocs(docs: Awaited<ReturnType<typeof createDocumentationReport>>) {
+  const lines = [
+    "# VeloDom Project Documentation",
+    "",
+    "## Routes",
+    ""
+  ];
+
+  docs.routes.forEach(route => {
+    lines.push(`- \`${route.path}\` — \`${route.name}\` (${route.source})`);
+    pushNestedList(lines, "components", route.components);
+    pushNestedList(lines, "requests", route.requests);
+    pushNestedList(lines, "refs", route.refs);
+    pushNestedList(lines, "events", route.events);
+    lines.push(`  - seo: ${route.hasSeo ? "yes" : "no"}`);
+  });
+
+  lines.push("", "## Components", "");
+  docs.components.forEach(component => {
+    lines.push(`- \`${component.name}\` (${component.source})`);
+    pushNestedList(lines, "child components", component.components);
+    pushNestedList(lines, "slots", component.slots);
+    pushNestedList(lines, "refs", component.refs);
+    pushNestedList(lines, "events", component.events);
+  });
+
+  lines.push("", "## Requests", "");
+  docs.requests.forEach(request => {
+    lines.push(`- \`${request.name}\` (${request.source})`);
+  });
+
+  lines.push("", "## Middleware", "");
+  docs.middleware.forEach(file => {
+    lines.push(`- ${file}`);
+  });
+
+  lines.push("", "## Plugins", "");
+  docs.plugins.forEach(file => {
+    lines.push(`- ${file}`);
+  });
+
+  lines.push(
+    "",
+    "## SEO",
+    "",
+    `- pages with SEO config: ${docs.seo.pagesWithSeo}/${docs.seo.totalPages}`
+  );
+
+  return lines.join("\n");
+}
+
+function pushNestedList(
+  lines: string[],
+  label: string,
+  values: string[]
+) {
+  if (!values.length) return;
+
+  lines.push(`  - ${label}: ${values.map(value => `\`${value}\``).join(", ")}`);
 }
 
 async function readTemplateSource(root: string, file: string) {

@@ -201,6 +201,41 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
     assert.equal(health.threshold, 1);
     assert.equal(typeof health.score, "number");
     assert.ok(Array.isArray(health.signals));
+
+    output.length = 0;
+
+    const docsCode = await runVeloDomCli([
+      "docs",
+      "--json",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+    const docs = JSON.parse(output.join("\n"));
+
+    assert.equal(docsCode, 0);
+    assert.equal(docs.routes[0].path, "/about-us");
+    assert.ok(docs.routes.some(route => route.components.includes("shared/card")));
+    assert.deepEqual(docs.seo, {
+      pagesWithSeo: 1,
+      totalPages: 2
+    });
+
+    output.length = 0;
+
+    const markdownCode = await runVeloDomCli([
+      "docs",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+
+    assert.equal(markdownCode, 0);
+    assert.match(output.join("\n"), /# VeloDom Project Documentation/);
   } finally {
     await removeFixture(root);
   }
