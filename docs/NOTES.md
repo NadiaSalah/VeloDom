@@ -487,6 +487,10 @@
   source contract as local collections. VeloDom intentionally owns only the
   generated route/slug/tag indexes and never supplies a CMS client, credential
   store, or browser data transport.
+- The `velodom/node` subpath only maps Node HTTP to Fetch request/response
+  primitives. Dynamic HTML, authentication, cookies, and safe failure output
+  remain application-owned; automatic template rendering, hydration, and
+  streaming are intentionally deferred.
 - CSS budgets remain build-only and opt-in. VeloDom reports generated CSS for
   every project but does not ship a default threshold because framework-owned
   limits would make a visual design-system choice look like a runtime defect.

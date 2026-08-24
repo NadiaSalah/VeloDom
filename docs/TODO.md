@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**395 of 408 tasks completed — 97%**
+**396 of 408 tasks completed — 97%**
 
 `[###################-]`
 
-Remaining tasks: **13**
+Remaining tasks: **12**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -860,7 +860,7 @@ publication.
 
 ### Phase 21 — V1.2 Ecosystem and Production Integration
 
-- [ ] Add an optional Node request adapter for dynamic rendering while keeping
+- [x] Add an optional Node request adapter for dynamic rendering while keeping
       static output and the browser runtime independent — Fit: Adapter-first;
       Value: supports authenticated and request-time pages without enlarging
       Core; Complexity: high; Target: V1.2

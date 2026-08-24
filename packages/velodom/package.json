@@ -80,6 +80,11 @@
       "import": "./lib/localization.js",
       "default": "./lib/localization.js"
     },
+    "./node": {
+      "types": "./types/node.d.ts",
+      "import": "./lib/node.js",
+      "default": "./lib/node.js"
+    },
     "./assets": {
       "types": "./types/assets.d.ts",
       "import": "./lib/assets.js",

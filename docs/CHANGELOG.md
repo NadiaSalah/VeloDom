@@ -32,6 +32,9 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Added `velodom/node`, an explicit Node HTTP-to-Fetch adapter for
+  application-owned dynamic responses. It does not add automatic SSR,
+  hydration, sessions, or streaming to the browser framework.
 - Extended `velodom/content` with typed, application-owned external loaders
   and route/slug/tag lookup indexes generated from the normalized entry set.
   CMS credentials and vendor SDKs remain outside the framework.
@@ -82,8 +85,8 @@ package versions.
 - Added an ordered post-V1 roadmap: static prerendering, unified page data,
   progressive forms, optional typed declarations, adapter contracts, compiler
   security diagnostics, CLI improvements, and derived state for V1.1.
-- Deferred Node rendering and remaining server integration to V1.2; hybrid
-  rendering, partial hydration,
+- Deferred full hybrid rendering and remaining server integration to V2; partial
+  hydration,
   DevTools, and Edge/streaming work remain V2 concerns.
 - Kept AI, migration tools, and CMS integrations optional research items and
   explicitly rejected JSX, mandatory Virtual DOM, mandatory SSR, mandatory

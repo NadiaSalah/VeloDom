@@ -6,6 +6,7 @@ import * as assetsApi from "../../../packages/velodom/src/assets.ts";
 import * as devtoolsApi from "../../../packages/velodom/src/devtools.ts";
 import * as contentApi from "../../../packages/velodom/src/content.ts";
 import * as localizationApi from "../../../packages/velodom/src/localization.ts";
+import * as nodeApi from "../../../packages/velodom/src/node.ts";
 import * as runtimeApi from "../../../packages/velodom/src/index.ts";
 import * as testingApi from "../../../packages/velodom/src/testing.ts";
 import * as vitePluginApi from "../../../packages/velodom/src/vite-plugin/index.ts";
@@ -17,6 +18,7 @@ const rootEntrySource = await readSource("../../../packages/velodom/src/index.ts
 const compilerEntrySource = await readSource("../../../packages/velodom/src/compiler/index.ts");
 const contentEntrySource = await readSource("../../../packages/velodom/src/content.ts");
 const localizationEntrySource = await readSource("../../../packages/velodom/src/localization.ts");
+const nodeEntrySource = await readSource("../../../packages/velodom/src/node.ts");
 const testingEntrySource = await readSource("../../../packages/velodom/src/testing.ts");
 const vitePluginEntrySource = await readSource("../../../packages/velodom/src/vite-plugin/index.ts");
 const manifest = JSON.parse(await readSource("../../../packages/velodom/package.json"));
@@ -231,6 +233,18 @@ test("localization remains an explicit build-time subpath", () => {
   ]);
 });
 
+test("Node request adapter remains an explicit server-only subpath", () => {
+  assert.deepEqual(Object.keys(nodeApi), ["createNodeRequestAdapter"]);
+  assert.deepEqual(readInterfaceExportNames(nodeEntrySource), [
+    "NodeRequestAdapter",
+    "NodeRequestAdapterOptions"
+  ]);
+  assert.deepEqual(readTypeExportNames(nodeEntrySource, "local"), [
+    "NodeRequestErrorHandler",
+    "NodeRequestHandler"
+  ]);
+});
+
 test("optional devtools inspector remains an explicit subpath", () => {
   assert.deepEqual(Object.keys(devtoolsApi), [
     "mountDevtoolsInspector"
@@ -283,6 +297,7 @@ test("package subpath exports are frozen", () => {
     "./content",
     "./devtools",
     "./localization",
+    "./node",
     "./package.json",
     "./testing",
     "./vite",

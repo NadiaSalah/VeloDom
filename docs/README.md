@@ -2949,6 +2949,44 @@ public package surface yet. Broader SSR/hydration can be reconsidered only
 after a proven design, browser coverage, and runtime stability are mature
 enough to protect the HTML-first authoring model.
 
+### Optional Node Request Adapter
+
+`velodom/node` is an explicit server bridge for request-time pages and APIs. It
+converts Node's HTTP request into the standard Fetch `Request` object and sends
+the application's `Response` back to Node. The application still owns HTML,
+authentication, cookies, headers, and error policy:
+
+```js
+import { createServer } from "node:http";
+import { createNodeRequestAdapter } from "velodom/node";
+
+const adapter = createNodeRequestAdapter({
+  origin: "https://example.com",
+  async handle(request) {
+    const user = await readSession(request.headers.get("cookie"));
+
+    if (!user) {
+      return new Response("Sign in required", { status: 401 });
+    }
+
+    return new Response(renderAccountHtml(user), {
+      headers: { "content-type": "text/html; charset=utf-8" }
+    });
+  },
+  onError() {
+    return new Response("Unavailable", { status: 503 });
+  }
+});
+
+createServer(adapter.listener).listen(3000);
+```
+
+This is not automatic VeloDom SSR: it does not discover pages, render templates,
+reconcile DOM, or hydrate markup. It is an optional adapter boundary for teams
+that need a small Node server beside static output. Responses are intentionally
+buffered; streaming and Edge transport stay deferred until a separate V2
+contract is proven.
+
 ### Content Mode Helpers
 
 `velodom/content` is an optional Node/build-time subpath for Markdown and local
