@@ -131,7 +131,7 @@ Usage:
   vd build-report [--json] [--root <dir>]
   vd docs [--json] [--root <dir>]
   vd types [--out <file>] [--root <dir>]
-  vd create page <name> [--ts] [--single-file] [--root <dir>]
+  vd create page <name> [--ts] [--single-file] [--demo <kind>] [--root <dir>]
   vd create component <name> [--ts] [--single-file] [--root <dir>]
   vd create api <name> [--root <dir>]
   vd create demo <name> [--root <dir>]
@@ -144,6 +144,7 @@ Examples:
   vd inspect
   vd stats --json
   vd create page blog/posts/[id] --ts
+  vd create page counter --demo counter
   vd create component shared/post-card --single-file
   vd create feature articles --blog
 `;
@@ -198,7 +199,7 @@ export async function runVeloDomCli(
         await writeApplicationDeclarations(context, parsed.options.out);
         return 0;
       case "create":
-        await createResource(context, values, parsed.flags);
+        await createResource(context, values, parsed.flags, parsed.options);
         return 0;
       default:
         context.stderr(`Unknown VeloDom command "${command}".`);
@@ -2191,6 +2192,7 @@ function parseArgs(args: string[]): ParsedArgs {
   const options: Record<string, string> = {};
   const values: string[] = [];
   const valueOptions = new Set([
+    "demo",
     "min-score",
     "out",
     "root"

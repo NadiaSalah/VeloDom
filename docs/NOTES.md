@@ -31,6 +31,9 @@
   pages and components. It is intentionally limited to shallow defaults and
   safe state-only `++`/`--` updates; async setup, props, lifecycle cleanup,
   and complex behavior remain explicit in `init()`.
+- Focused `vd create page --demo` templates are educational scaffolds, not a
+  second app mode. They keep ordinary folders, create no shared global state,
+  and omit scripts/styles/API files unless the named lesson truly uses one.
 - Common users should configure requests declaratively. Custom middleware and
   explicit `next()` pipelines remain an advanced option.
 - Authentication is provider-based. Frontend auth and role checks improve UX

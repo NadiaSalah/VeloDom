@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**403 of 413 tasks completed — 98%**
+**404 of 413 tasks completed — 98%**
 
 `[###################-]`
 
-Remaining tasks: **10**
+Remaining tasks: **9**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -942,7 +942,7 @@ networking, or a mandatory global store.
       for async work, lifecycle, and advanced behavior — Fit: Vanilla Friendly;
       Value: less code for small interactive pages; Complexity: low; Target:
       V1.x
-- [ ] Add a `vd create page <name> --demo <kind>` option for focused, readable
+- [x] Add a `vd create page <name> --demo <kind>` option for focused, readable
       examples (`static`, `counter`, `request`, `form`, or `seo`) using only
       the files each example needs — Fit: beginner-first; Value: teaches the
       smallest useful syntax without forcing a large starter; Complexity: low;

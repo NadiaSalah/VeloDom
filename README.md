@@ -54,7 +54,7 @@ allowlisted by `packages/velodom/package.json`.
 
 ## Current Status
 
-V1 is locally verified with 252 automated tests, package-consumer validation,
+V1 is locally verified with 253 automated tests, package-consumer validation,
 and production build checks. The roadmap is [docs/TODO.md](docs/TODO.md);
 remaining V1 release work is external governance, a strict Firefox-capable
 browser run, and starter presets that require the public npm path. Optional
@@ -69,6 +69,8 @@ Likewise, `src/api/middleware/auth.js` supplies middleware as `auth` unless an
 explicit `src/api/middleware.js` registry is present.
 Pages and components can now export a small plain `state` object before their
 optional lifecycle `init()`, including concise state-only `count++` bindings.
+Focused `vd create page <name> --demo <kind>` templates now teach static,
+counter, request, form, and SEO behavior without generating unnecessary files.
 
 The npm package has a strict `files` allowlist, explicit public exports,
 package-consumer tests, and a dry-run tarball check. It intentionally keeps

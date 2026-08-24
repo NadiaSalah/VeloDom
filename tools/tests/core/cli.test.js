@@ -498,6 +498,54 @@ test("CLI doctor reports static project problems", async () => {
   }
 });
 
+test("CLI page demos generate only the files their focused examples need", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-cli-"));
+  const output = [];
+  const options = {
+    stdout: message => output.push(message),
+    stderr: message => output.push(message)
+  };
+
+  try {
+    for (const kind of ["static", "counter", "request", "form", "seo"]) {
+      const code = await runVeloDomCli([
+        "create",
+        "page",
+        kind,
+        "--demo",
+        kind,
+        "--root",
+        root
+      ], options);
+
+      assert.equal(code, 0);
+      await assertFile(join(root, "src/pages", kind, "index.html"));
+      await assertFile(join(root, "src/pages", kind, "config.js"));
+    }
+
+    await assertFile(join(root, "src/pages/counter/script.js"));
+    await assertFile(join(root, "src/pages/request/script.js"));
+    await assertFile(join(root, "src/pages/form/script.js"));
+    await assertFile(join(root, "src/api/request/get.js"));
+    await assert.rejects(access(join(root, "src/pages/static/script.js")));
+    await assert.rejects(access(join(root, "src/pages/seo/script.js")));
+
+    const requestTemplate = await readFile(
+      join(root, "src/pages/request/index.html"),
+      "utf8"
+    );
+    const seoConfig = await readFile(
+      join(root, "src/pages/seo/config.js"),
+      "utf8"
+    );
+
+    assert.match(requestTemplate, /vd-request="request\.get"/);
+    assert.match(seoConfig, /keywords/);
+  } finally {
+    await removeFixture(root);
+  }
+});
+
 test("CLI discovers file API routes and named middleware without registries", async () => {
   const root = await mkdtemp(join(tmpdir(), "velodom-cli-"));
   const output = [];

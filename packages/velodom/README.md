@@ -221,9 +221,10 @@ The `vd` command supports project creation and static project intelligence:
 
 ```bash
 vd create page about
+vd create page counter --demo counter
 vd create component ui/button
 vd create api posts
-vd create middleware auth
+vd create middleware
 vd doctor
 vd inspect
 vd graph
@@ -233,6 +234,10 @@ vd build-report
 vd docs
 vd types
 ```
+
+Focused page demos are available as `static`, `counter`, `request`, `form`, or
+`seo`. They generate only the files needed to demonstrate that capability; the
+request demo also includes its own nested file API handler.
 
 Run `vd --help` or `vd <command> --help` for the current options.
 

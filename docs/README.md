@@ -241,6 +241,7 @@ vd build-report --json
 vd docs
 vd types
 vd create page blog/posts/[id] --ts
+vd create page counter --demo counter
 vd create component shared/post-card --single-file
 vd create feature articles --blog
 vd create api posts
@@ -308,6 +309,30 @@ vd create feature articles --blog
 The blog template additionally creates a page script, `articles/post-card`
 component, application-owned API source, and a small Node test placeholder.
 It never edits a central route registry or overwrites existing files.
+
+### Focused Page Demos
+
+Use `--demo` when learning one capability instead of starting with a full
+starter. Each command creates only the files it needs:
+
+```bash
+vd create page welcome --demo static
+vd create page counter --demo counter
+vd create page articles --demo request
+vd create page newsletter --demo form
+vd create page discover --demo seo
+```
+
+- `static` creates HTML and SEO config only.
+- `counter` adds a small `export const state` script using `count++`.
+- `request` adds a state script and `src/api/articles/get.js`, available as
+  `articles.get` through file API discovery.
+- `form` adds a local state script with `vd-model` and a native submit handler.
+- `seo` creates visible fallback content plus title, description, and keyword
+  metadata in the page config.
+
+`--demo` keeps folder mode so the generated files remain easy to inspect. It
+cannot be combined with `--single-file`.
 
 ### Optional CSS Budget
 
