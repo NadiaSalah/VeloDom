@@ -24,10 +24,10 @@ Before adding a DX feature, evaluate it with these questions:
   checks, build reports, test utilities, release-confidence tooling, project
   graphs, advisory health reports, generated documentation, and maintainability
   warnings that can be proven from local source.
-- Next V1.x improvements: stricter browser CI, security regression corpora,
-  source-map diagnostics, incremental type hardening, richer static content
-  diagnostics, and optional i18n tooling that remains outside the mandatory
-  runtime.
+- Remaining V1.x improvements: stricter browser CI, security regression
+  corpora, source-map diagnostics, incremental type hardening, and richer
+  static-content diagnostics. Localization DX is implemented as optional
+  build-time tooling and must remain outside the mandatory runtime.
 - V2: only work that requires a justified breaking public-contract change
   after real V1 adoption proves the need.
 - Future Research: AI providers, optional migration assistants, advanced

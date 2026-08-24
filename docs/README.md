@@ -20,6 +20,7 @@ JavaScript or TypeScript independently for every page and component.
 - [What Works Today](#what-works-today)
 - [Five-Minute Start](#five-minute-start)
 - [Requirements and Commands](#requirements-and-commands)
+- [Authoring Reference](#authoring-reference)
 - [CLI and Project Intelligence](#cli-and-project-intelligence)
 - [Testing Utilities](#testing-utilities)
 - [Project Structure](#project-structure)
@@ -45,7 +46,7 @@ JavaScript or TypeScript independently for every page and component.
 - [Compiler and Vite Integration](#compiler-and-vite-integration)
 - [Adapter Contract and Optional Types](#adapter-contract-and-optional-types)
 - [Editor Intelligence](#editor-intelligence)
-- [Future Static Rendering and Localization](#future-static-rendering-and-localization)
+- [Static Rendering and Localization Boundaries](#static-rendering-and-localization-boundaries)
 - [JavaScript and TypeScript](#javascript-and-typescript)
 - [Error and Security Model](#error-and-security-model)
 - [Public Package Boundaries](#public-package-boundaries)
@@ -83,11 +84,19 @@ VeloDom currently provides:
 - optional request cache, retry wrapper, and devtools bridge helpers
 - optional native-form validation plugin for `vd-validate` request forms
 - optional direction plugin for document `lang`/`dir` and RTL-aware templates
+- optional build-time localization with typed message keys, native `Intl`
+  formatting, locale-aware links, and canonical/`hreflang` SEO records
 - configurable server-session and demonstration localStorage auth providers
 - runtime head management and static SEO HTML generated from page
   `config.js` or optional `config.ts`
 - optional build-time content helpers through `velodom/content` for Markdown
   collections, SEO entries, sitemap records, RSS XML, and local search indexes
+- optional `velodom/node` bridge for application-owned Fetch-style responses in
+  Node HTTP servers; it does not add SSR, sessions, hydration, or streaming
+- optional `velodom/localization` helpers for typed dictionaries, native `Intl`,
+  locale paths, and static locale SEO without a browser translation runtime
+- optional `velodom/devtools` read-only development inspector and
+  `velodom/testing` DOM mount helpers
 - a safe expression parser/evaluator with no `eval` or `new Function`
 - a Vite template compiler, source-aware diagnostics, optimizer hooks, and
   runtime feature manifests
@@ -112,6 +121,121 @@ browser devtools panel.
 The current build-time content helper layer and future content improvements are
 documented in [CONTENT_MODE_DESIGN.md](CONTENT_MODE_DESIGN.md). It is
 intentionally tooling-oriented, not a mandatory browser runtime layer.
+
+## Authoring Reference
+
+VeloDom has one authoring model with two file layouts. Both layouts compile to
+the same internal page, component, or layout resource. Choose the layout that
+keeps the feature easiest to read; no runtime capability is lost by using
+folder mode.
+
+### Folder mode
+
+Use a folder when a feature has more than one concern or is likely to grow:
+
+```text
+src/pages/about/
+  index.html       # required template
+  script.js        # optional state and lifecycle
+  style.css        # optional scoped style
+  data.js          # optional route data loader
+  config.js        # optional route, layout, guards, and SEO
+```
+
+The TypeScript variant uses the same filenames with `.ts`. Do not create both
+JavaScript and TypeScript variants for one convention slot; VeloDom reports the
+ambiguity so the beginner path stays deterministic.
+
+### One-file mode
+
+Use `.vd` for a small page, component, or layout that benefits from co-location:
+
+```html
+<template>
+  <main>
+    <h1>{{ title }}</h1>
+    <button type="button" vd-on:click="count++">
+      Count: <span vd-text="count"></span>
+    </button>
+  </main>
+</template>
+
+<script>
+export const state = { title: "About", count: 0 };
+</script>
+
+<style>
+main { padding: 2rem; }
+</style>
+
+<config>
+export default {
+  path: "/about",
+  seo: {
+    title: "About VeloDom",
+    description: "A concise HTML-first page."
+  }
+};
+</config>
+```
+
+The `<template>` block is required. `<script>`, `<style>`, and `<config>` are
+optional. Folder mode and `.vd` mode may coexist in the same project, but one
+logical resource should have one source of truth.
+
+### Template syntax at a glance
+
+| Need | Preferred syntax | Notes |
+| --- | --- | --- |
+| Render text | `{{ title }}` or `vd-text="title"` | Interpolation is compiled to a safe text binding. |
+| Keep braces literal | `\\{{ title }}` or `vd-pre` | Useful in documentation and examples. |
+| Conditional DOM | `vd-if`, `vd-elseif`, `vd-else` | Branch expressions are safe and source-checked. |
+| Toggle visibility | `vd-show="isOpen"` | Keeps the element and changes display state. |
+| Repeat content | `vd-for="post in posts"` | Add `vd-key="post.id"` when identity matters. |
+| Two-way form value | `vd-model="draft.title"` | Works with ordinary named form controls. |
+| Bind an attribute | `vd-bind:href="post.url"` | `vd-bind:*` accepts the supported HTML binding names. |
+| Events | `vd-on:click="save()"` | Modifiers include keyboard and lifecycle-safe behavior. |
+| Requests | `vd-request="posts.get"` | Add `vd-params`, `vd-target`, and `vd-auto-state`. |
+| Components | `<vd-component name="blog/post-card">` | Name follows the path below `src/components`. |
+| Navigation | `<a href="/about" vd-nav>` | Same-page hashes scroll without a full reload. |
+| Refs | `vd-ref="dialog"` | Read the ref from the page/component context. |
+
+The compiler accepts preferred `vd-*` names and keeps `data-vd-*` as a
+compatibility input. Prefer the `vd-*` form in new application code. Expressions
+are deliberately smaller than JavaScript: state, props, route values, event,
+element, literals, operators, optional access, arrays, objects, and approved
+calls are supported. `eval`, `new Function`, arbitrary globals, and unsafe
+members are not used.
+
+### Small state versus lifecycle code
+
+For plain defaults, export a shallow `state` object:
+
+```js
+export const state = {
+  query: "",
+  posts: [],
+  loading: false
+};
+```
+
+Use `init({ state, ctx, data, params, query, props })` when behavior is needed:
+
+```js
+export function init({ state, ctx }) {
+  state.announce = () => {
+    ctx.emit("notice", { message: "Saved" });
+  };
+
+  ctx.onCleanup(() => {
+    // release application-owned resources here
+  });
+}
+```
+
+The state seed is merged before `init()`. This is why `vd-on:click="count++"`
+works for simple counters while async work, cleanup, and complex logic remain
+visible in `init()`.
 
 ## Five-Minute Start
 
@@ -3837,6 +3961,24 @@ contracts, request hook payloads, optional cache/retry/devtools contracts,
 direction plugin contracts, shared-state contracts, validation plugin options,
 SEO contracts, application options, and HTTP options.
 
+### Explicit subpaths
+
+| Import | Stable purpose |
+| --- | --- |
+| `velodom/vite` | `mountVeloDom`, `createViteApp`, and the Vite resource adapter |
+| `velodom/vite-plugin` | HTML compilation, manifests, diagnostics, and static SEO |
+| `velodom/compiler` | standalone compiler, optimizers, and language helpers |
+| `velodom/localization` | dictionaries, typed keys, `Intl`, locale paths, and locale SEO |
+| `velodom/content` | Markdown collections and external content normalization |
+| `velodom/assets` | Node image inspection and responsive attributes |
+| `velodom/node` | explicit Node HTTP-to-Fetch request bridge |
+| `velodom/devtools` | opt-in development inspector |
+| `velodom/testing` | browser-like page/component test mounting |
+
+These paths are intentionally explicit. Files such as `page-router.ts`,
+`directives.ts`, and `requests/request-router.ts` are framework internals even
+though they are visible in the repository.
+
 ## Adapter Contract and Optional Types
 
 VeloDom Core accepts build-tool-neutral lazy resources. The built-in Vite
@@ -3906,13 +4048,15 @@ completion/hover text, and conventional component/static-route definitions and
 completion. It is stable as workspace tooling but awaits Marketplace publisher
 ownership; it remains outside every VeloDom application runtime.
 
-## Future Static Rendering and Localization
+## Static Rendering and Localization Boundaries
 
 VeloDom's accepted V2 designs keep expansion outside the mandatory browser
 runtime: richer static route rendering remains build-time and distinct from
 SSR; progressive form enhancement is now an optional native HTML bridge; and
-localization stays an optional build-time helper separate from RTL direction
-and any translation provider.
+localization is now an optional build-time helper separate from RTL direction
+and any translation provider. Its typed keys, native `Intl`, locale path
+switching, and `hreflang` output are documented in the localization section;
+ICU parsing and request-time locale policy remain adapter research.
 The implementation contracts and required test gates are documented in
 [static rendering](STATIC_RENDERING_DESIGN.md),
 [progressive forms](PROGRESSIVE_FORMS.md),
@@ -3992,12 +4136,12 @@ choices, not VeloDom Core dependencies or requirements.
 
 ## Verification
 
-Latest local verification on 2026-08-17:
+Latest local verification on 2026-08-24:
 
-- Core documentation audit passes for 68 TypeScript files
+- Core documentation audit passes for 72 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 216 automated tests pass
+- 255 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - package dry-run validation passes
@@ -4087,8 +4231,9 @@ Latest implementation update:
 - Added build-time RTL CSS diagnostics for folder CSS and `.vd` style blocks.
 - Added UTF-8 app-shell diagnostics and scoped CSS `:global(...)` escapes for
   document-level direction selectors.
-- Added optional `createRtlFlipStyles()` CSS generation and recorded i18n as
-  separate future plugin research.
+- Added optional `createRtlFlipStyles()` CSS generation and the bounded
+  build-time localization DX surface: typed keys, native `Intl`, locale paths,
+  and locale-aware canonical/`hreflang` output.
 - Optimized loop rendering so unchanged item structures keep existing DOM nodes
   while nested directives still update normally.
 - Reduced unnecessary DOM writes in text, attribute, value, boolean, class, and

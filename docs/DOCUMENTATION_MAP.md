@@ -24,14 +24,15 @@ framework guide.
 | [Content mode](CONTENT_MODE_DESIGN.md) | Markdown collections, sitemap, RSS, search records, and SEO data. |
 | [Editor integration](EDITOR_INTELLIGENCE.md) | Compiler-backed diagnostics and the optional VS Code prototype. |
 | [Development tools](DEVTOOLS_PROTOCOL.md) | Opt-in, development-only inspection protocol and UI. |
+| [Localization](LOCALIZATION_DESIGN.md) | Typed dictionaries, native `Intl`, locale paths, and static locale SEO. |
+| [Progressive forms](PROGRESSIVE_FORMS.md) | Optional enhancement for native HTML forms. |
 
-## Approved Research, Not V1 Runtime Promises
+## Deferred Design and Research, Not V1 Runtime Promises
 
 | Document | Boundary |
 | --- | --- |
 | [Static rendering](STATIC_RENDERING_DESIGN.md) | Build-only route HTML; not universal SSR/hydration. |
-| [Progressive forms](PROGRESSIVE_FORMS.md) | Enhance native HTML submission through optional adapters. |
-| [Localization](LOCALIZATION_DESIGN.md) | Optional build helpers, static locale SEO, and deferred ICU/server boundaries. |
+| [Localization design](LOCALIZATION_DESIGN.md) | ICU parsing and request-time locale policy remain deferred adapters. |
 | [Future research](FUTURE_RESEARCH.md) | Deferred ideas that still require proof and scope review. |
 
 ## Documentation Rules

@@ -35,6 +35,11 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Rebuilt the main framework guide and npm package README around the current V1
+  authoring model: folder mode, optional `.vd` files, the complete directive
+  syntax, layouts, components, requests, forms, SEO, localization, CLI, public
+  subpaths, testing, and application boundaries. The examples now use current
+  `vd-*` names and document legacy `data-vd-*` only as compatibility input.
 - Completed the V1.1 optional localization-DX work without a translation
   runtime: inferred and generated translation keys, native `Intl` formatting,
   locale switching that preserves query/hash values, and static canonical plus

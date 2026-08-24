@@ -179,9 +179,11 @@ Preferred syntax:
 - `vd-text`
 - `vd-bind:*`
 - `vd-on:*`
+- `{{ expression }}` text interpolation
+- `vd-key`, `vd-props`, and `vd-nav`
+- `vd-request`, `vd-auto-state`, and `vd-validate`
 - `vd-component`
 - `vd-ref`
-- `vd-request`
 
 The compiler transforms preferred syntax into normalized runtime names and
 metadata.

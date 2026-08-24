@@ -45,6 +45,10 @@
   browser state; generated localized SEO records own canonical and alternate
   links at build time. ICU and request-time locale selection remain deferred
   under the documented adapter boundary.
+- The primary guide and package README are the learning surface for the
+  documentation site. They intentionally explain the same folder/`.vd`
+  authoring model and preferred `vd-*` syntax; compatibility attributes remain
+  documented as migration input rather than beginner examples.
 - Common users should configure requests declaratively. Custom middleware and
   explicit `next()` pipelines remain an advanced option.
 - Authentication is provider-based. Frontend auth and role checks improve UX
