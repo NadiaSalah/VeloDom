@@ -142,11 +142,11 @@
 - Browser release verification uses a bounded launch timeout so broken local
   browser hosts report a named failed target instead of blocking CI forever.
   The mobile route smoke uses a visible content CTA, not navigation that is
-  deliberately hidden at the mobile breakpoint. On 2026-08-25 the complete
-  Chromium, WebKit, and Mobile WebKit journeys passed after the refactor;
-  Firefox failed before application startup because its SWGL compositor could
-  not map a headless framebuffer. This host failure is not evidence of a
-  VeloDom runtime regression, so the Linux CI matrix is the release authority.
+  deliberately hidden at the mobile breakpoint. On 2026-08-25 GitHub Actions
+  Run #27 passed the complete Chromium, Firefox, WebKit, and Mobile WebKit
+  journeys after the refactor. Firefox still fails before application startup
+  on this local host because its SWGL compositor cannot map a headless
+  framebuffer; the successful Linux CI run is the release authority.
 - npm registry lookup is only an availability signal. It cannot reserve a name
   or prove publisher rights. The release remains private until an approved npm
   account is authenticated, ownership/access and 2FA are confirmed, and the

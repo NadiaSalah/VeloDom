@@ -15,19 +15,18 @@ product generations.
 | Production features | V1 — Implemented | Routing, requests, forms, SEO, content, localization, package subpaths |
 | Developer intelligence | V1 — Implemented | `vd` inspection commands, compiler language helpers, testing utilities |
 | Public package | V1 — Current | `1.0.0`, `private: true`, exports and consumer checks pass |
-| Browser release gate | V1 — Current | Chromium, WebKit, and Mobile WebKit pass; strict Firefox-capable CI run remains open |
+| Browser release gate | V1 — Implemented | GitHub Actions Run #27 passed Chromium, Firefox, WebKit, and Mobile WebKit |
 | npm publication | V1 — Current | Registry lookup is unauthenticated; ownership, account, 2FA, version, and approval remain human gates |
 | Hybrid rendering and islands | V1 — Planned / Experimental | Design must preserve static-first authoring and optional runtime cost |
 | AI, migration, CMS, and Edge integrations | V1 — Research / Deferred | External, optional, and never required by Core |
 
 ### Progress counter
 
-**V1 implementation: complete. Release readiness: 3 external gates open.**
+**V1 implementation: complete. Release readiness: 2 external gates open.**
 
 `[##################--]`
 
-The remaining gates are strict browser verification on an appropriate
-Firefox-capable environment, npm ownership/account approval, and final human
+The remaining gates are npm ownership/account approval and final human
 publication approval. The local package remains private and unpublished.
 
 ### Status vocabulary
@@ -184,11 +183,10 @@ velodom/package.json
 
 Current release work is governance rather than a new framework feature:
 
-- [ ] Complete the strict Firefox browser run in a graphics-capable CI/release
-  environment. Local Chromium, WebKit, and Mobile WebKit pass; local Firefox
-  reports an SWGL compositor framebuffer failure before the application loads.
-  `.github/workflows/release-browser-matrix.yml` is ready for the authoritative
-  remote gate. This is an environment limitation, not a known runtime failure.
+- [x] Complete the strict Firefox browser run in a graphics-capable CI/release
+  environment. GitHub Actions Run #27 passed Chromium, Firefox, WebKit, and
+  Mobile WebKit on the current `main` commit. Local Firefox remains limited by
+  the host's SWGL compositor, but this no longer blocks the release gate.
 - [ ] Confirm npm package-name ownership/reservation, account, organization or
   scope, access level, 2FA policy, exact version, dist tag, and release notes.
   The local npm client is currently unauthenticated (`npm whoami` returns 401).

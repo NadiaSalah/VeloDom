@@ -6,6 +6,13 @@ package versions.
 
 ## 2026-08-25
 
+### GitHub Actions Release Matrix
+
+- Uploaded the refactored release candidate to `NadiaSalah/velodom` on `main`.
+- GitHub Actions Run #27 passed the production build and strict browser matrix
+  for Chromium, Firefox, WebKit, and Mobile WebKit. The Firefox gate is now
+  closed; only npm ownership and human publication approval remain external.
+
 ### AI-Friendly Project Context
 
 - Added root `AGENTS.md` and `docs/AI_CONTEXT.md` to give AI tools a concise,

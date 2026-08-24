@@ -58,12 +58,13 @@ allowlisted by `packages/velodom/package.json`.
 
 ## Current Status
 
-V1 is locally verified with 255 automated tests, package-consumer and tarball
+V1 is verified with 255 automated tests, package-consumer and tarball
 validation, a production build within its performance budgets, a 100/100
-example-project health report, and complete Chromium, WebKit, and Mobile WebKit
-browser checks. The roadmap is [docs/TODO.md](docs/TODO.md); remaining V1
-release work is external governance and a strict Firefox-capable browser-matrix
-run for the current commit. Starter presets remain post-publication work.
+example-project health report, and a successful GitHub Actions matrix across
+Chromium, Firefox, WebKit, and Mobile WebKit. The roadmap is
+[docs/TODO.md](docs/TODO.md); remaining V1 release work is external npm
+governance and final publication approval. Starter presets remain
+post-publication work.
 Optional
 Hybrid rendering, islands, richer DevTools, and streaming/Edge adapters remain
 deliberately planned or deferred rather than being folded into the V1 runtime.
