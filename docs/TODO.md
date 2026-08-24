@@ -159,7 +159,9 @@ application browser runtime weight:
   recoverable error boundaries, opt-in prefetch, and compiler safety signals.
 - [x] Cross-browser documentation sidebars consume the router-restored
   `hashchange` contract and hold the selected tab until smooth scrolling is
-  idle; Chromium, desktop WebKit, and Mobile WebKit pass locally.
+  idle; the complete routing, single-file, requests, article, sidebar, and
+  compact-navigation journeys pass in Chromium, desktop WebKit, and Mobile
+  WebKit on the current refactor commit.
 
 ## V1 Ecosystem — Current
 
@@ -185,7 +187,8 @@ Current release work is governance rather than a new framework feature:
 - [ ] Complete the strict Firefox browser run in a graphics-capable CI/release
   environment. Local Chromium, WebKit, and Mobile WebKit pass; local Firefox
   reports an SWGL compositor framebuffer failure before the application loads.
-  `.github/workflows/release-browser-matrix.yml` is ready for the remote gate.
+  `.github/workflows/release-browser-matrix.yml` is ready for the authoritative
+  remote gate. This is an environment limitation, not a known runtime failure.
 - [ ] Confirm npm package-name ownership/reservation, account, organization or
   scope, access level, 2FA policy, exact version, dist tag, and release notes.
   The local npm client is currently unauthenticated (`npm whoami` returns 401).

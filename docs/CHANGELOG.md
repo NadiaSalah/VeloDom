@@ -68,6 +68,14 @@ package versions.
 - Aligned the AI bootstrap/request examples with the public beginner path:
   `await mountVeloDom()`, standard HTML input syntax, and the conventional
   `posts.get` name produced by `src/api/posts/get.js`.
+- Completed the post-refactor release verification: all 255 automated tests,
+  documentation checks, TypeScript, ESLint, package build and consumer checks,
+  tarball allowlist audit, production build, and performance budgets pass.
+  The example reports no doctor issues and scores 100/100 in `vd health`.
+- Re-ran the full application smoke journey successfully in Chromium, desktop
+  WebKit, and Mobile WebKit. Local Firefox remains an environment gate because
+  its SWGL compositor fails before VeloDom application code can load; the
+  GitHub Actions matrix remains the authoritative Firefox verification path.
 
 ## 2026-08-24
 
