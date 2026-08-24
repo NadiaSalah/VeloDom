@@ -140,6 +140,9 @@ a browser translation provider. See
 - Added a native, keyboard-accessible compact navigation menu below the wide
   desktop breakpoint so documentation links remain available on small desktop
   and tablet screens.
+- Reorganized the showcase navigation into page-level tabs only: Learn, Guides,
+  API, and Single-file. Detailed Requests, Tooling, and other lessons remain in
+  the feature sidebar, preventing duplicate top-level links and hash-based tabs.
 
 ## Next Tasks
 
