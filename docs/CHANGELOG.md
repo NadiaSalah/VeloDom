@@ -21,6 +21,10 @@ package versions.
   clean `npm ci` installs can resolve consistently.
 - Updated the browser release workflow to the Node 24-compatible checkout and
   setup-node action versions.
+- Added a scroll-driven fallback to the showcase documentation sidebars, so
+  active sections remain synchronized in Chromium and Firefox as well as
+  WebKit. Browser E2E failures now report their exact route step, URL, and
+  visible page state instead of only a generic wait timeout.
 
 ## 2026-08-24
 

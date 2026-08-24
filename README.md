@@ -119,6 +119,9 @@ a browser translation provider. See
   reproducible; local npm caches are ignored.
 - Updated the browser-matrix workflow to `actions/checkout@v5` and
   `actions/setup-node@v5`, removing the Node 20 deprecation warning on runners.
+- Made the application-owned documentation sidebars resilient to browser-specific
+  `IntersectionObserver` timing through a scroll fallback, and made browser
+  smoke-test failures identify the exact route step and visible page state.
 - Static SEO output now waits for Vite to write the HTML shell before it
   renders route artifacts, including with the current Vite/Rolldown lifecycle.
 - Rebuilt `examples/blog` as the polished VeloDom academic reference: a modern

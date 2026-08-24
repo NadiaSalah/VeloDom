@@ -312,6 +312,17 @@ async function runInteractiveStep(context, target, name, callback) {
     if (debugBrowserE2e) {
       console.log(`[browser:${target.name}] completed ${name}`);
     }
+  } catch (error) {
+    const body = await page.locator("body").innerText().catch(() => "");
+
+    throw new Error([
+      `Browser step failed: ${name}`,
+      `Current URL: ${page.url()}`,
+      `Current body: ${body.slice(0, 1000)}`,
+      error instanceof Error ? error.message : String(error)
+    ].join("\n"), {
+      cause: error
+    });
   } finally {
     await page.close();
   }
@@ -365,7 +376,9 @@ async function assertRouting(page, origin) {
       ?.getAttribute("href") === "/features#directives"
   ));
 
-  await page.locator("#tooling").scrollIntoViewIfNeeded();
+  await page.locator("#tooling").evaluate(element => {
+    element.scrollIntoView({ block: "center", behavior: "auto" });
+  });
   await page.waitForFunction(() => (
     document.querySelector('.docs-sidebar-link.is-active')
       ?.getAttribute("href") === "/features#tooling"
@@ -428,7 +441,9 @@ async function assertReferenceSidebar(page, origin) {
       ?.getAttribute("href") === "/reference#compiler"
   ));
 
-  await page.locator("#cli").scrollIntoViewIfNeeded();
+  await page.locator("#cli").evaluate(element => {
+    element.scrollIntoView({ block: "center", behavior: "auto" });
+  });
   await page.waitForFunction(() => (
     document.querySelector('.docs-sidebar-link.is-active')
       ?.getAttribute("href") === "/reference#cli"

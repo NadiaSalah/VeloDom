@@ -57,29 +57,53 @@ export function mountDocsSidebar(ctx, selector = ".docs-sidebar-link") {
   window.addEventListener("hashchange", onLocationChange);
   window.addEventListener("popstate", onLocationChange);
 
+  const viewportAnchor = () => window.innerHeight * 0.25;
+  const viewportSection = () => {
+    const anchor = viewportAnchor();
+    const current = sections
+      .filter(item => {
+        const bounds = item.section.getBoundingClientRect();
+
+        return bounds.top <= anchor && bounds.bottom > anchor;
+      })
+      .at(-1);
+
+    if (current) return current;
+
+    return sections
+      .map(item => ({
+        item,
+        distance: Math.abs(item.section.getBoundingClientRect().top - anchor)
+      }))
+      .sort((left, right) => left.distance - right.distance)[0]
+      ?.item;
+  };
+
+  const syncViewportSection = () => {
+    const current = viewportSection();
+
+    if (!current) return;
+
+    if (pendingSection && current.id !== pendingSection) return;
+
+    pendingSection = null;
+    activeSection(current.id);
+  };
+
+  let scrollFrame = 0;
+  const onScroll = () => {
+    window.cancelAnimationFrame?.(scrollFrame);
+    scrollFrame = window.requestAnimationFrame
+      ? window.requestAnimationFrame(syncViewportSection)
+      : 0;
+
+    if (!window.requestAnimationFrame) syncViewportSection();
+  };
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+
   const observer = "IntersectionObserver" in window
-    ? new IntersectionObserver(entries => {
-      if (pendingSection) {
-        const pendingEntry = entries.find(entry => (
-          entry.isIntersecting && entry.target.id === pendingSection
-        ));
-
-        // CSS smooth scrolling may take longer than lifecycle hooks. Keep the
-        // URL-selected tab visible until its target actually reaches the
-        // observation area, then resume normal scroll-driven selection.
-        if (!pendingEntry) return;
-
-        pendingSection = null;
-        activeSection(pendingEntry.target.id);
-        return;
-      }
-
-      const visible = entries
-        .filter(entry => entry.isIntersecting)
-        .sort((left, right) => left.boundingClientRect.top - right.boundingClientRect.top)[0];
-
-      if (visible?.target.id) activeSection(visible.target.id);
-    }, {
+    ? new IntersectionObserver(syncViewportSection, {
       rootMargin: "-20% 0px -65% 0px",
       threshold: [0, 0.25, 0.75, 1]
     })
@@ -107,10 +131,12 @@ export function mountDocsSidebar(ctx, selector = ".docs-sidebar-link") {
   ctx.onCleanup(() => {
     window.cancelAnimationFrame?.(firstFrame);
     window.cancelAnimationFrame?.(secondFrame);
+    window.cancelAnimationFrame?.(scrollFrame);
     observer?.disconnect();
     links.forEach(link => link.removeEventListener("click", onLinkClick));
     window.removeEventListener("hashchange", onLocationChange);
     window.removeEventListener("popstate", onLocationChange);
+    window.removeEventListener("scroll", onScroll);
   });
 }
 
