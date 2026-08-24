@@ -56,21 +56,23 @@ allowlisted by `packages/velodom/package.json`.
 
 V1 is locally verified with 245 automated tests, package-consumer validation,
 and production build checks. The roadmap is [docs/TODO.md](docs/TODO.md);
-remaining work is release governance, a strict Firefox-capable browser run,
-and starter presets.
+remaining V1 release work is external governance, a strict Firefox-capable
+browser run, and starter presets that require the public npm path. Optional
+V2 hybrid rendering, islands, richer DevTools, and streaming/Edge adapters
+remain deliberately unshipped rather than being folded into the V1 runtime.
 
 The npm package has a strict `files` allowlist, explicit public exports,
 package-consumer tests, and a dry-run tarball check. It intentionally keeps
 `private: true`; this prevents accidental publication until the npm account,
 name ownership, 2FA policy, version, and release approval are confirmed.
 
-The next product roadmap is intentionally staged: V1.1 has completed opt-in
+The next product roadmap is intentionally staged: V1.1/V1.2 now include
 static prerendering, conventional page data loading with optional public-data
 cache/revalidation, build-time localization, typed build-time content loading,
-an optional Node request bridge, and progressive native
-forms, generated application declarations, and optional derived state. V1.2
-adds optional production adapters and ecosystem tooling; V2 investigates
-hybrid rendering and partial hydration. See
+an optional Node request bridge, progressive native forms, generated
+application declarations, derived state, and editor tooling. V2 investigates
+hybrid rendering and partial hydration only behind explicit architecture and
+browser-validation gates. See
 [docs/TODO.md](docs/TODO.md) for the complete rationale and order.
 
 ## Completed Organization Work
