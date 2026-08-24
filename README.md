@@ -116,6 +116,8 @@ a browser translation provider. See
   can follow the same public contract and Core/application boundary.
 - Repaired the npm lockfile's Linux optional WASI dependency metadata so
   `npm ci` remains reproducible in GitHub Actions, and ignored local npm caches.
+- Updated the browser-matrix workflow to `actions/checkout@v5` and
+  `actions/setup-node@v5`, removing the Node 20 deprecation warning on runners.
 - Static SEO output now waits for Vite to write the HTML shell before it
   renders route artifacts, including with the current Vite/Rolldown lifecycle.
 - Rebuilt `examples/blog` as the polished VeloDom academic reference: a modern

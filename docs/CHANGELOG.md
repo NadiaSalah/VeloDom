@@ -18,6 +18,8 @@ package versions.
   the work in the V1 roadmap.
 - Repaired the lockfile entry for Tailwind's bundled Linux WASI runtime and
   ignored local npm caches so clean `npm ci` installs can resolve consistently.
+- Updated the browser release workflow to the Node 24-compatible checkout and
+  setup-node action versions.
 
 ## 2026-08-24
 
