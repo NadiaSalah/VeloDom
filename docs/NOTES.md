@@ -9,6 +9,9 @@
   applications own their own `src/pages`, `src/components`, and `src/api`.
 - Build-tool discovery belongs to adapters; the runtime accepts injected
   resource maps.
+- Static SEO generation runs after Vite writes the bundle rather than at its
+  close hook. The renderer needs the emitted `index.html` shell, and this keeps
+  the behavior stable across Vite/Rolldown lifecycle ordering.
 - Vite applications should normally start with `mountVeloDom()`. It supplies
   the adapter and discovers optional root request/middleware registries by
   convention; `createViteApp()` and generic `createApp()` remain explicit
@@ -16,6 +19,10 @@
 - Vite convention registries use a single default-exported object. Keeping
   both JavaScript and TypeScript variants is rejected because silent filename
   precedence would make beginner behavior hard to explain.
+- Nested API handler files are an optional shortcut: a default export in
+  `src/api/posts/get.js` becomes `posts.get`. Root `src/api/*.js` files stay
+  importable helpers, and an explicit `routes.js|ts` registry wins whenever an
+  application needs middleware, auth, roles, or a custom route shape.
 - Common users should configure requests declaratively. Custom middleware and
   explicit `next()` pipelines remain an advanced option.
 - Authentication is provider-based. Frontend auth and role checks improve UX

@@ -638,10 +638,10 @@ import { mountVeloDom } from "velodom/vite";
 await mountVeloDom();
 ```
 
-`mountVeloDom()` automatically supplies the Vite resource adapter and discovers
-default exports from `src/api/routes.js|ts` and
-`src/api/middleware.js|ts` when those files exist. Keep only one extension for
-each registry. Explicit options win over discovered files.
+`mountVeloDom()` automatically supplies the Vite resource adapter. Explicit
+options always win. For advanced request rules it discovers default exports
+from `src/api/routes.js|ts` and `src/api/middleware.js|ts`; keep only one
+extension for each registry.
 
 Applications can opt into middleware, auth providers, plugins, and router
 guards when they need them:
@@ -1638,7 +1638,32 @@ export async function create(payload, { signal } = {}) {
 - returns `null` for HTTP 204
 - throws `ApiError` with `status`, `url`, and parsed `body`
 
-### Route Registry
+### File Routes (Simplest)
+
+For a straightforward handler, use a nested file with one default export. Its
+folder path becomes the `vd-request` name, so no central registry is needed:
+
+```js
+// src/api/posts/get-one.js
+import { requestJson } from "velodom";
+
+export default function getOne({ id }, { signal } = {}) {
+  return requestJson(`/api/posts/${id}`, { signal });
+}
+```
+
+```html
+<button vd-request="posts.get-one" vd-params="{ id: selectedId }">
+  Load post
+</button>
+```
+
+Only files below a folder are discovered. A root file such as
+`src/api/posts.js` remains an ordinary helper that page scripts can import.
+Use `src/api/routes.js` when a route needs auth, middleware, roles, or a name
+that does not match a file path.
+
+### Route Registry (Advanced)
 
 ```js
 // src/api/routes.js
@@ -1655,7 +1680,8 @@ export default {
 };
 ```
 
-A route is either a handler function or:
+The explicit registry takes precedence over file routes. A route is either a
+handler function or:
 
 ```js
 {

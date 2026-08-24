@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**400 of 413 tasks completed — 97%**
+**401 of 413 tasks completed — 97%**
 
 `[###################-]`
 
-Remaining tasks: **13**
+Remaining tasks: **12**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -926,7 +926,7 @@ networking, or a mandatory global store.
       minimal or blog template — Fit: folder-first; Value: beginners start a
       real feature with one command instead of assembling files manually;
       Complexity: medium; Target: V1.x
-- [ ] Support optional file-based API discovery such as
+- [x] Support optional file-based API discovery such as
       `src/api/posts/get.js -> posts.get`, with explicit `src/api/routes.js`
       taking precedence — Fit: convention over configuration; Value: removes a
       registry for straightforward handlers while preserving advanced routing;

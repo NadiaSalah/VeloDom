@@ -54,17 +54,17 @@ allowlisted by `packages/velodom/package.json`.
 
 ## Current Status
 
-V1 is locally verified with 245 automated tests, package-consumer validation,
+V1 is locally verified with 247 automated tests, package-consumer validation,
 and production build checks. The roadmap is [docs/TODO.md](docs/TODO.md);
 remaining V1 release work is external governance, a strict Firefox-capable
 browser run, and starter presets that require the public npm path. Optional
 V2 hybrid rendering, islands, richer DevTools, and streaming/Edge adapters
 remain deliberately unshipped rather than being folded into the V1 runtime.
-The roadmap also records five future authoring-ergonomics improvements—feature
-scaffolding, file conventions for simple API/middleware code, and smaller page
-state/demo patterns—without adopting a second template syntax.
-The first of these is now available as `vd create feature <name>` with an
-optional `--blog` vertical-slice template.
+The roadmap records smaller authoring-ergonomics improvements without adopting
+a second template syntax. `vd create feature <name>` offers an optional
+`--blog` vertical-slice template, and a nested default export such as
+`src/api/posts/get.js` is now available as the request name `posts.get`.
+Explicit `src/api/routes.js` remains the advanced, higher-priority route map.
 
 The npm package has a strict `files` allowlist, explicit public exports,
 package-consumer tests, and a dry-run tarball check. It intentionally keeps
@@ -90,6 +90,8 @@ browser-validation gates. See
 - Registered stable optional VS Code language tools as a private workspace
   consumer pending Marketplace publisher ownership.
 - Added npm metadata and automated package-boundary checks.
+- Static SEO output now waits for Vite to write the HTML shell before it
+  renders route artifacts, including with the current Vite/Rolldown lifecycle.
 
 ## Next Tasks
 

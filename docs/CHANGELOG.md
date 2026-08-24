@@ -8,6 +8,9 @@ package versions.
 
 ### npm Package Readiness and Workspace Cleanup
 
+- Moved static SEO emission to Vite's post-write hook. This guarantees that
+  the built HTML shell exists before VeloDom reads it, including under the
+  current Vite/Rolldown build lifecycle.
 - Audited the repository and confirmed the publishable boundary is
   `packages/velodom`; examples, editor tooling, tests, fixtures, and release
   scripts remain workspace-owned and are excluded from the npm tarball.
@@ -32,6 +35,11 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Added optional nested file API routes: a default export in
+  `src/api/posts/get.js` registers `posts.get` without a central registry.
+  Root API modules remain ordinary imports, invalid or duplicate file routes
+  fail with clear startup errors, and `src/api/routes.js` retains precedence
+  for advanced route configuration.
 - Added `vd create feature <name>` for minimal pages and optional `--blog`
   vertical slices. It creates conventional user-owned files without touching a
   route registry or adding browser runtime behavior.

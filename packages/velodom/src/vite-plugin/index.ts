@@ -261,7 +261,7 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
       };
     },
 
-    async closeBundle() {
+    async writeBundle() {
       if (
         options.seo === false
         || !shouldGenerateSeo

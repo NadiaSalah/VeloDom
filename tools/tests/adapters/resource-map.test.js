@@ -4,6 +4,7 @@ import {
   indexFolderFiles,
   indexFolderVariants,
   indexSingleFiles,
+  mapFileApiRoutes,
   mapEagerExports,
   mapLoaderExports,
   rebaseFiles,
@@ -152,5 +153,37 @@ test("optional convention exports are resolved without hidden ambiguity", () => 
       "/src/api/routes.js": undefined
     }, "route registry"),
     /must default-export a route registry object/
+  );
+});
+
+test("nested file API handlers become route names without registering helpers", () => {
+  const getPost = () => "post";
+  const createPost = () => "created";
+  const routes = mapFileApiRoutes({
+    "/src/api/posts/get.js": getPost,
+    "/src/api/posts/create.ts": createPost,
+    "/src/api/posts.js": () => "helper"
+  }, "/src/api/");
+
+  assert.deepEqual(routes, {
+    "posts.create": createPost,
+    "posts.get": getPost
+  });
+  assert.equal(Object.hasOwn(routes, "posts"), false);
+});
+
+test("file API discovery rejects ambiguous and malformed handlers", () => {
+  assert.throws(
+    () => mapFileApiRoutes({
+      "/src/api/posts/get.js": () => undefined,
+      "/src/api/posts/get.ts": () => undefined
+    }, "/src/api/"),
+    /Multiple file API routes resolve to "posts.get"/
+  );
+  assert.throws(
+    () => mapFileApiRoutes({
+      "/src/api/posts/get.js": {}
+    }, "/src/api/"),
+    /must default-export a handler function/
   );
 });

@@ -13,6 +13,7 @@ import {
   indexFolderFiles,
   indexFolderVariants,
   indexSingleFiles,
+  mapFileApiRoutes,
   mapEagerExports,
   mapEagerModulesToLoaders,
   mapLoaderExports,
@@ -43,6 +44,21 @@ const applicationRouteFiles = import.meta.glob(
   [
     "/src/api/routes.js",
     "/src/api/routes.ts"
+  ],
+  {
+    eager: true,
+    import: "default"
+  }
+);
+const applicationFileRouteFiles = import.meta.glob(
+  [
+    "/src/api/*/**/*.js",
+    "/src/api/*/**/*.ts",
+    "!/src/api/routes.js",
+    "!/src/api/routes.ts",
+    "!/src/api/middleware.js",
+    "!/src/api/middleware.ts",
+    "!/src/api/middleware/**"
   ],
   {
     eager: true,
@@ -362,12 +378,19 @@ export function createViteAdapter(): ResourceAdapter {
 export function createViteApp(
   options: ViteAppOptions = {}
 ): VeloDomApp {
+  const conventionRoutes = resolveConventionExport<RequestRouteRegistry>(
+    applicationRouteFiles,
+    "request route registry"
+  );
+
   return createApp({
     ...options,
-    routes: options.routes ?? resolveConventionExport<RequestRouteRegistry>(
-      applicationRouteFiles,
-      "request route registry"
-    ),
+    routes: options.routes
+      ?? conventionRoutes
+      ?? mapFileApiRoutes<RequestRouteRegistry[string]>(
+        applicationFileRouteFiles,
+        "/src/api/"
+      ),
     middleware: options.middleware ?? resolveConventionExport<
       Record<string, RequestMiddleware>
     >(

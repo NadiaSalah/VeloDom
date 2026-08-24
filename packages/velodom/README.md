@@ -60,6 +60,24 @@ import { mountVeloDom } from "velodom/vite";
 await mountVeloDom();
 ```
 
+## Simple File API Routes
+
+For a basic declarative request, export one default handler from a nested API
+file. Its path becomes the route name:
+
+```js
+// src/api/posts/get.js
+export default ({ id }) => fetch(`/api/posts/${id}`).then(response => response.json());
+```
+
+```html
+<button vd-request="posts.get" vd-params="{ id: selectedId }">Load post</button>
+```
+
+Use the existing `src/api/routes.js` registry for middleware, auth, roles, or
+other advanced route configuration; the registry deliberately takes precedence.
+Root API files such as `src/api/posts.js` remain importable helper modules.
+
 ## Folder-First Pages
 
 A page can be a small, predictable folder:

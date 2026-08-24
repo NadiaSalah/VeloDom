@@ -207,3 +207,56 @@ export function resolveConventionExport<T>(
 
   return value as T;
 }
+
+/**
+ * Converts nested user-owned API handler files into dot-separated route names.
+ *
+ * Only nested files participate so root `src/api/*.js` modules can remain
+ * ordinary reusable HTTP helpers. For example, `posts/get.js` becomes
+ * `posts.get` while `posts.js` stays an unregistered helper module.
+ */
+export function mapFileApiRoutes<T>(
+  files: Record<string, unknown>,
+  prefix: string
+): Record<string, T> {
+  const routes: Record<string, T> = {};
+  const sources = new Map<string, string>();
+
+  Object.entries(files)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .forEach(([filePath, handler]) => {
+      if (!filePath.startsWith(prefix) || !/\.(?:js|ts)$/.test(filePath)) {
+        return;
+      }
+
+      const segments = filePath
+        .slice(prefix.length)
+        .replace(/\.(?:js|ts)$/, "")
+        .split("/")
+        .filter(Boolean);
+
+      if (segments.length < 2) {
+        return;
+      }
+
+      const name = segments.join(".");
+      const existing = sources.get(name);
+
+      if (existing) {
+        throw new Error(
+          `[VeloDom] Multiple file API routes resolve to "${name}": ${existing}, ${filePath}. Keep one handler file per route.`
+        );
+      }
+
+      if (typeof handler !== "function") {
+        throw new TypeError(
+          `[VeloDom] File API route "${name}" in ${filePath} must default-export a handler function.`
+        );
+      }
+
+      routes[name] = handler as T;
+      sources.set(name, filePath);
+    });
+
+  return routes;
+}
