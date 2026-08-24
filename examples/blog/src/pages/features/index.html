@@ -6,6 +6,11 @@
     <a href="/features#components" vd-nav>Components</a>
     <a href="/features#routing" vd-nav>Routing</a>
     <a href="/features#requests" vd-nav>Requests and forms</a>
+    <a href="/features#api" vd-nav>API and middleware</a>
+    <a href="/features#auth" vd-nav>Authentication</a>
+    <a href="/features#cache" vd-nav>Cache and resilience</a>
+    <a href="/features#rtl" vd-nav>RTL and direction</a>
+    <a href="/features#assets" vd-nav>Assets and lazy loading</a>
     <a href="/features#production" vd-nav>SEO and production</a>
     <a href="/features#tooling" vd-nav>Tooling and testing</a>
     <a href="/features#architecture" vd-nav>Architecture</a>
@@ -233,8 +238,212 @@ state.openFeatured = () =&gt; {
       <p class="mt-3">The server still owns authentication, CSRF, validation, redirects, and authorization. VeloDom only provides an optional HTML enhancement bridge.</p>
     </section>
 
+    <section id="api" class="doc-section">
+      <p class="eyebrow">07 · application API</p>
+      <h2>Keep handlers and business rules in visible application files.</h2>
+      <p class="mt-3">
+        VeloDom discovers a nested default export in <code class="inline-code">src/api</code>
+        as a named route. Root API modules remain ordinary helpers, while an
+        explicit <code class="inline-code">routes.js</code> registry is the
+        escape hatch for policies such as middleware, roles, and custom names.
+      </p>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <div class="code-window">
+          <div class="code-toolbar"><span>src/api/posts/get-one.js</span><span>simple file route</span></div>
+          <pre class="code-example" vd-pre><code>import { requestJson } from "velodom";
+
+export default function getOne({ id }, { signal } = {}) {
+  return requestJson(`/api/posts/${id}`, { signal });
+}
+
+// The file path becomes: posts.get-one</code></pre>
+        </div>
+        <div class="code-window">
+          <div class="code-toolbar"><span>src/api/routes.js</span><span>explicit policy</span></div>
+          <pre class="code-example" vd-pre><code>import { createPost } from "./posts.js";
+
+export default {
+  "posts.create": {
+    handler: createPost,
+    middleware: ["trimStrings"],
+    auth: true,
+    roles: ["editor", "admin"]
+  }
+};</code></pre>
+        </div>
+      </div>
+      <div class="callout"><strong>Ownership:</strong> VeloDom orchestrates a route; your application owns endpoint URLs, validation, domain data, and every server-side authorization decision.</div>
+    </section>
+
+    <section id="auth" class="doc-section">
+      <p class="eyebrow">08 · authentication</p>
+      <h2>Authentication is an optional provider, never a substitute for backend authorization.</h2>
+      <p class="mt-3">
+        Register one or more providers at bootstrap, then declare route policy
+        where it is needed. A server-session provider is the recommended
+        production boundary; the localStorage provider is intentionally for
+        demos and prototypes only.
+      </p>
+      <div class="code-window">
+        <div class="code-toolbar"><span>src/main.js</span><span>server session provider</span></div>
+        <pre class="code-example" vd-pre><code>import { createServerSessionAuthProvider } from "velodom";
+import { mountVeloDom } from "velodom/vite";
+
+await mountVeloDom({
+  auth: {
+    defaultProvider: "server",
+    providers: {
+      server: createServerSessionAuthProvider({
+        sessionUrl: "/api/auth/session",
+        credentials: "include"
+      })
+    }
+  }
+});</code></pre>
+      </div>
+      <div class="code-window">
+        <div class="code-toolbar"><span>src/api/routes.js</span><span>route policy</span></div>
+        <pre class="code-example" vd-pre><code>export default {
+  "profile.read": {
+    handler: readProfile,
+    auth: true,
+    authRedirect: "/login"
+  },
+  "posts.update": {
+    handler: updatePost,
+    auth: "server",
+    roles: ["editor", "admin"]
+  }
+};</code></pre>
+      </div>
+      <div class="callout"><strong>Security boundary:</strong> the provider improves client UX and request coordination. The server must still verify the session, role, CSRF policy, and resource ownership.</div>
+    </section>
+
+    <section id="cache" class="doc-section">
+      <p class="eyebrow">09 · cache and resilience</p>
+      <h2>Cache public data deliberately; retry only failures that are safe to repeat.</h2>
+      <p class="mt-3">
+        Page data may use a small memory cache for public, repeat-visited
+        routes. Request caching and retries are explicit helpers, so protected
+        account data and mutations never become cached accidentally.
+      </p>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <div class="code-window">
+          <div class="code-toolbar"><span>src/pages/catalog/data.js</span><span>page data cache</span></div>
+          <pre class="code-example" vd-pre><code>export async function load() {
+  const response = await fetch("/api/catalog");
+  return { products: await response.json() };
+}
+
+// Public data only — memory is cleared on full refresh.
+export const cache = {
+  maxAgeMs: 30_000,
+  staleWhileRevalidateMs: 120_000
+};</code></pre>
+        </div>
+        <div class="code-window">
+          <div class="code-toolbar"><span>src/api/posts.js</span><span>GET cache + retry</span></div>
+          <pre class="code-example" vd-pre><code>import { createRequestCache, withRequestRetry } from "velodom";
+
+const cache = createRequestCache({ ttlMs: 30_000 });
+
+export const getOne = withRequestRetry(
+  ({ id }) =&gt; cache.requestJson(`/api/posts/${id}`),
+  { retries: 2, delayMs: 250 }
+);</code></pre>
+        </div>
+      </div>
+      <div class="callout"><strong>Safe default:</strong> the request cache stores only GET-like requests without a body. Do not cache private session data; do not blindly retry writes such as checkout or create actions.</div>
+    </section>
+
+    <section id="rtl" class="doc-section">
+      <p class="eyebrow">10 · RTL and direction</p>
+      <h2>Direction is opt-in, while logical CSS keeps layouts naturally multilingual.</h2>
+      <p class="mt-3">
+        The optional direction plugin manages the document’s <code class="inline-code">lang</code>
+        and <code class="inline-code">dir</code> attributes. It is separate from
+        translation dictionaries, so an application can use its preferred
+        localization source without carrying a mandatory i18n runtime.
+      </p>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <div class="code-window">
+          <div class="code-toolbar"><span>src/main.js</span><span>direction plugin</span></div>
+          <pre class="code-example" vd-pre><code>import { createDirectionPlugin } from "velodom";
+import { mountVeloDom } from "velodom/vite";
+
+await mountVeloDom({
+  plugins: [
+    createDirectionPlugin({
+      defaultLocale: "en",
+      locales: {
+        en: { lang: "en", direction: "ltr" },
+        ar: { lang: "ar", direction: "rtl" }
+      }
+    })
+  ]
+});</code></pre>
+        </div>
+        <div class="code-window">
+          <div class="code-toolbar"><span>logical CSS + explicit icon</span><span>RTL safe</span></div>
+          <pre class="code-example" vd-pre><code>.card {
+  margin-inline-start: 1rem;
+  padding-inline-end: 1rem;
+  border-inline-start: 4px solid currentColor;
+  text-align: start;
+}
+
+&lt;svg vd-rtl-flip aria-hidden="true"&gt;&lt;/svg&gt;
+&lt;p vd-text="$direction.direction"&gt;&lt;/p&gt;</code></pre>
+        </div>
+      </div>
+      <div class="callout"><strong>No blind mirroring:</strong> VeloDom never flips every icon automatically. Mark only directional icons with <code>vd-rtl-flip</code>; logos, media controls, and clocks often should remain unchanged.</div>
+    </section>
+
+    <section id="assets" class="doc-section">
+      <p class="eyebrow">11 · assets and lazy loading</p>
+      <h2>Prefer browser-native lazy loading and build-time image information.</h2>
+      <p class="mt-3">
+        There is no heavyweight <code class="inline-code">vd-lazy</code>
+        directive. Images use standard HTML loading and decoding hints, while
+        responsive variants are explicit application assets. The compiler also
+        emits a feature manifest so unused directive runtime modules are not
+        activated for a page that does not need them.
+      </p>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <div class="code-window">
+          <div class="code-toolbar"><span>normal responsive image</span><span>native browser behavior</span></div>
+          <pre class="code-example" vd-pre><code>&lt;img
+  src="/images/post-960.webp"
+  srcset="/images/post-480.webp 480w, /images/post-960.webp 960w"
+  sizes="(max-width: 640px) 100vw, 640px"
+  width="960"
+  height="540"
+  loading="lazy"
+  decoding="async"
+  alt="VeloDom page folders"
+&gt;</code></pre>
+        </div>
+        <div class="code-window">
+          <div class="code-toolbar"><span>build script</span><span>explicit variants</span></div>
+          <pre class="code-example" vd-pre><code>import { createResponsiveImageAttributes } from "velodom/assets";
+
+const attributes = createResponsiveImageAttributes({
+  src: "/images/post-960.webp",
+  width: 960,
+  height: 540,
+  variants: [
+    { src: "/images/post-480.webp", width: 480 },
+    { src: "/images/post-960.webp", width: 960 }
+  ],
+  sizes: "(max-width: 640px) 100vw, 640px"
+});</code></pre>
+        </div>
+      </div>
+      <div class="callout"><strong>Performance boundary:</strong> the asset helpers inspect existing files and create standard attributes; they never silently resize images or add a browser image runtime.</div>
+    </section>
+
     <section id="production" class="doc-section">
-      <p class="eyebrow">07 · production</p>
+      <p class="eyebrow">12 · production</p>
       <h2>Move SEO, content, localization, and asset intelligence to build time.</h2>
       <p class="mt-3">
         Page config owns SEO metadata. Static route HTML, prerender entries,
@@ -287,7 +496,7 @@ const posts = await loadContentCollection({
     </section>
 
     <section id="tooling" class="doc-section">
-      <p class="eyebrow">08 · developer experience</p>
+      <p class="eyebrow">13 · developer experience</p>
       <h2>Project intelligence is development tooling, not browser weight.</h2>
       <p class="mt-3">
         The <code class="inline-code">vd</code> CLI reads the visible project
@@ -319,7 +528,7 @@ vd create page guide --demo seo</code></pre>
     </section>
 
     <section id="architecture" class="doc-section">
-      <p class="eyebrow">09 · architecture</p>
+      <p class="eyebrow">14 · architecture</p>
       <h2>A small runtime is an architectural decision.</h2>
       <p class="mt-3">
         VeloDom Core receives resources from adapters. It does not discover your

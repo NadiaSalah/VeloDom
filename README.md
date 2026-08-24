@@ -118,6 +118,10 @@ a browser translation provider. See
 - Corrected the reference sidebar to use app-relative hash URLs such as
   `/features#architecture`, so `vd-nav` performs same-page scrolling without
   unsupported-target warnings.
+- Expanded the academic reference with dedicated, copyable lessons for file
+  API routes, middleware, provider-based authentication, public-data caching
+  and retries, RTL direction, native lazy images, responsive asset helpers,
+  and their explicit production boundaries.
 
 ## Next Tasks
 

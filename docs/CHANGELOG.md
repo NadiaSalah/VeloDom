@@ -21,6 +21,10 @@ package versions.
 - Fixed the feature-reference sidebar to use `/features#section` links. The
   router now receives an app-relative path and performs same-page scrolling
   without reporting unsupported navigation targets.
+- Added dedicated reference lessons for application API routes, middleware,
+  provider-based authentication, cache and retry helpers, RTL direction, and
+  native lazy/responsive image authoring. Each example keeps framework runtime
+  behavior separate from application and backend policy.
 
 ### npm Package Readiness and Workspace Cleanup
 

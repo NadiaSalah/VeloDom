@@ -126,6 +126,9 @@ application browser runtime weight:
   the framework runtime.
 - [x] Showcase same-page hash links use full app-relative URLs so the router
   can preserve the route and scroll directly to the requested lesson section.
+- [x] The showcase documents the remaining V1 data and presentation capabilities
+  as dedicated lessons: API routes, middleware, auth, public cache/retry, RTL,
+  native lazy images, and build-time asset helpers.
 
 ## V1 Ecosystem — Current
 
