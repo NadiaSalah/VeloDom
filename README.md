@@ -111,6 +111,10 @@ a browser translation provider. See
   import boundaries, and the consolidated documentation layout.
 - Static SEO output now waits for Vite to write the HTML shell before it
   renders route artifacts, including with the current Vite/Rolldown lifecycle.
+- Rebuilt `examples/blog` as the polished VeloDom academic reference: a modern
+  documentation application with a structured learning path, live directive
+  demonstrations, dynamic study notes, and literal `<pre><code>` examples that
+  are safe from template compilation through `vd-pre`.
 
 ## Next Tasks
 

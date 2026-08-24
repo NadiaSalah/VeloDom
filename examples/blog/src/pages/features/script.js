@@ -1,57 +1,14 @@
-export function init({ state, ctx, refs }) {
+export function init({ state }) {
   state.count = 0;
-  state.visible = true;
-  state.accepted = false;
-  state.color = "#7c3aed";
-  state.profile = {
-    name: ""
-  };
-  state.items = ["HTML-first", "Folder-first", "Compiler-first"];
-  state.eventLog = [];
-  state.demoResult = null;
-  state.demoLoading = false;
-  state.demoError = "";
+  state.lessonResult = null;
+  state.lessonLoading = false;
+  state.lessonError = "";
 
   state.increment = () => {
     state.count += 1;
   };
 
-  state.toggleVisible = () => {
-    state.visible = !state.visible;
+  state.resetCount = () => {
+    state.count = 0;
   };
-
-  state.openModal = () => {
-    state.components.featureModal?.open?.();
-  };
-
-  state.openCards = () => {
-    state.components.featureCards?.open?.();
-  };
-
-  state.toggleSecondCard = () => {
-    state.components.featureCards?.byKey?.["2"]?.toggle?.();
-  };
-
-  state.focusName = () => {
-    refs.nameInput?.focus?.();
-  };
-
-  ctx.on?.("event-card:ping", payload => {
-    state.eventLog = [
-      `${payload?.title || "card"} pinged`,
-      ...state.eventLog
-    ].slice(0, 6);
-  });
-}
-
-export function mounted({ state, ctx }) {
-  state.eventLog = [
-    "features page mounted",
-    "component refs are ready",
-    "request examples use local VeloDom articles"
-  ];
-
-  ctx.onCleanup(() => {
-    console.info("[VeloDom Blog] Features page destroyed");
-  });
 }

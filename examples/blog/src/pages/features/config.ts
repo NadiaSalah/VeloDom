@@ -3,7 +3,7 @@ import type { PageConfig } from "velodom";
 export default {
   meta: {
     title: "Framework Features",
-    description: "Working examples for VeloDom capabilities"
+    description: "A code-first reference for VeloDom capabilities"
   },
   seo: {
     title: "VeloDom Framework Features",
@@ -15,14 +15,16 @@ export default {
       "VeloDom features",
       "HTML directives",
       "reactive state",
-      "web components"
+      "folder-first routing",
+      "VeloDom requests",
+      "VeloDom CLI"
     ],
     openGraph: {
       type: "website"
     },
     summary: {
       heading: "VeloDom framework features",
-      text: "Working examples of reactive state, directives, components, lifecycle hooks, routing, and local request routes."
+      text: "A code-first reference for reactive state, directives, components, routing, local request routes, SEO, and developer tooling."
     }
   }
 } satisfies PageConfig;

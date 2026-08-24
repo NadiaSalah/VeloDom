@@ -146,6 +146,14 @@
   components, dynamic routes, local request routes, layouts, and SEO config.
   It stays application-owned under `examples/blog/src`; framework-neutral
   behavior must stay in `packages/velodom/src`.
+- The showcase is also the academic learning surface for VeloDom. Literal
+  template examples use semantic `<pre><code>` markup and `vd-pre` so example
+  interpolations and directives never become live template input. Dynamic
+  JavaScript examples use `vd-text` to retain escaped text. This gives the site
+  W3Schools-like readability without introducing a documentation renderer or
+  browser dependency into Core. All live and copyable `vd-if` examples use an
+  explicit Boolean expression, preserving the framework's strict conditional
+  contract instead of relying on truthy strings or optional-chain values.
 - Showcase `examples/blog/src/api/routes.js` is the declarative request
   registry for `vd-request`, not a list of every exported API helper. Page scripts
   may still import API helpers directly when imperative loading is clearer.

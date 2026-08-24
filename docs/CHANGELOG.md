@@ -6,6 +6,19 @@ package versions.
 
 ## 2026-08-24
 
+### Academic Documentation Showcase
+
+- Rebuilt the application-owned `examples/blog` site as a modern VeloDom
+  reference and learning path. It now teaches folder and one-file authoring,
+  state, directives, components, layouts, routing, requests, forms, SEO,
+  build-only helpers, testing, and developer tooling through public syntax.
+- Added consistently styled semantic `<pre><code>` windows, live state and
+  request lessons, dynamic study notes, modern navigation/footer treatment,
+  and a matching route-not-found experience. Literal template source is guarded
+  with `vd-pre`, so documentation code cannot be accidentally compiled. Live
+  and copyable conditional examples now use explicit Boolean expressions to
+  match VeloDom's strict `vd-if` contract.
+
 ### npm Package Readiness and Workspace Cleanup
 
 - Moved static SEO emission to Vite's post-write hook. This guarantees that

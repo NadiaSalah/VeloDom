@@ -1,120 +1,123 @@
 <main>
-  <section class="overflow-hidden bg-slate-950 text-white">
-    <div class="mx-auto grid max-w-7xl gap-10 px-5 py-20 lg:grid-cols-[1.1fr_.9fr] lg:px-8">
+  <section class="hero-orbit overflow-hidden text-white">
+    <div class="site-frame grid gap-12 py-20 lg:grid-cols-[1.08fr_.92fr] lg:py-28">
       <div>
-        <div class="badge badge-primary badge-outline mb-6">VeloDom V1 Candidate</div>
-        <h1 class="max-w-4xl text-5xl font-black leading-tight md:text-7xl">
-          Build HTML-first apps without turning every page into a JavaScript puzzle.
+        <p class="eyebrow !text-sky-300">VeloDom V1 · academic reference</p>
+        <h1 class="mt-5 max-w-4xl text-5xl font-black leading-[1.05] tracking-tight md:text-7xl">
+          Learn modern frontend development from ordinary HTML.
         </h1>
         <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-          VeloDom is a compiler-first frontend framework for folder-based pages,
-          declarative directives, reusable components, request flows, SEO metadata,
-          and optional one-file modules.
+          VeloDom turns visible folders and declarative HTML into reactive web
+          applications. The compiler validates the work early; the browser only
+          loads the runtime features a page actually uses.
         </p>
         <div class="mt-8 flex flex-wrap gap-3">
-          <a href="/features" vd-nav class="btn btn-primary">Explore features</a>
-          <a href="/blog/posts/html-first" vd-nav class="btn border-white/20 bg-white/10 text-white hover:bg-white/20">
-            Read the V1 notes
+          <a href="/features#start" vd-nav class="btn btn-primary rounded-xl">Start the course</a>
+          <a href="/features" vd-nav class="btn rounded-xl border-white/15 bg-white/10 text-white hover:bg-white/20">
+            Browse the reference
           </a>
         </div>
+        <dl class="mt-10 grid max-w-xl grid-cols-2 gap-4 sm:grid-cols-4">
+          <div vd-for="metric in metrics" class="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <dt vd-text="metric.label" class="text-xs font-semibold uppercase tracking-wide text-slate-400"></dt>
+            <dd vd-text="metric.value" class="mt-1 text-xl font-black"></dd>
+          </div>
+        </dl>
       </div>
 
-      <aside class="rounded-[2rem] border border-white/10 bg-white/10 p-6 shadow-2xl">
-        <p class="text-sm uppercase tracking-[.3em] text-primary">First version focus</p>
-        <ul class="mt-6 space-y-3">
-          <li vd-for="principle in principles" class="flex items-center gap-3 rounded-2xl bg-white/10 p-3">
-            <span class="badge badge-primary badge-sm"></span>
-            <span vd-text="principle"></span>
-          </li>
-        </ul>
-        <div class="mt-6 grid gap-3 sm:grid-cols-3">
-          <div vd-for="metric in metrics" class="rounded-2xl bg-white/10 p-4">
-            <strong vd-text="metric.value" class="block text-2xl"></strong>
-            <span vd-text="metric.label" class="text-xs text-slate-300"></span>
+      <aside class="self-center rounded-[2rem] border border-white/10 bg-slate-950/50 p-5 shadow-2xl shadow-slate-950/40 backdrop-blur">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+          <span class="font-bold">The VeloDom mental model</span>
+          <span class="badge badge-primary badge-outline">HTML-first</span>
+        </div>
+        <div class="mt-5 grid gap-3">
+          <div vd-for="principle in principles" class="flex gap-4 rounded-2xl bg-white/5 p-4">
+            <span vd-text="principle.number" class="grid size-7 shrink-0 place-items-center rounded-lg bg-indigo-500/20 text-xs font-black text-indigo-200"></span>
+            <div>
+              <h2 vd-text="principle.title" class="font-bold"></h2>
+              <p vd-text="principle.text" class="mt-1 text-sm leading-6 text-slate-300"></p>
+            </div>
           </div>
         </div>
       </aside>
     </div>
   </section>
 
-  <section class="mx-auto max-w-7xl px-5 py-14 lg:px-8">
-    <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+  <section class="site-frame py-16">
+    <div class="grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
       <div>
-        <p class="text-sm font-semibold text-primary">VeloDom Journal</p>
-        <h2 class="text-4xl font-black">Framework articles</h2>
-      </div>
-      <a href="/single-file" vd-nav class="btn btn-outline">Try one-file mode</a>
-    </div>
-
-    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-      <article
-        vd-for="post in posts"
-        class="card h-full border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
-      >
-        <div class="card-body">
-          <div class="flex items-center justify-between gap-3">
-            <span vd-text="post.category" class="badge badge-primary badge-outline"></span>
-            <span vd-text="post.readTime" class="text-xs text-slate-500"></span>
-          </div>
-          <h3 vd-text="post.title" class="card-title mt-3 text-slate-950"></h3>
-          <p vd-text="post.excerpt" class="line-clamp-3 text-sm leading-6 text-slate-600"></p>
-          <div class="mt-2 flex flex-wrap gap-2">
-            <span
-              vd-for="tag in post.tags"
-              vd-text="tag"
-              class="badge badge-ghost badge-sm"
-            ></span>
-          </div>
-          <a
-            vd-bind:href="'/blog/posts/' + post.id"
-            vd-nav
-            class="btn btn-primary btn-sm mt-4"
-          >
-            Read article
-          </a>
-        </div>
-      </article>
-    </div>
-  </section>
-
-  <section class="mx-auto grid max-w-7xl gap-6 px-5 pb-16 lg:grid-cols-3 lg:px-8">
-    <article class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 class="text-2xl font-black">For application authors</h3>
-      <p class="mt-3 text-sm leading-6 text-slate-600">
-        Write normal HTML, choose Vanilla JavaScript or TypeScript, and keep
-        business code in pages, components, and API folders.
-      </p>
-    </article>
-    <article class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 class="text-2xl font-black">For framework maintainers</h3>
-      <p class="mt-3 text-sm leading-6 text-slate-600">
-        Keep complex engines inside Core, document exported APIs, and protect
-        package boundaries with tests.
-      </p>
-    </article>
-    <article class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 class="text-2xl font-black">For launch readiness</h3>
-      <p class="mt-3 text-sm leading-6 text-slate-600">
-        Run doctor, health, package checks, browser checks, and performance
-        budgets before publishing the first public package.
-      </p>
-    </article>
-  </section>
-
-  <section class="mx-auto max-w-7xl px-5 pb-16 lg:px-8">
-    <div class="grid gap-6 rounded-[2rem] bg-slate-950 p-6 text-white lg:grid-cols-[.8fr_1.2fr]">
-      <div>
-        <p class="text-sm font-semibold text-primary">Reusable component proof</p>
-        <h2 class="mt-2 text-3xl font-black">The featured article is rendered by a component.</h2>
-        <p class="mt-3 text-sm leading-6 text-slate-300">
-          This keeps the V1 site honest: the documentation site itself uses
-          VeloDom components, props, state, events, refs, routes, and requests.
+        <p class="eyebrow">A structured learning path</p>
+        <h2 class="section-heading mt-3">From your first page to production boundaries.</h2>
+        <p class="section-copy">
+          Each lesson explains a public VeloDom capability, why it exists, and
+          how to use it in code. The examples on this site are built from the
+          same folders and components they teach.
         </p>
       </div>
-      <vd-component
-        name="blog/post-card"
-        vd-props="{ post: featuredPost }"
-      ></vd-component>
+      <div class="rounded-3xl border border-indigo-100 bg-indigo-50 p-6 text-indigo-950">
+        <p class="font-bold">A deliberate boundary</p>
+        <p class="mt-2 leading-7">
+          JSX, a virtual DOM, a global store, SSR, CSS tooling, and AI are never
+          mandatory. Use ordinary HTML first, then add only the VeloDom feature
+          that solves the current problem.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <a vd-for="lesson in lessons" vd-bind:href="lesson.href" vd-nav class="feature-card group">
+        <div class="flex items-center justify-between gap-3">
+          <span vd-text="lesson.level" class="badge badge-outline border-indigo-200 bg-indigo-50 text-indigo-700"></span>
+          <span vd-text="lesson.duration" class="text-xs font-semibold text-slate-400"></span>
+        </div>
+        <h3 vd-text="lesson.title" class="mt-5 text-xl font-black text-slate-950 group-hover:text-indigo-700"></h3>
+        <p vd-text="lesson.description" class="mt-3 text-sm leading-6 text-slate-600"></p>
+        <span class="mt-5 inline-flex items-center gap-2 text-sm font-bold text-indigo-700">Open lesson <span>→</span></span>
+      </a>
+    </div>
+  </section>
+
+  <section class="site-frame pb-16">
+    <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="eyebrow">Read the architecture</p>
+          <h2 class="section-heading mt-3">Framework notes with source-level examples.</h2>
+        </div>
+        <a href="/features#architecture" vd-nav class="btn btn-outline rounded-xl">Open architecture guide</a>
+      </div>
+      <div class="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <article vd-for="post in posts" class="rounded-2xl border border-slate-200 p-5 transition hover:border-indigo-200 hover:shadow-lg">
+          <span vd-text="post.category" class="badge badge-ghost"></span>
+          <h3 vd-text="post.title" class="mt-4 font-black text-slate-950"></h3>
+          <p vd-text="post.excerpt" class="mt-2 text-sm leading-6 text-slate-600"></p>
+          <a vd-bind:href="'/blog/posts/' + post.id" vd-nav class="mt-4 inline-block text-sm font-bold text-indigo-700">Study note →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-slate-950 py-16 text-white">
+    <div class="site-frame grid gap-8 lg:grid-cols-[1fr_1.15fr] lg:items-center">
+      <div>
+        <p class="eyebrow !text-sky-300">Visible code, no hidden magic</p>
+        <h2 class="mt-3 text-3xl font-black md:text-4xl">A page is a folder. HTML is the template.</h2>
+        <p class="mt-4 max-w-xl leading-7 text-slate-300">
+          This is the core authoring contract. Route, SEO, styles, behavior, and
+          data remain in nearby files that a beginner can find without a custom
+          registration layer.
+        </p>
+        <a href="/features#pages" vd-nav class="btn btn-primary mt-7 rounded-xl">See page anatomy</a>
+      </div>
+      <div class="code-window !mt-0">
+        <div class="code-toolbar"><span>src/pages/articles/</span><span>folder mode</span></div>
+        <pre class="code-example" vd-pre><code>src/pages/articles/
+├── index.html   # normal HTML + vd-* directives
+├── script.js    # optional state and lifecycle
+├── data.js      # optional route data
+├── style.css    # optional scoped styles
+└── config.js    # route, layout, guards, SEO</code></pre>
+      </div>
     </div>
   </section>
 </main>

@@ -255,16 +255,16 @@ async function assertInteractiveSmoke(browser, target, origin) {
   const context = await browser.newContext(target.contextOptions);
 
   try {
-    await runInteractiveStep(context, target, async page => {
+    await runInteractiveStep(context, target, "routing", async page => {
       await assertRouting(page, origin);
     });
-    await runInteractiveStep(context, target, async page => {
+    await runInteractiveStep(context, target, "single-file", async page => {
       await assertSingleFilePage(page, origin);
     });
-    await runInteractiveStep(context, target, async page => {
+    await runInteractiveStep(context, target, "requests", async page => {
       await assertRequestExamples(page, origin);
     });
-    await runInteractiveStep(context, target, async page => {
+    await runInteractiveStep(context, target, "article", async page => {
       await assertArticlePage(page, origin);
     });
   } finally {
@@ -272,10 +272,11 @@ async function assertInteractiveSmoke(browser, target, origin) {
   }
 }
 
-async function runInteractiveStep(context, target, callback) {
+async function runInteractiveStep(context, target, name, callback) {
   const page = await context.newPage();
 
   if (debugBrowserE2e) {
+    console.log(`[browser:${target.name}] starting ${name}`);
     page.on("console", message => {
       console.log(`[browser:${target.name}:${message.type()}] ${message.text()}`);
     });
@@ -286,6 +287,10 @@ async function runInteractiveStep(context, target, callback) {
 
   try {
     await callback(page);
+
+    if (debugBrowserE2e) {
+      console.log(`[browser:${target.name}] completed ${name}`);
+    }
   } finally {
     await page.close();
   }
@@ -305,50 +310,52 @@ async function assertStaticSeo(origin) {
 
 async function assertRouting(page, origin) {
   await page.goto(`${origin}/`);
-  await waitForPageText(page, "Framework articles");
+  await waitForPageText(page, "From your first page to production boundaries.");
 
   await page.click('a[href="/features"]');
   await page.waitForURL(`${origin}/features`);
-  await waitForPageText(page, "Framework features");
+  await waitForPageText(page, "Learn each capability from code.");
+
+  const codeExamples = await page.locator("pre.code-example > code").count();
+
+  if (codeExamples < 8) {
+    throw new Error("Expected the academic reference to expose its code examples.");
+  }
 }
 
 async function assertSingleFilePage(page, origin) {
   await page.goto(`${origin}/single-file`);
-  await waitForPageText(page, "One File, VeloDom Style");
-  await waitForPageText(page, "Single-file component");
+  await waitForPageText(page, "One file when co-location improves clarity.");
+  await waitForPageText(page, "A `.vd` file compiles to the same internal resource shape.");
 
-  await page.click('button:has-text("Count: 0")');
+  await page.click('button:has-text("Live count: 0")');
   await page.waitForFunction(() => {
     const button = [...document.querySelectorAll("button")].find(candidate => (
-      candidate.innerText.includes("Count:")
+      candidate.innerText.includes("Live count:")
     ));
 
     return button?.innerText.includes("1");
   });
-
-  await page.click('button:has-text("Show details")');
-  await waitForPageText(page, "single-file-card.vd");
 }
 
 async function assertRequestExamples(page, origin) {
   await page.goto(`${origin}/features`);
-  await waitForPageText(page, "Requests");
-  await waitForPageText(page, "No article loaded yet.");
+  await waitForPageText(page, "Requests and forms");
   await page.locator('[data-vd-request="articles.getOne"]').nth(1).waitFor();
 
-  await page.locator('[data-vd-request="articles.getOne"]').nth(0).dispatchEvent("click");
-  await waitForPageText(page, "Loaded: HTML-first is the center of VeloDom");
+  await page.locator('[data-vd-request="articles.getOne"]').nth(0).click();
+  await waitForPageText(page, "HTML-first is the center of VeloDom");
 
-  await page.locator('[data-vd-request="articles.getOne"]').nth(1).dispatchEvent("click");
-  await waitForPageText(page, "Loaded: Compiler-first without hiding the DOM");
+  await page.locator('[data-vd-request="articles.getOne"]').nth(1).click();
+  await waitForPageText(page, "Compiler-first without hiding the DOM");
 }
 
 async function assertArticlePage(page, origin) {
   await page.goto(`${origin}/blog/posts/html-first`);
   await waitForPageText(page, "HTML-first is the center of VeloDom");
 
-  await page.click('button:has-text("Reload through vd-request")');
-  await waitForPageText(page, "Declarative reload through");
+  await page.click('button:has-text("Reload lesson")');
+  await waitForPageText(page, "HTML-first is the center of VeloDom");
 }
 
 async function waitForPageText(page, text) {

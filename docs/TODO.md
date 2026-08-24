@@ -120,6 +120,10 @@ application browser runtime weight:
   smoke coverage.
 - [x] Documentation checks for public exports, documented CLI commands, private
   imports, legacy roadmap labels, and removed-guide links.
+- [x] A polished application-owned academic reference that dogfoods public
+  VeloDom APIs, shows literal HTML/JavaScript examples in `<pre><code>` blocks,
+  and pairs key directives with live lessons without adding documentation UI to
+  the framework runtime.
 
 ## V1 Ecosystem — Current
 

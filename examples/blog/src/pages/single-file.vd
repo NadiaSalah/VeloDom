@@ -1,46 +1,65 @@
 <template>
-  <main class="mx-auto w-[92%] max-w-6xl py-10">
-    <section class="rounded-[2rem] bg-slate-950 p-8 text-white">
-      <p class="text-sm font-semibold text-primary">VeloDom .vd authoring</p>
-      <h1 class="mt-3 text-5xl font-black" vd-text="title"></h1>
-      <p class="mt-4 max-w-3xl text-slate-300">
-        A page can stay folder-first, or collapse into one optional
-        <code>.vd</code> file when that is clearer for the application author.
+  <main class="site-frame py-10 md:py-16">
+    <section class="hero-orbit rounded-[2rem] p-7 text-white md:p-12">
+      <p class="eyebrow !text-sky-300">Optional single-file authoring</p>
+      <h1 class="mt-3 text-4xl font-black tracking-tight md:text-6xl">One file when co-location improves clarity.</h1>
+      <p class="mt-5 max-w-3xl text-lg leading-8 text-slate-300">
+        A <code>.vd</code> file keeps template, behavior, styles, and config
+        together for a small page or component. Folder mode remains the default
+        for a feature that is likely to grow.
       </p>
-      <button type="button" class="btn btn-primary mt-6" vd-on:click="increment()">
-        Count: <span vd-text="count"></span>
+      <button type="button" class="btn btn-primary mt-7 rounded-xl" vd-on:click="increment()">
+        Live count: {{ count }}
       </button>
     </section>
 
-    <section class="mt-8 grid gap-6 lg:grid-cols-2">
-      <vd-component
-        name="shared/single-file-card"
-        vd-prop-title="Single-file component"
-        vd-prop-description="Components can also use .vd without replacing folder components."
-      ></vd-component>
+    <section class="mt-12 grid gap-8 lg:grid-cols-[1.1fr_.9fr]">
+      <article>
+        <p class="eyebrow">The complete module</p>
+        <h2 class="section-heading mt-3">A `.vd` file compiles to the same internal resource shape.</h2>
+        <p class="section-copy">The compiler requires one template block. Script, style, and config blocks are optional and use the same public contracts as the folder files.</p>
+        <div class="code-window">
+          <div class="code-toolbar"><span>src/pages/about.vd</span><span>template + script + style + config</span></div>
+          <pre class="code-example" vd-pre><code>&lt;template&gt;
+  &lt;main&gt;
+    &lt;h1&gt;{{ title }}&lt;/h1&gt;
+    &lt;button vd-on:click="count++"&gt;Count: {{ count }}&lt;/button&gt;
+  &lt;/main&gt;
+&lt;/template&gt;
 
-      <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 class="text-2xl font-black">Folder mode still works</h2>
-        <p class="mt-3 text-slate-600">
-          Existing <code>index.html</code>, <code>script.js</code>,
-          <code>style.css</code>, and <code>config.js</code> folders keep the
-          same priority. If a folder page and a <code>.vd</code> page share the
-          same name, the folder page wins.
-        </p>
-        <ul class="mt-4 space-y-2 text-sm text-slate-600">
-          <li>✅ Optional authoring style</li>
-          <li>✅ Same compiler and runtime directives</li>
-          <li>✅ Same router, SEO, scoped styles, and component loader</li>
-        </ul>
+&lt;script&gt;
+export const state = { title: "About", count: 0 };
+&lt;/script&gt;
+
+&lt;style&gt;
+main { padding: 2rem; }
+&lt;/style&gt;
+
+&lt;config&gt;
+export default { path: "/about", seo: { title: "About" } };
+&lt;/config&gt;</code></pre>
+        </div>
       </article>
+
+      <aside class="space-y-5">
+        <article class="feature-card">
+          <span class="badge badge-primary badge-outline">Same compiler</span>
+          <h2 class="mt-4 text-xl font-black text-slate-950">No alternate runtime.</h2>
+          <p class="mt-3 text-sm leading-6 text-slate-600">Folder mode and one-file mode create the same template, script, style, config, and source resource. Choosing `.vd` does not disable routing, SEO, components, or scoped styles.</p>
+        </article>
+        <article class="feature-card">
+          <span class="badge badge-primary badge-outline">One source of truth</span>
+          <h2 class="mt-4 text-xl font-black text-slate-950">Choose one layout per feature.</h2>
+          <p class="mt-3 text-sm leading-6 text-slate-600">Do not create both a folder resource and a same-named `.vd` resource. VeloDom reports ambiguity instead of choosing silently.</p>
+        </article>
+        <a href="/features#pages" vd-nav class="btn btn-outline w-full rounded-xl">Compare with folder pages</a>
+      </aside>
     </section>
   </main>
-
 </template>
 
 <script>
 export function init({ state }) {
-  state.title = "One File, VeloDom Style";
   state.count = 0;
   state.increment = () => {
     state.count += 1;
@@ -49,8 +68,8 @@ export function init({ state }) {
 </script>
 
 <style>
-main code {
-  border-radius: 0.5rem;
+main code:not(pre code) {
+  border-radius: 0.375rem;
   background: rgb(15 23 42 / 0.08);
   padding: 0.1rem 0.35rem;
 }
@@ -60,7 +79,7 @@ main code {
 export default {
   path: "/single-file",
   seo: {
-    title: "Single File Modules | VeloDom",
+    title: "Single-file Modules | VeloDom",
     description: "Use optional .vd files for VeloDom pages and components while keeping folder mode available.",
     canonical: "/single-file",
     lang: "en",

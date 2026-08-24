@@ -1,11 +1,19 @@
-<footer class="mt-16 border-t border-slate-200 bg-slate-950 text-slate-100">
-  <div class="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1fr_auto]">
+<footer class="mt-16 border-t border-slate-800 bg-slate-950 text-slate-100">
+  <div class="site-frame grid gap-8 py-12 md:grid-cols-[1fr_auto]">
     <div>
-      <h2 class="text-2xl font-black">VeloDom</h2>
+      <div class="flex items-center gap-3">
+        <span class="site-brand-mark">VD</span>
+        <h2 class="text-2xl font-black">VeloDom</h2>
+      </div>
       <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
-        The first VeloDom framework site: HTML-first pages, compiler-first
-        validation, folder conventions, optional one-file modules, and local DX.
+        An educational VeloDom reference built with VeloDom itself. Learn from
+        real HTML, compiled directives, public APIs, and runnable local examples.
       </p>
+      <div class="mt-4 flex flex-wrap gap-3 text-sm text-slate-300">
+        <a href="/features" vd-nav class="link link-hover">Framework reference</a>
+        <a href="/single-file" vd-nav class="link link-hover">.vd modules</a>
+        <a href="/features#tooling" vd-nav class="link link-hover">CLI and tooling</a>
+      </div>
     </div>
     <div class="text-sm text-slate-300 md:text-right">
       <p>&copy; 2026 VeloDom. First version candidate.</p>

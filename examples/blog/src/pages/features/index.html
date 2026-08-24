@@ -1,229 +1,343 @@
-<main class="mx-auto w-[92%] max-w-6xl py-10">
-  <header class="mb-10">
-    <p class="text-sm font-medium text-primary">Living documentation</p>
-    <h1 class="text-4xl font-bold">Framework features</h1>
-    <p class="mt-3 max-w-3xl opacity-70">
-      Every section is a working example from the V1 framework site. This page
-      intentionally uses preferred <code>vd-*</code> syntax compiled by VeloDom.
-    </p>
-  </header>
+<main class="docs-shell">
+  <aside class="docs-sidebar" aria-label="VeloDom documentation sections">
+    <a href="#start" vd-nav>Start here</a>
+    <a href="#pages" vd-nav>Pages and state</a>
+    <a href="#directives" vd-nav>Directives</a>
+    <a href="#components" vd-nav>Components</a>
+    <a href="#routing" vd-nav>Routing</a>
+    <a href="#requests" vd-nav>Requests and forms</a>
+    <a href="#production" vd-nav>SEO and production</a>
+    <a href="#tooling" vd-nav>Tooling and testing</a>
+    <a href="#architecture" vd-nav>Architecture</a>
+  </aside>
 
-  <div class="grid gap-6 lg:grid-cols-2">
-    <vd-component name="shared/demo-panel">
-      <vd-child name="header">State and conditionals</vd-child>
-      <vd-child>
-        <div class="space-y-4">
-          <div class="flex flex-wrap gap-2">
-            <button vd-on:click="increment()" class="btn btn-primary">
-              Count: {{ count }}
-            </button>
-            <button vd-on:click="toggleVisible()" class="btn btn-outline">
-              Toggle visibility
-            </button>
-          </div>
-
-          <p vd-if="count === 0" class="alert">No clicks yet.</p>
-          <p vd-elseif="count < 3" class="alert alert-info">Getting started.</p>
-          <p vd-else class="alert alert-success">Reactive state is working.</p>
-
-          <p vd-show="visible" class="rounded-lg bg-base-200 p-3">
-            <code>vd-show</code> keeps this element mounted.
-          </p>
-        </div>
-      </vd-child>
-      <vd-child name="footer">
-        <span class="badge badge-outline">if / elseif / else / show / text / interpolation</span>
-      </vd-child>
-    </vd-component>
-
-    <vd-component name="shared/demo-panel">
-      <vd-child name="header">Models, refs, and bindings</vd-child>
-      <vd-child>
-        <div class="space-y-3">
-          <input
-            vd-ref="nameInput"
-            vd-model="profile.name"
-            aria-label="Your name"
-            class="input input-bordered w-full"
-            placeholder="Your name"
-          />
-          <p>
-            Hello, <strong>{{ profile.name || 'reader' }}</strong>
-          </p>
-          <label class="label cursor-pointer justify-start gap-3">
-            <input
-              type="checkbox"
-              vd-model="accepted"
-              aria-label="Accept HTML-first approach"
-              class="checkbox"
-            />
-            <span>I accept the HTML-first approach</span>
-          </label>
-          <label class="form-control">
-            <span class="label-text">Accent color</span>
-            <input
-              type="color"
-              vd-model="color"
-              aria-label="Accent color"
-              class="h-10 w-full"
-            />
-          </label>
-          <div
-            vd-class="{ 'font-bold': accepted }"
-            vd-style="{ color: color }"
-            vd-attr="{ 'data-accepted': accepted }"
-          >
-            Class, style, and attribute bindings
-          </div>
-          <button vd-on:click="focusName()" class="btn btn-sm btn-outline">
-            Focus through DOM ref
-          </button>
-        </div>
-      </vd-child>
-      <vd-child name="footer">
-        <span class="badge badge-outline">model / ref / class / style / attr</span>
-      </vd-child>
-    </vd-component>
-
-    <vd-component name="shared/demo-panel">
-      <vd-child name="header">Loops and component public APIs</vd-child>
-      <vd-child>
-        <ul class="mb-4 space-y-2">
-          <li
-            vd-for="(item, index) in items"
-            class="rounded-lg bg-base-200 px-3 py-2"
-          >
-            <span vd-text="index + 1"></span>.
-            <span vd-text="item"></span>
-          </li>
-        </ul>
-
-        <div class="grid gap-3 md:grid-cols-2">
-          <vd-component
-            name="event-card"
-            vd-ref="featureCards"
-            vd-key="1"
-            vd-prop-title="Feature card one"
-          ></vd-component>
-          <vd-component
-            name="event-card"
-            vd-ref="featureCards"
-            vd-key="2"
-            vd-prop-title="Feature card two"
-          ></vd-component>
-        </div>
-
-        <div class="mt-4 flex flex-wrap gap-2">
-          <button vd-on:click="openCards()" class="btn btn-sm btn-primary">
-            Call grouped expose API
-          </button>
-          <button vd-on:click="toggleSecondCard()" class="btn btn-sm btn-outline">
-            Call byKey["2"]
-          </button>
-        </div>
-      </vd-child>
-      <vd-child name="footer">
-        <span class="badge badge-outline">for / props / grouped refs / expose / emit</span>
-      </vd-child>
-    </vd-component>
-
-    <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 class="text-xl font-bold">Requests</h2>
-      <div class="mt-4 flex flex-wrap gap-2">
-        <button
-          vd-request="articles.getOne"
-          vd-request-config="{ params: { id: 'html-first' }, target: 'demoResult', autoState: true }"
-          class="btn btn-sm btn-primary"
-        >
-          Load HTML-first article
-        </button>
-        <button
-          vd-request="articles.getOne"
-          vd-request-config="{ params: { id: 'compiler-first' }, target: 'demoResult', autoState: true }"
-          class="btn btn-sm btn-secondary"
-        >
-          Supersede with compiler article
-        </button>
-      </div>
-
-      <p vd-show="demoLoading" class="mt-3">Loading request…</p>
-      <p
-        vd-if="demoError !== ''"
-        vd-text="demoError"
-        class="alert alert-error mt-3"
-      ></p>
-      <div class="alert alert-success mt-3">
-        <span vd-text="demoResult?.title ? 'Loaded: ' + demoResult.title : 'No article loaded yet.'"></span>
-      </div>
-
-      <div class="mt-4">
-        <span class="badge badge-outline">result / loading / error / cancellation</span>
-      </div>
-    </article>
-
-    <vd-component name="shared/demo-panel">
-      <vd-child name="header">Slots and modal expose</vd-child>
-      <vd-child>
-        <p class="mb-3 opacity-70">
-          This entire panel uses named slots. The modal is controlled by a component ref.
-        </p>
-        <button vd-on:click="openModal()" class="btn btn-primary">
-          Open modal
-        </button>
-        <vd-component
-          name="shared/modal"
-          vd-ref="featureModal"
-        ></vd-component>
-      </vd-child>
-      <vd-child name="footer">
-        <span class="badge badge-outline">slots / component ref / expose</span>
-      </vd-child>
-    </vd-component>
-
-    <vd-component name="shared/demo-panel">
-      <vd-child name="header">Lifecycle and events</vd-child>
-      <vd-child>
-        <ul class="space-y-2">
-          <li
-            vd-for="line in eventLog"
-            vd-text="line"
-            class="rounded-lg bg-base-200 px-3 py-2 text-sm"
-          ></li>
-        </ul>
-      </vd-child>
-      <vd-child name="footer">
-        <span class="badge badge-outline">init / mounted / destroy / onCleanup / signal</span>
-      </vd-child>
-    </vd-component>
-  </div>
-
-  <section class="mt-8 rounded-2xl bg-base-200 p-6">
-    <h2 class="text-2xl font-bold">More examples</h2>
-    <div class="mt-4 flex flex-wrap gap-3">
-      <a href="/single-file" vd-nav class="btn btn-outline">One-file .vd</a>
-      <a href="/" vd-nav class="btn btn-outline">Blog showcase</a>
-      <a href="/blog/posts/runtime-lightweight" vd-nav class="btn btn-outline">Runtime article</a>
-    </div>
-  </section>
-
-  <section class="mt-8 grid gap-4 md:grid-cols-3">
-    <article class="rounded-2xl border border-slate-200 bg-white p-5">
-      <h3 class="font-bold">HTML-first</h3>
-      <p class="mt-2 text-sm text-slate-600">
-        Pages are ordinary HTML files with small declarative directives.
+  <article class="docs-article">
+    <header class="mb-12 rounded-[2rem] border border-indigo-100 bg-white p-7 shadow-sm md:p-10">
+      <p class="eyebrow">VeloDom academic reference</p>
+      <h1 class="mt-3 text-4xl font-black tracking-tight text-slate-950 md:text-6xl">Learn each capability from code.</h1>
+      <p class="section-copy text-lg">
+        This guide is intentionally practical. Every lesson starts with the
+        problem, shows the public syntax in a real <code class="inline-code">&lt;pre&gt;&lt;code&gt;</code>
+        example, then explains the boundary that keeps VeloDom predictable.
       </p>
-    </article>
-    <article class="rounded-2xl border border-slate-200 bg-white p-5">
-      <h3 class="font-bold">Compiler-first</h3>
-      <p class="mt-2 text-sm text-slate-600">
-        Templates are validated and optimized before runtime.
+      <div class="mt-7 flex flex-wrap gap-2">
+        <span class="badge badge-primary badge-outline">HTML-first</span>
+        <span class="badge badge-primary badge-outline">Compiler-first</span>
+        <span class="badge badge-primary badge-outline">Folder-first</span>
+        <span class="badge badge-primary badge-outline">Runtime-lightweight</span>
+      </div>
+    </header>
+
+    <section id="start" class="doc-section">
+      <p class="eyebrow">01 · begin</p>
+      <h2>Start with one normal Vite entry point.</h2>
+      <p class="mt-3">
+        The recommended application bootstrap discovers pages, components,
+        layouts, file API routes, and middleware conventions. Advanced apps can
+        still use <code class="inline-code">createViteApp()</code> or
+        <code class="inline-code">createApp()</code> explicitly.
       </p>
-    </article>
-    <article class="rounded-2xl border border-slate-200 bg-white p-5">
-      <h3 class="font-bold">Runtime-lightweight</h3>
-      <p class="mt-2 text-sm text-slate-600">
-        API calls, auth, validation, middleware, and shared state remain optional.
+      <div class="code-window">
+        <div class="code-toolbar"><span>src/main.js</span><span>JavaScript or TypeScript</span></div>
+        <pre class="code-example" vd-pre><code>import { mountVeloDom } from "velodom/vite";
+
+await mountVeloDom();</code></pre>
+      </div>
+      <div class="callout"><strong>Mental model:</strong> Folder = feature. HTML = template. A nearby script owns behavior, a config owns route policy and SEO, and the compiler assembles the resource map.</div>
+    </section>
+
+    <section id="pages" class="doc-section">
+      <p class="eyebrow">02 · authoring</p>
+      <h2>Pages stay visible and close to their policy.</h2>
+      <p class="mt-3">
+        Folder mode is the default for a growing feature. The optional
+        <code class="inline-code">.vd</code> format co-locates template,
+        script, style, and config without replacing folders. Both use the same
+        compiler and runtime contracts.
       </p>
-    </article>
-  </section>
+      <div class="code-window">
+        <div class="code-toolbar"><span>folder mode</span><span>route feature</span></div>
+        <pre class="code-example" vd-pre><code>src/pages/about/
+├── index.html   # template
+├── script.js    # state + lifecycle
+├── style.css    # scoped presentation
+├── data.js      # optional page data
+└── config.js    # path, layout, guards, SEO</code></pre>
+      </div>
+      <h3>Shallow state is the shortest path to interaction.</h3>
+      <p>Export plain defaults for simple behavior. Move multi-step work, async logic, event subscriptions, and cleanup into <code class="inline-code">init()</code>.</p>
+      <div class="code-window">
+        <div class="code-toolbar"><span>src/pages/counter/</span><span>state + event</span></div>
+        <pre class="code-example" vd-pre><code>&lt;!-- index.html --&gt;
+&lt;h1&gt;{{ title }}&lt;/h1&gt;
+&lt;button vd-on:click="count++"&gt;Count: {{ count }}&lt;/button&gt;
+
+// script.js
+export const state = {
+  title: "Hello VeloDom",
+  count: 0
+};</code></pre>
+      </div>
+      <div class="feature-lab">
+        <div class="feature-lab-header"><strong>Try it: reactive state</strong><span class="feature-lab-label">Live example</span></div>
+        <div class="mt-5 flex flex-wrap items-center gap-3">
+          <button type="button" vd-on:click="increment()" class="btn btn-primary rounded-xl">Count: {{ count }}</button>
+          <button type="button" vd-on:click="resetCount()" class="btn btn-outline rounded-xl">Reset</button>
+          <span vd-if="count === 0" class="text-sm text-slate-500">Click the button to update state.</span>
+          <span vd-else class="text-sm font-semibold text-emerald-700">The template reacted without a render function.</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="directives" class="doc-section">
+      <p class="eyebrow">03 · templates</p>
+      <h2>Directives add behavior without replacing HTML.</h2>
+      <p class="mt-3">
+        Preferred <code class="inline-code">vd-*</code> syntax is compiled and
+        source-checked. Text interpolation is ideal for inline text; use
+        <code class="inline-code">vd-text</code> when an element owns the whole
+        value. Legacy <code class="inline-code">data-vd-*</code> input remains
+        compatible for older templates.
+      </p>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <div class="code-window">
+          <div class="code-toolbar"><span>conditions and loops</span><span>safe expressions</span></div>
+          <pre class="code-example" vd-pre><code>&lt;p vd-if="Boolean(user)"&gt;Welcome {{ user.name }}&lt;/p&gt;
+&lt;p vd-else&gt;Please sign in.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li vd-for="post in posts" vd-key="post.id"&gt;
+    {{ post.title }}
+  &lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+        </div>
+        <div class="code-window">
+          <div class="code-toolbar"><span>binding and form model</span><span>declarative UI</span></div>
+          <pre class="code-example" vd-pre><code>&lt;input vd-model="draft.title" aria-label="Title"&gt;
+&lt;a vd-bind:href="post.url" vd-nav&gt;Read post&lt;/a&gt;
+&lt;div vd-class="{ active: isActive }"&gt;&lt;/div&gt;
+&lt;div vd-style="{ color: accent }"&gt;&lt;/div&gt;</code></pre>
+        </div>
+      </div>
+      <div class="callout"><strong>Expression boundary:</strong> VeloDom parses expressions into an AST instead of using <code>eval</code> or <code>new Function</code>. Keep complex business logic in the page or component script.</div>
+    </section>
+
+    <section id="components" class="doc-section">
+      <p class="eyebrow">04 · composition</p>
+      <h2>Components and layouts are application-owned HTML.</h2>
+      <p class="mt-3">
+        Components are discovered from <code class="inline-code">src/components</code>.
+        Use props for input, slots for markup composition, refs for deliberate
+        parent-to-child commands, and <code class="inline-code">expose</code>
+        for the child API. Layouts let groups of pages share navigation and
+        footer shells without adding them to Core.
+      </p>
+      <div class="code-window">
+        <div class="code-toolbar"><span>component use</span><span>props + slots + ref</span></div>
+        <pre class="code-example" vd-pre><code>&lt;vd-component
+  name="blog/post-card"
+  vd-props="{ post: featuredPost }"
+  vd-ref="featuredCard"
+&gt;
+  &lt;vd-child name="footer"&gt;Saved by the editor&lt;/vd-child&gt;
+&lt;/vd-component&gt;
+
+// parent script.js
+state.openFeatured = () =&gt; {
+  state.components.featuredCard?.open?.();
+};</code></pre>
+      </div>
+      <div class="code-window">
+        <div class="code-toolbar"><span>src/layouts/default.vd</span><span>shared shell</span></div>
+        <pre class="code-example" vd-pre><code>&lt;template&gt;
+  &lt;vd-component name="nav"&gt;&lt;/vd-component&gt;
+  &lt;vd-page&gt;&lt;/vd-page&gt;
+  &lt;vd-component name="footer"&gt;&lt;/vd-component&gt;
+&lt;/template&gt;</code></pre>
+      </div>
+    </section>
+
+    <section id="routing" class="doc-section">
+      <p class="eyebrow">05 · navigation</p>
+      <h2>Folder paths become predictable client routes.</h2>
+      <p class="mt-3">
+        Nested folders map to nested routes and bracket folders map to params.
+        VeloDom also supports route config overrides, guards, query values,
+        route metadata, focus management, scroll restoration, hashes, and
+        opt-in link prefetch.
+      </p>
+      <div class="code-window">
+        <div class="code-toolbar"><span>routing by convention</span><span>folders first</span></div>
+        <pre class="code-example" vd-pre><code>src/pages/
+├── index.html                 → /
+├── blog/index.html            → /blog
+└── blog/posts/[id]/index.html → /blog/posts/:id
+
+&lt;a href="/blog/posts/html-first" vd-nav&gt;Read article&lt;/a&gt;
+&lt;a href="/#requests" vd-nav&gt;Jump to requests&lt;/a&gt;</code></pre>
+      </div>
+      <div class="callout"><strong>Same-page hashes:</strong> when only the hash changes, the router scrolls to the target directly instead of reloading the page.</div>
+    </section>
+
+    <section id="requests" class="doc-section">
+      <p class="eyebrow">06 · data and forms</p>
+      <h2>Keep common request UX declarative; keep business rules in <code class="inline-code">src/api</code>.</h2>
+      <p class="mt-3">
+        File route discovery and explicit registries both produce named request
+        handlers. The browser can bind a request to a result destination and
+        derive loading/error state. Middleware, auth providers, retry, cache,
+        debounce, throttle, hooks, and validation remain opt-in.
+      </p>
+      <div class="code-window">
+        <div class="code-toolbar"><span>declarative request</span><span>automatic state</span></div>
+        <pre class="code-example" vd-pre><code>&lt;button
+  vd-request="articles.getOne"
+  vd-request-config="{
+    params: { id: 'html-first' },
+    target: 'articleResult',
+    autoState: true,
+    retry: 1
+  }"
+&gt;
+  Load article
+&lt;/button&gt;
+
+&lt;p vd-show="articleLoading"&gt;Loading…&lt;/p&gt;
+&lt;p vd-if="articleError !== ''"&gt;{{ articleError }}&lt;/p&gt;
+&lt;h3&gt;{{ articleResult?.title }}&lt;/h3&gt;</code></pre>
+      </div>
+      <div class="feature-lab">
+        <div class="feature-lab-header"><strong>Try it: local request route</strong><span class="feature-lab-label">vd-request</span></div>
+        <div class="mt-5 flex flex-wrap items-center gap-3">
+          <button vd-request="articles.getOne" vd-request-config="{ params: { id: 'html-first' }, target: 'lessonResult', autoState: true }" class="btn btn-primary rounded-xl">Load HTML-first lesson</button>
+          <button vd-request="articles.getOne" vd-request-config="{ params: { id: 'compiler-first' }, target: 'lessonResult', autoState: true }" class="btn btn-outline rounded-xl">Load compiler lesson</button>
+        </div>
+        <p vd-show="lessonLoading" class="mt-4 text-sm text-indigo-700">Loading local route…</p>
+        <p vd-if="lessonError !== ''" vd-text="lessonError" class="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700"></p>
+        <div vd-if="Boolean(lessonResult?.title)" class="mt-4 rounded-xl bg-emerald-50 p-4">
+          <strong vd-text="lessonResult.title" class="block text-emerald-950"></strong>
+          <span vd-text="lessonResult.excerpt" class="mt-1 block text-sm text-emerald-800"></span>
+        </div>
+      </div>
+      <h3>Progressive forms keep native HTML as the baseline.</h3>
+      <div class="code-window">
+        <div class="code-toolbar"><span>native form + opt-in enhancement</span><span>server owns policy</span></div>
+        <pre class="code-example" vd-pre><code>&lt;form action="/contact" method="post" vd-progressive-form vd-validate&gt;
+  &lt;label&gt;
+    Email
+    &lt;input name="email" type="email" required&gt;
+  &lt;/label&gt;
+  &lt;button type="submit"&gt;Send&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+      </div>
+      <p class="mt-3">The server still owns authentication, CSRF, validation, redirects, and authorization. VeloDom only provides an optional HTML enhancement bridge.</p>
+    </section>
+
+    <section id="production" class="doc-section">
+      <p class="eyebrow">07 · production</p>
+      <h2>Move SEO, content, localization, and asset intelligence to build time.</h2>
+      <p class="mt-3">
+        Page config owns SEO metadata. Static route HTML, prerender entries,
+        JSON-LD, sitemap and robots records are build output. Content,
+        localization, and image helpers live in explicit Node/build subpaths so
+        ordinary browser pages do not pay for them.
+      </p>
+      <div class="code-window">
+        <div class="code-toolbar"><span>config.js</span><span>route policy + SEO</span></div>
+        <pre class="code-example" vd-pre><code>export default {
+  path: "/articles/:slug",
+  seo: {
+    title: "VeloDom articles",
+    description: "HTML-first framework lessons.",
+    canonical: "/articles",
+    keywords: ["VeloDom", "HTML-first"],
+    jsonLd: { "@type": "WebSite", name: "VeloDom" }
+  },
+  prerender: {
+    entries: async () =&gt; [
+      { path: "/articles/html-first", data: { title: "HTML-first" } }
+    ]
+  }
+};</code></pre>
+      </div>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <div class="code-window">
+          <div class="code-toolbar"><span>build-time localization</span><span>public subpath</span></div>
+          <pre class="code-example" vd-pre><code>import { createLocaleFormatter } from "velodom/localization";
+
+const i18n = createLocaleFormatter({
+  locale: "ar",
+  messages: { welcome: "مرحبًا {name}" }
+});
+
+i18n.formatMessage("welcome", { name: "Nadia" });</code></pre>
+        </div>
+        <div class="code-window">
+          <div class="code-toolbar"><span>content collection</span><span>build only</span></div>
+          <pre class="code-example" vd-pre><code>import { loadContentCollection } from "velodom/content";
+
+const posts = await loadContentCollection({
+  root: "src/content",
+  collection: "posts",
+  basePath: "/blog"
+});</code></pre>
+        </div>
+      </div>
+      <div class="callout"><strong>Terminology matters:</strong> static SEO HTML and prerender output are not request-time SSR. Client takeover is not hydration. <code>velodom/node</code> adapts Node HTTP to Fetch-style application handlers; it does not render templates or manage sessions automatically.</div>
+    </section>
+
+    <section id="tooling" class="doc-section">
+      <p class="eyebrow">08 · developer experience</p>
+      <h2>Project intelligence is development tooling, not browser weight.</h2>
+      <p class="mt-3">
+        The <code class="inline-code">vd</code> CLI reads the visible project
+        structure and compiler metadata. It can diagnose, describe, graph, and
+        measure an application without adding a telemetry service or a runtime
+        panel to every page.
+      </p>
+      <div class="code-window">
+        <div class="code-toolbar"><span>terminal</span><span>local project intelligence</span></div>
+        <pre class="code-example" vd-pre><code>vd inspect              # pages, components, APIs, refs, state
+vd doctor               # broken refs, invalid config, maintainability hints
+vd graph --mermaid      # static project relationships
+vd health               # advisory quality score
+vd build-report         # chunk and optimization signals
+vd docs                 # generated project reference
+vd types                # application-owned declarations
+vd create page guide --demo seo</code></pre>
+      </div>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <div class="feature-card">
+          <h3 class="text-lg font-black text-slate-950">Testing</h3>
+          <p class="mt-2 text-sm leading-6 text-slate-600">Use <code class="inline-code">velodom/testing</code> to mount public page/component resources in a browser-like test environment. Real-browser Playwright checks cover routing, forms, requests, and no-JavaScript SEO.</p>
+        </div>
+        <div class="feature-card">
+          <h3 class="text-lg font-black text-slate-950">Editor intelligence</h3>
+          <p class="mt-2 text-sm leading-6 text-slate-600">The compiler exposes diagnostics and directive completions for HTML and <code class="inline-code">.vd</code> documents. The optional VS Code tooling remains outside the application package.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture" class="doc-section">
+      <p class="eyebrow">09 · architecture</p>
+      <h2>A small runtime is an architectural decision.</h2>
+      <p class="mt-3">
+        VeloDom Core receives resources from adapters. It does not discover your
+        disk, own your business data, or import a framework-specific server.
+        This boundary keeps an application free to use JavaScript or TypeScript
+        while framework complexity stays inside a documented TypeScript package.
+      </p>
+      <div class="code-window">
+        <div class="code-toolbar"><span>public imports</span><span>stable boundaries</span></div>
+        <pre class="code-example" vd-pre><code>import { createApp, definePlugin } from "velodom";
+import { mountVeloDom } from "velodom/vite";
+import { compileTemplate } from "velodom/compiler";
+import { mountTestPage } from "velodom/testing";
+
+// Do not import velodom/lib/* or packages/velodom/src/*
+// Those are framework internals, not application APIs.</code></pre>
+      </div>
+      <div class="callout"><strong>Explicit non-goals:</strong> VeloDom does not require JSX/TSX, a virtual DOM, a mandatory global store, SSR/hydration, a CSS framework, AI, or a React/Vue compatibility layer. Advanced server work remains optional planned research.</div>
+    </section>
+  </article>
 </main>

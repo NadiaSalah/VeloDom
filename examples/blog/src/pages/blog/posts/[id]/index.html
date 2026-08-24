@@ -1,68 +1,55 @@
-<main class="mx-auto max-w-5xl px-5 py-10">
+<main class="site-frame py-10 md:py-14">
   <div class="mb-8 flex flex-wrap items-center justify-between gap-3">
-    <a href="/" vd-nav class="btn btn-sm btn-ghost">← Back to articles</a>
-    <button
-      type="button"
-      vd-request="articles.getOne"
-      vd-request-config="{ params: { id: postId }, target: 'post', autoState: true }"
-      class="btn btn-sm btn-outline"
-    >
-      Reload through vd-request
+    <a href="/" vd-nav class="btn btn-sm btn-ghost rounded-xl">← Learning path</a>
+    <button type="button" vd-request="articles.getOne" vd-request-config="{ params: { id: postId }, target: 'post', autoState: true }" class="btn btn-sm btn-outline rounded-xl">
+      Reload lesson
     </button>
   </div>
 
-  <vd-component
-    vd-if="postLoading"
-    name="loader"
-    vd-prop-label="Loading VeloDom article…"
-  ></vd-component>
-  <vd-component
-    name="shared/error-message"
-    vd-props="{ title: 'Article failed', message: postError }"
-  ></vd-component>
+  <vd-component vd-if="postLoading" name="loader" vd-prop-label="Loading VeloDom lesson…"></vd-component>
+  <vd-component vd-if="postError !== ''" name="shared/error-message" vd-props="{ title: 'Lesson failed', message: postError }"></vd-component>
 
-  <article vd-if="Boolean(post)" class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-10">
-    <div class="flex flex-wrap items-center gap-3">
-      <span vd-text="post.category" class="badge badge-primary badge-outline"></span>
-      <span vd-text="post.readTime" class="text-sm text-slate-500"></span>
-    </div>
-    <h1 vd-text="post.title" class="mt-5 text-4xl font-black leading-tight md:text-6xl"></h1>
-    <p vd-text="post.excerpt" class="mt-5 text-xl leading-8 text-slate-600"></p>
+  <article vd-if="Boolean(post)" class="mx-auto max-w-4xl">
+    <header class="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm md:p-10">
+      <div class="flex flex-wrap items-center gap-3">
+        <span vd-text="post.category" class="badge badge-primary badge-outline"></span>
+        <span vd-text="post.readTime" class="text-sm text-slate-500"></span>
+      </div>
+      <h1 vd-text="post.title" class="mt-5 text-4xl font-black leading-tight tracking-tight text-slate-950 md:text-6xl"></h1>
+      <p vd-text="post.excerpt" class="mt-5 text-xl leading-8 text-slate-600"></p>
+      <div class="mt-7 flex flex-wrap gap-2">
+        <span vd-for="tag in post.tags" vd-text="tag" class="badge badge-ghost"></span>
+      </div>
+    </header>
 
-    <div class="mt-8 flex flex-wrap gap-2">
-      <span
-        vd-for="tag in post.tags"
-        vd-text="tag"
-        class="badge badge-ghost"
-      ></span>
+    <div class="article-prose mt-10">
+      <p vd-text="post.body"></p>
+      <h2>Example</h2>
+      <p>This example uses only documented public syntax and can be copied into a normal VeloDom application.</p>
+      <div class="code-window">
+        <div class="code-toolbar"><span vd-text="post.exampleLabel"></span><span>VeloDom example</span></div>
+        <pre class="code-example"><code vd-text="post.example"></code></pre>
+      </div>
+      <h2>Why this matters</h2>
+      <p vd-text="post.takeaway"></p>
     </div>
 
-    <div class="prose prose-slate mt-10 max-w-none">
-      <p vd-text="post.body" class="text-lg leading-9"></p>
-    </div>
+    <section class="mt-10 rounded-[2rem] bg-slate-950 p-6 text-white">
+      <p class="eyebrow !text-sky-300">Lesson boundary</p>
+      <p vd-text="post.boundary" class="mt-3 max-w-3xl leading-7 text-slate-200"></p>
+    </section>
   </article>
 
-  <section class="mt-10 rounded-[2rem] bg-slate-950 p-6 text-white">
-    <p class="text-sm font-semibold text-primary">What this page demonstrates</p>
-    <div class="mt-4 grid gap-4 md:grid-cols-3">
-      <p class="rounded-2xl bg-white/10 p-4">Dynamic route params from <code>[id]</code>.</p>
-      <p class="rounded-2xl bg-white/10 p-4">Imperative script loading in <code>script.js</code>.</p>
-      <p class="rounded-2xl bg-white/10 p-4">Declarative reload through <code>vd-request</code>.</p>
+  <section class="mx-auto mt-14 max-w-5xl">
+    <div class="flex items-end justify-between gap-4">
+      <div><p class="eyebrow">Continue studying</p><h2 class="section-heading mt-2">Related framework notes</h2></div>
+      <a href="/features" vd-nav class="btn btn-outline rounded-xl">Full reference</a>
     </div>
-  </section>
-
-  <section class="mt-10">
-    <h2 class="text-3xl font-black">Read next</h2>
     <div class="mt-5 grid gap-5 md:grid-cols-3">
-      <a
-        vd-for="item in relatedPosts"
-        vd-bind:href="'/blog/posts/' + item.id"
-        vd-nav
-        class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-      >
-        <span vd-text="item.category" class="badge badge-outline"></span>
-        <strong vd-text="item.title" class="mt-3 block text-lg"></strong>
-        <span vd-text="item.readTime" class="mt-2 block text-sm text-slate-500"></span>
+      <a vd-for="item in relatedPosts" vd-bind:href="'/blog/posts/' + item.id" vd-nav class="feature-card">
+        <span vd-text="item.category" class="badge badge-ghost"></span>
+        <strong vd-text="item.title" class="mt-4 block text-lg text-slate-950"></strong>
+        <span vd-text="item.readTime" class="mt-3 block text-sm text-slate-500"></span>
       </a>
     </div>
   </section>
