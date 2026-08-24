@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**384 of 408 tasks completed — 94%**
+**385 of 408 tasks completed — 94%**
 
 `[###################-]`
 
-Remaining tasks: **24**
+Remaining tasks: **23**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -136,9 +136,9 @@ while preserving the explicit `createApp()` path for advanced integrations.
   `@` plus `#app/*` client import aliases — Target: V1.x.
 - [x] Consolidate repository-level Markdown documentation under `docs/` while
   keeping concise root and npm-package README entry points — Target: V1.x.
-- [ ] Add an optional CSS budget to build intelligence after choosing a safe
-  default that does not punish application design-system choices — Target:
-  V1.x.
+- [x] Add an optional CSS budget to build intelligence with no framework
+  default: projects may opt in through `VELODOM_CSS_BUDGET_KB`, so a chosen
+  design system is never punished — Target: V1.x.
 - [ ] Add tested minimal/blog starter presets only after the npm installation
   path is publicly available — Target: V1.x.
 

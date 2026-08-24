@@ -26,7 +26,10 @@ const budgets = Object.freeze({
   distLargestJsChunkBytes: 120 * 1024,
   distLargestJsChunkGzipBytes: 45 * 1024,
   packageTotalJsBytes: 450 * 1024,
-  packageLargestJsModuleBytes: 40 * 1024
+  packageLargestJsModuleBytes: 40 * 1024,
+  optionalDistTotalCssBytes: readOptionalKilobyteBudget(
+    "VELODOM_CSS_BUDGET_KB"
+  )
 });
 
 const checks = [];
@@ -55,6 +58,10 @@ const packageFiles = existsSync(packageLibRoot)
   : [];
 
 const distStats = await readStats(distFiles);
+const distCssFiles = existsSync(distAssetsRoot)
+  ? await collectFiles(distAssetsRoot, file => file.endsWith(".css"))
+  : [];
+const distCssStats = await readStats(distCssFiles);
 const packageStats = await readStats(packageFiles);
 const packageRuntimeStats = packageStats.filter(item => (
   !isPackageToolingModule(item.file)
@@ -86,6 +93,14 @@ checkBudget(
   budgets.packageLargestJsModuleBytes
 );
 
+if (budgets.optionalDistTotalCssBytes !== undefined) {
+  checkBudget(
+    "dist total CSS",
+    sumBytes(distCssStats),
+    budgets.optionalDistTotalCssBytes
+  );
+}
+
 if (checks.some(check => !check.ok)) {
   console.error("VeloDom performance budget check failed.");
   console.error("");
@@ -95,6 +110,12 @@ if (checks.some(check => !check.ok)) {
 
 console.log("VeloDom performance budget check passed.");
 printChecks();
+
+if (budgets.optionalDistTotalCssBytes === undefined) {
+  console.log(
+    "  info dist total CSS: not enforced (set VELODOM_CSS_BUDGET_KB to opt in)"
+  );
+}
 
 async function collectFiles(dir, predicate) {
   const entries = await readdir(dir, {
@@ -162,6 +183,22 @@ function printChecks() {
 
 function formatBytes(bytes) {
   return `${(bytes / 1024).toFixed(1)} kB`;
+}
+
+function readOptionalKilobyteBudget(name) {
+  const value = process.env[name];
+
+  if (value === undefined || value.trim() === "") {
+    return undefined;
+  }
+
+  const kilobytes = Number(value);
+
+  if (!Number.isFinite(kilobytes) || kilobytes <= 0) {
+    fail(`${name} must be a positive number of kilobytes when it is set.`);
+  }
+
+  return kilobytes * 1024;
 }
 
 function fail(message) {

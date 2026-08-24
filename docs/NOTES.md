@@ -476,6 +476,9 @@
   build, and future server modes. A matching prerender entry may transfer only
   safely serializable public data; cache, revalidation, credentials, and
   user-specific state remain explicitly outside this first contract.
+- CSS budgets remain build-only and opt-in. VeloDom reports generated CSS for
+  every project but does not ship a default threshold because framework-owned
+  limits would make a visual design-system choice look like a runtime defect.
 - The VS Code prototype remains outside the package and consumes the public
   compiler language-service API. Its navigation intentionally follows only
   conventional folders and `.vd` names; route-config overrides need a future

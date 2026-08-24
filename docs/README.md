@@ -218,7 +218,7 @@ What the main checks do:
 | `npm run package:check` | Builds ESM/types and tests an installed local tarball consumer. |
 | `npm run pack:check` | Runs package checks and inspects the npm tarball dry-run contents. |
 | `npm run benchmark:rendering` | Runs local happy-dom page-binding and loop-rendering benchmarks. |
-| `npm run performance:check` | Enforces JavaScript size budgets for generated chunks and package runtime modules after build artifacts exist. |
+| `npm run performance:check` | Enforces JavaScript size budgets for generated chunks and package runtime modules after build artifacts exist. Set `VELODOM_CSS_BUDGET_KB` to optionally enforce a project-owned total CSS budget too. |
 | `npm run test:browser` | Builds the showcase and runs the Playwright browser matrix. Chromium/Chrome/Edge is required; Firefox, WebKit, and mobile WebKit run when installed. |
 | `npm run build` | Runs all quality/package gates, builds the showcase, then checks performance budgets. |
 
@@ -283,6 +283,27 @@ requests, middleware, plugins, refs, events, state, exposed names, slots, and
 SEO coverage where static analysis can prove the relationship.
 `vd benchmark` delegates to the project's `benchmark:rendering` script so
 performance checks stay repeatable and outside the browser runtime.
+
+### Optional CSS Budget
+
+VeloDom does not choose a CSS limit for an application. A documentation site,
+an admin system, and a design system have different valid CSS needs. If a
+project wants CI protection, enable one explicit total budget without adding
+any runtime code:
+
+```bash
+VELODOM_CSS_BUDGET_KB=100 npm run build
+```
+
+In PowerShell:
+
+```powershell
+$env:VELODOM_CSS_BUDGET_KB = 100
+npm run build
+```
+
+When unset, VeloDom reports CSS size through `vd build-report` but does not
+fail the build for it.
 
 ## Testing Utilities
 

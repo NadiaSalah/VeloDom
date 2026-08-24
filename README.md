@@ -54,10 +54,10 @@ allowlisted by `packages/velodom/package.json`.
 
 ## Current Status
 
-V1 is locally verified with 223 automated tests, package-consumer validation,
+V1 is locally verified with 224 automated tests, package-consumer validation,
 and production build checks. The roadmap is [docs/TODO.md](docs/TODO.md);
 remaining work is release governance, a strict Firefox-capable browser run,
-optional CSS budgets, and starter presets.
+and starter presets.
 
 The npm package has a strict `files` allowlist, explicit public exports,
 package-consumer tests, and a dry-run tarball check. It intentionally keeps
@@ -86,6 +86,7 @@ rendering and partial hydration. See
 - Complete the strict browser matrix on a Firefox-capable CI/release machine.
 - Confirm npm package ownership, publishing account, access, and 2FA policy.
 - Approve the exact V1 release notes and tag before enabling publication.
+- Publish the package before adding npm-installable starter presets.
 - Continue only the optional items recorded in [docs/TODO.md](docs/TODO.md).
 
 ## Handoff Notes
