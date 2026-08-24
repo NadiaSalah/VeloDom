@@ -64,6 +64,8 @@ package versions.
 - Added a GitHub Actions release browser matrix for Ubuntu-based Chromium,
   Firefox, WebKit, and Mobile WebKit verification. It is ready to replace the
   host-limited local Firefox run once the branch is pushed.
+- Added a compact-desktop navigation regression scenario to the browser suite
+  after introducing the native menu below the wide-desktop breakpoint.
 
 ### npm Package Readiness and Workspace Cleanup
 

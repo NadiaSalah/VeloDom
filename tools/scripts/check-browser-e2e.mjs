@@ -286,6 +286,8 @@ async function assertInteractiveSmoke(browser, target, origin) {
   } finally {
     await context.close();
   }
+
+  await assertCompactDesktopNavigation(browser, target, origin);
 }
 
 async function runInteractiveStep(context, target, name, callback) {
@@ -375,6 +377,37 @@ async function assertArticlePage(page, origin) {
 
   await page.click('button:has-text("Reload lesson")');
   await waitForPageText(page, "HTML-first is the center of VeloDom");
+}
+
+/**
+ * Verifies that the compact navigation remains usable below the wide desktop
+ * breakpoint. The horizontal navigation is intentionally hidden there, so a
+ * visible native menu must keep every documentation route reachable.
+ */
+async function assertCompactDesktopNavigation(browser, target, origin) {
+  const context = await browser.newContext({
+    ...target.contextOptions,
+    viewport: {
+      width: 900,
+      height: 700
+    }
+  });
+
+  try {
+    await runInteractiveStep(context, target, "compact-navigation", async page => {
+      await page.goto(`${origin}/`);
+      await waitForPageText(page, "From your first page to production boundaries.");
+
+      const menu = page.locator("details.dropdown summary");
+
+      await menu.click();
+      await page.locator('details.dropdown a[href="/reference"]').click();
+      await page.waitForURL(`${origin}/reference`);
+      await waitForPageText(page, "One public contract, organized by purpose.");
+    });
+  } finally {
+    await context.close();
+  }
 }
 
 async function waitForPageText(page, text) {

@@ -137,6 +137,9 @@ a browser translation provider. See
   doctor issues, 100/100 health, and SEO configuration for all six pages.
 - Replaced the documentation application's temporary `VD` text marks with the
   application-owned VeloDom logo asset in its shared navigation and footer.
+- Added a native, keyboard-accessible compact navigation menu below the wide
+  desktop breakpoint so documentation links remain available on small desktop
+  and tablet screens.
 
 ## Next Tasks
 
