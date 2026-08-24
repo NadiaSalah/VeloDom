@@ -34,6 +34,9 @@ export const VD = Object.freeze({
   NAV: "data-vd-nav",
   PREFETCH: "data-vd-prefetch",
   VALIDATE: "data-vd-validate",
+  FORM: "data-vd-form",
+  FORM_STATUS: "data-vd-form-status",
+  FORM_ERROR: "data-vd-form-error",
   CHILD: "data-vd-child",
   GET_CHILD: "data-vd-get-child",
   ON: "data-vd-on",
@@ -189,6 +192,19 @@ export const VD_VALIDATION = Object.freeze({
   INVALID_ATTRIBUTE: "data-vd-invalid",
   INPUT_EVENT: "input",
   SUBMIT_EVENT: "submit"
+});
+
+/** Attributes and event names for optional progressive native forms. */
+export const VD_FORMS = Object.freeze({
+  ERROR_ATTRIBUTE: "data-vd-form-error",
+  ERROR_FIELD_ATTRIBUTE: "data-vd-form-field-error",
+  ERROR_EVENT: "vd:form-error",
+  FORM_SELECTOR: `form${VD.selector(VD.FORM)}`,
+  LOADING_ATTRIBUTE: "data-vd-form-loading",
+  STATE_ATTRIBUTE: "data-vd-form-state",
+  STATUS_SELECTOR: VD.selector(VD.FORM_STATUS),
+  SUBMIT_EVENT: "submit",
+  SUCCESS_EVENT: "vd:form-success"
 });
 
 /** Names and app properties used by the optional shared-state plugin. */

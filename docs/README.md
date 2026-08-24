@@ -45,7 +45,7 @@ JavaScript or TypeScript independently for every page and component.
 - [Compiler and Vite Integration](#compiler-and-vite-integration)
 - [Adapter Contract and Optional Types](#adapter-contract-and-optional-types)
 - [Editor Intelligence](#editor-intelligence)
-- [Future Static Rendering, Forms, and Localization](#future-static-rendering-forms-and-localization)
+- [Future Static Rendering and Localization](#future-static-rendering-and-localization)
 - [JavaScript and TypeScript](#javascript-and-typescript)
 - [Error and Security Model](#error-and-security-model)
 - [Public Package Boundaries](#public-package-boundaries)
@@ -1864,6 +1864,49 @@ The validation API is intentionally small:
 This keeps common forms HTML-first while leaving schema validation and custom
 business rules to application code or optional future extensions.
 
+### Progressive Native Forms
+
+For a server-backed form that must still submit normally without JavaScript,
+keep standard HTML `action`, `method`, named controls, and hidden CSRF input.
+Then install the optional enhancement plugin and add `vd-form`:
+
+```js
+import { createProgressiveFormsPlugin } from "velodom";
+
+createApp({
+  adapter,
+  plugins: [createProgressiveFormsPlugin()]
+});
+```
+
+```html
+<form vd-form action="/contact" method="post">
+  <label>Email <input name="email" type="email" required></label>
+  <input type="hidden" name="csrf" value="application-issued-token">
+  <small vd-form-error="email"></small>
+  <button type="submit">Send</button>
+  <p vd-form-status aria-live="polite"></p>
+</form>
+```
+
+With no JavaScript or no plugin, this is an ordinary browser form. With the
+plugin, VeloDom validates native constraints, sends the form with the original
+GET/POST semantics, preserves hidden CSRF fields, and applies these optional
+markers:
+
+- `data-vd-form-state`: `loading`, `success`, or `error` on the form.
+- `data-vd-form-loading`: present only while the request is active.
+- `vd-form-status`: receives a safe text status message.
+- `vd-form-error="fieldName"`: receives a server field error from
+  `{ errors: { fieldName: "message" } }` JSON responses.
+- `data-vd-form-field-error` and `aria-invalid`: applied to invalid controls.
+
+The server keeps ownership of validation, session cookies, CSRF policy, and
+redirect responses. A standard HTTP redirect or a successful JSON
+`{ redirect: "/thanks" }` follows normally. For custom CSRF headers or a
+custom redirect integration, pass `headers` or `onRedirect` to
+`createProgressiveFormsPlugin()`.
+
 ### Recipe: Create, Update, and Delete Forms
 
 Use the same small pattern for CRUD screens:
@@ -3444,11 +3487,11 @@ not a mandatory VS Code plugin or browser runtime feature. See
 prototype lives in `packages/velodom-vscode`; it offers directive
 completion/hover text and conventional component or static-route definitions.
 
-## Future Static Rendering, Forms, and Localization
+## Future Static Rendering and Localization
 
 VeloDom's accepted V2 designs keep expansion outside the mandatory browser
 runtime: richer static route rendering remains build-time and distinct from
-SSR; form enhancement starts from native HTML `action`/`method`; and
+SSR; progressive form enhancement is now an optional native HTML bridge; and
 localization stays an optional build-time plugin separate from RTL direction.
 The implementation contracts and required test gates are documented in
 [static rendering](STATIC_RENDERING_DESIGN.md),

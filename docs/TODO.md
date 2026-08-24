@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**385 of 408 tasks completed — 94%**
+**386 of 408 tasks completed — 95%**
 
 `[###################-]`
 
-Remaining tasks: **23**
+Remaining tasks: **22**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -829,10 +829,12 @@ publication.
       intentionally deferred to Phase 21 — Fit: compiler-first and
       request-aware; Value: prevents duplicate fetches and reduces page
       boilerplate; Complexity: high; Target: V1.1
-- [ ] Implement progressive native HTML forms with optional enhancement for
-      validation, loading, errors, redirects, and application-owned CSRF — Fit:
-      HTML-first and Vanilla Friendly; Value: forms work without JavaScript and
-      remain easy to understand; Complexity: high; Target: V1.1
+- [x] Implement progressive native HTML forms with optional `vd-form`
+      enhancement for validation, loading, errors, redirects, and
+      application-owned CSRF fields/headers while leaving every unenhanced
+      form native — Fit: HTML-first and Vanilla Friendly; Value: forms work
+      without JavaScript and remain easy to understand; Complexity: high;
+      Target: V1.1
 - [ ] Generate application declarations for typed route parameters, page
       config, request routes, and public component props while keeping
       TypeScript optional — Fit: compiler-first and flexible authoring; Value:

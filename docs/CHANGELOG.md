@@ -24,7 +24,7 @@ package versions.
   silently regress.
 - Kept generated `lib`, `types`, dependency, and example `dist` outputs local
   and ignored; they are reproducible artifacts rather than tracked source.
-- Verified 224 tests, documentation headers/JSDoc, types, lint, an isolated
+- Verified 228 tests, documentation headers/JSDoc, types, lint, an isolated
   package consumer, production build, performance budgets, package dry-run,
   project doctor, 100/100 project health, and targeted Chromium E2E.
 - Recorded the external dependency-advisory lookup as an explicit release task
@@ -32,6 +32,10 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Implemented optional progressive native forms through
+  `createProgressiveFormsPlugin()` and `vd-form`; native action/method fields,
+  browser validation, CSRF fields, loading, server errors, and redirects stay
+  visible and application-owned.
 - Added an opt-in CSS total budget for build verification through
   `VELODOM_CSS_BUDGET_KB`; it is intentionally disabled by default, while
   `vd build-report` continues to report CSS size for every project.

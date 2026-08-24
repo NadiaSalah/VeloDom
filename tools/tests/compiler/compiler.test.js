@@ -401,6 +401,21 @@ test("compiler accepts optional validation directive without runtime feature", (
   assert.deepEqual(result.manifest.features, []);
 });
 
+test("compiler accepts optional progressive-form markers without runtime features", () => {
+  const result = compileTemplate(`
+    <form vd-form action="/contact" method="post">
+      <p vd-form-status aria-live="polite"></p>
+      <small vd-form-error="email"></small>
+    </form>
+  `);
+
+  assert.deepEqual(result.diagnostics, []);
+  assert.match(result.html, /data-vd-form/);
+  assert.match(result.html, /data-vd-form-status/);
+  assert.match(result.html, /data-vd-form-error="email"/);
+  assert.deepEqual(result.manifest.features, []);
+});
+
 test("custom component and slot tags contribute runtime features", () => {
   const result = compileTemplate(`
     <vd-component name="card">

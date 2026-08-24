@@ -496,6 +496,34 @@ export interface ValidationPluginOptions {
   markInvalidFields?: boolean;
 }
 
+/** Context assembled from one explicitly enhanced native form submission. */
+export interface ProgressiveFormRequestContext {
+  action: URL;
+  form: HTMLFormElement;
+  formData: FormData;
+  method: "GET" | "POST";
+}
+
+/** Successful progressive-form response delivered to optional callbacks. */
+export interface ProgressiveFormResponseContext extends ProgressiveFormRequestContext {
+  data: unknown;
+  response: Response;
+}
+
+/** Application-owned options for the optional progressive native-form bridge. */
+export interface ProgressiveFormsPluginOptions {
+  credentials?: RequestCredentials;
+  fetch?: typeof fetch;
+  headers?: Record<string, string> | ((
+    context: ProgressiveFormRequestContext
+  ) => Record<string, string>);
+  onRedirect?: (
+    url: URL,
+    context: ProgressiveFormResponseContext
+  ) => MaybePromise<void>;
+  selector?: string;
+}
+
 /** Complete public application configuration. */
 export interface VeloDomAppOptions {
   adapter: ResourceAdapter;

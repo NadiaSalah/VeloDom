@@ -479,6 +479,10 @@
 - CSS budgets remain build-only and opt-in. VeloDom reports generated CSS for
   every project but does not ship a default threshold because framework-owned
   limits would make a visual design-system choice look like a runtime defect.
+- Progressive forms are an opt-in plugin rather than a default directive
+  runtime. `vd-form` preserves standard GET/POST HTML when the plugin is
+  absent; the browser plugin only adds status/error behavior around an
+  application-owned server contract and never creates an action protocol.
 - The VS Code prototype remains outside the package and consumes the public
   compiler language-service API. Its navigation intentionally follows only
   conventional folders and `.vd` names; route-config overrides need a future

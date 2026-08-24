@@ -162,7 +162,7 @@ export default {
 - File-based routing, route parameters, guards, browser history, and same-page
   hash navigation.
 - Request helpers with validation, cache, retry, timeout, loading, errors, and
-  user-defined middleware.
+  user-defined middleware, plus optional progressive native forms.
 - Optional conventional page data modules with safe static-entry transfer.
 - Static SEO snapshots generated from page configuration and page content.
 - Lazy modules, asset helpers, development diagnostics, testing helpers, and

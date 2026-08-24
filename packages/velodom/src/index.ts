@@ -52,6 +52,9 @@ export type {
   PagePrerenderConfig,
   PageScriptContext,
   PluginContext,
+  ProgressiveFormRequestContext,
+  ProgressiveFormResponseContext,
+  ProgressiveFormsPluginOptions,
   PrerenderEntry,
   PrerenderRenderContext,
   RequestAfterHook,
@@ -115,6 +118,11 @@ export {
 export {
   createValidationPlugin
 } from "./validation.ts";
+
+/** Optional progressive enhancement for native HTML forms. */
+export {
+  createProgressiveFormsPlugin
+} from "./progressive-forms.ts";
 
 /** Advanced plugin manager utility. */
 export {
