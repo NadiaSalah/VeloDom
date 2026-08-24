@@ -126,6 +126,7 @@ export {
 
 /** Advanced plugin manager utility. */
 export {
+  assertPluginConformance,
   createPluginManager
 } from "./plugins.ts";
 

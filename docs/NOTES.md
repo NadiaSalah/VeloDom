@@ -487,6 +487,9 @@
   project, not into `velodom` itself. The output captures only facts that can
   be proven from folder conventions and template attributes; values remain
   `unknown` instead of inventing a second schema language.
+- Plugin conformance is intentionally a shape check only. It establishes the
+  public setup/cleanup boundary without invoking third-party code during
+  validation; lifecycle behavior remains verified in the integration's tests.
 - The VS Code prototype remains outside the package and consumes the public
   compiler language-service API. Its navigation intentionally follows only
   conventional folders and `.vd` names; route-config overrides need a future

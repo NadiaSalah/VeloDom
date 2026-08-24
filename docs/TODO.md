@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**387 of 408 tasks completed — 95%**
+**388 of 408 tasks completed — 95%**
 
 `[###################-]`
 
-Remaining tasks: **21**
+Remaining tasks: **20**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -840,10 +840,10 @@ publication.
       JavaScript projects can ignore the generated file — Fit: compiler-first
       and flexible authoring; Value: safer refactors without forcing
       TypeScript; Complexity: medium; Target: V1.1
-- [ ] Stabilize the public Plugin and Adapter contracts with conformance
-      fixtures and an official static adapter boundary — Fit: framework Core
-      stays generic; Value: integrations can evolve without copying internals;
-      Complexity: medium; Target: V1.1
+- [x] Stabilize the public Plugin and Adapter contracts with conformance
+      fixtures, `assertPluginConformance()`, and an official static adapter
+      boundary — Fit: framework Core stays generic; Value: integrations can
+      evolve without copying internals; Complexity: medium; Target: V1.1
 - [ ] Extend compiler diagnostics for security-sensitive HTML, environment
       secret exposure, links, forms, and accessibility regressions — Fit:
       compiler-first quality; Value: catches production problems before runtime;

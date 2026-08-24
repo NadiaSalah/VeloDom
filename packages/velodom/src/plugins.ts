@@ -69,6 +69,16 @@ export function createPluginManager(
   };
 }
 
+/**
+ * Checks a plugin's public shape without installing it in an application.
+ *
+ * Plugin authors can call this from their own conformance fixtures to catch a
+ * malformed setup/cleanup contract before publishing an optional integration.
+ */
+export function assertPluginConformance(plugin: VeloDomPlugin): void {
+  normalizePlugin(plugin, 0);
+}
+
 function normalizePlugin(
   plugin: unknown,
   index: number

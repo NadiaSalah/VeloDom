@@ -3422,6 +3422,7 @@ Runtime:
 - `defineRequestRoute`
 - `definePlugin`
 - `defineResourceAdapter`
+- `assertPluginConformance`
 - `assertResourceAdapterConformance`
 - `createDevtoolsPlugin`
 - `createDirectionPlugin`
@@ -3455,6 +3456,10 @@ adapter implements the documented versioned contract; future adapters can use
 the same contract and verify it without importing router internals. See
 [ADAPTERS.md](ADAPTERS.md) for resource groups, capabilities, and a
 conformance example.
+
+Optional integrations may likewise use `assertPluginConformance()` in their
+own tests. This checks the small setup/cleanup shape without installing the
+plugin or adding any production runtime code.
 
 JavaScript remains fully supported. TypeScript and JSDoc-aware editors can
 optionally use `definePageConfig()`, `defineRequestRoute()`, `definePlugin()`,

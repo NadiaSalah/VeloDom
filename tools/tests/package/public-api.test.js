@@ -25,6 +25,7 @@ test("runtime public exports are frozen for the V1 package boundary", () => {
     "VD_AUTH",
     "VD_MIDDLEWARE",
     "VD_REQUEST",
+    "assertPluginConformance",
     "assertResourceAdapterConformance",
     "createApp",
     "createAuthRuntime",

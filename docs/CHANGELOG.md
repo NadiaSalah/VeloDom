@@ -24,7 +24,7 @@ package versions.
   silently regress.
 - Kept generated `lib`, `types`, dependency, and example `dist` outputs local
   and ignored; they are reproducible artifacts rather than tracked source.
-- Verified 229 tests, documentation headers/JSDoc, types, lint, an isolated
+- Verified 230 tests, documentation headers/JSDoc, types, lint, an isolated
   package consumer, production build, performance budgets, package dry-run,
   project doctor, 100/100 project health, and targeted Chromium E2E.
 - Recorded the external dependency-advisory lookup as an explicit release task
@@ -32,6 +32,9 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Stabilized optional integration contracts by publishing
+  `assertPluginConformance()` alongside the versioned resource-adapter
+  assertion and documenting the static-resource boundary.
 - Added `vd types`, an optional static declaration generator for page route
   parameters, page configs, API route names, and conventionally discovered
   component props; it produces an application-owned `velodom/app` type module
