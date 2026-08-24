@@ -114,6 +114,8 @@ a browser translation provider. See
 - Added root `AGENTS.md`, the machine-oriented [AI context](docs/AI_CONTEXT.md),
   and an application guide at `examples/blog/README.md` so AI-generated sites
   can follow the same public contract and Core/application boundary.
+- Repaired the npm lockfile's Linux optional WASI dependency metadata so
+  `npm ci` remains reproducible in GitHub Actions, and ignored local npm caches.
 - Static SEO output now waits for Vite to write the HTML shell before it
   renders route artifacts, including with the current Vite/Rolldown lifecycle.
 - Rebuilt `examples/blog` as the polished VeloDom academic reference: a modern

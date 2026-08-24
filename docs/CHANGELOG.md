@@ -16,6 +16,8 @@ package versions.
   framework API.
 - Linked the AI context from the root README and canonical guide and recorded
   the work in the V1 roadmap.
+- Repaired the lockfile entry for Tailwind's bundled Linux WASI runtime and
+  ignored local npm caches so clean `npm ci` installs can resolve consistently.
 
 ## 2026-08-24
 
