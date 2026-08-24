@@ -12,7 +12,7 @@ import {
   BINDING_DIRECTIVES,
   isPreferredDirective
 } from "../shared/directives.ts";
-import { VD, VD_ACCESSIBILITY } from "../constants.ts";
+import { VD, VD_ACCESSIBILITY, VD_SECURITY } from "../constants.ts";
 import {
   ExpressionSyntaxError,
   parseExpression
@@ -101,6 +101,7 @@ export function compileTemplate(
     children: []
   };
   const accessibilityContext = createAccessibilityContext(source);
+  diagnostics.push(...createSecurityDiagnostics(source, filename));
   let output = "";
   let cursor = 0;
 
@@ -726,6 +727,68 @@ function createAccessibilityDiagnostics(
     }
 
     context.lastHeadingLevel = headingLevel;
+  }
+
+  return diagnostics;
+}
+
+function createSecurityDiagnostics(source, filename) {
+  const diagnostics = [];
+
+  for (const match of source.matchAll(/\bhref\s*=\s*(["'])\s*javascript:/gi)) {
+    diagnostics.push(createDiagnostic(
+      source,
+      filename,
+      match.index || 0,
+      "error",
+      VD_SECURITY.CODES.JAVASCRIPT_URL,
+      "javascript: URLs are blocked because they execute injected script"
+    ));
+  }
+
+  for (const match of source.matchAll(/<a\b[^>]*\btarget\s*=\s*(["'])_blank\1[^>]*>/gi)) {
+    if (/\brel\s*=\s*(["'])[^"']*\bnoopener\b/i.test(match[0])) continue;
+
+    diagnostics.push(createDiagnostic(
+      source,
+      filename,
+      match.index || 0,
+      "warning",
+      VD_SECURITY.CODES.TARGET_NOOPENER,
+      "Links opened in a new tab should include rel=\"noopener\""
+    ));
+  }
+
+  for (const match of source.matchAll(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi)) {
+    const attributes = match[1];
+    const body = match[2];
+    const method = attributes.match(/\bmethod\s*=\s*(["'])(.*?)\1/i)?.[2]
+      ?.trim()
+      .toLowerCase() || "get";
+
+    if (method === "post" || !/type\s*=\s*(["'])password\1/i.test(body)) {
+      continue;
+    }
+
+    diagnostics.push(createDiagnostic(
+      source,
+      filename,
+      match.index || 0,
+      "error",
+      VD_SECURITY.CODES.PASSWORD_GET,
+      "Forms containing password fields must use method=\"post\" to avoid URL exposure"
+    ));
+  }
+
+  for (const match of source.matchAll(/import\.meta\.env\.(VITE_[A-Z0-9_]*(?:SECRET|TOKEN|PASSWORD|PRIVATE_KEY)[A-Z0-9_]*)/g)) {
+    diagnostics.push(createDiagnostic(
+      source,
+      filename,
+      match.index || 0,
+      "warning",
+      VD_SECURITY.CODES.ENV_SECRET,
+      `${match[1]} is exposed to browser code; keep secrets on the server`
+    ));
   }
 
   return diagnostics;

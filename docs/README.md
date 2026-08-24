@@ -3197,6 +3197,14 @@ non-semantic elements, and skipped heading levels. Router navigation also moves
 runtime focus to hash targets or page-level focus targets after route changes.
 Broader keyboard-flow checks remain intentionally small and roadmap-driven.
 
+The same compiler also catches a small set of high-confidence security
+regressions before build output: `javascript:` URLs are errors; password forms
+must use POST; `_blank` links should include `rel="noopener"`; and Vite
+environment names containing `SECRET`, `TOKEN`, `PASSWORD`, or `PRIVATE_KEY`
+are warned because they are bundled for the browser. These are source-level
+signals, not a replacement for server authorization, CSRF, secret management,
+or a deployment security review.
+
 Compile result:
 
 ```js

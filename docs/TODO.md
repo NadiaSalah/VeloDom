@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**388 of 408 tasks completed — 95%**
+**389 of 408 tasks completed — 95%**
 
 `[###################-]`
 
-Remaining tasks: **20**
+Remaining tasks: **19**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -844,10 +844,11 @@ publication.
       fixtures, `assertPluginConformance()`, and an official static adapter
       boundary — Fit: framework Core stays generic; Value: integrations can
       evolve without copying internals; Complexity: medium; Target: V1.1
-- [ ] Extend compiler diagnostics for security-sensitive HTML, environment
-      secret exposure, links, forms, and accessibility regressions — Fit:
-      compiler-first quality; Value: catches production problems before runtime;
-      Complexity: medium; Target: V1.1
+- [x] Extend compiler diagnostics for security-sensitive HTML, likely browser
+      environment-secret exposure, links, forms, and accessibility regressions
+      without pretending to replace server security — Fit: compiler-first
+      quality; Value: catches production problems before runtime; Complexity:
+      medium; Target: V1.1
 - [ ] Complete the beginner CLI path with project/page/component/API
       scaffolding, route exploration, actionable HMR errors, and build reports
       — Fit: Convention over Configuration; Value: fewer commands and faster

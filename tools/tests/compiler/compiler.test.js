@@ -231,6 +231,38 @@ test("compiler emits baseline accessibility warnings", () => {
   );
 });
 
+test("compiler reports statically provable security regressions", () => {
+  const result = compileTemplate(`
+    <a href="javascript:open()">Unsafe</a>
+    <a href="https://example.com" target="_blank">External</a>
+    <form><input type="password" name="password"></form>
+    <script>const apiToken = import.meta.env.VITE_API_TOKEN;</script>
+  `, {
+    filename: "security.html"
+  });
+  const byCode = new Map(result.diagnostics.map(diagnostic => [
+    diagnostic.code,
+    diagnostic
+  ]));
+
+  assert.equal(byCode.get("VD_SECURITY_JAVASCRIPT_URL").severity, "error");
+  assert.equal(byCode.get("VD_SECURITY_TARGET_NOOPENER").severity, "warning");
+  assert.equal(byCode.get("VD_SECURITY_PASSWORD_GET").severity, "error");
+  assert.equal(byCode.get("VD_SECURITY_ENV_SECRET").severity, "warning");
+});
+
+test("compiler accepts secure link, form, and environment patterns", () => {
+  const result = compileTemplate(`
+    <a href="https://example.com" target="_blank" rel="noopener noreferrer">External</a>
+    <form method="post"><input type="password" name="password"></form>
+    <script>const apiUrl = import.meta.env.VITE_API_URL;</script>
+  `);
+
+  assert.deepEqual(result.diagnostics.filter(diagnostic => (
+    diagnostic.code.startsWith("VD_SECURITY_")
+  )), []);
+});
+
 test("compiler accepts accessible static and bound template patterns", () => {
   const result = compileTemplate(`
     <label for="email">Email</label>

@@ -490,6 +490,10 @@
 - Plugin conformance is intentionally a shape check only. It establishes the
   public setup/cleanup boundary without invoking third-party code during
   validation; lifecycle behavior remains verified in the integration's tests.
+- Compiler security diagnostics are deliberately narrow and source-provable.
+  They flag browser-executable URLs, credential URL exposure, opener risks,
+  and secret-like Vite variable names, while server authorization, CSRF, and
+  actual secret classification remain application/deployment responsibilities.
 - The VS Code prototype remains outside the package and consumes the public
   compiler language-service API. Its navigation intentionally follows only
   conventional folders and `.vd` names; route-config overrides need a future

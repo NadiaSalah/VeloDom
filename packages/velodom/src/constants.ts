@@ -514,6 +514,16 @@ export const VD_ACCESSIBILITY = Object.freeze({
   ])
 });
 
+/** Static security diagnostics emitted by the template compiler. */
+export const VD_SECURITY = Object.freeze({
+  CODES: Object.freeze({
+    ENV_SECRET: "VD_SECURITY_ENV_SECRET",
+    JAVASCRIPT_URL: "VD_SECURITY_JAVASCRIPT_URL",
+    PASSWORD_GET: "VD_SECURITY_PASSWORD_GET",
+    TARGET_NOOPENER: "VD_SECURITY_TARGET_NOOPENER"
+  })
+});
+
 /** Compile-result fields that optimizer extensions may replace. */
 export const VD_COMPILER_OPTIMIZER_RESULT_KEYS = Object.freeze([
   "html",
