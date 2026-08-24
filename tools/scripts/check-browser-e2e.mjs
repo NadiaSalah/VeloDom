@@ -283,6 +283,9 @@ async function assertInteractiveSmoke(browser, target, origin) {
     await runInteractiveStep(context, target, "article", async page => {
       await assertArticlePage(page, origin);
     });
+    await runInteractiveStep(context, target, "reference-sidebar", async page => {
+      await assertReferenceSidebar(page, origin);
+    });
   } finally {
     await context.close();
   }
@@ -397,6 +400,28 @@ async function assertArticlePage(page, origin) {
 
   await page.click('button:has-text("Reload lesson")');
   await waitForPageText(page, "HTML-first is the center of VeloDom");
+}
+
+async function assertReferenceSidebar(page, origin) {
+  await page.goto(`${origin}/reference#runtime`);
+  await waitForPageText(page, "One public contract, organized by purpose.");
+  await page.waitForFunction(() => (
+    document.querySelector('.docs-sidebar-link.is-active')
+      ?.getAttribute("href") === "/reference#runtime"
+  ));
+
+  await page.locator('a[href="/reference#compiler"]').click();
+  await page.waitForURL(`${origin}/reference#compiler`);
+  await page.waitForFunction(() => (
+    document.querySelector('.docs-sidebar-link.is-active')
+      ?.getAttribute("href") === "/reference#compiler"
+  ));
+
+  await page.locator("#cli").scrollIntoViewIfNeeded();
+  await page.waitForFunction(() => (
+    document.querySelector('.docs-sidebar-link.is-active')
+      ?.getAttribute("href") === "/reference#cli"
+  ));
 }
 
 /**

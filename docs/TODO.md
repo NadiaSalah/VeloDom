@@ -139,6 +139,8 @@ application browser runtime weight:
   beginner-friendly guided course.
 - [x] The feature-reference sidebar keeps its active tab synchronized with the
   URL hash, click navigation, viewport scrolling, and accessible focus state.
+- [x] The `/reference` public API catalog reuses the same active-sidebar
+  behavior and browser regression coverage.
 
 ## V1 Ecosystem — Current
 

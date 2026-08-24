@@ -34,6 +34,9 @@ package versions.
 - Made the feature-reference sidebar actively follow hash links, clicked
   lessons, and the section currently visible during scrolling. Active links now
   expose `aria-current="location"` and retain clear keyboard focus styling.
+- Applied the same navigation behavior to the `/reference` API catalog through
+  one application-owned sidebar helper, with hash, click, and scroll coverage
+  in the browser smoke suite.
 
 ### Documentation and Project-Intelligence Audit
 

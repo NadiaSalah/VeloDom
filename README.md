@@ -146,6 +146,9 @@ a browser translation provider. See
 - Made the feature sidebar stateful and accessible: the URL hash, clicked lesson,
   and currently visible section now select the same active tab, with
   `aria-current` and keyboard focus styling.
+- Reused the same application-owned active-section helper on the exhaustive
+  `/reference` catalog, so guided lessons and public API sections share one
+  consistent navigation behavior without adding UI logic to the framework core.
 
 ## Next Tasks
 
