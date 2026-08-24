@@ -78,6 +78,19 @@ Use the existing `src/api/routes.js` registry for middleware, auth, roles, or
 other advanced route configuration; the registry deliberately takes precedence.
 Root API files such as `src/api/posts.js` remain importable helper modules.
 
+Middleware has the same optional convention:
+
+```js
+// src/api/middleware/auth.js
+export default (params, { session }) => {
+  if (!session?.user) throw new Error("Sign in is required");
+  return params;
+};
+```
+
+Reference it as `middleware: ["auth"]`. Use `src/api/middleware.js` when a
+central advanced registry is clearer; it takes precedence over named files.
+
 ## Folder-First Pages
 
 A page can be a small, predictable folder:

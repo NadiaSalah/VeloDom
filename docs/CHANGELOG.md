@@ -35,6 +35,10 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Added optional named middleware files: a default export in
+  `src/api/middleware/auth.js` is available as `auth`, while the explicit
+  `src/api/middleware.js` registry remains higher priority. CLI inspection and
+  doctor now follow the same effective convention.
 - Added optional nested file API routes: a default export in
   `src/api/posts/get.js` registers `posts.get` without a central registry.
   Root API modules remain ordinary imports, invalid or duplicate file routes

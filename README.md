@@ -54,7 +54,7 @@ allowlisted by `packages/velodom/package.json`.
 
 ## Current Status
 
-V1 is locally verified with 247 automated tests, package-consumer validation,
+V1 is locally verified with 249 automated tests, package-consumer validation,
 and production build checks. The roadmap is [docs/TODO.md](docs/TODO.md);
 remaining V1 release work is external governance, a strict Firefox-capable
 browser run, and starter presets that require the public npm path. Optional
@@ -65,6 +65,8 @@ a second template syntax. `vd create feature <name>` offers an optional
 `--blog` vertical-slice template, and a nested default export such as
 `src/api/posts/get.js` is now available as the request name `posts.get`.
 Explicit `src/api/routes.js` remains the advanced, higher-priority route map.
+Likewise, `src/api/middleware/auth.js` supplies middleware as `auth` unless an
+explicit `src/api/middleware.js` registry is present.
 
 The npm package has a strict `files` allowlist, explicit public exports,
 package-consumer tests, and a dry-run tarball check. It intentionally keeps

@@ -5,6 +5,7 @@ import {
   indexFolderVariants,
   indexSingleFiles,
   mapFileApiRoutes,
+  mapFileMiddleware,
   mapEagerExports,
   mapLoaderExports,
   rebaseFiles,
@@ -186,4 +187,18 @@ test("file API discovery rejects ambiguous and malformed handlers", () => {
     }, "/src/api/"),
     /must default-export a handler function/
   );
+});
+
+test("named middleware files become middleware registry entries", () => {
+  const auth = () => undefined;
+  const csrf = () => undefined;
+  const middleware = mapFileMiddleware({
+    "/src/api/middleware/auth.js": auth,
+    "/src/api/middleware/security/csrf.ts": csrf
+  }, "/src/api/middleware/");
+
+  assert.deepEqual(middleware, {
+    auth,
+    "security.csrf": csrf
+  });
 });

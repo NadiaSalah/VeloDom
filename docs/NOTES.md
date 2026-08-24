@@ -23,6 +23,10 @@
   `src/api/posts/get.js` becomes `posts.get`. Root `src/api/*.js` files stay
   importable helpers, and an explicit `routes.js|ts` registry wins whenever an
   application needs middleware, auth, roles, or a custom route shape.
+- Named middleware files mirror the API shortcut: a default export in
+  `src/api/middleware/auth.js` registers `auth`, including nested dot names.
+  The root `middleware.js|ts` registry remains the explicit higher-priority
+  form, so it is a clean escape hatch rather than an extra merging rule.
 - Common users should configure requests declaratively. Custom middleware and
   explicit `next()` pipelines remain an advanced option.
 - Authentication is provider-based. Frontend auth and role checks improve UX

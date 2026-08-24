@@ -603,10 +603,8 @@ async function inspectProject(root: string): Promise<ProjectInspection> {
   const components = await discoverModules(root, "src/components", false);
   const layouts = await discoverModules(root, "src/layouts", false);
   const apis = await discoverFiles(root, "src/api", [".js", ".ts"]);
-  const requestRoutes = await discoverRequestRoutes(root);
-  const middleware = apis.filter(file => (
-    /(^|\/)middleware\.(?:js|ts)$/.test(file)
-  ));
+  const requestRoutes = await discoverRequestRoutes(root, apis);
+  const middleware = discoverMiddlewareFiles(apis);
   const templates = [
     ...pages,
     ...components,
@@ -1258,12 +1256,27 @@ async function discoverCompilerFeatures(
   return [...features].sort();
 }
 
-async function discoverRequestRoutes(root: string) {
+async function discoverRequestRoutes(root: string, apiFiles: string[]) {
   const routeFiles = [
     "src/api/routes.js",
     "src/api/routes.ts"
   ];
   const routes = new Set<string>();
+
+  if (!routeFiles.some(file => apiFiles.includes(file))) {
+    apiFiles.forEach(file => {
+      const name = toFileConventionName(file, "src/api/");
+
+      if (
+        name
+        && !file.startsWith("src/api/middleware/")
+      ) {
+        routes.add(name);
+      }
+    });
+
+    return [...routes].sort();
+  }
 
   await Promise.all(routeFiles.map(async file => {
     const source = await readOptionalText(join(root, file));
@@ -1274,6 +1287,32 @@ async function discoverRequestRoutes(root: string) {
   }));
 
   return [...routes].sort();
+}
+
+function discoverMiddlewareFiles(apiFiles: string[]) {
+  const registry = apiFiles.filter(file => (
+    /^src\/api\/middleware\.(?:js|ts)$/.test(file)
+  ));
+
+  if (registry.length) return registry;
+
+  return apiFiles.filter(file => (
+    /^src\/api\/middleware\/.+\.(?:js|ts)$/.test(file)
+  ));
+}
+
+function toFileConventionName(file: string, prefix: string) {
+  if (!file.startsWith(prefix) || !/\.(?:js|ts)$/.test(file)) {
+    return undefined;
+  }
+
+  const segments = file
+    .slice(prefix.length)
+    .replace(/\.(?:js|ts)$/, "")
+    .split("/")
+    .filter(Boolean);
+
+  return segments.length >= 2 ? segments.join(".") : undefined;
 }
 
 async function discoverComponentProps(
@@ -1835,6 +1874,13 @@ async function discoverMiddlewareNames(
   const names = new Set<string>();
 
   await Promise.all(files.map(async file => {
+    const fileName = toFileConventionName(file, "src/api/middleware/");
+
+    if (fileName) {
+      names.add(fileName);
+      return;
+    }
+
     const source = await readOptionalText(join(root, file));
     const defaultObject = source.match(/export\s+default\s+\{([\s\S]*?)\}\s*;?/m)?.[1]
       || "";

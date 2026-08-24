@@ -219,6 +219,29 @@ export function mapFileApiRoutes<T>(
   files: Record<string, unknown>,
   prefix: string
 ): Record<string, T> {
+  return mapNestedFileHandlers(files, prefix, "API route", 2);
+}
+
+/**
+ * Converts nested middleware files into dot-separated middleware names.
+ *
+ * For example, `middleware/auth.js` becomes `auth`; deeper folders remain
+ * visible in the name so `middleware/security/auth.js` becomes
+ * `security.auth`.
+ */
+export function mapFileMiddleware<T>(
+  files: Record<string, unknown>,
+  prefix: string
+): Record<string, T> {
+  return mapNestedFileHandlers(files, prefix, "middleware", 1);
+}
+
+function mapNestedFileHandlers<T>(
+  files: Record<string, unknown>,
+  prefix: string,
+  label: string,
+  minimumSegments: number
+): Record<string, T> {
   const routes: Record<string, T> = {};
   const sources = new Map<string, string>();
 
@@ -235,7 +258,7 @@ export function mapFileApiRoutes<T>(
         .split("/")
         .filter(Boolean);
 
-      if (segments.length < 2) {
+      if (segments.length < minimumSegments) {
         return;
       }
 
@@ -244,13 +267,13 @@ export function mapFileApiRoutes<T>(
 
       if (existing) {
         throw new Error(
-          `[VeloDom] Multiple file API routes resolve to "${name}": ${existing}, ${filePath}. Keep one handler file per route.`
+          `[VeloDom] Multiple file ${label}s resolve to "${name}": ${existing}, ${filePath}. Keep one handler file per ${label}.`
         );
       }
 
       if (typeof handler !== "function") {
         throw new TypeError(
-          `[VeloDom] File API route "${name}" in ${filePath} must default-export a handler function.`
+          `[VeloDom] File ${label} "${name}" in ${filePath} must default-export a handler function.`
         );
       }
 

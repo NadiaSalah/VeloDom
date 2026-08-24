@@ -498,6 +498,34 @@ test("CLI doctor reports static project problems", async () => {
   }
 });
 
+test("CLI discovers file API routes and named middleware without registries", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-cli-"));
+  const output = [];
+
+  try {
+    await writeFixtureFile(root, "src/api/posts/get.js", "export default () => []; ");
+    await writeFixtureFile(root, "src/api/posts.js", "export const helper = () => []; ");
+    await writeFixtureFile(root, "src/api/middleware/auth.js", "export default params => params;");
+
+    const code = await runVeloDomCli([
+      "inspect",
+      "--json",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+    const inspection = JSON.parse(output.join("\n"));
+
+    assert.equal(code, 0);
+    assert.deepEqual(inspection.requestRoutes, ["posts.get"]);
+    assert.deepEqual(inspection.middleware, ["src/api/middleware/auth.js"]);
+  } finally {
+    await removeFixture(root);
+  }
+});
+
 async function createFixture() {
   const root = await mkdtemp(join(tmpdir(), "velodom-cli-"));
 

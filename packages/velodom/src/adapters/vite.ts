@@ -14,6 +14,7 @@ import {
   indexFolderVariants,
   indexSingleFiles,
   mapFileApiRoutes,
+  mapFileMiddleware,
   mapEagerExports,
   mapEagerModulesToLoaders,
   mapLoaderExports,
@@ -69,6 +70,16 @@ const applicationMiddlewareFiles = import.meta.glob(
   [
     "/src/api/middleware.js",
     "/src/api/middleware.ts"
+  ],
+  {
+    eager: true,
+    import: "default"
+  }
+);
+const applicationFileMiddlewareFiles = import.meta.glob(
+  [
+    "/src/api/middleware/*/**/*.js",
+    "/src/api/middleware/*/**/*.ts"
   ],
   {
     eager: true,
@@ -382,6 +393,12 @@ export function createViteApp(
     applicationRouteFiles,
     "request route registry"
   );
+  const conventionMiddleware = resolveConventionExport<
+    Record<string, RequestMiddleware>
+  >(
+    applicationMiddlewareFiles,
+    "application middleware registry"
+  );
 
   return createApp({
     ...options,
@@ -391,12 +408,12 @@ export function createViteApp(
         applicationFileRouteFiles,
         "/src/api/"
       ),
-    middleware: options.middleware ?? resolveConventionExport<
-      Record<string, RequestMiddleware>
-    >(
-      applicationMiddlewareFiles,
-      "application middleware registry"
-    ),
+    middleware: options.middleware
+      ?? conventionMiddleware
+      ?? mapFileMiddleware<RequestMiddleware>(
+        applicationFileMiddlewareFiles,
+        "/src/api/middleware/"
+      ),
     adapter: createViteAdapter()
   });
 }

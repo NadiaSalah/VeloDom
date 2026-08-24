@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**401 of 413 tasks completed — 97%**
+**402 of 413 tasks completed — 97%**
 
 `[###################-]`
 
-Remaining tasks: **12**
+Remaining tasks: **11**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -931,7 +931,7 @@ networking, or a mandatory global store.
       taking precedence — Fit: convention over configuration; Value: removes a
       registry for straightforward handlers while preserving advanced routing;
       Complexity: medium; Target: V1.x
-- [ ] Support optional named application middleware files such as
+- [x] Support optional named application middleware files such as
       `src/api/middleware/auth.js -> auth`, while keeping
       `src/api/middleware.js` as the explicit advanced registry — Fit:
       user-owned API code; Value: small middleware needs no central map;

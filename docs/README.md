@@ -2381,7 +2381,34 @@ error names, not inside Core.
 
 ## Middleware
 
-Application middleware belongs in `src/api/middleware.js`.
+For one small middleware, place a default export in a named file. The filename
+is its middleware name:
+
+```js
+// src/api/middleware/auth.js
+export default function requireUser(params, { session }) {
+  if (!session?.user) {
+    throw new Error("Sign in is required");
+  }
+
+  return params;
+}
+```
+
+```js
+// src/api/routes.js
+export default {
+  "posts.create": {
+    handler: createPost,
+    middleware: ["auth"]
+  }
+};
+```
+
+Nested names remain visible (`src/api/middleware/security/csrf.js` becomes
+`security.csrf`). For an advanced central map, use
+`src/api/middleware.js|ts`; that registry takes precedence over file-based
+middleware and keeps only one JavaScript/TypeScript extension.
 
 ### Transform Middleware
 
@@ -2402,7 +2429,7 @@ export default {
 };
 ```
 
-Use it by name:
+This registry form is useful when several middleware functions belong together:
 
 ```js
 export default {
