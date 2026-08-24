@@ -114,8 +114,9 @@ a browser translation provider. See
 - Added root `AGENTS.md`, the machine-oriented [AI context](docs/AI_CONTEXT.md),
   and an application guide at `examples/blog/README.md` so AI-generated sites
   can follow the same public contract and Core/application boundary.
-- Repaired the npm lockfile's Linux optional WASI dependency metadata so
-  `npm ci` remains reproducible in GitHub Actions, and ignored local npm caches.
+- Regenerated the npm lockfile with the Node 22/npm 10 toolchain used in GitHub
+  Actions, preserving Linux optional WASI peer metadata so `npm ci` remains
+  reproducible; local npm caches are ignored.
 - Updated the browser-matrix workflow to `actions/checkout@v5` and
   `actions/setup-node@v5`, removing the Node 20 deprecation warning on runners.
 - Static SEO output now waits for Vite to write the HTML shell before it
