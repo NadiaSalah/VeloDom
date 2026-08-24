@@ -38,6 +38,10 @@ package versions.
 - Added `vd create page <name> --demo <kind>` for small static, counter,
   request, form, and SEO examples. The files stay folder-first, use the smallest
   necessary syntax, and request demos include a matching file API handler.
+- Added a bounded Phase 25 localization-DX roadmap after comparing VeloDom with
+  `next-intl`: typed keys, native `Intl` formatting, locale-aware links, static
+  `hreflang`, optional ICU research, and adapter-owned negotiation. No
+  translation runtime or provider was added to V1.
 - Added optional `export const state = { ... }` seeds for page and component
   scripts. They merge before `init()` and support concise safe `count++` and
   `count--` bindings without a second template syntax; only application state

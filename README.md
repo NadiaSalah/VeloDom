@@ -83,7 +83,9 @@ cache/revalidation, build-time localization, typed build-time content loading,
 an optional Node request bridge, progressive native forms, generated
 application declarations, derived state, and editor tooling. V2 investigates
 hybrid rendering and partial hydration only behind explicit architecture and
-browser-validation gates. See
+browser-validation gates. The roadmap also records optional localization DX
+work—typed keys, native `Intl` formatting, locale-aware links, and static
+`hreflang` output—without requiring a browser translation provider. See
 [docs/TODO.md](docs/TODO.md) for the complete rationale and order.
 
 ## Completed Organization Work

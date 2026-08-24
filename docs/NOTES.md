@@ -34,6 +34,11 @@
 - Focused `vd create page --demo` templates are educational scaffolds, not a
   second app mode. They keep ordinary folders, create no shared global state,
   and omit scripts/styles/API files unless the named lesson truly uses one.
+- The `next-intl` comparison resulted in a bounded optional i18n-DX roadmap:
+  typed translation keys, native `Intl` formatting, locale-aware links, static
+  `hreflang`, and a future ICU evaluation. Runtime providers, locale
+  negotiation, cookies, domains, and CMS loading stay outside Core unless an
+  explicit adapter contract is approved.
 - Common users should configure requests declaratively. Custom middleware and
   explicit `next()` pipelines remain an advanced option.
 - Authentication is provider-based. Frontend auth and role checks improve UX

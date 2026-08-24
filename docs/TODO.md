@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**404 of 413 tasks completed — 98%**
+**404 of 419 tasks completed — 96%**
 
 `[###################-]`
 
-Remaining tasks: **9**
+Remaining tasks: **15**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -951,6 +951,38 @@ networking, or a mandatory global store.
 Authoring guard: retain readable `vd-*` directives and ordinary JavaScript.
 Do not add terse `@event`, `:attribute`, implicit imports, or a second
 composition/template syntax merely to imitate another framework.
+
+### Phase 25 — Optional Internationalization DX (Future V1.x)
+
+This phase closes the most valuable gaps identified by comparing VeloDom with
+`next-intl` without turning VeloDom into a translation-runtime framework. Every
+item remains optional, works with Vanilla JavaScript or TypeScript, and prefers
+compiler/build-time validation over hidden browser behavior.
+
+- [ ] Generate typed translation-key declarations from application dictionaries
+      and report unknown keys before build — Fit: compiler-first and TypeScript
+      optional; Value: autocomplete and fewer translation-key errors;
+      Complexity: medium; Target: V1.1
+- [ ] Add optional build-time `Intl` helpers for dates, numbers, currencies,
+      relative time, and time zones without installing a translation runtime —
+      Fit: uses the platform and keeps runtime light; Value: consistent locale
+      formatting with little application code; Complexity: medium; Target: V1.1
+- [ ] Add locale-aware link/path helpers and an accessible locale-switcher recipe
+      that preserves query strings and hashes — Fit: HTML-first navigation;
+      Value: reliable language switching without a router rewrite;
+      Complexity: medium; Target: V1.1
+- [ ] Generate locale-specific canonical and `hreflang`/alternate SEO records
+      alongside static SEO and sitemap output — Fit: build-time SEO;
+      Value: better indexing for multilingual sites; Complexity: medium;
+      Target: V1.1
+- [ ] Evaluate opt-in ICU-compatible interpolation and pluralization as a
+      build-time/compiler adapter; reject a mandatory global provider or hidden
+      template language — Fit: optional compiler extension; Value: expressive
+      messages for teams that need them; Complexity: high; Target: V2
+- [ ] Research locale negotiation, cookie policy, domain locales, and CMS
+      translation loading as application/server adapters rather than Core
+      features — Fit: adapter-first and vendor-neutral; Value: a clear path for
+      SSR and production integrations; Complexity: high; Target: Future Research
 
 ### Explicitly Rejected for V1
 
