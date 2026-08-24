@@ -27,6 +27,7 @@ test("runtime public exports are frozen for the V1 package boundary", () => {
     "VD_REQUEST",
     "assertPluginConformance",
     "assertResourceAdapterConformance",
+    "computed",
     "createApp",
     "createAuthRuntime",
     "createDevtoolsPlugin",
@@ -44,8 +45,10 @@ test("runtime public exports are frozen for the V1 package boundary", () => {
     "defineRequestMiddleware",
     "defineRequestRoute",
     "defineResourceAdapter",
+    "effect",
     "normalizeAuthSession",
     "requestJson",
+    "watch",
     "withRequestRetry"
   ]);
 });
@@ -58,6 +61,7 @@ test("runtime public type exports are frozen for application authors", () => {
     "AuthSessionPayload",
     "ComponentExpose",
     "ComponentScriptContext",
+    "ComputedValue",
     "DevtoolsPluginOptions",
     "DevtoolsBridge",
     "DevtoolsSnapshot",
@@ -117,7 +121,8 @@ test("runtime public type exports are frozen for application authors", () => {
     "ValidationPluginOptions",
     "VeloDomApp",
     "VeloDomAppOptions",
-    "VeloDomPlugin"
+    "VeloDomPlugin",
+    "WatchOptions"
   ]);
   assert.deepEqual(readTypeExportNames(rootEntrySource, "./requests/index.ts"), [
     "ApiErrorOptions",

@@ -965,6 +965,52 @@ Components create local shallow reactive state that inherits missing reads
 from their parent. Component writes remain local unless the component calls a
 parent-owned function or uses another explicit communication API.
 
+### Optional Derived State
+
+Most pages only need plain state assignments. When a value is derived or an
+integration needs a small synchronization hook, import the optional helpers:
+
+```js
+import { computed, effect, watch } from "velodom";
+
+export function init({ state, ctx }) {
+  state.quantity = 1;
+  state.price = 12;
+
+  const total = computed(state, current => (
+    current.quantity * current.price
+  ));
+
+  const stopWatching = watch(
+    state,
+    current => current.quantity,
+    (quantity, previousQuantity) => {
+      console.info("Quantity changed", previousQuantity, quantity);
+    },
+    { immediate: true }
+  );
+
+  const stopEffect = effect(state, current => {
+    document.title = `Cart (${current.quantity})`;
+
+    return () => {
+      // Clean up work from the previous run when needed.
+    };
+  });
+
+  state.total = total;
+  ctx.onCleanup(() => {
+    total.dispose();
+    stopWatching();
+    stopEffect();
+  });
+}
+```
+
+Use `total.value` in a template. These helpers subscribe only to the state you
+pass to them; they do not add automatic dependency tracking, a global store, or
+a new template syntax.
+
 ## Directives
 
 Write preferred `vd-*` syntax in application HTML. The compiler converts it to
@@ -3441,6 +3487,9 @@ Runtime:
 - `createSharedState`
 - `createValidationPlugin`
 - `createProgressiveFormsPlugin`
+- `computed`
+- `watch`
+- `effect`
 - `withRequestRetry`
 - `requestJson`
 - `ApiError`

@@ -13,6 +13,13 @@ export {
   createApp
 } from "./velodom.ts";
 
+/** Optional local derived-state helpers. */
+export {
+  computed,
+  effect,
+  watch
+} from "./reactive.ts";
+
 /** Optional inference helpers for JavaScript and TypeScript application code. */
 export {
   definePageConfig,
@@ -34,6 +41,7 @@ export type {
   AuthSessionPayload,
   ComponentExpose,
   ComponentScriptContext,
+  ComputedValue,
   DevtoolsPluginOptions,
   DevtoolsBridge,
   DevtoolsSnapshot,
@@ -93,7 +101,8 @@ export type {
   ValidationPluginOptions,
   VeloDomApp,
   VeloDomAppOptions,
-  VeloDomPlugin
+  VeloDomPlugin,
+  WatchOptions
 } from "./types.ts";
 
 /** Optional locale and document-direction helper. */

@@ -24,7 +24,7 @@ package versions.
   silently regress.
 - Kept generated `lib`, `types`, dependency, and example `dist` outputs local
   and ignored; they are reproducible artifacts rather than tracked source.
-- Verified 232 tests, documentation headers/JSDoc, types, lint, an isolated
+- Verified 233 tests, documentation headers/JSDoc, types, lint, an isolated
   package consumer, production build, performance budgets, package dry-run,
   project doctor, 100/100 project health, and targeted Chromium E2E.
 - Recorded the external dependency-advisory lookup as an explicit release task
@@ -32,6 +32,9 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Added opt-in `computed`, `watch`, and `effect` helpers over an explicitly
+  supplied shallow state source; they add no global store, automatic dependency
+  graph, or template syntax.
 - Audited the beginner CLI/Vite path: convention scaffolds, routes, build
   reports, and source-offset compiler errors already cover the V1.1 workflow
   without adding a separate HMR abstraction.

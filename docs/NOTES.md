@@ -497,6 +497,9 @@
 - Vite owns hot-module replacement. VeloDom supplies original file/offset
   diagnostics to Vite's standard development overlay instead of introducing a
   second HMR error UI or runtime protocol.
+- Derived-state helpers intentionally subscribe to the supplied shallow state
+  as a whole. This is predictable and easy to clean up, while fine-grained
+  dependency tracking remains outside VeloDom's lightweight runtime goal.
 - The VS Code prototype remains outside the package and consumes the public
   compiler language-service API. Its navigation intentionally follows only
   conventional folders and `.vd` names; route-config overrides need a future

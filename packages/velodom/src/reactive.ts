@@ -10,6 +10,10 @@
 
 import { VD_PROTECTED_STATE_KEYS } from "./constants.ts";
 import { isPlainObject } from "./shared/object.ts";
+import type {
+  ComputedValue,
+  WatchOptions
+} from "./types.ts";
 
 /** Internal subscriber methods attached non-enumerably to reactive state. */
 export interface ReactiveStateMethods {
@@ -67,6 +71,98 @@ export function createState<T extends object = Record<string, unknown>>(
   defaults: T = {} as T
 ) {
   return reactive({ ...defaults });
+}
+
+/**
+ * Creates a small read-only value that recomputes when its state source emits.
+ *
+ * This intentionally subscribes to the supplied shallow state rather than
+ * adding global dependency tracking or a second template language.
+ */
+export function computed<TState extends object, TValue>(
+  state: ReactiveState<TState>,
+  getter: (state: TState) => TValue
+): ComputedValue<TValue> {
+  if (typeof getter !== "function") {
+    throw new TypeError("VeloDom computed requires a getter function");
+  }
+
+  let value = getter(state);
+  let disposed = false;
+  const unsubscribe = state._subscribe(() => {
+    value = getter(state);
+  });
+
+  return Object.freeze({
+    get value() {
+      return value;
+    },
+    dispose() {
+      if (disposed) return;
+
+      disposed = true;
+      unsubscribe();
+    }
+  });
+}
+
+/**
+ * Runs a callback when a selected value changes and returns a stop function.
+ */
+export function watch<TState extends object, TValue>(
+  state: ReactiveState<TState>,
+  selector: (state: TState) => TValue,
+  callback: (value: TValue, previous: TValue | undefined) => void,
+  options: WatchOptions = {}
+) {
+  if (typeof selector !== "function" || typeof callback !== "function") {
+    throw new TypeError("VeloDom watch requires selector and callback functions");
+  }
+
+  let previous = selector(state);
+
+  if (options.immediate) {
+    callback(previous, undefined);
+  }
+
+  return state._subscribe(() => {
+    const next = selector(state);
+
+    if (Object.is(next, previous)) return;
+
+    const previousValue = previous;
+
+    previous = next;
+    callback(next, previousValue);
+  });
+}
+
+/**
+ * Runs an effect now and after state updates, cleaning prior work when needed.
+ */
+export function effect<TState extends object>(
+  state: ReactiveState<TState>,
+  callback: (state: TState) => void | (() => void)
+) {
+  if (typeof callback !== "function") {
+    throw new TypeError("VeloDom effect requires a callback function");
+  }
+
+  let cleanup: (() => void) | undefined;
+
+  const run = () => {
+    cleanup?.();
+    cleanup = callback(state) || undefined;
+  };
+  const unsubscribe = state._subscribe(run);
+
+  run();
+
+  return () => {
+    unsubscribe();
+    cleanup?.();
+    cleanup = undefined;
+  };
 }
 
 /** Creates local reactive state that inherits reads from a parent scope. */

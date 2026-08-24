@@ -2,8 +2,64 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   createState,
-  mergeExposedMembers
+  computed,
+  effect,
+  mergeExposedMembers,
+  watch
 } from "../../../packages/velodom/src/reactive.ts";
+
+test("optional derived-state helpers stay local to supplied state", () => {
+  const state = createState({
+    count: 1
+  });
+  const doubled = computed(state, current => current.count * 2);
+  const changes = [];
+  const stopWatching = watch(
+    state,
+    current => current.count,
+    (value, previous) => changes.push([value, previous]),
+    { immediate: true }
+  );
+  const runs = [];
+  const stopEffect = effect(state, current => {
+    const count = current.count;
+
+    runs.push(`run:${count}`);
+
+    return () => runs.push(`cleanup:${count}`);
+  });
+
+  assert.equal(doubled.value, 2);
+  state.count = 2;
+
+  assert.equal(doubled.value, 4);
+  assert.deepEqual(changes, [
+    [1, undefined],
+    [2, 1]
+  ]);
+  assert.deepEqual(runs, [
+    "run:1",
+    "cleanup:1",
+    "run:2"
+  ]);
+
+  stopWatching();
+  stopEffect();
+  doubled.dispose();
+  state.count = 3;
+
+  assert.equal(doubled.value, 4);
+  assert.deepEqual(changes, [
+    [1, undefined],
+    [2, 1]
+  ]);
+  assert.deepEqual(runs, [
+    "run:1",
+    "cleanup:1",
+    "run:2",
+    "cleanup:2"
+  ]);
+});
 
 test("component expose members are callable from local template state", () => {
   const state = createState({

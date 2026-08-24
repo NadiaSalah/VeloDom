@@ -13,6 +13,17 @@ import type {
 } from "./compiler/types.ts";
 import { VD_ADAPTER } from "./constants.ts";
 
+/** Read-only value derived from an explicitly supplied reactive state source. */
+export interface ComputedValue<T> {
+  readonly value: T;
+  dispose(): void;
+}
+
+/** Options for a lightweight subscription to a selected state value. */
+export interface WatchOptions {
+  immediate?: boolean;
+}
+
 /** A value that may be returned directly or through a Promise. */
 export type MaybePromise<T> = T | Promise<T>;
 /** Extensible record whose unmodelled values require safe narrowing. */
