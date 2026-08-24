@@ -37,6 +37,8 @@ package versions.
 - Applied the same navigation behavior to the `/reference` API catalog through
   one application-owned sidebar helper, with hash, click, and scroll coverage
   in the browser smoke suite.
+- Improved the compact navigation trigger contrast and open-state styling for
+  tablet and small-desktop layouts.
 
 ### Documentation and Project-Intelligence Audit
 

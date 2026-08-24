@@ -141,6 +141,8 @@ application browser runtime weight:
   URL hash, click navigation, viewport scrolling, and accessible focus state.
 - [x] The `/reference` public API catalog reuses the same active-sidebar
   behavior and browser regression coverage.
+- [x] The compact site navigation keeps a high-contrast icon and a distinct
+  open state at tablet and small-desktop widths.
 
 ## V1 Ecosystem — Current
 

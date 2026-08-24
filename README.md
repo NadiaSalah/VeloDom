@@ -149,6 +149,8 @@ a browser translation provider. See
 - Reused the same application-owned active-section helper on the exhaustive
   `/reference` catalog, so guided lessons and public API sections share one
   consistent navigation behavior without adding UI logic to the framework core.
+- Increased compact-menu contrast and added an open-state treatment so the
+  navigation icon remains clear on tablet and small-desktop widths.
 
 ## Next Tasks
 
