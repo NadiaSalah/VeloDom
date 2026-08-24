@@ -18,6 +18,9 @@ package versions.
   with `vd-pre`, so documentation code cannot be accidentally compiled. Live
   and copyable conditional examples now use explicit Boolean expressions to
   match VeloDom's strict `vd-if` contract.
+- Fixed the feature-reference sidebar to use `/features#section` links. The
+  router now receives an app-relative path and performs same-page scrolling
+  without reporting unsupported navigation targets.
 
 ### npm Package Readiness and Workspace Cleanup
 

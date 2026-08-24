@@ -124,6 +124,8 @@ application browser runtime weight:
   VeloDom APIs, shows literal HTML/JavaScript examples in `<pre><code>` blocks,
   and pairs key directives with live lessons without adding documentation UI to
   the framework runtime.
+- [x] Showcase same-page hash links use full app-relative URLs so the router
+  can preserve the route and scroll directly to the requested lesson section.
 
 ## V1 Ecosystem — Current
 

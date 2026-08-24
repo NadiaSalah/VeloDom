@@ -115,6 +115,9 @@ a browser translation provider. See
   documentation application with a structured learning path, live directive
   demonstrations, dynamic study notes, and literal `<pre><code>` examples that
   are safe from template compilation through `vd-pre`.
+- Corrected the reference sidebar to use app-relative hash URLs such as
+  `/features#architecture`, so `vd-nav` performs same-page scrolling without
+  unsupported-target warnings.
 
 ## Next Tasks
 
