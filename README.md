@@ -107,6 +107,8 @@ a browser translation provider. See
 - Added npm metadata and automated package-boundary checks.
 - Consolidated specialized documentation into the main guide and four focused
   operational files without dropping architecture or release details.
+- Extended documentation checks to verify public exports, CLI examples, private
+  import boundaries, and the consolidated documentation layout.
 - Static SEO output now waits for Vite to write the HTML shell before it
   renders route artifacts, including with the current Vite/Rolldown lifecycle.
 

@@ -109,8 +109,7 @@
   fragment the beginner path.
 - Current product documentation uses one V1 lifecycle vocabulary: Implemented,
   Current, Planned, Research, Deferred / Experimental, and Rejected. Older
-  V1.1/V1.2/V2 labels remain only as historical context in `CHANGELOG.md` or
-  the roadmap's historical implementation record; they do not announce public
+  version labels remain only in `CHANGELOG.md`; they do not announce public
   releases or make research decisions into shipped features.
 - Documentation/package consistency is automated from the public export map.
   Release documentation must include every package subpath, while current guides

@@ -18,9 +18,10 @@ JavaScript or TypeScript independently for every page and component.
 ## Contents
 
 - [What Works Today](#what-works-today)
+- [Five-Minute Start](#five-minute-start)
 - [V1 Feature Matrix](#v1-feature-matrix)
 - [Authoring Reference](#authoring-reference)
-- [Five-Minute Start](#five-minute-start)
+- [First Page Walkthrough](#first-page-walkthrough)
 - [Requirements and Commands](#requirements-and-commands)
 - [CLI and Project Intelligence](#cli-and-project-intelligence)
 - [Testing Utilities](#testing-utilities)
@@ -123,6 +124,36 @@ browser devtools panel.
 The current build-time content helper layer and future content improvements are
 documented in the Content and Assets section below. It is intentionally
 tooling-oriented, not a mandatory browser runtime layer.
+
+## Five-Minute Start
+
+The usual Vite application needs one bootstrap call:
+
+```js
+// src/main.js
+import { mountVeloDom } from "velodom/vite";
+
+await mountVeloDom();
+```
+
+Then create a page as ordinary HTML and a small state file:
+
+```html
+<!-- src/pages/hello/index.html -->
+<main>
+  <h1>{{ title }}</h1>
+  <button type="button" vd-on:click="count++">Count: {{ count }}</button>
+</main>
+```
+
+```js
+// src/pages/hello/script.js
+export const state = { title: "Hello VeloDom", count: 0 };
+```
+
+VeloDom discovers the folder, compiles the template, and mounts only the
+needed runtime features. No route registration, component registration, JSX,
+render function, or global-store setup is required.
 
 ## V1 Feature Matrix
 
@@ -256,7 +287,7 @@ The state seed is merged before `init()`. This is why `vd-on:click="count++"`
 works for simple counters while async work, cleanup, and complex logic remain
 visible in `init()`.
 
-## Five-Minute Start
+## First Page Walkthrough
 
 For this repository workspace, these commands build the local `velodom`
 package and run the independent blog example:

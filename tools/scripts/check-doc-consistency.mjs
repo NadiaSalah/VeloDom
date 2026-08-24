@@ -20,6 +20,7 @@ const packageManifest = JSON.parse(await readWorkspaceFile(
   "packages/velodom/package.json"
 ));
 const releaseGuide = await readWorkspaceFile("docs/RELEASING.md");
+const cliSource = await readWorkspaceFile("packages/velodom/src/cli.ts");
 const currentGuides = await Promise.all([
   "README.md",
   "docs/README.md",
@@ -52,6 +53,11 @@ const removedGuides = [
   "RELEASE_DECISION.md",
   "STATIC_RENDERING_DESIGN.md"
 ];
+const legacyProductLabel = /\bV1\.\d+\b|\bV[2-9]\b|\bPost-V1\b|\bPhase\s+\d+\b/;
+const privateImport = /(?:from\s+|import\()\s*["'](?:velodom\/lib\/|packages\/velodom\/src\/)/;
+const cliCommands = new Set(
+  [...cliSource.matchAll(/case "([a-z-]+)":/g)].map(match => match[1])
+);
 
 if (packageManifest.private !== true) {
   violations.push("packages/velodom must remain private until human publication approval");
@@ -69,6 +75,22 @@ for (const guide of currentGuides) {
   for (const removedGuide of removedGuides) {
     if (guide.source.includes(removedGuide)) {
       violations.push(`${guide.path} references removed guide ${removedGuide}`);
+    }
+  }
+
+  if (legacyProductLabel.test(guide.source)) {
+    violations.push(`${guide.path} uses a legacy product-generation label`);
+  }
+
+  if (privateImport.test(guide.source)) {
+    violations.push(`${guide.path} shows a private framework import`);
+  }
+
+  for (const command of collectDocumentedCliCommands(guide.source)) {
+    if (!cliCommands.has(command)) {
+      violations.push(
+        `${guide.path} documents unavailable CLI command "vd ${command}"`
+      );
     }
   }
 }
@@ -93,4 +115,23 @@ if (violations.length) {
  */
 function readWorkspaceFile(relativePath) {
   return readFile(join(workspaceRoot, relativePath), "utf8");
+}
+
+/**
+ * Collects CLI command names only from shell/text examples so ordinary prose
+ * about `vd-*` directives cannot be mistaken for a command.
+ *
+ * @param {string} source Markdown source.
+ * @returns {Set<string>} Documented VeloDom CLI command names.
+ */
+function collectDocumentedCliCommands(source) {
+  const commands = new Set();
+
+  for (const block of source.matchAll(/```(?:bash|text)\s*\n([\s\S]*?)```/g)) {
+    for (const match of block[1].matchAll(/^\s*vd\s+([a-z][a-z-]*)\b/gm)) {
+      commands.add(match[1]);
+    }
+  }
+
+  return commands;
 }

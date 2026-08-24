@@ -51,6 +51,9 @@ package versions.
   `velodom/node` are verified alongside every other public subpath.
 - Clarified static rendering, client takeover, hydration, and the Node adapter
   boundary in the primary guide without adding server/runtime features.
+- Moved the practical five-minute path ahead of the detailed authoring reference
+  and extended documentation checks for CLI examples, legacy product labels,
+  and accidental private-import examples.
 
 - Rebuilt the main framework guide and npm package README around the current V1
   authoring model: folder mode, optional `.vd` files, the complete directive

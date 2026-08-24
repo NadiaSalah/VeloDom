@@ -118,6 +118,8 @@ application browser runtime weight:
   `packages/velodom-vscode` workspace consumer.
 - [x] `velodom/testing`, devtools bridge/inspector, and real-browser Playwright
   smoke coverage.
+- [x] Documentation checks for public exports, documented CLI commands, private
+  imports, legacy roadmap labels, and removed-guide links.
 
 ## V1 Ecosystem — Current
 
@@ -214,19 +216,29 @@ without explicit owner approval.
 
 ## Historical Implementation Record
 
-The previous Phase 0, A–I, Z/Y, MVP, V1 Release, V1.5, V2, Post-V1, and
-Phase 20–25 checklists recorded useful implementation decisions. They are
-represented in the current status groups above and remain historically traceable
-through `CHANGELOG.md` and `NOTES.md`. The important decisions retained are:
+Earlier multi-phase checklists recorded useful implementation decisions. Their
+implementation history remains traceable through `CHANGELOG.md` and `NOTES.md`;
+the current roadmap groups the decisions by V1 capability instead of legacy
+version labels. The important decisions retained are:
 
 - compiler and Core ownership were separated from adapter filesystem discovery;
 - the safe expression engine replaced `eval`/`new Function`;
 - middleware, auth, request routes, layouts, localization, content, Node, and
   devtools were kept behind explicit contracts;
+- folder mode and optional `.vd` files were kept as equivalent authoring
+  layouts, while JavaScript and TypeScript remain equal application choices;
+- request UX additions—automatic state, debounce, throttle, retry, cache,
+  callbacks, and validation—were designed as explicit declarative helpers;
+- page data and build-time static content were kept application-owned and safe
+  to serialize instead of becoming an implicit server data layer;
 - SEO/prerender and progressive forms were bounded as build/native enhancements,
   not mislabeled SSR or hydration;
+- localization, RTL, content, and asset helpers were kept build-time or opt-in
+  so sites without them do not carry their runtime cost;
 - project intelligence, graphs, health, build reports, docs, and editor support
   were kept outside browser runtime weight;
+- accessibility, security, route focus, hash navigation, and error boundaries
+  were treated as release-quality behavior with regression coverage;
 - package exports, documentation headers, public API names, and release gates
   were frozen through tests and human approval rules.
 
