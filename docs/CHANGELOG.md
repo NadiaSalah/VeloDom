@@ -25,6 +25,9 @@ package versions.
   active sections remain synchronized in Chromium and Firefox as well as
   WebKit. Browser E2E failures now report their exact route step, URL, and
   visible page state instead of only a generic wait timeout.
+- Corrected the static SEO test to inspect the no-JavaScript DOM directly.
+  Chromium and Firefox correctly prevent the previous page-side wait callback
+  from executing when JavaScript is disabled.
 
 ## 2026-08-24
 

@@ -255,7 +255,7 @@ async function assertNoJavaScriptSeo(browser, target, origin) {
     const page = await context.newPage();
 
     await page.goto(`${origin}/features/`);
-    await waitForPageText(page, "VeloDom framework features");
+    await assertStaticPageText(page, "VeloDom framework features");
 
     const fallbackCount = await page.locator("[data-vd-seo-fallback]").count();
 
@@ -502,6 +502,23 @@ async function waitForPageText(page, text) {
     ].join("\n"), {
       cause: error
     });
+  }
+}
+
+/**
+ * Verifies prerendered fallback text without evaluating code in the page.
+ * JavaScript is intentionally disabled for this SEO check, so Playwright's
+ * page-side wait helpers would never be evaluated in Chromium or Firefox.
+ */
+async function assertStaticPageText(page, text) {
+  const body = await page.locator("body").innerText();
+
+  if (!body.includes(text)) {
+    throw new Error([
+      `Expected static page text: ${text}`,
+      `Current URL: ${page.url()}`,
+      `Current body: ${body.slice(0, 1000)}`
+    ].join("\n"));
   }
 }
 

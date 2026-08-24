@@ -122,6 +122,9 @@ a browser translation provider. See
 - Made the application-owned documentation sidebars resilient to browser-specific
   `IntersectionObserver` timing through a scroll fallback, and made browser
   smoke-test failures identify the exact route step and visible page state.
+- Corrected the no-JavaScript SEO smoke test so it inspects prerendered DOM
+  text without calling page-side JavaScript, which Chromium and Firefox disable
+  by design.
 - Static SEO output now waits for Vite to write the HTML shell before it
   renders route artifacts, including with the current Vite/Rolldown lifecycle.
 - Rebuilt `examples/blog` as the polished VeloDom academic reference: a modern
