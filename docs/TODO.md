@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**396 of 408 tasks completed — 97%**
+**399 of 408 tasks completed — 98%**
 
 `[###################-]`
 
-Remaining tasks: **12**
+Remaining tasks: **9**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -902,15 +902,15 @@ publication.
 
 ### Phase 23 — Future Research (Optional)
 
-- [ ] Design an optional AI Provider interface with privacy, offline, cost, and
+- [x] Design an optional AI Provider interface with privacy, offline, cost, and
       security boundaries; AI must never be required by Core — Fit: optional
       provider architecture; Value: assisted review and generation for teams;
       Complexity: high; Target: Future Research
-- [ ] Research HTML, Vue, and React migration assistants only if they preserve
+- [x] Research HTML, Vue, and React migration assistants only if they preserve
       readable HTML and produce maintainable VeloDom conventions — Fit:
       strengthens adoption without compatibility bloat; Value: lowers
       migration cost; Complexity: high; Target: Future Research
-- [ ] Research CMS and deployment integrations as external adapters rather than
+- [x] Research CMS and deployment integrations as external adapters rather than
       framework-owned features — Fit: vendor-neutral Core; Value: broader
       production adoption without package bloat; Complexity: medium; Target:
       Future Research

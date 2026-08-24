@@ -491,6 +491,10 @@
   primitives. Dynamic HTML, authentication, cookies, and safe failure output
   remain application-owned; automatic template rendering, hydration, and
   streaming are intentionally deferred.
+- AI providers, migration assistants, and CMS/deployment support are now
+  documented research boundaries, not shipped framework features. Any future
+  implementation must remain separately installed, reviewable, and free of
+  hidden browser-runtime dependencies or credentials.
 - CSS budgets remain build-only and opt-in. VeloDom reports generated CSS for
   every project but does not ship a default threshold because framework-owned
   limits would make a visual design-system choice look like a runtime defect.
