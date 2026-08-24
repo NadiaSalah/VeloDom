@@ -20,6 +20,7 @@ import {
   VD_DIRECTION,
   VD_INTERNAL,
   VD_LAYOUT,
+  VD_PAGE_DATA,
   VD_ROUTER
 } from "./constants.ts";
 import { reportUserActionError } from "./errors/error-reporter.ts";
@@ -36,6 +37,10 @@ import {
 } from "./router.ts";
 import { validateResourceAdapter } from "./resource-adapter.ts";
 import { applyPageSeo } from "./seo.ts";
+import {
+  consumePageDataTransfer,
+  loadClientPageData
+} from "./page-data.ts";
 import { normalizeFolderPath } from "./shared/path.ts";
 import type {
   RuntimeFeatureManifest
@@ -78,6 +83,7 @@ export function createPageRouter(
   const pageModules = pageResources.modules || Object.create(null);
   const pageConfigs = pageResources.configs || Object.create(null);
   const pageStyles = pageResources.styles || Object.create(null);
+  const pageData = pageResources.data || Object.create(null);
   const pageManifests = pageResources.manifests || Object.create(null);
   const layoutHtml = layoutResources.html || Object.create(null);
   const layoutStyles = layoutResources.styles || Object.create(null);
@@ -214,6 +220,11 @@ export function createPageRouter(
         manifest,
         layoutManifest
       );
+      const initialPageData = consumePageDataTransfer(
+        document,
+        page,
+        route
+      );
 
       applyPageSeo(pageConfigs[page]?.seo, route.path);
       app.innerHTML = layoutName && layoutTemplate
@@ -235,6 +246,17 @@ export function createPageRouter(
       const state = getOrCreatePageState(page, runtime);
       state.__vdPageName = page;
       state.components = {};
+      const data = initialPageData.found
+        ? initialPageData.data
+        : await loadClientPageData(pageData[page], {
+          page,
+          route,
+          params: route.params,
+          query: route.query,
+          meta: route.meta
+        });
+
+      state[VD_PAGE_DATA.STATE_KEY] = data;
       const directionCleanup = attachDirectionToPageState(
         state,
         appContext.direction
@@ -261,6 +283,7 @@ export function createPageRouter(
         props: {},
         refs,
         state,
+        data,
         ctx
       };
 

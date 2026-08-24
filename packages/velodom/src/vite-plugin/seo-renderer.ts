@@ -37,6 +37,9 @@ import {
 import {
   parseVeloDomSingleFile
 } from "./single-file.ts";
+import {
+  renderPageDataTransfer
+} from "../page-data.ts";
 import type {
   PageConfig,
   SeoConfig,
@@ -91,8 +94,10 @@ interface RenderSeoDocumentOptions {
   defaultTitle?: string;
   defaultLang?: string;
   siteUrl?: string;
+  page?: string;
   route?: string;
   staticContent?: SeoStaticContent;
+  staticData?: unknown;
 }
 
 /**
@@ -135,9 +140,11 @@ export async function generateStaticSeoPages(
       renderSeoDocument(baseHtml, page.seo, {
         defaultTitle: readDocumentTitle(baseHtml),
         defaultLang: readDocumentLang(baseHtml),
+        page: page.page,
         siteUrl: options.siteUrl,
         route: page.route,
-        staticContent
+        staticContent,
+        staticData: page.data
       })
     );
     files.push(outputPath);
@@ -217,7 +224,10 @@ export function renderSeoDocument(
       renderAppStaticContent(
         options.staticContent,
         summary.heading,
-        summary.text
+        summary.text,
+        options.page,
+        options.route,
+        options.staticData
       ),
       "$2"
     ].join("\n")
@@ -852,10 +862,17 @@ function renderSummary(heading: string, text: string) {
 function renderAppStaticContent(
   staticContent: SeoStaticContent | undefined,
   heading: string,
-  text: string
+  text: string,
+  page: string | undefined,
+  route: string | undefined,
+  data: unknown
 ) {
+  const dataTransfer = page && route
+    ? renderPageDataTransfer(page, route, data)
+    : "";
+
   if (!staticContent?.html) {
-    return renderSummary(heading, text);
+    return `${renderSummary(heading, text)}${dataTransfer}`;
   }
 
   const staticHtml = renderStaticContent(staticContent);
@@ -863,11 +880,12 @@ function renderAppStaticContent(
   if (staticContent.mode === "append") {
     return [
       renderSummary(heading, text),
-      staticHtml
+      staticHtml,
+      dataTransfer
     ].join("\n");
   }
 
-  return staticHtml;
+  return `${staticHtml}${dataTransfer}`;
 }
 
 function renderStaticContent(staticContent: SeoStaticContent) {

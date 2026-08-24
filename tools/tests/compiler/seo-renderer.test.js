@@ -269,6 +269,9 @@ test("static SEO renderer emits complete routes from page prerender entries", as
       "/blog/compiler-first"
     ]);
     assert.match(html, /data-vd-static-content/);
+    assert.match(html, /data-vd-page-data-page="blog\/\[slug\]"/);
+    assert.match(html, /data-vd-page-data-route="\/blog\/html-first"/);
+    assert.match(html, /\{"title":"HTML First"\}/);
     assert.match(html, /<h1>HTML First<\/h1>/);
     assert.doesNotMatch(html, /data-vd-seo-fallback/);
   } finally {

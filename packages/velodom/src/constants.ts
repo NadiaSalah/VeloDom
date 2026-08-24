@@ -67,9 +67,24 @@ export const VD_ADAPTER = Object.freeze({
   CAPABILITIES: Object.freeze([
     "resource-discovery",
     "page-config",
+    "page-data",
     "layouts",
     "compiler-manifests"
   ])
+});
+
+/** Build and browser markers used by optional page-data transfer. */
+export const VD_PAGE_DATA = Object.freeze({
+  ATTRIBUTE: "data-vd-page-data",
+  PAGE_ATTRIBUTE: "data-vd-page-data-page",
+  ROUTE_ATTRIBUTE: "data-vd-page-data-route",
+  SCRIPT_SELECTOR: "script[data-vd-page-data]",
+  STATE_KEY: "data",
+  MODES: Object.freeze({
+    BUILD: "build",
+    CLIENT: "client",
+    SERVER: "server"
+  })
 });
 
 /** Names used only by opt-in development inspection helpers. */
@@ -205,6 +220,7 @@ export const VD_RESOURCE_ADAPTER = Object.freeze({
   }),
   TYPES: Object.freeze({
     CONFIGS: "configs",
+    DATA: "data",
     HTML: "html",
     MANIFESTS: "manifests",
     MODULES: "modules",
@@ -222,6 +238,11 @@ export const VD_RESOURCE_ADAPTER = Object.freeze({
       "config.js",
       "page.config.ts",
       "page.config.js"
+    ]),
+    DATA: "data.js",
+    DATA_VARIANTS: Object.freeze([
+      "data.ts",
+      "data.js"
     ]),
     HTML: "index.html",
     MODULE: "script.js",

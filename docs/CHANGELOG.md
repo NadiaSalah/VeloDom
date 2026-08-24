@@ -24,7 +24,7 @@ package versions.
   silently regress.
 - Kept generated `lib`, `types`, dependency, and example `dist` outputs local
   and ignored; they are reproducible artifacts rather than tracked source.
-- Verified 217 tests, documentation headers/JSDoc, types, lint, an isolated
+- Verified 223 tests, documentation headers/JSDoc, types, lint, an isolated
   package consumer, production build, performance budgets, package dry-run,
   project doctor, 100/100 project health, and targeted Chromium E2E.
 - Recorded the external dependency-advisory lookup as an explicit release task
@@ -32,6 +32,9 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Implemented the V1.1 page-data contract: conventional `data.js|ts` modules
+  load before page initialization, receive route context, expose `data` to
+  templates/hooks, and reuse matching safely serialized prerender data.
 - Implemented the first V1.1 roadmap item: opt-in page-owned static
   prerendering with concrete entries, build-only data, safe HTML validation,
   client-takeover metadata, and browser-config stripping.

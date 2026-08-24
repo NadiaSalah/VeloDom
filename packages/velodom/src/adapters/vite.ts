@@ -31,7 +31,10 @@ import type {
   VeloDomApp,
   VeloDomAppOptions
 } from "../types.ts";
-import { VD_ADAPTER } from "../constants.ts";
+import {
+  VD_ADAPTER,
+  VD_RESOURCE_ADAPTER
+} from "../constants.ts";
 
 /** Beginner-friendly Vite options; resource discovery is supplied by VeloDom. */
 export type ViteAppOptions = Omit<VeloDomAppOptions, "adapter">;
@@ -97,6 +100,10 @@ const pageModuleFiles = import.meta.glob([
   "/src/pages/**/script.ts",
   "/src/pages/**/script.js",
   "/src/pages/**/page.js"
+]);
+const pageDataFiles = import.meta.glob([
+  "/src/pages/**/data.ts",
+  "/src/pages/**/data.js"
 ]);
 const pageConfigFiles = import.meta.glob(
   [
@@ -231,6 +238,7 @@ export function createViteAdapter(): ResourceAdapter {
     capabilities: [
       "resource-discovery",
       "page-config",
+      "page-data",
       "layouts",
       "compiler-manifests"
     ],
@@ -255,6 +263,11 @@ export function createViteAdapter(): ResourceAdapter {
           ]
         )
       },
+      data: indexFolderVariants(
+        pageDataFiles,
+        "/src/pages/",
+        VD_RESOURCE_ADAPTER.FILES.DATA_VARIANTS
+      ),
       configs: {
         ...indexSingleFiles(pageSingleFileConfigs, "/src/pages/"),
         ...indexFolderVariants(

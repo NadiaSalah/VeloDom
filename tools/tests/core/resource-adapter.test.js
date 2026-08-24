@@ -39,6 +39,7 @@ test("resource adapter accepts the documented versioned capability contract", ()
     capabilities: [
       "resource-discovery",
       "page-config",
+      "page-data",
       "layouts",
       "compiler-manifests"
     ],
@@ -51,9 +52,10 @@ test("resource adapter accepts the documented versioned capability contract", ()
 
   assert.equal(adapter.version, 1);
   assert.deepEqual(adapter.capabilities, [
-    "resource-discovery",
-    "page-config",
-    "layouts",
+      "resource-discovery",
+      "page-config",
+      "page-data",
+      "layouts",
     "compiler-manifests"
   ]);
   assert.doesNotThrow(() => assertResourceAdapterConformance({
@@ -63,6 +65,29 @@ test("resource adapter accepts the documented versioned capability contract", ()
       }
     }
   }));
+});
+
+test("resource adapter validates optional page data loaders", async () => {
+  const adapter = validateResourceAdapter({
+    pages: {
+      data: {
+        home: async () => ({
+          load: () => ({
+            title: "Home"
+          })
+        })
+      },
+      html: {
+        home: async () => "<main></main>"
+      }
+    }
+  });
+
+  assert.equal(typeof adapter.pages.data.home, "function");
+  assert.equal(
+    typeof (await adapter.pages.data.home()).load,
+    "function"
+  );
 });
 
 test("resource adapter rejects unsupported versions and capabilities", () => {

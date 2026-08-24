@@ -7,6 +7,9 @@ import { mount } from "../../../packages/velodom/src/mount.ts";
 import { createPageRouter } from "../../../packages/velodom/src/page-router.ts";
 import { createState } from "../../../packages/velodom/src/reactive.ts";
 import {
+  renderPageDataTransfer
+} from "../../../packages/velodom/src/page-data.ts";
+import {
   configureRequestRuntime
 } from "../../../packages/velodom/src/requests/request-router.ts";
 import {
@@ -648,6 +651,98 @@ test("page router drives navigation, route context, persistence, and teardown", 
 
   await router.navigate("/");
   assert.equal(document.querySelector("button").textContent, "2");
+
+  await router.destroy();
+});
+
+test("page router exposes conventional data modules before page init", async () => {
+  document.body.innerHTML = '<div id="app"></div>';
+  history.replaceState({}, "", "/articles/html-first?preview=1");
+  let receivedData;
+  const router = createPageRouter({
+    pages: {
+      data: {
+        "articles/[slug]": async () => ({
+          load: ({ mode, params, query }) => ({
+            mode,
+            preview: query.preview,
+            title: params.slug
+          })
+        })
+      },
+      html: {
+        "articles/[slug]": async () => (
+          '<h1 data-vd-text="data.title"></h1>'
+        )
+      },
+      manifests: {
+        "articles/[slug]": async () => ({
+          directives: ["data-vd-text"],
+          features: ["text"]
+        })
+      },
+      modules: {
+        "articles/[slug]": async () => ({
+          init({ data }) {
+            receivedData = data;
+          }
+        })
+      }
+    }
+  });
+
+  await router.init();
+
+  assert.equal(document.querySelector("h1")?.textContent, "html-first");
+  assert.deepEqual(receivedData, {
+    mode: "client",
+    preview: "1",
+    title: "html-first"
+  });
+
+  await router.destroy();
+});
+
+test("page router consumes matching static page data before loading again", async () => {
+  document.body.innerHTML = [
+    '<div id="app">',
+    renderPageDataTransfer("articles/[slug]", "/articles/html-first", {
+      title: "Static HTML First"
+    }),
+    "</div>"
+  ].join("");
+  history.replaceState({}, "", "/articles/html-first");
+  let loads = 0;
+  const router = createPageRouter({
+    pages: {
+      data: {
+        "articles/[slug]": async () => ({
+          load: () => {
+            loads += 1;
+            return {
+              title: "Client HTML First"
+            };
+          }
+        })
+      },
+      html: {
+        "articles/[slug]": async () => (
+          '<h1 data-vd-text="data.title"></h1>'
+        )
+      },
+      manifests: {
+        "articles/[slug]": async () => ({
+          directives: ["data-vd-text"],
+          features: ["text"]
+        })
+      }
+    }
+  });
+
+  await router.init();
+
+  assert.equal(loads, 0);
+  assert.equal(document.querySelector("h1")?.textContent, "Static HTML First");
 
   await router.destroy();
 });

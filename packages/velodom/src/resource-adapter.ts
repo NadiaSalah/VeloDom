@@ -36,6 +36,7 @@ interface VeloDomAnnotatedError extends Error {
 export interface ValidatedResourceGroup {
   html: Record<string, ResourceLoader<string>>;
   modules: Record<string, ResourceLoader<UnknownRecord>>;
+  data: Record<string, ResourceLoader<UnknownRecord>>;
   styles: Record<string, ResourceLoader<string>>;
   configs: Record<string, PageConfig>;
   manifests: Record<
@@ -168,6 +169,10 @@ function validateResourceGroup(
     value.modules || {},
     `${label}.modules`
   );
+  const data = validateLoaderMap<UnknownRecord>(
+    value.data || {},
+    `${label}.data`
+  );
   const styles = validateLoaderMap<string>(
     value.styles || {},
     `${label}.styles`
@@ -192,6 +197,7 @@ function validateResourceGroup(
   return {
     html,
     modules,
+    data,
     styles,
     configs,
     manifests
@@ -360,6 +366,8 @@ function getResourceSourceFile(label: string, name: string) {
       return `${root}/${folder}/${VD_RESOURCE_ADAPTER.FILES.HTML}`;
     case VD_RESOURCE_ADAPTER.TYPES.MODULES:
       return `${root}/${folder}/${VD_RESOURCE_ADAPTER.FILES.MODULE}`;
+    case VD_RESOURCE_ADAPTER.TYPES.DATA:
+      return `${root}/${folder}/${VD_RESOURCE_ADAPTER.FILES.DATA}`;
     case VD_RESOURCE_ADAPTER.TYPES.STYLES:
       return `${root}/${folder}/${VD_RESOURCE_ADAPTER.FILES.STYLE}`;
     case VD_RESOURCE_ADAPTER.TYPES.CONFIGS:

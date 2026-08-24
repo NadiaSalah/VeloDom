@@ -47,6 +47,8 @@ export type {
   LifecycleContext,
   NavigationGuard,
   PageConfig,
+  PageDataContext,
+  PageDataLoader,
   PagePrerenderConfig,
   PageScriptContext,
   PluginContext,

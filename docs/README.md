@@ -725,6 +725,43 @@ Page hook arguments:
 Page state is preserved when navigating away and returning during the same app
 runtime. Mounted component state is recreated.
 
+### Page Data
+
+Add an optional `data.js` or `data.ts` beside a page when its initial data is
+part of the page rather than an event-driven request:
+
+```js
+// src/pages/blog/[slug]/data.js
+export async function load({ params, query, mode }) {
+  const response = await fetch(`/api/articles/${params.slug}`);
+
+  return {
+    article: await response.json(),
+    preview: query.preview === "true",
+    source: mode
+  };
+}
+```
+
+VeloDom loads this module before `init()`. Its return value is available as
+`data` in page hooks and as `data` in page templates:
+
+```html
+<h1 vd-text="data.article.title"></h1>
+```
+
+```js
+export function init({ data, state }) {
+  state.title = data.article.title;
+}
+```
+
+The same loader context is intentionally shaped for future build and server
+adapters. Today the browser runtime passes `mode: "client"`. When a static
+prerender entry supplies `data`, VeloDom safely transfers that JSON for the
+matching direct route and skips the first client reload. Never return secrets,
+cookies, tokens, or user-specific private data from a static entry.
+
 ### Page Config
 
 ```js
@@ -757,6 +794,7 @@ export default {
 - allow, block, or redirect through `beforeEnter`
 - allow named cross-page request destinations with `allowExternalWrite`
 - declare page SEO through `seo`
+- opt into build-only route generation through `prerender`
 
 ## Routing
 

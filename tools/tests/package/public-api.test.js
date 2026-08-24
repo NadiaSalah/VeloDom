@@ -69,6 +69,8 @@ test("runtime public type exports are frozen for application authors", () => {
     "LifecycleContext",
     "NavigationGuard",
     "PageConfig",
+    "PageDataContext",
+    "PageDataLoader",
     "PagePrerenderConfig",
     "PageScriptContext",
     "PluginContext",

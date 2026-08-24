@@ -28,6 +28,7 @@ export type ResourceLoader<T = unknown> = () => MaybePromise<T>;
 export interface ResourceGroup {
   html?: Record<string, ResourceLoader<string>>;
   modules?: Record<string, ResourceLoader<UnknownRecord>>;
+  data?: Record<string, ResourceLoader<UnknownRecord>>;
   styles?: Record<string, ResourceLoader<string>>;
   configs?: Record<string, PageConfig>;
   manifests?: Record<
@@ -40,6 +41,7 @@ export interface ResourceGroup {
 export type ResourceAdapterCapability =
   | "resource-discovery"
   | "page-config"
+  | "page-data"
   | "layouts"
   | "compiler-manifests";
 
@@ -203,6 +205,21 @@ export interface PageConfig {
   /** Optional build-only route generation; never shipped to the browser. */
   prerender?: PagePrerenderConfig;
 }
+
+/** Runtime context shared by client, build, and future server page data loaders. */
+export interface PageDataContext {
+  page: string;
+  route: RouteLocation;
+  params: Record<string, string>;
+  query: Record<string, string | string[]>;
+  meta: UnknownRecord;
+  mode: "build" | "client" | "server";
+}
+
+/** Application-owned loader exported from a conventional page data module. */
+export type PageDataLoader = (
+  context: PageDataContext
+) => MaybePromise<unknown>;
 
 /** Browser router options accepted by createApp. */
 export interface RouterOptions {
@@ -515,6 +532,7 @@ export interface PageScriptContext<
   props: StateRecord;
   refs: Record<string, HTMLElement | HTMLElement[]>;
   state: TState;
+  data: unknown;
   ctx: LifecycleContext & {
     page: string;
     route: RouteLocation;

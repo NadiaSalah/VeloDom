@@ -38,8 +38,11 @@ must be served before the SPA fallback.
 
 The `entries` function is optional for a concrete `path`; parameterized pages
 must return concrete paths. Each entry may provide application-owned `data`,
-which is passed only to the build renderer and is never serialized into the
-browser configuration module.
+which is passed to the build renderer. VeloDom also serializes matching,
+JSON-safe public data in an inert route-scoped page-data script, so the first
+client takeover can reuse it rather than load it again. It is never embedded
+in the browser configuration module. Do not place secrets, cookies, tokens,
+or user-specific data in an entry.
 
 ## Explicit Boundaries
 

@@ -67,6 +67,7 @@ A page can be a small, predictable folder:
 ```text
 src/pages/about/
   index.html
+  data.js
   script.js
   style.css
   config.js
@@ -103,6 +104,22 @@ export default {
   },
 };
 ```
+
+An optional `data.js` or `data.ts` can load route data before the page script:
+
+```js
+export async function load({ params }) {
+  const response = await fetch(`/api/articles/${params.slug}`);
+
+  return {
+    article: await response.json()
+  };
+}
+```
+
+The returned value is available as `data` in templates and in
+`init({ data, state })`. This keeps initial route data close to its page without
+requiring a global store.
 
 ## Optional Single-File Authoring
 
@@ -146,6 +163,7 @@ export default {
   hash navigation.
 - Request helpers with validation, cache, retry, timeout, loading, errors, and
   user-defined middleware.
+- Optional conventional page data modules with safe static-entry transfer.
 - Static SEO snapshots generated from page configuration and page content.
 - Lazy modules, asset helpers, development diagnostics, testing helpers, and
   compiler-powered project inspection.

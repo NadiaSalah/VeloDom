@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**383 of 408 tasks completed — 94%**
+**384 of 408 tasks completed — 94%**
 
 `[###################-]`
 
-Remaining tasks: **25**
+Remaining tasks: **24**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -824,10 +824,11 @@ publication.
       static hosting — Fit: HTML-first and SEO-friendly; Value: fast first
       content and crawlable pages without a server; Complexity: high; Target:
       V1.1
-- [ ] Define one page-data loading contract for build, server, and client
-      navigation, including safe serialized transfer and cache invalidation —
-      Fit: compiler-first and request-aware; Value: prevents duplicate fetches
-      and reduces page boilerplate; Complexity: high; Target: V1.1
+- [x] Define one page-data loading contract for build, server, and client
+      navigation with safe serialized transfer; cache/revalidation policy is
+      intentionally deferred to Phase 21 — Fit: compiler-first and
+      request-aware; Value: prevents duplicate fetches and reduces page
+      boilerplate; Complexity: high; Target: V1.1
 - [ ] Implement progressive native HTML forms with optional enhancement for
       validation, loading, errors, redirects, and application-owned CSRF — Fit:
       HTML-first and Vanilla Friendly; Value: forms work without JavaScript and

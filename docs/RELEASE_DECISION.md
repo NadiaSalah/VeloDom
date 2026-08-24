@@ -49,7 +49,7 @@ Before publication, the owner must confirm:
 - Package dry-run contents: 206 allowlisted entries, 343,666 compressed bytes,
   and 1,520,480 unpacked bytes
 - `npm run pack:check`: passed locally
-- `npm test`: 217 tests passed locally
+- `npm test`: 223 tests passed locally
 - `npm run check`: passed locally
 - `npm run build`: passed locally
 - `vd doctor`: no issues; `vd health`: 100/100 with SEO config on 5/5 pages
