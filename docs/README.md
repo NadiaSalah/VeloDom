@@ -492,7 +492,8 @@ directive expressions, unused components/request routes/middleware,
 unreachable showcase files, circular component dependencies, large templates,
 and simple page config mistakes.
 `vd build-report` summarizes project counts, SEO coverage, compiler features,
-unused directive families, unused runtime feature modules, largest pages/
+unused directive families, optional runtime features not requested by current
+templates, largest pages/
 components, largest route chunks, repeated heavy-dependency signals visible in
 generated chunk text, generated JavaScript/CSS chunks, and optimization
 suggestions in text or JSON for CI dashboards.
@@ -500,8 +501,8 @@ suggestions in text or JSON for CI dashboards.
 middleware relationships plus statically provable refs, events, state keys, and
 exposed names as text, JSON, or Mermaid.
 `vd health` summarizes doctor issues, SEO coverage, accessibility/compiler
-warnings, security link checks, generated bundle size, and unused runtime
-feature signals into a non-blocking score. It fails only when `--min-score` or
+warnings, security link checks, generated bundle size, and optional runtime
+feature-selection signals into a non-blocking score. It fails only when `--min-score` or
 `.velodom-health.json` config asks it to enforce a threshold.
 `vd docs` generates Markdown or JSON documentation for routes, components,
 requests, middleware, plugins, refs, events, state, exposed names, slots, and
@@ -1194,7 +1195,16 @@ exists. Browser scroll restoration is managed manually so back/forward
 navigation restores the previous scroll position. `ctx.route.hash` exposes the
 current fragment without the leading `#`. When only the hash changes on the
 current path and query, VeloDom updates browser history and scrolls directly
-without remounting the current page.
+without remounting the current page. Since intercepted `history.pushState()`
+does not produce a native event itself, VeloDom dispatches `hashchange` after
+scroll and focus restoration with the standard `oldURL` and `newURL` values.
+Route-aware tabs can therefore listen to one browser event:
+
+```js
+window.addEventListener("hashchange", () => {
+  selectSection(window.location.hash.slice(1));
+});
+```
 
 After route navigation, VeloDom moves keyboard and screen-reader focus to the
 most useful target without changing the current scroll position. Hash routes

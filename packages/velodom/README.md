@@ -274,8 +274,10 @@ export default {
 
 `vd-nav` uses browser history and preserves same-page navigation. A hash-only
 change on the active path updates history, scrolls to the target, and moves
-focus without remounting the page. The router also supports opt-in prefetch,
-focus targets, and scroll restoration.
+focus without remounting the page. It then emits the browser `hashchange`
+notification with `oldURL` and `newURL`, so tabs and local navigation indexes
+can synchronize without attaching duplicate click handlers. The router also
+supports opt-in prefetch, focus targets, and scroll restoration.
 
 ## Requests and APIs
 
@@ -488,4 +490,4 @@ intentionally blocked until the owner approves the npm account, package name,
 
 Full examples, architecture decisions, deployment guidance, and the living
 roadmap are in the repository
-[documentation](https://github.com/NadiaSalah/velodom/tree/master/docs).
+[documentation](https://github.com/NadiaSalah/velodom/tree/main/docs).

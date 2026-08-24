@@ -66,7 +66,7 @@ The preferred Vite bootstrap is:
 import { mountVeloDom } from 'velodom/vite';
 import './styles.css';
 
-mountVeloDom();
+await mountVeloDom();
 ```
 
 The default folder shape is:
@@ -142,7 +142,7 @@ migration, but new examples should use the preferred form.
 <p>{{ summary }}</p>
 <p>{{ user?.name || 'Guest' }}</p>
 <button vd-on:click="save()" vd-loading="saving">Save</button>
-<input vd-model="query" />
+<input vd-model="query">
 <article vd-for="post in posts" vd-key="post.id">
   <h2 vd-text="post.title"></h2>
 </article>
@@ -163,18 +163,18 @@ Keep expressions small and visible. Put multi-step or asynchronous behavior in
 ## 7. State and lifecycle
 
 Pages and components can export shallow initial state and may use `init()` for
-behavior. Lifecycle context supports `state`, `refs`, `signal`, `onCleanup`,
-and route-aware values. Abort requests and subscriptions through the provided
-signal/cleanup hooks. Prefer local state; use `createSharedState()` only when a
-cross-page store is genuinely needed.
+behavior. The hook object exposes `state`, `refs`, and `ctx`; `ctx` owns
+`signal`, `onCleanup`, and route-aware values. Abort requests and subscriptions
+through that lifecycle scope. Prefer local state; use `createSharedState()`
+only when a cross-page store is genuinely needed.
 
 ```js
 export const state = { count: 0 };
 
-export function init({ state, onCleanup }) {
+export function init({ state, ctx }) {
   state.increment = () => { state.count += 1; };
   const timer = setInterval(() => state.count += 1, 1000);
-  onCleanup(() => clearInterval(timer));
+  ctx.onCleanup(() => clearInterval(timer));
 }
 ```
 
@@ -183,6 +183,9 @@ export function init({ state, onCleanup }) {
 Routes come from `src/pages`; dynamic folders and route config provide params,
 guards, metadata, prefetch, and hash scrolling. Use app-relative links such as
 `/features#components`, not bare `#components`, when invoking `vd-nav`.
+Same-page hash navigation does not remount the page; after history, scroll, and
+focus updates, the router emits `hashchange` with `oldURL` and `newURL` for
+route-aware application UI.
 
 Requests are declarative in HTML and application-owned handlers live in
 `src/api`. A nested default export such as `src/api/posts/get.js` can be used as
@@ -192,7 +195,7 @@ hatch for custom auth, roles, and middleware.
 ```html
 <button
   type="button"
-  vd-request="posts.get-one"
+  vd-request="posts.get"
   vd-params="{ id: selectedId }"
   vd-target="postResult"
   vd-loading="postLoading"

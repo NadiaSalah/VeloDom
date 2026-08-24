@@ -29,12 +29,34 @@ src/
   layouts/     # shared shells
   api/         # application request handlers and middleware
   assets/      # logo and static visual assets
+  content/     # application-owned learning copy and records
   utils/       # application-only navigation/content helpers
 ```
 
 Both JavaScript and TypeScript page/config files are supported by VeloDom; the
 showcase intentionally includes both forms to prove parity. Tailwind CSS and
 daisyUI are visual choices of this example and are not framework requirements.
+Tailwind v4 is loaded through its Vite plugin and CSS import, so the application
+does not keep an unused legacy `tailwind.config.js`.
+
+Static page copy is exported separately from lifecycle behavior. The home page
+uses the short state-seed convention and reserves `init()` for asynchronous
+work:
+
+```js
+export const state = {
+  lessons: learningPath,
+  posts: []
+};
+
+export async function init({ state }) {
+  state.posts = (await listArticles()).posts;
+}
+```
+
+The documentation sidebars listen to the router-restored `hashchange` contract
+and pause viewport tracking until smooth hash scrolling settles. They do not
+duplicate router click handling.
 
 ## Run and verify
 

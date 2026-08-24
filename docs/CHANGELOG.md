@@ -42,8 +42,32 @@ package versions.
   access, implicit returns, and switch fallthrough; clarified the four early
   exit paths that were previously implicit.
 - Deduplicated state keys in inspect/stats/docs/graph analysis and reworded
-  build intelligence so compiler-omitted optional runtime modules are treated
-  as evidence of lightweight selection rather than an optimization warning.
+  build intelligence so optional runtime features not requested by templates
+  are treated as lazy availability rather than application dead-code debt.
+- Extended project intelligence to read top-level keys from the recommended
+  `export const state = { ... }` seed, including seeds with nested values,
+  without requiring a JavaScript or TypeScript parser dependency.
+- Rebuilt the showcase sidebar synchronization around the router's restored
+  `hashchange` contract. A scroll-idle lock prevents smooth scrolling from
+  selecting intermediate sections; WebKit desktop and mobile browser suites
+  now complete successfully without application click-handler duplication.
+- Moved static home-page learning copy into `src/content/learning.js`, adopted
+  the shorter exported state seed, and kept page `init()` focused on its async
+  article load.
+- Removed the unused Tailwind v3-style config plus redundant root declarations
+  for the example's styling packages and unused Autoprefixer dependency. The
+  npm 10 lockfile was regenerated and its clean-install dry run passed.
+- Removed the unreferenced 270 kB `src/assets/favicon.ico`; the optimized PNG
+  is the only application logo/favicon source referenced by the site.
+- Corrected the AI generation contract to access lifecycle cleanup through
+  `ctx.onCleanup()` and documented the current same-page hash event behavior,
+  preventing generated application code from using an obsolete hook shape.
+- Expanded documentation consistency checks to cover the AI context and example
+  guide, reject direct lifecycle cleanup destructuring, and reject bare hash
+  targets on `vd-nav` links.
+- Aligned the AI bootstrap/request examples with the public beginner path:
+  `await mountVeloDom()`, standard HTML input syntax, and the conventional
+  `posts.get` name produced by `src/api/posts/get.js`.
 
 ## 2026-08-24
 

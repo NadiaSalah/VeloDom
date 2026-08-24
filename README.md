@@ -61,7 +61,8 @@ allowlisted by `packages/velodom/package.json`.
 V1 is locally verified with 255 automated tests, package-consumer validation,
 and production build checks. The roadmap is [docs/TODO.md](docs/TODO.md);
 remaining V1 release work is external governance, a strict Firefox-capable
-browser run, and starter presets that require the public npm path. Optional
+browser-matrix rerun for the current commit, and starter presets that require
+the public npm path. Optional
 Hybrid rendering, islands, richer DevTools, and streaming/Edge adapters remain
 deliberately planned or deferred rather than being folded into the V1 runtime.
 The roadmap records smaller authoring-ergonomics improvements without adopting
@@ -138,8 +139,8 @@ a browser translation provider. See
   access, implicit return paths, and accidental `switch` fallthrough. Ambiguous
   early exits now return explicitly.
 - Corrected project-intelligence output: state keys are unique per owner, and
-  compiler-omitted optional runtime modules are reported as a lightweight-build
-  success rather than as dead-code debt.
+  optional runtime features not requested by templates are reported as lazy
+  availability rather than as application dead-code debt.
 - Static SEO output now waits for Vite to write the HTML shell before it
   renders route artifacts, including with the current Vite/Rolldown lifecycle.
 - Rebuilt `examples/blog` as the polished VeloDom academic reference: a modern
@@ -180,6 +181,15 @@ a browser translation provider. See
 - Reused the same application-owned active-section helper on the exhaustive
   `/reference` catalog, so guided lessons and public API sections share one
   consistent navigation behavior without adding UI logic to the framework core.
+- Reworked that helper around the router's `hashchange` contract and a
+  scroll-idle lock, removing duplicate click handling and the WebKit smooth-
+  scroll race. Desktop and mobile WebKit now pass the complete browser suite.
+- Simplified the example home page with an exported shallow state seed and a
+  dedicated application content module; `init()` now contains only async work.
+- Removed the unused Tailwind v3-era config and redundant root styling
+  dependencies. Tailwind v4 and daisyUI remain owned by the example workspace.
+- Removed the unreferenced 270 kB ICO duplicate; the optimized PNG remains the
+  single application logo/favicon source used by the shell and shared UI.
 - Increased compact-menu contrast and added an open-state treatment so the
   navigation icon remains clear on tablet and small-desktop widths.
 - Added route-aware active states to the shared primary navigation. Learn,
@@ -200,7 +210,6 @@ a browser translation provider. See
   same-page `hashchange` fix and record the passing release-gate result.
 - Sign in to the approved npm owner account, confirm `npm whoami`, package-name
   ownership/reservation, access level, and 2FA before considering publication.
-- Confirm npm package ownership, publishing account, access, and 2FA policy.
 - Approve the exact V1 release notes and tag before enabling publication.
 - Publish the package before adding npm-installable starter presets.
 - Continue only the optional items recorded in [docs/TODO.md](docs/TODO.md).

@@ -130,6 +130,11 @@ application browser runtime weight:
 - [x] Project-intelligence literal-region handling so code shown inside
   `vd-pre` is compiled as documentation but excluded from static usage,
   reference, and event-handler reports.
+- [x] Project-intelligence state discovery deduplicates repeated assignments and
+  reads the recommended exported shallow state seed, including nested values.
+- [x] Build/health output distinguishes optional lazy feature availability from
+  application dead code and avoids optimization warnings for unused syntax
+  families alone.
 - [x] A polished application-owned academic reference that dogfoods public
   VeloDom APIs, shows literal HTML/JavaScript examples in `<pre><code>` blocks,
   and pairs key directives with live lessons without adding documentation UI to
@@ -152,6 +157,9 @@ application browser runtime weight:
   in wide and compact menus and exposes the state to assistive technology.
 - [x] The showcase now has a dedicated quality lesson for public page data,
   recoverable error boundaries, opt-in prefetch, and compiler safety signals.
+- [x] Cross-browser documentation sidebars consume the router-restored
+  `hashchange` contract and hold the selected tab until smooth scrolling is
+  idle; Chromium, desktop WebKit, and Mobile WebKit pass locally.
 
 ## V1 Ecosystem — Current
 

@@ -361,7 +361,7 @@ async function printBuildReport(context: CliContext, json: boolean) {
   context.stdout(`SEO coverage: ${report.project.seoCoverage.pagesWithSeo}/${report.project.seoCoverage.totalPages}`);
   context.stdout(`Compiler features: ${report.project.compilerFeatures.join(", ") || "none"}`);
   context.stdout(`Unused directives: ${report.project.unusedDirectives.join(", ") || "none"}`);
-  context.stdout(`Optional runtime features omitted: ${report.project.unusedRuntimeFeatures.join(", ") || "none"}`);
+  context.stdout(`Optional runtime features not requested: ${report.project.unusedRuntimeFeatures.join(", ") || "none"}`);
   context.stdout(`Dist JS total: ${formatBytes(report.dist.jsTotalBytes)}`);
   context.stdout(`Dist CSS total: ${formatBytes(report.dist.cssTotalBytes)}`);
   printSizeGroup(context, "Largest pages", report.project.largestPages);
@@ -723,7 +723,7 @@ async function createHealthReport(
       `${warningCount} warning(s)`,
       `${buildReport.project.seoCoverage.pagesWithSeo}/${buildReport.project.seoCoverage.totalPages} page(s) with SEO config`,
       `${formatBytes(buildReport.dist.jsTotalBytes)} generated JavaScript`,
-      `${buildReport.project.unusedRuntimeFeatures.length} optional runtime feature module(s) omitted`
+      `${buildReport.project.unusedRuntimeFeatures.length} optional runtime feature(s) not requested by templates`
     ],
     issues,
     build: buildReport
@@ -1499,13 +1499,112 @@ function findHandlerName(expression: string) {
 }
 
 function findStateAssignments(source: string) {
-  const names = new Set<string>();
+  const names = new Set(findExportedStateKeys(source));
 
   for (const match of source.matchAll(/\bstate\s*\.\s*([A-Za-z_$][\w$]*)\s*=/g)) {
     names.add(match[1]);
   }
 
   return [...names].sort();
+}
+
+function findExportedStateKeys(source: string) {
+  const declaration = /\bexport\s+const\s+state(?:\s*:[^=]+)?\s*=\s*\{/g
+    .exec(source);
+
+  if (!declaration) return [];
+
+  const objectStart = source.indexOf("{", declaration.index);
+
+  return readTopLevelObjectKeys(source, objectStart);
+}
+
+/**
+ * Reads only top-level state seed keys while skipping strings, comments, and
+ * nested values. The CLI must remain dependency-free and cannot require a
+ * TypeScript parser merely to inspect an ordinary JavaScript project.
+ */
+function readTopLevelObjectKeys(source: string, objectStart: number) {
+  const keys = new Set<string>();
+  let braces = 1;
+  let brackets = 0;
+  let parentheses = 0;
+  let segmentStart = objectStart + 1;
+  let quote = "";
+
+  for (let index = objectStart + 1; index < source.length; index += 1) {
+    const character = source[index];
+    const next = source[index + 1];
+
+    if (quote) {
+      if (character === "\\") {
+        index += 1;
+      } else if (character === quote) {
+        quote = "";
+      }
+      continue;
+    }
+
+    if (character === '"' || character === "'" || character === "`") {
+      quote = character;
+      continue;
+    }
+
+    if (character === "/" && next === "/") {
+      index = source.indexOf("\n", index + 2);
+      if (index === -1) break;
+      continue;
+    }
+
+    if (character === "/" && next === "*") {
+      const closing = source.indexOf("*/", index + 2);
+
+      if (closing === -1) break;
+      index = closing + 1;
+      continue;
+    }
+
+    if (character === "{") braces += 1;
+    if (character === "[") brackets += 1;
+    if (character === "(") parentheses += 1;
+
+    if (character === "}") {
+      if (braces === 1) {
+        addStateObjectKey(keys, source.slice(segmentStart, index));
+        break;
+      }
+      braces -= 1;
+    }
+    if (character === "]") brackets -= 1;
+    if (character === ")") parentheses -= 1;
+
+    if (
+      character === ","
+      && braces === 1
+      && brackets === 0
+      && parentheses === 0
+    ) {
+      addStateObjectKey(keys, source.slice(segmentStart, index));
+      segmentStart = index + 1;
+    }
+  }
+
+  return [...keys].sort();
+}
+
+function addStateObjectKey(keys: Set<string>, segment: string) {
+  const value = segment.replace(
+    /^(?:\s|\/\/[^\r\n]*(?:\r?\n|$)|\/\*[\s\S]*?\*\/)*/,
+    ""
+  );
+
+  if (!value || value.startsWith("...")) return;
+
+  const quoted = value.match(/^(["'])([^"']+)\1\s*:/);
+  const identifier = value.match(/^([A-Za-z_$][\w$]*)\s*(?=:|$)/);
+  const key = quoted?.[2] || identifier?.[1];
+
+  if (key) keys.add(key);
 }
 
 function findStateDeclarationReferences(source: string) {

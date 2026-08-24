@@ -66,6 +66,11 @@
   mode is a staged hardening task because enabling it globally exposes legacy
   implicit contracts across the compiler and request router; it must be solved
   module-by-module with tests rather than hidden behind broad assertions.
+- Directive feature modules are lazy dynamic imports. A bundler may emit their
+  small standalone chunks so they remain available to dynamically discovered
+  pages, while compiler manifests determine which chunks the application
+  requests at runtime. Build intelligence therefore calls them "not requested"
+  rather than claiming that the files were removed from build output.
 - Application source may use `script.js` or `script.ts` per folder with no API
   differences and no JSX/TSX.
 - Page policy/SEO may use `config.js` or self-contained `config.ts`. Typed

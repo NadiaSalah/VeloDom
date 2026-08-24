@@ -43,7 +43,9 @@ const currentGuides = await Promise.all([
   "docs/TODO.md",
   "docs/NOTES.md",
   "docs/RELEASING.md",
-  "packages/velodom/README.md"
+  "docs/AI_CONTEXT.md",
+  "packages/velodom/README.md",
+  "examples/blog/README.md"
 ].map(async path => ({ path, source: await readWorkspaceFile(path) })));
 const violations = [];
 const publicImports = Object.keys(packageManifest.exports || {}).map(name => (
@@ -71,6 +73,8 @@ const removedGuides = [
 ];
 const legacyProductLabel = /\bV1\.\d+\b|\bV[2-9]\b|\bPost-V1\b|\bPhase\s+\d+\b/;
 const privateImport = /(?:from\s+|import\()\s*["'](?:velodom\/lib\/|packages\/velodom\/src\/)/;
+const directLifecycleCleanup = /\b(?:init|mounted|destroy)\s*\(\s*\{[^}]*\bonCleanup\b/;
+const bareHashNavigation = /<a\b(?=[^>]*\bvd-nav\b)(?=[^>]*\bhref=["']#)[^>]*>/i;
 const cliCommands = new Set(
   [...cliSource.matchAll(/case "([a-z-]+)":/g)]
     .map(match => match[1])
@@ -129,6 +133,18 @@ for (const guide of currentGuides) {
 
   if (privateImport.test(guide.source)) {
     violations.push(`${guide.path} shows a private framework import`);
+  }
+
+  if (directLifecycleCleanup.test(guide.source)) {
+    violations.push(
+      `${guide.path} destructures onCleanup directly; use ctx.onCleanup()`
+    );
+  }
+
+  if (bareHashNavigation.test(guide.source)) {
+    violations.push(
+      `${guide.path} shows a bare hash vd-nav target; use an app-relative path`
+    );
   }
 
   for (const command of collectDocumentedCliCommands(guide.source)) {

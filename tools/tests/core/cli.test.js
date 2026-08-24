@@ -133,7 +133,7 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
     assert.equal(stats.compilerFeatures, 6);
     assert.equal(stats.refs, 1);
     assert.equal(stats.eventBindings, 1);
-    assert.equal(stats.stateKeys, 2);
+    assert.equal(stats.stateKeys, 4);
     assert.equal(stats.exposeNames, 1);
     assert.deepEqual(stats.seoCoverage, {
       pagesWithSeo: 1,
@@ -618,7 +618,12 @@ async function createFixture() {
   await writeFixtureFile(
     root,
     "src/pages/home/script.js",
-    `export function init({ state }) {
+    `export const state = {
+      initial: 1,
+      nested: { enabled: true }
+    };
+
+    export function init({ state }) {
       state.title = "Home";
       state.announce = () => {};
       expose = ["announce"];

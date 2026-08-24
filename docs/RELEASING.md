@@ -146,7 +146,7 @@ environment needs a longer startup window.
 The repository includes
 `.github/workflows/release-browser-matrix.yml`. It provisions Chromium,
 Firefox, and WebKit on Ubuntu, builds the package, and runs this strict matrix
-on pull requests, pushes to `master`, or manual dispatch. Its successful run is
+on pull requests, pushes to `main`/`master`, or manual dispatch. Its successful run is
 the required replacement for an unavailable local Firefox compositor.
 
 Chromium is the required local target. Firefox, WebKit, and mobile WebKit are

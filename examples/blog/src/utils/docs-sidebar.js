@@ -41,19 +41,23 @@ export function mountDocsSidebar(ctx, selector = ".docs-sidebar-link") {
   };
 
   let pendingSection = null;
+  let pendingReleaseTimer = 0;
+  const releasePendingSection = () => {
+    window.clearTimeout(pendingReleaseTimer);
+    pendingReleaseTimer = window.setTimeout(() => {
+      pendingSection = null;
+      syncViewportSection();
+    }, 160);
+  };
   const selectSection = id => {
     pendingSection = id;
     activeSection(id);
+    releasePendingSection();
   };
   const onLocationChange = () => selectSection(locationSection());
-  const onLinkClick = event => {
-    const href = event.currentTarget.getAttribute("href") || "";
-    const id = decodeHash(href.split("#")[1] || "");
 
-    if (id) selectSection(id);
-  };
-
-  links.forEach(link => link.addEventListener("click", onLinkClick));
+  // VeloDom emits hashchange after intercepted same-page navigation, so the
+  // sidebar follows one browser-level contract instead of duplicating clicks.
   window.addEventListener("hashchange", onLocationChange);
   window.addEventListener("popstate", onLocationChange);
 
@@ -84,14 +88,17 @@ export function mountDocsSidebar(ctx, selector = ".docs-sidebar-link") {
 
     if (!current) return;
 
-    if (pendingSection && current.id !== pendingSection) return;
+    // Keep an explicit hash target selected while smooth scrolling crosses
+    // intermediate sections. The scroll-idle timer releases viewport tracking.
+    if (pendingSection) return;
 
-    pendingSection = null;
     activeSection(current.id);
   };
 
   let scrollFrame = 0;
   const onScroll = () => {
+    if (pendingSection) releasePendingSection();
+
     window.cancelAnimationFrame?.(scrollFrame);
     scrollFrame = window.requestAnimationFrame
       ? window.requestAnimationFrame(syncViewportSection)
@@ -132,8 +139,8 @@ export function mountDocsSidebar(ctx, selector = ".docs-sidebar-link") {
     window.cancelAnimationFrame?.(firstFrame);
     window.cancelAnimationFrame?.(secondFrame);
     window.cancelAnimationFrame?.(scrollFrame);
+    window.clearTimeout(pendingReleaseTimer);
     observer?.disconnect();
-    links.forEach(link => link.removeEventListener("click", onLinkClick));
     window.removeEventListener("hashchange", onLocationChange);
     window.removeEventListener("popstate", onLocationChange);
     window.removeEventListener("scroll", onScroll);
