@@ -28,6 +28,8 @@ package versions.
 - Corrected the static SEO test to inspect the no-JavaScript DOM directly.
   Chromium and Firefox correctly prevent the previous page-side wait callback
   from executing when JavaScript is disabled.
+- Enabled browser E2E stage logging in the release workflow so stale reruns and
+  browser-specific failures can be identified from Actions output immediately.
 
 ## 2026-08-24
 

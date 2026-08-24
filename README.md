@@ -125,6 +125,9 @@ a browser translation provider. See
 - Corrected the no-JavaScript SEO smoke test so it inspects prerendered DOM
   text without calling page-side JavaScript, which Chromium and Firefox disable
   by design.
+- Enabled named browser-test stages in the release workflow logs, making it
+  clear when an Actions rerun is using the current test harness and where any
+  future browser-specific failure occurs.
 - Static SEO output now waits for Vite to write the HTML shell before it
   renders route artifacts, including with the current Vite/Rolldown lifecycle.
 - Rebuilt `examples/blog` as the polished VeloDom academic reference: a modern
