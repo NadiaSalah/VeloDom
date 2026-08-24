@@ -25,6 +25,7 @@ import { applyScopedFolderStyles } from "./styles.ts";
 import { reportUserActionError } from "./errors/error-reporter.ts";
 import { renderRecoverableErrorBoundary } from "./errors/error-boundary.ts";
 import {
+  mergeModuleStateSeed,
   runModuleHook,
   runModuleInit
 } from "./init-runner.ts";
@@ -178,6 +179,7 @@ export async function mount(
         if (loadModule) {
 
           componentModule = await loadModule();
+          mergeModuleStateSeed(state, componentModule, "component");
           moduleResult = await runModuleInit(
             componentModule.init || componentModule.default,
             hookArgs

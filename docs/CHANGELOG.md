@@ -35,6 +35,10 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Added optional `export const state = { ... }` seeds for page and component
+  scripts. They merge before `init()` and support concise safe `count++` and
+  `count--` bindings without a second template syntax; only application state
+  values are writable and protected internals remain blocked.
 - Added optional named middleware files: a default export in
   `src/api/middleware/auth.js` is available as `auth`, while the explicit
   `src/api/middleware.js` registry remains higher priority. CLI inspection and

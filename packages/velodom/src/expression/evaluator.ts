@@ -97,6 +97,9 @@ export function evaluateAst(ast, scope: Required<ExpressionScope>) {
     case "UnaryExpression":
       return evaluateUnary(ast, scope);
 
+    case "UpdateExpression":
+      return evaluateUpdate(ast, scope);
+
     case "BinaryExpression":
       return evaluateBinary(
         ast.operator,
@@ -181,6 +184,18 @@ function evaluateBinary(operator, left, right) {
     default:
       throw new TypeError(`Unsupported binary operator "${operator}"`);
   }
+}
+
+function evaluateUpdate(ast, scope) {
+  const reference = resolveWritableStateReference(ast.argument, scope);
+  const previous = reference.receiver[reference.key];
+  const next = ast.operator === "++"
+    ? Number(previous) + 1
+    : Number(previous) - 1;
+
+  reference.receiver[reference.key] = next;
+
+  return ast.prefix ? next : previous;
 }
 
 function evaluateLogical(ast, scope) {
@@ -303,6 +318,60 @@ function resolveIdentifier(name, scope, allowMissing = false) {
   }
 
   throw new ReferenceError(`${name} is not defined`);
+}
+
+function resolveWritableStateReference(ast, scope) {
+  if (!isStateExpression(ast, scope)) {
+    throw new TypeError(
+      "Update expressions may only change application state values"
+    );
+  }
+
+  if (ast.type === "Identifier") {
+    if (ast.name === "state") {
+      throw new TypeError("The state object itself cannot be replaced");
+    }
+
+    return {
+      receiver: scope.state,
+      key: ast.name
+    };
+  }
+
+  const reference = resolveMember(ast, scope);
+
+  if (reference.optional || reference.receiver === undefined) {
+    throw new TypeError("Optional state members cannot be updated");
+  }
+
+  const key = ast.computed
+    ? evaluateAst(ast.property, scope)
+    : ast.property.name;
+
+  assertSafeMember(String(key));
+
+  return {
+    receiver: reference.receiver,
+    key: String(key)
+  };
+}
+
+function isStateExpression(ast, scope) {
+  let root = ast;
+
+  while (root.type === "MemberExpression") {
+    root = root.object;
+  }
+
+  return root.type === "Identifier" && (
+    root.name === "state"
+    || (
+      root.name !== "event"
+      && root.name !== "props"
+      && root.name !== "el"
+      && root.name in scope.state
+    )
+  );
 }
 
 function assertSafeMember(name) {

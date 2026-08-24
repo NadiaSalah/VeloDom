@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**402 of 413 tasks completed — 97%**
+**403 of 413 tasks completed — 98%**
 
 `[###################-]`
 
-Remaining tasks: **11**
+Remaining tasks: **10**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -936,7 +936,7 @@ networking, or a mandatory global store.
       `src/api/middleware.js` as the explicit advanced registry — Fit:
       user-owned API code; Value: small middleware needs no central map;
       Complexity: medium; Target: V1.x
-- [ ] Support an optional `export const state = { ... }` page/component script
+- [x] Support an optional `export const state = { ... }` page/component script
       seed that VeloDom merges before `init()`, so simple bindings such as
       `vd-on:click="count++"` need no initialization function; keep `init()`
       for async work, lifecycle, and advanced behavior — Fit: Vanilla Friendly;

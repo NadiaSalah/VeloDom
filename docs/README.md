@@ -139,23 +139,22 @@ Add a page with ordinary HTML:
 <!-- src/pages/hello/index.html -->
 <main>
   <h1>{{ title }}</h1>
-  <button type="button" vd-on:click="increment()">
+  <button type="button" vd-on:click="count++">
     Count: {{ count }}
   </button>
 </main>
 ```
 
-Add its optional behavior:
+For simple initial values, export `state` directly. It is merged before
+`init()`, so a button can use the concise safe `count++` form without a helper
+function:
 
 ```js
 // src/pages/hello/script.js
-export function init({ state }) {
-  state.title = "Hello VeloDom";
-  state.count = 0;
-  state.increment = () => {
-    state.count += 1;
-  };
-}
+export const state = {
+  title: "Hello VeloDom",
+  count: 0
+};
 ```
 
 Add route and SEO metadata:
@@ -704,7 +703,7 @@ The page shell must provide the mount element:
 <!-- src/pages/counter/index.html -->
 <main>
   <h1 vd-text="title"></h1>
-  <button type="button" vd-on:click="increment()">
+  <button type="button" vd-on:click="count++">
     Count: <span vd-text="count"></span>
   </button>
 </main>
@@ -712,13 +711,10 @@ The page shell must provide the mount element:
 
 ```js
 // src/pages/counter/script.js
-export function init({ state }) {
-  state.title = "Counter";
-  state.count = 0;
-  state.increment = () => {
-    state.count += 1;
-  };
-}
+export const state = {
+  title: "Counter",
+  count: 0
+};
 ```
 
 The Vite adapter discovers the folder automatically. No route-registration
@@ -1003,6 +999,29 @@ nested path.
 Components create local shallow reactive state that inherits missing reads
 from their parent. Component writes remain local unless the component calls a
 parent-owned function or uses another explicit communication API.
+
+### Small State Seeds
+
+Pages and components may export a plain `state` object from `script.js|ts` or
+the `<script>` block of a `.vd` file. VeloDom merges it before `init()`, which
+is ideal for static defaults and compact interactions:
+
+```js
+export const state = {
+  count: 0,
+  label: "Clicks"
+};
+```
+
+```html
+<button vd-on:click="count++">{{ label }}: {{ count }}</button>
+```
+
+`++` and `--` may update only application state values; props, events, globals,
+and optional-chain targets cannot be changed. Keep `init({ state, ctx })` for
+route data, refs, cleanup, asynchronous work, props-derived values, and other
+lifecycle behavior. State seeds must be plain objects and cannot replace
+VeloDom's protected internal keys.
 
 ### Optional Derived State
 

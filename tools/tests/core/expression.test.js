@@ -8,6 +8,7 @@ import {
   readValue,
   writeValue
 } from "../../../packages/velodom/src/directives/expression.ts";
+import { evaluateExpression } from "../../../packages/velodom/src/expression/index.ts";
 
 test("expression helpers evaluate and update nested state", () => {
   const state = createState({
@@ -45,4 +46,27 @@ test("iterable detection rejects plain records", () => {
   assert.equal(isIterable([]), true);
   assert.equal(isIterable(new Set()), true);
   assert.equal(isIterable({}), false);
+});
+
+test("safe expressions support state-only increment and decrement updates", () => {
+  const state = createState({
+    count: 2,
+    profile: {
+      visits: 4
+    }
+  });
+
+  assert.equal(evaluateExpression("count++", { state }), 2);
+  assert.equal(state.count, 3);
+  assert.equal(evaluateExpression("profile.visits--", { state }), 4);
+  assert.equal(state.profile.visits, 3);
+  assert.throws(
+    () => evaluateExpression("props.count++", {
+      state,
+      props: {
+        count: 1
+      }
+    }),
+    /only change application state/
+  );
 });

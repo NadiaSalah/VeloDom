@@ -108,7 +108,7 @@ src/pages/about/
 <!-- src/pages/about/index.html -->
 <main>
   <h1>{{ title }}</h1>
-  <button vd-on:click="increment()">
+  <button vd-on:click="count++">
     Count: <span vd-text="count"></span>
   </button>
 </main>
@@ -116,13 +116,10 @@ src/pages/about/
 
 ```js
 // src/pages/about/script.js
-export function init({ state }) {
-  state.title = "About VeloDom";
-  state.count = 0;
-  state.increment = () => {
-    state.count += 1;
-  };
-}
+export const state = {
+  title: "About VeloDom",
+  count: 0
+};
 ```
 
 ```js
@@ -161,16 +158,15 @@ Folder mode remains the default, but pages, components, and layouts may use a
 <template>
   <main>
     <h1>{{ title }}</h1>
-    <button vd-on:click="increment()">Count: {{ count }}</button>
+    <button vd-on:click="count++">Count: {{ count }}</button>
   </main>
 </template>
 
 <script>
-export function init({ state }) {
-  state.title = "About VeloDom";
-  state.count = 0;
-  state.increment = () => { state.count += 1; };
-}
+export const state = {
+  title: "About VeloDom",
+  count: 0
+};
 </script>
 
 <style>

@@ -27,6 +27,10 @@
   `src/api/middleware/auth.js` registers `auth`, including nested dot names.
   The root `middleware.js|ts` registry remains the explicit higher-priority
   form, so it is a clean escape hatch rather than an extra merging rule.
+- A module's optional plain `state` export is merged before `init()` for both
+  pages and components. It is intentionally limited to shallow defaults and
+  safe state-only `++`/`--` updates; async setup, props, lifecycle cleanup,
+  and complex behavior remain explicit in `init()`.
 - Common users should configure requests declaratively. Custom middleware and
   explicit `next()` pipelines remain an advanced option.
 - Authentication is provider-based. Frontend auth and role checks improve UX

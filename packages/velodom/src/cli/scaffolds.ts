@@ -250,10 +250,10 @@ function createPageScriptTemplate(name: string) {
   const title = titleFromName(name);
 
   return [
-    "export function init({ state }) {",
-    `  state.title = "${title}";`,
-    "  state.description = \"Edit this page from its script file.\";",
-    "}",
+    "export const state = {",
+    `  title: "${title}",`,
+    "  description: \"Edit this page from its script file.\"",
+    "};",
     ""
   ].join("\n");
 }

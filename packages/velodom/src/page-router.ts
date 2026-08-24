@@ -26,6 +26,7 @@ import {
 import { reportUserActionError } from "./errors/error-reporter.ts";
 import { renderRecoverableErrorBoundary } from "./errors/error-boundary.ts";
 import {
+  mergeModuleStateSeed,
   runModuleHook,
   runModuleInit
 } from "./init-runner.ts";
@@ -292,6 +293,7 @@ export function createPageRouter(
       if (loadModule) {
 
         pageModule = await loadModule();
+        mergeModuleStateSeed(state, pageModule, "page");
         const init = pageModule.init || pageModule.default;
         const result = await runModuleInit(init, hookArgs);
 

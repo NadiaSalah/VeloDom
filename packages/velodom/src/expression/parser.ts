@@ -32,6 +32,8 @@ const BINARY_PRECEDENCE = Object.freeze({
 const MULTI_CHARACTER_TOKENS = Object.freeze([
   "===",
   "!==",
+  "++",
+  "--",
   "==",
   "!=",
   ">=",
@@ -343,6 +345,30 @@ class Parser {
 
       if (this.isValue("(")) {
         expression = this.parseCall(expression, false);
+        continue;
+      }
+
+      if (this.isValue("++") || this.isValue("--")) {
+        const operator = this.advance();
+
+        if (
+          expression.type !== "Identifier"
+          && (expression.type !== "MemberExpression" || expression.optional)
+        ) {
+          throw new ExpressionSyntaxError(
+            `Update target for "${operator.value}" must be a state value`,
+            operator.start
+          );
+        }
+
+        expression = {
+          type: "UpdateExpression",
+          argument: expression,
+          operator: operator.value,
+          prefix: false,
+          start: expression.start,
+          end: operator.end
+        };
         continue;
       }
 

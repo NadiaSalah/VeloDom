@@ -703,6 +703,85 @@ test("page router exposes conventional data modules before page init", async () 
   await router.destroy();
 });
 
+test("page state exports initialize bindings before init", async () => {
+  document.body.innerHTML = '<div id="app"></div>';
+  let initialCount;
+  const router = createPageRouter({
+    pages: {
+      html: {
+        home: async () => (
+          '<button data-vd-on-click="count++" data-vd-text="count"></button>'
+        )
+      },
+      manifests: {
+        home: async () => ({
+          directives: ["data-vd-onclick", "data-vd-text"],
+          features: ["events", "text"]
+        })
+      },
+      modules: {
+        home: async () => ({
+          state: {
+            count: 1
+          },
+          init({ state }) {
+            initialCount = state.count;
+          }
+        })
+      }
+    }
+  });
+
+  await router.init();
+  const button = document.querySelector("button");
+
+  assert.equal(initialCount, 1);
+  assert.equal(button.textContent, "1");
+  button.click();
+  assert.equal(button.textContent, "2");
+
+  await router.destroy();
+});
+
+test("component state exports initialize local bindings before init", async () => {
+  const root = document.createElement("div");
+  root.innerHTML = '<section data-vd-component="counter"></section>';
+  document.body.append(root);
+  let initialCount;
+  const cleanup = await mount(root, createState({ components: {} }), [], null, {
+    html: {
+      counter: async () => (
+        '<button data-vd-on-click="count++" data-vd-text="count"></button>'
+      )
+    },
+    manifests: {
+      counter: async () => ({
+        directives: ["data-vd-onclick", "data-vd-text"],
+        features: ["events", "text"]
+      })
+    },
+    modules: {
+      counter: async () => ({
+        state: {
+          count: 1
+        },
+        init({ state }) {
+          initialCount = state.count;
+        }
+      })
+    },
+    styles: {}
+  });
+  const button = root.querySelector("button");
+
+  assert.equal(initialCount, 1);
+  assert.equal(button.textContent, "1");
+  button.click();
+  assert.equal(button.textContent, "2");
+
+  cleanup();
+});
+
 test("page router consumes matching static page data before loading again", async () => {
   document.body.innerHTML = [
     '<div id="app">',
