@@ -75,6 +75,11 @@ publication approval. The local package remains private and unpublished.
   declarations, aliases, route listing, and package-consumer setup.
 - [x] Beginner-safe HTML examples that do not require JSX, TSX, render
   functions, or a global store.
+- [x] Added root AI/contributor guidance plus `docs/AI_CONTEXT.md`, a concise
+  generation contract that explains Core/application ownership, supported
+  syntax, boundaries, and verification.
+- [x] Added `examples/blog/README.md` so the showcase is an explicit consumer
+  example rather than an accidental source of framework conventions.
 
 ## V1 Production — Implemented
 

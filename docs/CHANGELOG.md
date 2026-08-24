@@ -4,6 +4,19 @@ All important local changes to VeloDom are recorded here. The project is not
 published yet, so entries describe development milestones rather than released
 package versions.
 
+## 2026-08-25
+
+### AI-Friendly Project Context
+
+- Added root `AGENTS.md` and `docs/AI_CONTEXT.md` to give AI tools a concise,
+  source-aligned contract for VeloDom identity, public syntax, Core/application
+  boundaries, optional capabilities, and safe site-generation workflow.
+- Added `examples/blog/README.md` to document the showcase routes, application
+  conventions, and verification expectations without promoting demo code to
+  framework API.
+- Linked the AI context from the root README and canonical guide and recorded
+  the work in the V1 roadmap.
+
 ## 2026-08-24
 
 ### Academic Documentation Showcase

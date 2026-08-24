@@ -49,6 +49,9 @@
   documentation site. They intentionally explain the same folder/`.vd`
   authoring model and preferred `vd-*` syntax; compatibility attributes remain
   documented as migration input rather than beginner examples.
+- `docs/AI_CONTEXT.md` is a compact generation contract, not a second API
+  source. It points AI tools back to source-verified exports and the canonical
+  guide, and it must be updated whenever the public authoring model changes.
 - Common users should configure requests declaratively. Custom middleware and
   explicit `next()` pipelines remain an advanced option.
 - Authentication is provider-based. Frontend auth and role checks improve UX

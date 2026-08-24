@@ -17,6 +17,7 @@ JavaScript or TypeScript independently for every page and component.
 
 ## Contents
 
+- [AI Context](AI_CONTEXT.md)
 - [What Works Today](#what-works-today)
 - [Five-Minute Start](#five-minute-start)
 - [V1 Feature Matrix](#v1-feature-matrix)
@@ -62,6 +63,11 @@ JavaScript or TypeScript independently for every page and component.
 - [Current Limitations](#current-limitations)
 - [Roadmap and Handoff](#roadmap-and-handoff)
 - [Documentation and Maintenance](#documentation-and-maintenance)
+
+AI assistants generating VeloDom applications should begin with
+[AI_CONTEXT.md](AI_CONTEXT.md). It condenses the framework identity, ownership
+boundaries, supported syntax, generation workflow, and verification rules;
+this guide remains the complete source-verified reference.
 
 ## What Works Today
 

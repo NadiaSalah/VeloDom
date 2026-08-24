@@ -9,7 +9,9 @@ The full framework guide, installation instructions, API examples,
 architecture, release notes, and roadmap are in
 [docs/README.md](docs/README.md).
 The maintained documentation surface is intentionally small: the guide plus
-`docs/TODO.md`, `docs/CHANGELOG.md`, `docs/NOTES.md`, and `docs/RELEASING.md`.
+`docs/AI_CONTEXT.md`, `docs/TODO.md`, `docs/CHANGELOG.md`, `docs/NOTES.md`, and
+`docs/RELEASING.md`. AI assistants should start with
+[docs/AI_CONTEXT.md](docs/AI_CONTEXT.md) before generating application code.
 
 For the publishable package, see
 [packages/velodom](packages/velodom/README.md). The repository's working
@@ -109,6 +111,9 @@ a browser translation provider. See
   operational files without dropping architecture or release details.
 - Extended documentation checks to verify public exports, CLI examples, private
   import boundaries, and the consolidated documentation layout.
+- Added root `AGENTS.md`, the machine-oriented [AI context](docs/AI_CONTEXT.md),
+  and an application guide at `examples/blog/README.md` so AI-generated sites
+  can follow the same public contract and Core/application boundary.
 - Static SEO output now waits for Vite to write the HTML shell before it
   renders route artifacts, including with the current Vite/Rolldown lifecycle.
 - Rebuilt `examples/blog` as the polished VeloDom academic reference: a modern
