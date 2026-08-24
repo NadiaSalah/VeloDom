@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**386 of 408 tasks completed — 95%**
+**387 of 408 tasks completed — 95%**
 
 `[###################-]`
 
-Remaining tasks: **22**
+Remaining tasks: **21**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -835,11 +835,11 @@ publication.
       form native — Fit: HTML-first and Vanilla Friendly; Value: forms work
       without JavaScript and remain easy to understand; Complexity: high;
       Target: V1.1
-- [ ] Generate application declarations for typed route parameters, page
-      config, request routes, and public component props while keeping
-      TypeScript optional — Fit: compiler-first and flexible authoring; Value:
-      safer refactors without forcing TypeScript; Complexity: medium; Target:
-      V1.1
+- [x] Generate application declarations through optional `vd types` for route
+      parameters, page config, request routes, and discovered component props;
+      JavaScript projects can ignore the generated file — Fit: compiler-first
+      and flexible authoring; Value: safer refactors without forcing
+      TypeScript; Complexity: medium; Target: V1.1
 - [ ] Stabilize the public Plugin and Adapter contracts with conformance
       fixtures and an official static adapter boundary — Fit: framework Core
       stays generic; Value: integrations can evolve without copying internals;

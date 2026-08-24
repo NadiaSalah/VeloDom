@@ -240,6 +240,7 @@ vd health --min-score 80
 vd benchmark
 vd build-report --json
 vd docs
+vd types
 vd create page blog/posts/[id] --ts
 vd create component shared/post-card --single-file
 vd create api posts
@@ -281,6 +282,11 @@ feature signals into a non-blocking score. It fails only when `--min-score` or
 `vd docs` generates Markdown or JSON documentation for routes, components,
 requests, middleware, plugins, refs, events, state, exposed names, slots, and
 SEO coverage where static analysis can prove the relationship.
+`vd types` generates `src/velodom.generated.d.ts` from conventional pages,
+routes, request names, and component prop names. It is optional: JavaScript
+projects do nothing, while TypeScript projects may import the generated
+`velodom/app` module for `VeloDomPageParamsFor`, `VeloDomRequestRouteName`, and
+`VeloDomComponentPropsFor` without a runtime dependency.
 `vd benchmark` delegates to the project's `benchmark:rendering` script so
 performance checks stay repeatable and outside the browser runtime.
 
@@ -3424,6 +3430,7 @@ Runtime:
 - `createRtlFlipStyles`
 - `createSharedState`
 - `createValidationPlugin`
+- `createProgressiveFormsPlugin`
 - `withRequestRetry`
 - `requestJson`
 - `ApiError`
@@ -3464,6 +3471,23 @@ export default definePageConfig({
     description: "A normal JavaScript VeloDom page config."
   }
 });
+```
+
+For project-wide convention types, run one command after creating or changing
+routes/components:
+
+```bash
+vd types
+```
+
+The generated `src/velodom.generated.d.ts` is deliberately readable and may be
+regenerated at any time. In a TypeScript page, use its declared module only
+when helpful:
+
+```ts
+import type { VeloDomPageParamsFor } from "velodom/app";
+
+type ArticleParams = VeloDomPageParamsFor<"blog/[slug]">;
 ```
 
 ## Build-Time Asset Quality

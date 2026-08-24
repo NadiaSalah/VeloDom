@@ -395,6 +395,46 @@ test("CLI create scaffolds convention-first project resources", async () => {
   }
 });
 
+test("CLI types generates optional project declarations from conventions", async () => {
+  const root = await createFixture();
+  const output = [];
+
+  try {
+    await writeFixtureFile(
+      root,
+      "src/pages/blog/[slug]/index.html",
+      `<vd-component name="shared/card" vd-prop-title="article.title"></vd-component>`
+    );
+    await writeFixtureFile(
+      root,
+      "src/pages/blog/[slug]/config.js",
+      "export default { path: '/blog/:slug' };"
+    );
+
+    const code = await runVeloDomCli([
+      "types",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+    const declaration = await readFile(
+      join(root, "src", "velodom.generated.d.ts"),
+      "utf8"
+    );
+
+    assert.equal(code, 0);
+    assert.match(output.join("\n"), /Generated src\/velodom.generated\.d\.ts/);
+    assert.match(declaration, /declare module "velodom\/app"/);
+    assert.match(declaration, /"blog\/\[slug\]": \{ "slug": string \}/);
+    assert.match(declaration, /"posts\.getAll": unknown/);
+    assert.match(declaration, /"shared\/card": \{ "title"\?: unknown \}/);
+  } finally {
+    await removeFixture(root);
+  }
+});
+
 test("CLI doctor reports static project problems", async () => {
   const root = await mkdtemp(join(tmpdir(), "velodom-cli-"));
   const output = [];

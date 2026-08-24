@@ -54,7 +54,7 @@ allowlisted by `packages/velodom/package.json`.
 
 ## Current Status
 
-V1 is locally verified with 228 automated tests, package-consumer validation,
+V1 is locally verified with 229 automated tests, package-consumer validation,
 and production build checks. The roadmap is [docs/TODO.md](docs/TODO.md);
 remaining work is release governance, a strict Firefox-capable browser run,
 and starter presets.
@@ -66,9 +66,9 @@ name ownership, 2FA policy, version, and release approval are confirmed.
 
 The next product roadmap is intentionally staged: V1.1 has completed opt-in
 static prerendering, conventional page data loading, and progressive native
-forms; it next prioritizes typed declarations and compiler diagnostics. V1.2
-adds optional production adapters and ecosystem tooling; V2 investigates
-hybrid rendering and partial hydration. See
+forms, plus optional generated application declarations; it next prioritizes
+compiler diagnostics. V1.2 adds optional production adapters and ecosystem
+tooling; V2 investigates hybrid rendering and partial hydration. See
 [docs/TODO.md](docs/TODO.md) for the complete rationale and order.
 
 ## Completed Organization Work

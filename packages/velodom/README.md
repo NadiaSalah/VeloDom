@@ -204,6 +204,7 @@ vd health
 vd stats
 vd build-report
 vd docs
+vd types
 ```
 
 Run `vd --help` or `vd <command> --help` for the current options.
