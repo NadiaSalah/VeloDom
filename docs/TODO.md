@@ -162,6 +162,7 @@ Current release work is governance rather than a new framework feature:
 - [ ] Complete the strict Firefox browser run in a graphics-capable CI/release
   environment. Local Chromium, WebKit, and Mobile WebKit pass; local Firefox
   reports an SWGL compositor framebuffer failure before the application loads.
+  `.github/workflows/release-browser-matrix.yml` is ready for the remote gate.
 - [ ] Confirm npm package-name ownership/reservation, account, organization or
   scope, access level, 2FA policy, exact version, dist tag, and release notes.
   The local npm client is currently unauthenticated (`npm whoami` returns 401).

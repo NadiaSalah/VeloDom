@@ -140,7 +140,9 @@ a browser translation provider. See
 
 - Complete the strict Firefox/WebKit matrix on a graphics-capable CI/release
   machine. Local Chromium, WebKit desktop, and Mobile WebKit pass; the local
-  Firefox SWGL compositor cannot map its headless framebuffer.
+  Firefox SWGL compositor cannot map its headless framebuffer. The committed
+  GitHub Actions browser-matrix workflow is ready to provide this gate after
+  the repository is pushed.
 - Sign in to the approved npm owner account, confirm `npm whoami`, package-name
   ownership/reservation, access level, and 2FA before considering publication.
 - Confirm npm package ownership, publishing account, access, and 2FA policy.

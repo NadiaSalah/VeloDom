@@ -1,0 +1,42 @@
+name: Release browser matrix
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-matrix:
+    name: Playwright release matrix
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install workspace dependencies
+        run: npm ci
+
+      - name: Install supported browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Build the release candidate
+        run: npm run build
+
+      - name: Run strict browser verification
+        env:
+          VELODOM_BROWSER_STRICT: "1"
+          VELODOM_BROWSER_TARGETS: chromium,firefox,webkit,mobile-webkit
+        run: node tools/scripts/check-browser-e2e.mjs

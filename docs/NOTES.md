@@ -136,6 +136,10 @@
   or prove publisher rights. The release remains private until an approved npm
   account is authenticated, ownership/access and 2FA are confirmed, and the
   owner explicitly approves publication.
+- `.github/workflows/release-browser-matrix.yml` is the authoritative remote
+  replacement for local graphics-limited browser testing. It uses a supported
+  Ubuntu runner, installs Playwright's browser binaries, and runs the existing
+  strict smoke suite without adding any runtime dependency to VeloDom.
 - Release preparation is intentionally separated from publication. The
   checklist in `RELEASING.md` records gates, but only explicit human approval
   for an exact version can authorize removing `private: true` or publishing.

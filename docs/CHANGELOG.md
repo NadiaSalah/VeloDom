@@ -61,6 +61,9 @@ package versions.
 - Confirmed that the requested `velodom@1.0.0` package is not retrievable from
   the registry, while the local npm client remains unauthenticated. Name
   ownership and publisher access therefore remain human account gates.
+- Added a GitHub Actions release browser matrix for Ubuntu-based Chromium,
+  Firefox, WebKit, and Mobile WebKit verification. It is ready to replace the
+  host-limited local Firefox run once the branch is pushed.
 
 ### npm Package Readiness and Workspace Cleanup
 

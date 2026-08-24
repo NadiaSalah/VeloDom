@@ -143,6 +143,12 @@ local browser produces a clear failed target instead of an indefinitely stuck
 release process. Set `VELODOM_BROWSER_LAUNCH_TIMEOUT_MS` only when a known CI
 environment needs a longer startup window.
 
+The repository includes
+`.github/workflows/release-browser-matrix.yml`. It provisions Chromium,
+Firefox, and WebKit on Ubuntu, builds the package, and runs this strict matrix
+on pull requests, pushes to `master`, or manual dispatch. Its successful run is
+the required replacement for an unavailable local Firefox compositor.
+
 Chromium is the required local target. Firefox, WebKit, and mobile WebKit are
 attempted when their Playwright binaries exist; release CI should use strict
 mode. `happy-dom` tests are fast checks, not a replacement for real browsers.
