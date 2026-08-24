@@ -46,6 +46,22 @@ package versions.
   README and expanded the canonical content/localization examples for their
   complete public build-time helper sets.
 
+### Release-Gate Diagnostics
+
+- Bounded browser launch attempts in the real-browser release check. A failed
+  Firefox or WebKit startup now reports the affected target after a configurable
+  timeout instead of leaving strict release verification running indefinitely.
+- Reconfirmed the full Chromium browser suite, package checks, production build,
+  tarball audit, documentation checks, lint, types, and 255 automated tests.
+- Repaired the mobile smoke test to follow the visible course CTA rather than a
+  desktop navigation item intentionally hidden at mobile breakpoints. Chromium,
+  WebKit desktop, and Mobile WebKit now pass the full release smoke suite.
+- Recorded the local Firefox SWGL compositor failure as the only local strict-
+  browser blocker; no framework regression was observed in the passing targets.
+- Confirmed that the requested `velodom@1.0.0` package is not retrievable from
+  the registry, while the local npm client remains unauthenticated. Name
+  ownership and publisher access therefore remain human account gates.
+
 ### npm Package Readiness and Workspace Cleanup
 
 - Moved static SEO emission to Vite's post-write hook. This guarantees that

@@ -138,6 +138,11 @@ VELODOM_BROWSER_STRICT=1 npm run test:browser
 VELODOM_BROWSER_TARGETS=chromium,firefox,webkit,mobile-webkit npm run test:browser
 ```
 
+Browser launch is bounded to 20 seconds by default so a missing or unhealthy
+local browser produces a clear failed target instead of an indefinitely stuck
+release process. Set `VELODOM_BROWSER_LAUNCH_TIMEOUT_MS` only when a known CI
+environment needs a longer startup window.
+
 Chromium is the required local target. Firefox, WebKit, and mobile WebKit are
 attempted when their Playwright binaries exist; release CI should use strict
 mode. `happy-dom` tests are fast checks, not a replacement for real browsers.
@@ -162,10 +167,15 @@ local check or `npm pack --dry-run` never grants permission to publish.
 
 - The local package version is `1.0.0`, but this repository is still private
   and unpublished.
-- npm registry returned 404 for `velodom` on 2026-07-09, so the package name
-  appears available, but it has not been reserved by an approved npm account in
-  this workspace.
-- npm publishing account, organization, access level, and 2FA requirements have
-  not been approved yet.
+- npm registry returned 404 for `velodom@1.0.0` again on 2026-08-24. This
+  indicates that the version is not publicly retrievable, not that the name is
+  reserved or safe to publish; an approved account must confirm ownership.
+- `npm whoami` returns 401 in this workspace, so the npm publishing account,
+  organization, access level, and 2FA requirements are not yet verified.
 - `private: true` is intentionally still enabled in
   `packages/velodom/package.json`.
+- The local strict-matrix attempt on 2026-08-24 confirmed Chromium, WebKit,
+  and Mobile WebKit. Firefox launched but timed out after a
+  `RenderCompositorSWGL` framebuffer-mapping failure. This is a local
+  browser-host limitation, not a verified VeloDom regression; a
+  Firefox-capable CI run remains required before publication.

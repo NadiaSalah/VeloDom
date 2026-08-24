@@ -35,6 +35,10 @@ const projectRoot = resolve(
 const distRoot = join(projectRoot, "examples", "blog", "dist");
 const strictBrowserMatrix = process.env.VELODOM_BROWSER_STRICT === "1";
 const debugBrowserE2e = process.env.VELODOM_BROWSER_E2E_DEBUG === "1";
+const browserLaunchTimeoutMs = readPositiveDuration(
+  process.env.VELODOM_BROWSER_LAUNCH_TIMEOUT_MS,
+  20_000
+);
 const targetRegistry = createTargetRegistry();
 const selectedTargets = getSelectedTargets(targetRegistry);
 
@@ -86,7 +90,8 @@ function createTargetRegistry() {
       label: "Firefox desktop",
       required: false,
       launch: () => firefox.launch({
-        headless: true
+        headless: true,
+        timeout: browserLaunchTimeoutMs
       }),
       contextOptions: {}
     }),
@@ -95,7 +100,8 @@ function createTargetRegistry() {
       label: "WebKit desktop",
       required: false,
       launch: () => webkit.launch({
-        headless: true
+        headless: true,
+        timeout: browserLaunchTimeoutMs
       }),
       contextOptions: {}
     }),
@@ -104,7 +110,8 @@ function createTargetRegistry() {
       label: "Mobile WebKit viewport",
       required: false,
       launch: () => webkit.launch({
-        headless: true
+        headless: true,
+        timeout: browserLaunchTimeoutMs
       }),
       contextOptions: iphone
         ? {
@@ -146,6 +153,12 @@ async function runBrowserTarget(target, origin) {
   let browser;
 
   try {
+    if (debugBrowserE2e) {
+      console.log(
+        `[browser:${target.name}] launching with ${browserLaunchTimeoutMs}ms timeout`
+      );
+    }
+
     browser = await target.launch();
   } catch (error) {
     if (!target.required && !strictBrowserMatrix) {
@@ -193,7 +206,8 @@ async function launchInstalledChromium() {
     try {
       return await chromium.launch({
         executablePath: process.env.VELODOM_BROWSER,
-        headless: true
+        headless: true,
+        timeout: browserLaunchTimeoutMs
       });
     } catch (error) {
       errors.push(`VELODOM_BROWSER: ${error.message}`);
@@ -207,7 +221,8 @@ async function launchInstalledChromium() {
     try {
       return await chromium.launch({
         channel,
-        headless: true
+        headless: true,
+        timeout: browserLaunchTimeoutMs
       });
     } catch (error) {
       errors.push(`${channel}: ${error.message}`);
@@ -216,7 +231,8 @@ async function launchInstalledChromium() {
 
   try {
     return await chromium.launch({
-      headless: true
+      headless: true,
+      timeout: browserLaunchTimeoutMs
     });
   } catch (error) {
     errors.push(`playwright chromium: ${error.message}`);
@@ -312,8 +328,11 @@ async function assertRouting(page, origin) {
   await page.goto(`${origin}/`);
   await waitForPageText(page, "From your first page to production boundaries.");
 
-  await page.click('a[href="/features"]');
-  await page.waitForURL(`${origin}/features`);
+  // The desktop navigation is intentionally hidden at mobile breakpoints.
+  // Use the visible course CTA so this assertion follows the same route a
+  // mobile visitor can actually activate while still covering hash navigation.
+  await page.click('a[href="/features#pages"]:visible');
+  await page.waitForURL(`${origin}/features#pages`);
   await waitForPageText(page, "Learn each capability from code.");
 
   const codeExamples = await page.locator("pre.code-example > code").count();
@@ -375,6 +394,24 @@ async function waitForPageText(page, text) {
       cause: error
     });
   }
+}
+
+/**
+ * Parses an optional browser-launch timeout without allowing a malformed
+ * environment value to make release verification wait indefinitely.
+ */
+function readPositiveDuration(value, fallback) {
+  if (value === undefined || value === "") return fallback;
+
+  const duration = Number(value);
+
+  if (!Number.isFinite(duration) || duration <= 0) {
+    throw new Error(
+      "VELODOM_BROWSER_LAUNCH_TIMEOUT_MS must be a positive millisecond value."
+    );
+  }
+
+  return Math.floor(duration);
 }
 
 async function createStaticServer(root) {

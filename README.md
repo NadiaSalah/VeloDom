@@ -138,7 +138,11 @@ a browser translation provider. See
 
 ## Next Tasks
 
-- Complete the strict browser matrix on a Firefox-capable CI/release machine.
+- Complete the strict Firefox/WebKit matrix on a graphics-capable CI/release
+  machine. Local Chromium, WebKit desktop, and Mobile WebKit pass; the local
+  Firefox SWGL compositor cannot map its headless framebuffer.
+- Sign in to the approved npm owner account, confirm `npm whoami`, package-name
+  ownership/reservation, access level, and 2FA before considering publication.
 - Confirm npm package ownership, publishing account, access, and 2FA policy.
 - Approve the exact V1 release notes and tag before enabling publication.
 - Publish the package before adding npm-installable starter presets.

@@ -126,6 +126,16 @@
   exhaustive lookup: `/features` is the guided, live course and `/reference`
   is the public package/syntax catalog. The canonical repository guide remains
   the single detailed text source under `docs/README.md`.
+- Browser release verification uses a bounded launch timeout so broken local
+  browser hosts report a named failed target instead of blocking CI forever.
+  The mobile route smoke uses a visible content CTA, not navigation that is
+  deliberately hidden at the mobile breakpoint. On 2026-08-24 Chromium,
+  WebKit, and Mobile WebKit passed; Firefox failed before application startup
+  because its SWGL compositor could not map a headless framebuffer.
+- npm registry lookup is only an availability signal. It cannot reserve a name
+  or prove publisher rights. The release remains private until an approved npm
+  account is authenticated, ownership/access and 2FA are confirmed, and the
+  owner explicitly approves publication.
 - Release preparation is intentionally separated from publication. The
   checklist in `RELEASING.md` records gates, but only explicit human approval
   for an exact version can authorize removing `private: true` or publishing.

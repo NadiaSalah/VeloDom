@@ -15,8 +15,8 @@ product generations.
 | Production features | V1 — Implemented | Routing, requests, forms, SEO, content, localization, package subpaths |
 | Developer intelligence | V1 — Implemented | `vd` inspection commands, compiler language helpers, testing utilities |
 | Public package | V1 — Current | `1.0.0`, `private: true`, exports and consumer checks pass |
-| Browser release gate | V1 — Current | Chromium passes; strict Firefox-capable CI run remains open |
-| npm publication | V1 — Current | Ownership, account, 2FA, version, and approval remain human gates |
+| Browser release gate | V1 — Current | Chromium, WebKit, and Mobile WebKit pass; strict Firefox-capable CI run remains open |
+| npm publication | V1 — Current | Registry lookup is unauthenticated; ownership, account, 2FA, version, and approval remain human gates |
 | Hybrid rendering and islands | V1 — Planned / Experimental | Design must preserve static-first authoring and optional runtime cost |
 | AI, migration, CMS, and Edge integrations | V1 — Research / Deferred | External, optional, and never required by Core |
 
@@ -159,11 +159,12 @@ velodom/package.json
 
 Current release work is governance rather than a new framework feature:
 
-- [ ] Complete the strict browser matrix in a Firefox-capable CI/release
-  environment. A local Firefox compositor timeout is an environment issue
-  until a supported CI run proves otherwise.
+- [ ] Complete the strict Firefox browser run in a graphics-capable CI/release
+  environment. Local Chromium, WebKit, and Mobile WebKit pass; local Firefox
+  reports an SWGL compositor framebuffer failure before the application loads.
 - [ ] Confirm npm package-name ownership/reservation, account, organization or
   scope, access level, 2FA policy, exact version, dist tag, and release notes.
+  The local npm client is currently unauthenticated (`npm whoami` returns 401).
 - [ ] Remove `private: true` and publish only after explicit human approval for
   that exact version. Never publish from routine development tasks.
 - [ ] Review registry dependency advisories only after the owner approves
