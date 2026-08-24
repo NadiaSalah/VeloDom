@@ -133,6 +133,8 @@ export interface SeoStaticRenderContext {
   route: string;
   root?: string;
   seo: SeoMetadata;
+  /** Build-only data supplied by a page prerender entry, when configured. */
+  data?: unknown;
 }
 
 /** HTML returned by an optional build-time static content renderer. */
@@ -153,6 +155,25 @@ export type SeoStaticRenderResult =
 export type SeoStaticRenderHook = (
   context: SeoStaticRenderContext
 ) => MaybePromise<SeoStaticRenderResult>;
+
+/** One concrete route and its application-owned build-time data. */
+export interface PrerenderEntry {
+  path: string;
+  data?: unknown;
+}
+
+/** Context supplied to a page's build-only prerender renderer. */
+export interface PrerenderRenderContext extends SeoStaticRenderContext {
+  data?: unknown;
+}
+
+/** Page-owned build-time static rendering contract. */
+export interface PagePrerenderConfig {
+  entries?: () => MaybePromise<PrerenderEntry[]>;
+  render: (
+    context: PrerenderRenderContext
+  ) => MaybePromise<SeoStaticRenderResult>;
+}
 
 /** Context passed to build-time SEO entry hooks. */
 export interface SeoEntriesContext {
@@ -179,6 +200,8 @@ export interface PageConfig {
   beforeEnter?: NavigationGuard;
   allowExternalWrite?: string[];
   seo?: SeoConfig;
+  /** Optional build-only route generation; never shipped to the browser. */
+  prerender?: PagePrerenderConfig;
 }
 
 /** Browser router options accepted by createApp. */

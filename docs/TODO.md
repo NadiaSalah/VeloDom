@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**382 of 408 tasks completed — 94%**
+**383 of 408 tasks completed — 94%**
 
 `[###################-]`
 
-Remaining tasks: **26**
+Remaining tasks: **25**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -102,7 +102,8 @@ locally on 2026-08-16. Strict WebKit and mobile WebKit passed, but Firefox
 headless timed out with a local graphics/compositor launch error. A strict
 retry on 2026-08-17 again stalled during Firefox startup after Chromium and all
 build/package gates passed, so the full matrix remains pending for CI or a
-Firefox-capable release machine.
+Firefox-capable release machine. A further strict attempt on 2026-08-24
+stalled before the browser summary and was stopped after a safe timeout.
 
 ---
 
@@ -818,10 +819,11 @@ publication.
 
 ### Phase 20 — V1.1 Product Foundations
 
-- [ ] Implement build-time static prerendering that emits complete HTML per
-      public route, keeps client takeover optional, and works on static hosting
-      — Fit: HTML-first and SEO-friendly; Value: fast first content and
-      crawlable pages without a server; Complexity: high; Target: V1.1
+- [x] Implement opt-in build-time static prerendering that emits complete HTML
+      for concrete route entries, keeps client takeover optional, and works on
+      static hosting — Fit: HTML-first and SEO-friendly; Value: fast first
+      content and crawlable pages without a server; Complexity: high; Target:
+      V1.1
 - [ ] Define one page-data loading contract for build, server, and client
       navigation, including safe serialized transfer and cache invalidation —
       Fit: compiler-first and request-aware; Value: prevents duplicate fetches

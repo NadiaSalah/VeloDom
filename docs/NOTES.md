@@ -434,11 +434,12 @@
 - Phase H is complete for the V1 framework-site showcase. Future application
   examples may still add more reusable form or error-display components, but
   they are no longer a blocker for the completed V1 showcase milestone.
-- Static SEO currently provides metadata, concise fallback content, and an
-  optional `seo.renderPage` hook for build-time static content. Application
-  `seo.entries` and `seo.renderPage` hooks may fetch API/CMS data at build
-  time, but they are intentionally app-owned, optional, and never bundled into
-  the browser runtime. True SSR hydration remains a separate future milestone.
+- Static SEO provides metadata, concise fallback content, and optional
+  build-only `seo.renderPage` and page-owned `config.prerender` hooks. Their
+  application-owned entries and data may fetch API/CMS content at build time,
+  but are never bundled into the browser runtime. `config.prerender` emits
+  complete concrete route documents and still uses client takeover rather than
+  true SSR hydration, which remains a separate future milestone.
 - Page `.vd` files are currently imported eagerly by the Vite adapter so their
   `<config>` blocks remain synchronously available to the router. Folder pages
   keep lazy chunk behavior; future build work can revisit query-based config
@@ -466,10 +467,10 @@
   service instead of an editor-specific runtime. It maps `.vd` template
   diagnostics back to original file locations and leaves editor UI, project
   navigation, and code actions as optional integration work.
-- V2 static rendering, progressive forms, localization, and devtools are
-  approved as bounded designs: static output is build-only and not SSR; forms
-  enhance native submission through adapters; translations remain optional
-  build tooling; and inspection stays opt-in with a read-only bridge.
+- Static prerendering is now a bounded V1.1 build capability: output is
+  build-only and not SSR; forms enhance native submission through adapters;
+  translations remain optional build tooling; and inspection stays opt-in with
+  a read-only bridge. Hybrid rendering and partial hydration remain V2 work.
 - The VS Code prototype remains outside the package and consumes the public
   compiler language-service API. Its navigation intentionally follows only
   conventional folders and `.vd` names; route-config overrides need a future

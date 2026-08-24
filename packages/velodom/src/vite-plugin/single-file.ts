@@ -119,13 +119,13 @@ export function createSingleFileRuntimeModule(
   ].join("\n");
 }
 
-/** Removes build-only SEO entry hooks from browser-consumed config modules. */
+/** Removes build-only SEO and prerender hooks from browser config modules. */
 export function stripBuildOnlySeoEntries(source: string) {
   const ranges: Array<{
     start: number;
     end: number;
   }> = [];
-  const propertyPattern = /(?<![\w$])(?:entries|["']entries["'])\s*:/g;
+  const propertyPattern = /(?<![\w$])(?:entries|prerender|["']entries["']|["']prerender["'])\s*:/g;
   let match: RegExpExecArray | null;
 
   while ((match = propertyPattern.exec(source))) {

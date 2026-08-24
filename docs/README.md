@@ -2665,15 +2665,43 @@ If the hook returns `null`, VeloDom keeps the existing concise
 `seo.summary` fallback. Script tags are rejected from returned content; use
 `seo.jsonLd` for structured data and the application shell for scripts.
 
+For dynamic content routes, page-owned `config.js` or `config.ts` can use the
+build-only `prerender` contract. It emits one complete route document per
+concrete entry and passes entry data only to the build renderer:
+
+```js
+export default {
+  path: "/blog/:slug",
+  seo: {
+    title: "Blog",
+    description: "VeloDom article"
+  },
+  prerender: {
+    entries: async () => [
+      { path: "/blog/html-first", data: { title: "HTML First" } }
+    ],
+    render: ({ data }) => ({
+      html: `<article><h1>${data.title}</h1></article>`,
+      mode: "replace",
+      hydration: "client-takeover"
+    })
+  }
+};
+```
+
+The `prerender` block runs only after the production build, is removed from
+browser page configuration, rejects dynamic or unsafe output, and requires
+page SEO metadata. It does not create an SSR server or reconcile a server DOM.
+
 ### SSR and Hydration Policy
 
-VeloDom V1 stays browser-first and compiler-first. `seo.renderPage` provides
-optional build-time static content plus client takeover, not a React/Vue-style
-SSR reconciliation engine. `renderToString`-style APIs and persistent server
-runtime APIs are intentionally not part of the public package surface yet.
-Broader SSR/hydration can be reconsidered only after a proven design, browser
-coverage, and runtime stability are mature enough to protect the HTML-first
-authoring model.
+VeloDom remains browser-first and compiler-first. `seo.renderPage` and
+`config.prerender` provide optional build-time static content plus client
+takeover, not a React/Vue-style SSR reconciliation engine. `renderToString`-
+style APIs and persistent server runtime APIs are intentionally not part of the
+public package surface yet. Broader SSR/hydration can be reconsidered only
+after a proven design, browser coverage, and runtime stability are mature
+enough to protect the HTML-first authoring model.
 
 ### Content Mode Helpers
 

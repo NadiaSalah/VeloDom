@@ -77,6 +77,10 @@ test("single-file script, style, and config blocks become virtual modules", () =
           title: "Post",
           description: "Post page",
           entries: async () => []
+        },
+        prerender: {
+          entries: async () => [{ path: "/post" }],
+          render: async () => "<article>Post</article>"
         }
       };
     </config>
@@ -87,6 +91,7 @@ test("single-file script, style, and config blocks become virtual modules", () =
   assert.match(createSingleFileStyleModule(descriptor), /export const __vdStyle/);
   assert.match(createSingleFileStyleModule(descriptor), /main \{ color/);
   assert.doesNotMatch(createSingleFileConfigModule(descriptor), /entries/);
+  assert.doesNotMatch(createSingleFileConfigModule(descriptor), /prerender/);
   assert.match(createSingleFileConfigModule(descriptor), /export \{ __vdConfig \}/);
 });
 

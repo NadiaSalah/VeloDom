@@ -217,6 +217,68 @@ test("static SEO renderer invokes optional full-content render hooks", async () 
   }
 });
 
+test("static SEO renderer emits complete routes from page prerender entries", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-prerender-"));
+
+  try {
+    await mkdir(join(root, "dist"), {
+      recursive: true
+    });
+    await mkdir(join(root, "src", "pages", "blog", "[slug]"), {
+      recursive: true
+    });
+    await writeFile(join(root, "dist", "index.html"), shell);
+    await writeFile(
+      join(root, "src", "pages", "blog", "[slug]", "index.html"),
+      "<main>Blog post</main>"
+    );
+    await writeFile(
+      join(root, "src", "pages", "blog", "[slug]", "config.js"),
+      `
+        export default {
+          path: "/blog/:slug",
+          seo: {
+            title: "Blog",
+            description: "Blog post"
+          },
+          prerender: {
+            entries: async () => [
+              { path: "/blog/html-first", data: { title: "HTML First" } },
+              { path: "/blog/compiler-first", data: { title: "Compiler First" } }
+            ],
+            render: ({ data }) => ({
+              html: "<article><h1>" + data.title + "</h1></article>",
+              mode: "replace"
+            })
+          }
+        };
+      `
+    );
+
+    const result = await generateStaticSeoPages({
+      root,
+      outDir: "dist"
+    });
+    const html = await readFile(
+      join(root, "dist", "blog", "html-first", "index.html"),
+      "utf8"
+    );
+
+    assert.deepEqual(result.routes, [
+      "/blog/html-first",
+      "/blog/compiler-first"
+    ]);
+    assert.match(html, /data-vd-static-content/);
+    assert.match(html, /<h1>HTML First<\/h1>/);
+    assert.doesNotMatch(html, /data-vd-seo-fallback/);
+  } finally {
+    await rm(root, {
+      recursive: true,
+      force: true
+    });
+  }
+});
+
 test("static SEO renderer rejects script tags from content hooks", async () => {
   const root = await mkdtemp(join(tmpdir(), "velodom-seo-unsafe-"));
 

@@ -1,8 +1,10 @@
 # VeloDom Static Rendering Design
 
-Status: approved V2 design. V1 already supports static SEO summaries and the
-application-owned `seo.renderPage` build hook. This document defines a safe
-path to richer static routes without mislabeling client takeover as SSR.
+Status: V1.1 implementation. VeloDom supports an explicit build-only
+`config.prerender` contract in addition to V1 static SEO summaries and the
+application-owned `seo.renderPage` hook. This document defines the boundary
+between richer static routes and server rendering without mislabeling client
+takeover as SSR.
 
 ## Goal
 
@@ -12,8 +14,7 @@ the lightweight client router.
 
 ## Proposed Contract
 
-A future page `config.js` or `config.ts` may opt into a build-only `prerender`
-section:
+A page `config.js` or `config.ts` may opt into a build-only `prerender` section:
 
 ```js
 export default {
@@ -35,6 +36,11 @@ export default {
 data fetching, escaping, and authorization decisions. Generated route files
 must be served before the SPA fallback.
 
+The `entries` function is optional for a concrete `path`; parameterized pages
+must return concrete paths. Each entry may provide application-owned `data`,
+which is passed only to the build renderer and is never serialized into the
+browser configuration module.
+
 ## Explicit Boundaries
 
 - `seo.renderPage` remains the current V1 compatibility hook for static app
@@ -46,8 +52,8 @@ must be served before the SPA fallback.
 - `renderToString`, server components, database sessions, and universal SSR
   APIs are out of scope until a separate, tested hydration architecture exists.
 
-## Required Verification Before Implementation
+## Required Verification
 
-Any V2 implementation must prove direct static routes, dynamic build entries,
+The implementation must prove direct static routes, dynamic build entries,
 no-JavaScript output, script sanitization, unknown-route fallback, and client
 takeover in both package and browser fixtures.

@@ -46,6 +46,8 @@ import type {
   SeoRouteEntry,
   SeoStaticContent,
   SeoStaticRenderHook,
+  PagePrerenderConfig,
+  PrerenderEntry,
   UnknownRecord
 } from "../types.ts";
 
@@ -70,6 +72,8 @@ interface StaticSeoPage {
   page: string;
   route: string;
   seo: SeoMetadata;
+  renderPage?: SeoStaticRenderHook;
+  data?: unknown;
 }
 
 interface StaticSeoSource {
@@ -229,14 +233,18 @@ async function discoverStaticSeoPages(
     templates.map(async template => {
       const config = await loadPageConfig(template);
 
-      if (!config?.seo) return [];
+      if (!config?.seo && !config?.prerender) return [];
 
       const seo = normalizeSeoConfig(
         config.seo,
         `SEO config for page "${template.folder}"`
       );
 
-      if (!seo) return [];
+      if (config.prerender && !seo) {
+        throw new TypeError(
+          `Page "${template.folder}" prerender requires a seo config`
+        );
+      }
 
       const pages: StaticSeoPage[] = [];
       const route = normalizeStaticRoute(
@@ -249,7 +257,7 @@ async function discoverStaticSeoPages(
         root: options.root
       };
 
-      if (route && !isDynamic) {
+      if (seo && route && !isDynamic && !config.prerender) {
         pages.push({
           page: template.folder,
           route,
@@ -276,11 +284,83 @@ async function discoverStaticSeoPages(
         });
       }
 
+      if (config.prerender) {
+        pages.push(...await resolvePrerenderPages(
+          template,
+          config.prerender,
+          seo,
+          route,
+          options.root
+        ));
+      }
+
       return pages;
     })
   );
 
   return groups.flat();
+}
+
+async function resolvePrerenderPages(
+  template: StaticSeoSource,
+  prerender: PagePrerenderConfig,
+  seo: SeoConfig | undefined,
+  configuredRoute: string,
+  root: string
+): Promise<StaticSeoPage[]> {
+  const entries = prerender.entries
+    ? await prerender.entries()
+    : configuredRoute
+      ? [{ path: configuredRoute }]
+      : [];
+
+  if (!Array.isArray(entries)) {
+    throw new TypeError(
+      `Prerender entries for page "${template.folder}" must return an array`
+    );
+  }
+
+  if (!entries.length) {
+    throw new Error(
+      `Prerender page "${template.folder}" needs at least one concrete entry`
+    );
+  }
+
+  return entries.map((entry: PrerenderEntry, index) => {
+    if (!entry || typeof entry !== "object") {
+      throw new TypeError(
+        `Prerender entry ${index} for page "${template.folder}" must be an object`
+      );
+    }
+
+    const route = normalizeStaticRoute(entry.path);
+
+    if (!route) {
+      throw new TypeError(
+        `Prerender entry ${index} for page "${template.folder}" must use a concrete path`
+      );
+    }
+
+    const resolvedSeo = resolvePageSeo(seo, route);
+
+    if (!resolvedSeo) {
+      throw new TypeError(
+        `Prerender entry "${route}" for page "${template.folder}" has no SEO metadata`
+      );
+    }
+
+    return {
+      page: template.folder,
+      route,
+      seo: resolvedSeo,
+      renderPage: context => prerender.render({
+        ...context,
+        data: entry.data,
+        root
+      }),
+      data: entry.data
+    };
+  });
 }
 
 async function resolveBuildSeoEntries(
@@ -554,13 +634,16 @@ async function resolveStaticContent(
     renderPage?: SeoStaticRenderHook;
   }
 ): Promise<SeoStaticContent | undefined> {
-  if (!options.renderPage) return undefined;
+  const renderPage = page.renderPage || options.renderPage;
 
-  const result = await options.renderPage({
+  if (!renderPage) return undefined;
+
+  const result = await renderPage({
     page: page.page,
     route: page.route,
     root: options.root,
-    seo: page.seo
+    seo: page.seo,
+    data: page.data
   });
 
   if (result === undefined || result === null) return undefined;
