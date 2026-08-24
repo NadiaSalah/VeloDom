@@ -31,6 +31,7 @@ import {
   relative
 } from "node:path";
 import type {
+  MaybePromise,
   SeoRouteEntry
 } from "./types.ts";
 
@@ -115,12 +116,34 @@ export interface ContentEntry {
 export interface ContentCollection {
   /** Normalized entries, excluding drafts unless requested. */
   entries: ContentEntry[];
+  /** Lookup indexes generated from the same normalized entry set. */
+  index: ContentIndex;
   /** SEO route entries compatible with VeloDom page `seo.entries`. */
   seoEntries: SeoRouteEntry[];
   /** Sitemap records derived from entries. */
   sitemap: ContentSitemapEntry[];
   /** Search-index records derived from entries. */
   searchIndex: ContentSearchRecord[];
+}
+
+/** Lookup records generated from a normalized content collection. */
+export interface ContentIndex {
+  /** Entries keyed by their public route path. */
+  byPath: Record<string, ContentEntry>;
+  /** Entries keyed by their collection-local slug. */
+  bySlug: Record<string, ContentEntry>;
+  /** Entries grouped by normalized frontmatter tag. */
+  byTag: Record<string, ContentEntry[]>;
+}
+
+/** Typed build-time adapter for an application-owned external content source. */
+export interface ExternalContentLoaderOptions<T> extends ContentGenerationOptions {
+  /** Name assigned to normalized entries from this source. */
+  collection: string;
+  /** Application-owned API, CMS, database, or file loader. */
+  load: () => MaybePromise<readonly T[]>;
+  /** Converts one external record into VeloDom's normal Markdown source shape. */
+  toSource: (record: T, index: number) => ContentSource;
 }
 
 /** Sitemap data generated from content entries. */
@@ -182,6 +205,35 @@ export async function loadContentCollection(
   });
 }
 
+/** Loads typed external records through the same safe content normalization path. */
+export async function loadExternalContentCollection<T>(
+  options: ExternalContentLoaderOptions<T>
+): Promise<ContentCollection> {
+  if (!options || typeof options !== "object" || typeof options.load !== "function") {
+    throw new TypeError("External VeloDom content needs a load() function");
+  }
+
+  if (typeof options.toSource !== "function") {
+    throw new TypeError("External VeloDom content needs a toSource(record) function");
+  }
+
+  const records = await options.load();
+
+  if (!Array.isArray(records)) {
+    throw new TypeError("External VeloDom content load() must return an array");
+  }
+
+  return createContentCollection({
+    basePath: options.basePath,
+    collection: options.collection,
+    files: records.map((record, index) => ({
+      ...options.toSource(record, index),
+      collection: options.collection
+    })),
+    includeDrafts: options.includeDrafts
+  });
+}
+
 /** Generates normalized entries and derived artifacts from Markdown sources. */
 export function createContentCollection(
   options: ContentCollectionOptions
@@ -195,9 +247,32 @@ export function createContentCollection(
 
   return {
     entries,
+    index: createContentIndex(entries),
     seoEntries: createContentSeoEntries(entries),
     sitemap: createContentSitemap(entries),
     searchIndex: createContentSearchIndex(entries)
+  };
+}
+
+/** Creates route, slug, and tag lookup indexes for normalized content entries. */
+export function createContentIndex(entries: ContentEntry[]): ContentIndex {
+  const byPath: Record<string, ContentEntry> = Object.create(null);
+  const bySlug: Record<string, ContentEntry> = Object.create(null);
+  const byTag: Record<string, ContentEntry[]> = Object.create(null);
+
+  for (const entry of entries) {
+    byPath[entry.path] = entry;
+    bySlug[entry.slug] = entry;
+
+    for (const tag of entry.tags) {
+      (byTag[tag] ||= []).push(entry);
+    }
+  }
+
+  return {
+    byPath,
+    bySlug,
+    byTag
   };
 }
 

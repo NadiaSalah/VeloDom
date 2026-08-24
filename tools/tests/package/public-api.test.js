@@ -165,11 +165,13 @@ test("compiler public exports are frozen for build integrations", () => {
 test("content public exports are frozen for build-time integrations", () => {
   assert.deepEqual(Object.keys(contentApi).sort(), [
     "createContentCollection",
+    "createContentIndex",
     "createContentRssFeed",
     "createContentSearchIndex",
     "createContentSeoEntries",
     "createContentSitemap",
     "loadContentCollection",
+    "loadExternalContentCollection",
     "parseMarkdownContent"
   ]);
   assert.deepEqual(readInterfaceExportNames(contentEntrySource), [
@@ -178,10 +180,12 @@ test("content public exports are frozen for build-time integrations", () => {
     "ContentEntry",
     "ContentFileLoadOptions",
     "ContentGenerationOptions",
+    "ContentIndex",
     "ContentRssOptions",
     "ContentSearchRecord",
     "ContentSitemapEntry",
-    "ContentSource"
+    "ContentSource",
+    "ExternalContentLoaderOptions"
   ]);
   assert.deepEqual(readTypeExportNames(contentEntrySource, "local"), [
     "ContentFrontmatter",

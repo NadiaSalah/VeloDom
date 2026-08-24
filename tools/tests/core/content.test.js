@@ -9,8 +9,10 @@ import { join } from "node:path";
 import test from "node:test";
 import {
   createContentCollection,
+  createContentIndex,
   createContentRssFeed,
   createContentSitemap,
+  loadExternalContentCollection,
   loadContentCollection,
   parseMarkdownContent
 } from "../../../packages/velodom/src/content.ts";
@@ -151,4 +153,33 @@ test("content mode generates sitemap URLs and RSS XML", () => {
   assert.equal(sitemap[0].lastModified, "2026-08-16");
   assert.match(rss, /<rss version="2.0">/);
   assert.match(rss, /https:\/\/example\.com\/posts\/one/);
+});
+
+test("content mode indexes normalized records and adapts typed external data", async () => {
+  const collection = await loadExternalContentCollection({
+    collection: "posts",
+    basePath: "/blog",
+    load: async () => [{
+      id: 7,
+      title: "External post",
+      body: "# External post\n\nLoaded at build time."
+    }],
+    toSource: record => ({
+      collection: "ignored-by-adapter",
+      slug: String(record.id),
+      source: [
+        "---",
+        `title: ${record.title}`,
+        "tags: external, api",
+        "---",
+        record.body
+      ].join("\n")
+    })
+  });
+  const index = createContentIndex(collection.entries);
+
+  assert.equal(collection.entries[0].collection, "posts");
+  assert.equal(collection.index.byPath["/blog/7"].title, "External post");
+  assert.equal(index.bySlug["7"].path, "/blog/7");
+  assert.equal(index.byTag.external[0].slug, "7");
 });

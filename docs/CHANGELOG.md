@@ -32,6 +32,9 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Extended `velodom/content` with typed, application-owned external loaders
+  and route/slug/tag lookup indexes generated from the normalized entry set.
+  CMS credentials and vendor SDKs remain outside the framework.
 - Promoted the optional VS Code integration to stable workspace language tools:
   it activates for opted-in HTML diagnostics, reuses compiler diagnostics, and
   indexes conventional component/route names for completion and definition
@@ -79,8 +82,8 @@ package versions.
 - Added an ordered post-V1 roadmap: static prerendering, unified page data,
   progressive forms, optional typed declarations, adapter contracts, compiler
   security diagnostics, CLI improvements, and derived state for V1.1.
-- Deferred Node rendering, editor tooling, and typed content loaders to V1.2;
-  hybrid rendering, partial hydration,
+- Deferred Node rendering and remaining server integration to V1.2; hybrid
+  rendering, partial hydration,
   DevTools, and Edge/streaming work remain V2 concerns.
 - Kept AI, migration tools, and CMS integrations optional research items and
   explicitly rejected JSX, mandatory Virtual DOM, mandatory SSR, mandatory

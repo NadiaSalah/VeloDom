@@ -483,6 +483,10 @@
   Vite surfaces missing translations before a build and the helper expands
   route/SEO records. Message formatting, negotiation, and client-side language
   switching remain integration concerns instead of hidden runtime behavior.
+- External content loaders are typed adapters into the same normalized Markdown
+  source contract as local collections. VeloDom intentionally owns only the
+  generated route/slug/tag indexes and never supplies a CMS client, credential
+  store, or browser data transport.
 - CSS budgets remain build-only and opt-in. VeloDom reports generated CSS for
   every project but does not ship a default threshold because framework-owned
   limits would make a visual design-system choice look like a runtime defect.

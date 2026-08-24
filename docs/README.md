@@ -2994,6 +2994,32 @@ const rss = createContentRssFeed(posts.entries, {
 });
 ```
 
+For a CMS, database, or build-only API, adapt the application's typed records
+into the same source shape. VeloDom owns normalization and generated lookup
+indexes; the application owns credentials, fetching, and vendor-specific
+fields:
+
+```ts
+import { loadExternalContentCollection } from "velodom/content";
+
+const posts = await loadExternalContentCollection({
+  collection: "posts",
+  basePath: "/blog",
+  load: () => cmsClient.posts.list(),
+  toSource: post => ({
+    collection: "posts",
+    slug: post.slug,
+    source: `---\ntitle: ${post.title}\ntags: ${post.tags.join(", ")}\n---\n${post.body}`
+  })
+});
+
+posts.index.byPath["/blog/html-first"];
+posts.index.byTag.framework;
+```
+
+`loadExternalContentCollection()` runs only in Node/build code. It does not
+ship a CMS SDK, send credentials to the browser, or prescribe a vendor.
+
 ## Deployment and Static Hosting
 
 Detailed provider recipes live in [DEPLOYMENT.md](DEPLOYMENT.md).

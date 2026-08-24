@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**394 of 408 tasks completed — 97%**
+**395 of 408 tasks completed — 97%**
 
 `[###################-]`
 
-Remaining tasks: **14**
+Remaining tasks: **13**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -876,7 +876,7 @@ publication.
       package with shared compiler diagnostics and route/component completion —
       Fit: convention-first; Value: a gentler authoring experience for
       beginners and teams; Complexity: high; Target: V1.2
-- [ ] Extend content helpers with typed external loaders and generated content
+- [x] Extend content helpers with typed external loaders and generated content
       indexes while keeping CMS integrations outside Core — Fit: content-first
       and vendor-neutral; Value: production blogs and documentation sites can
       scale data sources safely; Complexity: medium; Target: V1.2
