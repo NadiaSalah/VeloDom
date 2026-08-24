@@ -29,6 +29,13 @@ package versions.
 - Verified the registry version and the published `vd` and `create-velodom`
   binary mappings after npm's manifest normalization.
 
+### Published Starter Preset
+
+- Documented and verified the default npm-installable starter command:
+  `npx --yes --package velodom create-velodom <name>`.
+- The registry smoke test generated a complete Vite project with a package
+  manifest, VeloDom bootstrap, home page, config, and plugin configuration.
+
 ### AI-Friendly Project Context
 
 - Added root `AGENTS.md` and `docs/AI_CONTEXT.md` to give AI tools a concise,

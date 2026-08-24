@@ -64,7 +64,7 @@ example-project health report, and a successful GitHub Actions matrix across
 Chromium, Firefox, WebKit, and Mobile WebKit. VeloDom `1.0.0` is now published
 on npm under the authenticated `engnadia` account with write-level 2FA. The
 roadmap is [docs/TODO.md](docs/TODO.md); the remaining work is optional
-post-publication tooling such as starter presets.
+post-publication tooling and research.
 Optional
 Hybrid rendering, islands, richer DevTools, and streaming/Edge adapters remain
 deliberately planned or deferred rather than being folded into the V1 runtime.
@@ -208,8 +208,8 @@ a browser translation provider. See
 
 ## Next Tasks
 
-- Add npm-installable starter presets when their templates and support contract
-  are ready.
+- The default npm-installable starter preset is available through
+  `npx --yes --package velodom create-velodom <name>`.
 - Continue only the optional items recorded in [docs/TODO.md](docs/TODO.md).
 
 ## Handoff Notes

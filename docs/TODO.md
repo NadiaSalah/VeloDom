@@ -198,7 +198,10 @@ Current release work is governance rather than a new framework feature:
   the published version and both CLI binaries.
 - [ ] Review registry dependency advisories only after the owner approves
   sending workspace dependency metadata to npm.
-- [ ] Add npm-installable starter presets after the public package path exists.
+- [x] Add the published default starter preset through
+  `npx --yes --package velodom create-velodom <name>`. It generates a minimal
+  Vite application with `mountVeloDom()`, a home page, and public package
+  dependencies. Additional opinionated presets remain optional research.
 
 ## V1 Advanced Capabilities — Planned / Experimental
 

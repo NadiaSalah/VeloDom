@@ -545,6 +545,10 @@
   phase. Code readiness, public API freeze, package checks, npm publication,
   and the browser matrix are complete for `1.0.0`; future versions still need
   the same owner, account, access, 2FA, notes, and tag decisions.
+- The default starter preset intentionally ships inside the published `velodom`
+  package rather than creating a second package name. `npx --yes --package
+  velodom create-velodom <name>` is the stable beginner entry point; additional
+  opinionated presets remain optional until they have distinct support value.
 - The post-V1 competitive roadmap is intentionally bounded: adapter contracts,
   authoring types, asset tooling, editor intelligence, static rendering,
   progressive forms, localization, and dev inspection may be researched or

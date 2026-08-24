@@ -469,14 +469,16 @@ vd create api posts
 vd create demo features/demo
 vd create middleware
 vd create plugin analytics
-create-velodom my-site
+npx --yes --package velodom create-velodom my-site
 ```
 
 Inside this repository, run `npm run package:build` first, then use
 `node packages/velodom/bin/vd.js ...` because the wrappers load the generated
 `packages/velodom/lib/cli.js`.
 After installation from npm, the `vd` and `create-velodom` binaries are
-available directly through the package manager.
+available directly through the package manager. The command above is the
+published default starter preset; it creates a minimal Vite application that
+can immediately install dependencies and run with `npm run dev`.
 
 The CLI is intentionally static and local. `vd inspect` and `vd stats` read
 folders, `.vd` files, API route registrations, middleware files, template

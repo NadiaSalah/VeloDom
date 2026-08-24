@@ -36,11 +36,16 @@ provider.
 VeloDom `1.0.0` is published on npm. A new app can start with:
 
 ```bash
-npx create-velodom my-site
+npx --yes --package velodom create-velodom my-site
 cd my-site
 npm install
 npm run dev
 ```
+
+This is the published default starter preset. It creates a Vite project with
+the VeloDom plugin, `mountVeloDom()` bootstrap, a home page, and JavaScript
+configuration. Use `vd create` after installation for additional pages,
+components, API routes, middleware, plugins, and focused demos.
 
 To integrate an existing Vite project:
 
