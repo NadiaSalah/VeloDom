@@ -148,9 +148,11 @@
   on this local host because its SWGL compositor cannot map a headless
   framebuffer; the successful Linux CI run is the release authority.
 - npm registry lookup is only an availability signal. It cannot reserve a name
-  or prove publisher rights. The release remains private until an approved npm
-  account is authenticated, ownership/access and 2FA are confirmed, and the
-  owner explicitly approves publication.
+  or prove publisher rights. On 2026-08-25 the `engnadia` account was
+  authenticated, email verified, and protected by write-level 2FA; `npm view
+  velodom` returned 404 and `npm access list packages` returned no packages.
+  The release remains private until the owner explicitly approves publication
+  of the exact `1.0.0` version.
 - `.github/workflows/release-browser-matrix.yml` is the authoritative remote
   replacement for local graphics-limited browser testing. It uses a supported
   Ubuntu runner, installs Playwright's browser binaries, and runs the existing

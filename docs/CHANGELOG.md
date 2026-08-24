@@ -13,6 +13,15 @@ package versions.
   for Chromium, Firefox, WebKit, and Mobile WebKit. The Firefox gate is now
   closed; only npm ownership and human publication approval remain external.
 
+### npm Release Preflight
+
+- Verified the authenticated npm account as `engnadia` with a verified email
+  and write-level 2FA. The `velodom` name is currently unregistered, and npm
+  reports no owned packages for the account.
+- Confirmed the `1.0.0` package tarball with the package contract, installed
+  consumer, and dry-run checks. `private: true` remains until explicit human
+  approval authorizes publication of this exact version.
+
 ### AI-Friendly Project Context
 
 - Added root `AGENTS.md` and `docs/AI_CONTEXT.md` to give AI tools a concise,

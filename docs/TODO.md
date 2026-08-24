@@ -16,18 +16,20 @@ product generations.
 | Developer intelligence | V1 — Implemented | `vd` inspection commands, compiler language helpers, testing utilities |
 | Public package | V1 — Current | `1.0.0`, `private: true`, exports and consumer checks pass |
 | Browser release gate | V1 — Implemented | GitHub Actions Run #27 passed Chromium, Firefox, WebKit, and Mobile WebKit |
-| npm publication | V1 — Current | Registry lookup is unauthenticated; ownership, account, 2FA, version, and approval remain human gates |
+| npm publication | V1 — Current | Account and 2FA preflight complete; explicit `1.0.0` publication approval remains |
 | Hybrid rendering and islands | V1 — Planned / Experimental | Design must preserve static-first authoring and optional runtime cost |
 | AI, migration, CMS, and Edge integrations | V1 — Research / Deferred | External, optional, and never required by Core |
 
 ### Progress counter
 
-**V1 implementation: complete. Release readiness: 2 external gates open.**
+**V1 implementation: complete. Release readiness: 1 external gate open.**
 
 `[##################--]`
 
-The remaining gates are npm ownership/account approval and final human
-publication approval. The local package remains private and unpublished.
+The npm account is authenticated and protected by write-level 2FA; the
+registry currently has no published `velodom` package. The remaining gate is
+explicit human approval for publishing the exact `1.0.0` package. The local
+package remains private and unpublished until that approval.
 
 ### Status vocabulary
 
@@ -187,9 +189,11 @@ Current release work is governance rather than a new framework feature:
   environment. GitHub Actions Run #27 passed Chromium, Firefox, WebKit, and
   Mobile WebKit on the current `main` commit. Local Firefox remains limited by
   the host's SWGL compositor, but this no longer blocks the release gate.
-- [ ] Confirm npm package-name ownership/reservation, account, organization or
-  scope, access level, 2FA policy, exact version, dist tag, and release notes.
-  The local npm client is currently unauthenticated (`npm whoami` returns 401).
+- [x] Confirm npm account and release preflight: `npm whoami` returns
+  `engnadia`, email is verified, write-level 2FA is enabled, `velodom` is not
+  currently published, the package is public-scoped in `publishConfig`, and
+  the `1.0.0` tarball dry run passes. npm does not reserve an unregistered
+  name; publication itself is the ownership event.
 - [ ] Remove `private: true` and publish only after explicit human approval for
   that exact version. Never publish from routine development tasks.
 - [ ] Review registry dependency advisories only after the owner approves

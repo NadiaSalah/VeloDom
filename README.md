@@ -61,9 +61,11 @@ allowlisted by `packages/velodom/package.json`.
 V1 is verified with 255 automated tests, package-consumer and tarball
 validation, a production build within its performance budgets, a 100/100
 example-project health report, and a successful GitHub Actions matrix across
-Chromium, Firefox, WebKit, and Mobile WebKit. The roadmap is
-[docs/TODO.md](docs/TODO.md); remaining V1 release work is external npm
-governance and final publication approval. Starter presets remain
+Chromium, Firefox, WebKit, and Mobile WebKit. The npm account preflight is also
+complete: `engnadia` is authenticated, email is verified, 2FA protects writes,
+and the registry has no published `velodom` package yet. The roadmap is
+[docs/TODO.md](docs/TODO.md); only explicit approval to publish `1.0.0` remains
+before the package can leave `private: true`. Starter presets remain
 post-publication work.
 Optional
 Hybrid rendering, islands, richer DevTools, and streaming/Edge adapters remain
