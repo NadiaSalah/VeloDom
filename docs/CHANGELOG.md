@@ -31,6 +31,9 @@ package versions.
 - Removed the remaining unreferenced legacy showcase components. `vd doctor`
   now reports no issues and `vd health` reports 100/100 with SEO coverage for
   all six example pages.
+- Made the feature-reference sidebar actively follow hash links, clicked
+  lessons, and the section currently visible during scrolling. Active links now
+  expose `aria-current="location"` and retain clear keyboard focus styling.
 
 ### Documentation and Project-Intelligence Audit
 

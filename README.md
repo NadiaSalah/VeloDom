@@ -143,6 +143,9 @@ a browser translation provider. See
 - Reorganized the showcase navigation into page-level tabs only: Learn, Guides,
   API, and Single-file. Detailed Requests, Tooling, and other lessons remain in
   the feature sidebar, preventing duplicate top-level links and hash-based tabs.
+- Made the feature sidebar stateful and accessible: the URL hash, clicked lesson,
+  and currently visible section now select the same active tab, with
+  `aria-current` and keyboard focus styling.
 
 ## Next Tasks
 

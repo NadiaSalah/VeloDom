@@ -337,6 +337,26 @@ async function assertRouting(page, origin) {
   await page.waitForURL(`${origin}/features#pages`);
   await waitForPageText(page, "Learn each capability from code.");
 
+  await page.waitForFunction(() => {
+    const active = document.querySelector(".docs-sidebar-link.is-active");
+
+    return active?.getAttribute("href") === "/features#pages"
+      && active?.getAttribute("aria-current") === "location";
+  });
+
+  await page.locator('a[href="/features#directives"]').click();
+  await page.waitForURL(`${origin}/features#directives`);
+  await page.waitForFunction(() => (
+    document.querySelector('.docs-sidebar-link.is-active')
+      ?.getAttribute("href") === "/features#directives"
+  ));
+
+  await page.locator("#tooling").scrollIntoViewIfNeeded();
+  await page.waitForFunction(() => (
+    document.querySelector('.docs-sidebar-link.is-active')
+      ?.getAttribute("href") === "/features#tooling"
+  ));
+
   const codeExamples = await page.locator("pre.code-example > code").count();
 
   if (codeExamples < 8) {

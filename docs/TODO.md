@@ -137,6 +137,8 @@ application browser runtime weight:
 - [x] A separate `/reference` showcase route catalogs the complete public
   package surface and template vocabulary while `/features` remains the
   beginner-friendly guided course.
+- [x] The feature-reference sidebar keeps its active tab synchronized with the
+  URL hash, click navigation, viewport scrolling, and accessible focus state.
 
 ## V1 Ecosystem — Current
 
