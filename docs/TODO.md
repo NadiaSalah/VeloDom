@@ -143,6 +143,8 @@ application browser runtime weight:
   behavior and browser regression coverage.
 - [x] The compact site navigation keeps a high-contrast icon and a distinct
   open state at tablet and small-desktop widths.
+- [x] The shared primary navigation highlights the current route consistently
+  in wide and compact menus and exposes the state to assistive technology.
 
 ## V1 Ecosystem — Current
 

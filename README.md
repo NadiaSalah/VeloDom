@@ -151,6 +151,9 @@ a browser translation provider. See
   consistent navigation behavior without adding UI logic to the framework core.
 - Increased compact-menu contrast and added an open-state treatment so the
   navigation icon remains clear on tablet and small-desktop widths.
+- Added route-aware active states to the shared primary navigation. Learn,
+  Guides, API, and Single-file now expose the selected route with
+  `aria-current="page"` on both wide and compact menus.
 
 ## Next Tasks
 

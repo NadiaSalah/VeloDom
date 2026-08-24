@@ -339,6 +339,11 @@ async function assertRouting(page, origin) {
   await page.click('a[href="/features#pages"]:visible');
   await page.waitForURL(`${origin}/features#pages`);
   await waitForPageText(page, "Learn each capability from code.");
+  await page.waitForFunction(() => (
+    [...document.querySelectorAll('.site-primary-link.is-active')]
+      .some(link => link.getAttribute("href") === "/features"
+        && link.getAttribute("aria-current") === "page")
+  ));
 
   await page.waitForFunction(() => {
     const active = document.querySelector(".docs-sidebar-link.is-active");
@@ -449,6 +454,11 @@ async function assertCompactDesktopNavigation(browser, target, origin) {
       await page.locator('details.dropdown a[href="/reference"]').click();
       await page.waitForURL(`${origin}/reference`);
       await waitForPageText(page, "One public contract, organized by purpose.");
+      await page.waitForFunction(() => (
+        [...document.querySelectorAll('.site-primary-link.is-active')]
+          .some(link => link.getAttribute("href") === "/reference"
+            && link.getAttribute("aria-current") === "page")
+      ));
     });
   } finally {
     await context.close();

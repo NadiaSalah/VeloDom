@@ -39,6 +39,8 @@ package versions.
   in the browser smoke suite.
 - Improved the compact navigation trigger contrast and open-state styling for
   tablet and small-desktop layouts.
+- Added route-aware active styling and `aria-current="page"` to the shared
+  Learn, Guides, API, and Single-file navigation links in both menu layouts.
 
 ### Documentation and Project-Intelligence Audit
 
