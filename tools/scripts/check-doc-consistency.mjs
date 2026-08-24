@@ -20,7 +20,23 @@ const packageManifest = JSON.parse(await readWorkspaceFile(
   "packages/velodom/package.json"
 ));
 const releaseGuide = await readWorkspaceFile("docs/RELEASING.md");
+const canonicalGuide = await readWorkspaceFile("docs/README.md");
 const cliSource = await readWorkspaceFile("packages/velodom/src/cli.ts");
+const directiveSource = await readWorkspaceFile(
+  "packages/velodom/src/shared/directives.ts"
+);
+const publicApiSources = await Promise.all([
+  "packages/velodom/src/index.ts",
+  "packages/velodom/src/compiler/index.ts",
+  "packages/velodom/src/content.ts",
+  "packages/velodom/src/localization.ts",
+  "packages/velodom/src/node.ts",
+  "packages/velodom/src/assets.ts",
+  "packages/velodom/src/devtools.ts",
+  "packages/velodom/src/adapters/vite.ts",
+  "packages/velodom/src/vite-plugin/index.ts",
+  "packages/velodom/src/testing.ts"
+].map(readWorkspaceFile));
 const currentGuides = await Promise.all([
   "README.md",
   "docs/README.md",
@@ -56,8 +72,15 @@ const removedGuides = [
 const legacyProductLabel = /\bV1\.\d+\b|\bV[2-9]\b|\bPost-V1\b|\bPhase\s+\d+\b/;
 const privateImport = /(?:from\s+|import\()\s*["'](?:velodom\/lib\/|packages\/velodom\/src\/)/;
 const cliCommands = new Set(
-  [...cliSource.matchAll(/case "([a-z-]+)":/g)].map(match => match[1])
+  [...cliSource.matchAll(/case "([a-z-]+)":/g)]
+    .map(match => match[1])
+    .filter(command => !command.startsWith("-"))
 );
+const documentedCanonicalCommands = collectDocumentedCliCommands(canonicalGuide);
+const publicApiNames = new Set(
+  publicApiSources.flatMap(collectPublicValueExports)
+);
+const preferredDirectives = collectPreferredDirectives(directiveSource);
 
 if (packageManifest.private !== true) {
   violations.push("packages/velodom must remain private until human publication approval");
@@ -68,6 +91,28 @@ for (const publicImport of publicImports) {
     violations.push(
       `docs/RELEASING.md must document public export "${publicImport}"`
     );
+  }
+}
+
+for (const publicApiName of publicApiNames) {
+  if (!new RegExp(`\\b${publicApiName}\\b`).test(canonicalGuide)) {
+    violations.push(
+      `docs/README.md must document public API "${publicApiName}"`
+    );
+  }
+}
+
+for (const directive of preferredDirectives) {
+  if (!canonicalGuide.includes(`vd-${directive}`)) {
+    violations.push(
+      `docs/README.md must document preferred directive "vd-${directive}"`
+    );
+  }
+}
+
+for (const command of cliCommands) {
+  if (!documentedCanonicalCommands.has(command)) {
+    violations.push(`docs/README.md must document CLI command "vd ${command}"`);
   }
 }
 
@@ -103,7 +148,13 @@ if (violations.length) {
   process.exitCode = 1;
 } else {
   console.log(
-    `VeloDom documentation consistency check passed (${publicImports.length} public exports).`
+    [
+      "VeloDom documentation consistency check passed",
+      `(${publicImports.length} package exports,`,
+      `${publicApiNames.size} public values,`,
+      `${preferredDirectives.size} preferred directives,`,
+      `${cliCommands.size} CLI commands).`
+    ].join(" ")
   );
 }
 
@@ -134,4 +185,62 @@ function collectDocumentedCliCommands(source) {
   }
 
   return commands;
+}
+
+/**
+ * Collects runtime values from a public entry module while excluding
+ * type-only exports. Both direct declarations and named re-exports are
+ * supported because VeloDom keeps implementation files private.
+ *
+ * @param {string} source TypeScript entry-module source.
+ * @returns {string[]} Public value names.
+ */
+function collectPublicValueExports(source) {
+  const names = [];
+
+  for (const match of source.matchAll(
+    /^export\s+(?:async\s+)?(?:function|class|const)\s+([A-Za-z_$][\w$]*)/gm
+  )) {
+    names.push(match[1]);
+  }
+
+  for (const match of source.matchAll(/\bexport\s*{([\s\S]*?)}\s*from\s*["']/g)) {
+    for (const entry of match[1].split(",")) {
+      const normalized = entry
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .trim();
+
+      if (!normalized || normalized.startsWith("type ")) {
+        continue;
+      }
+
+      const alias = normalized.match(/\bas\s+([A-Za-z_$][\w$]*)$/);
+      const name = alias?.[1] || normalized.match(/^([A-Za-z_$][\w$]*)/)?.[1];
+
+      if (name) {
+        names.push(name);
+      }
+    }
+  }
+
+  return names;
+}
+
+/**
+ * Reads the compiler's canonical directive vocabulary. Prefix directives such
+ * as `prop-` remain prefixes in the result so the guide can document the whole
+ * directive family without listing arbitrary property names.
+ *
+ * @param {string} source Directive-contract source.
+ * @returns {Set<string>} Preferred directive names.
+ */
+function collectPreferredDirectives(source) {
+  const declaration = source.match(
+    /PREFERRED_DIRECTIVES\s*=\s*Object\.freeze\(\[([\s\S]*?)]\)/
+  );
+
+  return new Set(
+    [...(declaration?.[1] || "").matchAll(/["']([^"']+)["']/g)]
+      .map(match => match[1])
+  );
 }

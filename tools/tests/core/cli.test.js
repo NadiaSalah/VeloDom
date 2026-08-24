@@ -56,6 +56,8 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
       ["default"]
     );
     assert.equal(inspection.directiveUsage["vd-text"], 2);
+    assert.equal(inspection.directiveUsage["vd-pre"], 1);
+    assert.equal(inspection.directiveUsage["vd-lazy"], undefined);
     assert.equal(inspection.css.length, 1);
     assert.deepEqual(
       inspection.refs.map(ref => `${ref.owner}:${ref.name}`),
@@ -88,6 +90,25 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
       totalPages: 2
     });
     assert.deepEqual(inspection.middleware, ["src/api/middleware.js"]);
+
+    output.length = 0;
+
+    const doctorCode = await runVeloDomCli([
+      "doctor",
+      "--json",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+    const doctor = JSON.parse(output.join("\n"));
+
+    assert.equal(doctorCode, 0);
+    assert.equal(
+      doctor.issues.some(issue => issue.message.includes("fakeHandler")),
+      false
+    );
 
     output.length = 0;
 
@@ -586,6 +607,7 @@ async function createFixture() {
         <button vd-ref="titleEl" vd-on:click="announce()">Announce</button>
         <vd-component name="shared/card"></vd-component>
         <button vd-request="posts.getAll"></button>
+        <pre vd-pre><code><button vd-lazy vd-on:click="fakeHandler()"></button></code></pre>
       </main>
     `
   );

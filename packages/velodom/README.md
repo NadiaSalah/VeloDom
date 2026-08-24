@@ -302,8 +302,8 @@ export default ({ id }, { signal } = {}) => (
 </button>
 
 <p vd-show="postLoading">Loading…</p>
-<p vd-if="postError" vd-text="postError"></p>
-<article vd-if="postResult" vd-text="postResult.title"></article>
+<p vd-if="postError !== ''" vd-text="postError"></p>
+<article vd-if="Boolean(postResult)" vd-text="postResult?.title || ''"></article>
 ```
 
 With target `postResult`, `vd-auto-state` derives `postLoading` and `postError`.

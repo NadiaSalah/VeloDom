@@ -25,6 +25,26 @@ package versions.
   provider-based authentication, cache and retry helpers, RTL direction, and
   native lazy/responsive image authoring. Each example keeps framework runtime
   behavior separate from application and backend policy.
+- Added `/reference` as the source-verified package API catalog. It covers all
+  public subpaths, 61 exported values, preferred template syntax, build-only
+  helpers, explicit integrations, and every CLI command with code examples.
+- Removed the remaining unreferenced legacy showcase components. `vd doctor`
+  now reports no issues and `vd health` reports 100/100 with SEO coverage for
+  all six example pages.
+
+### Documentation and Project-Intelligence Audit
+
+- Extended the consistency audit to extract public values from TypeScript entry
+  modules, preferred directives from the compiler contract, and commands from
+  the CLI dispatcher. The canonical `docs/README.md` must name all of them.
+- Fixed static inspection of `vd-pre` containers. Literal code remains visible
+  to the compiler's preservation behavior, while directive usage, event,
+  component, request, ref, and dead-code analysis ignores preserved content.
+- Added a CLI regression fixture proving literal `vd-lazy` and
+  `fakeHandler()` examples cannot affect inspection or doctor results.
+- Corrected strict Boolean request examples in the registry-facing package
+  README and expanded the canonical content/localization examples for their
+  complete public build-time helper sets.
 
 ### npm Package Readiness and Workspace Cleanup
 

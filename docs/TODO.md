@@ -120,6 +120,11 @@ application browser runtime weight:
   smoke coverage.
 - [x] Documentation checks for public exports, documented CLI commands, private
   imports, legacy roadmap labels, and removed-guide links.
+- [x] Source-derived documentation coverage for all public runtime/build values,
+  preferred directive names, and CLI commands in the canonical one-file guide.
+- [x] Project-intelligence literal-region handling so code shown inside
+  `vd-pre` is compiled as documentation but excluded from static usage,
+  reference, and event-handler reports.
 - [x] A polished application-owned academic reference that dogfoods public
   VeloDom APIs, shows literal HTML/JavaScript examples in `<pre><code>` blocks,
   and pairs key directives with live lessons without adding documentation UI to
@@ -129,6 +134,9 @@ application browser runtime weight:
 - [x] The showcase documents the remaining V1 data and presentation capabilities
   as dedicated lessons: API routes, middleware, auth, public cache/retry, RTL,
   native lazy images, and build-time asset helpers.
+- [x] A separate `/reference` showcase route catalogs the complete public
+  package surface and template vocabulary while `/features` remains the
+  beginner-friendly guided course.
 
 ## V1 Ecosystem — Current
 

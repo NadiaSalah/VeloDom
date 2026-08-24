@@ -114,6 +114,18 @@
 - Documentation/package consistency is automated from the public export map.
   Release documentation must include every package subpath, while current guides
   must not link to the specialized documentation files that were consolidated.
+- Canonical guide coverage is also derived from public TypeScript entry modules,
+  `PREFERRED_DIRECTIVES`, and CLI switch cases. Adding a public value, directive,
+  or command requires documenting it in `docs/README.md` in the same change.
+- Static project intelligence masks descendant text inside `vd-pre` before
+  looking for directives, refs, components, requests, events, or state names.
+  The compiler still receives the original template because preservation is a
+  real compiler feature; only higher-level usage analysis receives the masked
+  view. This prevents documentation source from creating false health signals.
+- The example documentation information architecture separates learning from
+  exhaustive lookup: `/features` is the guided, live course and `/reference`
+  is the public package/syntax catalog. The canonical repository guide remains
+  the single detailed text source under `docs/README.md`.
 - Release preparation is intentionally separated from publication. The
   checklist in `RELEASING.md` records gates, but only explicit human approval
   for an exact version can authorize removing `private: true` or publishing.

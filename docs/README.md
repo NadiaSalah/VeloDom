@@ -20,6 +20,7 @@ JavaScript or TypeScript independently for every page and component.
 - [What Works Today](#what-works-today)
 - [Five-Minute Start](#five-minute-start)
 - [V1 Feature Matrix](#v1-feature-matrix)
+- [Source-Verified Public Feature Catalog](#source-verified-public-feature-catalog)
 - [Authoring Reference](#authoring-reference)
 - [First Page Walkthrough](#first-page-walkthrough)
 - [Requirements and Commands](#requirements-and-commands)
@@ -171,6 +172,47 @@ Project intelligence belongs to build and development tooling. It should not
 become application runtime weight. Advanced hybrid rendering, islands,
 streaming, and Edge work are planned or research-only and are not part of the
 normal V1 browser model.
+
+## Source-Verified Public Feature Catalog
+
+This catalog is generated conceptually from the public package entry modules,
+the compiler directive contract, and the CLI command dispatcher. Repository
+verification checks that every public value, preferred directive family, and
+CLI command remains named in this single guide. This makes the rest of this
+document the canonical detailed reference rather than a manually maintained
+marketing list.
+
+| Import | Public values |
+| --- | --- |
+| `velodom` | `createApp`, `computed`, `effect`, `watch`, `definePageConfig`, `definePlugin`, `defineRequestRoute`, `defineResourceAdapter`, `assertResourceAdapterConformance`, `createDirectionPlugin`, `createRtlFlipStyles`, `createSharedState`, `createDevtoolsPlugin`, `createRequestCache`, `withRequestRetry`, `createValidationPlugin`, `createProgressiveFormsPlugin`, `assertPluginConformance`, `createPluginManager`, `ApiError`, `createAuthRuntime`, `createLocalStorageAuthProvider`, `createServerSessionAuthProvider`, `defineRequestMiddleware`, `normalizeAuthSession`, `requestJson`, `VD_AUTH`, `VD_MIDDLEWARE`, `VD_REQUEST` |
+| `velodom/compiler` | `analyzeVeloDomDocument`, `compileTemplate`, `createRuntimeFeatureManifest`, `defineTemplateOptimizer`, `getVeloDomDirectiveCompletions`, `runTemplateOptimizers` |
+| `velodom/content` | `loadContentCollection`, `loadExternalContentCollection`, `createContentCollection`, `createContentIndex`, `parseMarkdownContent`, `createContentSeoEntries`, `createContentSitemap`, `createContentSearchIndex`, `createContentRssFeed` |
+| `velodom/localization` | `defineLocaleDictionary`, `createLocalization`, `generateLocaleKeyDeclaration`, `createLocaleFormatter`, `inspectLocalization` |
+| `velodom/assets` | `inspectImageAsset`, `inspectImageDirectory`, `createResponsiveImageAttributes` |
+| `velodom/node` | `createNodeRequestAdapter` |
+| `velodom/devtools` | `mountDevtoolsInspector` |
+| `velodom/vite` | `createViteAdapter`, `createViteApp`, `mountVeloDom` |
+| `velodom/vite-plugin` | `createTemplateModule`, `velodom` |
+| `velodom/testing` | `mountTestPage`, `mountTestComponent` |
+
+The preferred template vocabulary is grouped by purpose below. Attribute
+compatibility forms such as `data-vd-text` remain accepted, but new code should
+use the shorter names.
+
+| Purpose | Preferred directives |
+| --- | --- |
+| Content and conditions | `vd-text`, `vd-if`, `vd-elseif`, `vd-else`, `vd-show`, `vd-for`, `vd-key`, `vd-pre` |
+| Values and attributes | `vd-model`, `vd-value`, `vd-checked`, `vd-disabled`, `vd-alt`, `vd-src`, `vd-href`, `vd-class`, `vd-style`, `vd-attr` |
+| Components and references | `vd-component`, `vd-props`, `vd-prop-*`, `vd-child`, `vd-get-child`, `vd-ref`, `vd-state` |
+| Routing | `vd-nav`, `vd-path`, `vd-prefetch` |
+| Requests and forms | `vd-request`, `vd-request-config`, `vd-request-state`, `vd-params`, `vd-target`, `vd-auto-state`, `vd-loading`, `vd-error`, `vd-form`, `vd-form-status`, `vd-form-error`, `vd-validate`, `vd-debounce`, `vd-throttle` |
+| Direction | `vd-rtl-flip` |
+
+Event bindings use the documented `vd-on:*` family. Dynamic supported HTML
+bindings use `vd-bind:*`; these families are compiler syntax rather than fixed
+entries in the preferred-name array. Continue through the sections below for
+semantics, constraints, and executable examples rather than copying the catalog
+without context.
 
 ## Authoring Reference
 
@@ -404,6 +446,7 @@ manually.
 VeloDom includes package binaries for local, static developer tooling:
 
 ```bash
+vd help
 vd inspect
 vd doctor
 vd stats
@@ -823,7 +866,8 @@ src/components/shared/card.vd
 If `src/pages/about/` and `src/pages/about.vd` both exist, the folder version
 wins. This keeps `.vd` additive instead of replacing the folder-first model.
 The showcase includes `/single-file` and
-`src/components/shared/single-file-card.vd` as working examples.
+the `/single-file` page as a working example. The component form uses the same
+blocks and is shown below.
 
 ## Application Bootstrap
 
@@ -3059,6 +3103,20 @@ format.formatCurrency(1200, "EGP");
 format.formatDate("2026-08-24T12:00:00Z", { timeZone: "Africa/Cairo" });
 ```
 
+Use `inspectLocalization()` in a build script when diagnostics should be
+reported without creating the localization controller:
+
+```js
+import { inspectLocalization } from "velodom/localization";
+import { localizationOptions } from "./src/localization.js";
+
+const diagnostics = inspectLocalization(localizationOptions);
+
+for (const diagnostic of diagnostics) {
+  console.warn(`${diagnostic.severity}: ${diagnostic.message}`);
+}
+```
+
 `localizePath()` preserves a query string and hash. For an accessible language
 switcher, use ordinary links and the explicit `switchLocalePath()` helper:
 
@@ -3406,6 +3464,50 @@ posts.index.byTag.framework;
 
 `loadExternalContentCollection()` runs only in Node/build code. It does not
 ship a CMS SDK, send credentials to the browser, or prescribe a vendor.
+
+The loader is the convenient filesystem boundary; the smaller pure helpers are
+available when a build tool already has source strings or normalized entries:
+
+```js
+import {
+  createContentCollection,
+  createContentIndex,
+  createContentSearchIndex,
+  createContentSeoEntries,
+  createContentSitemap,
+  parseMarkdownContent
+} from "velodom/content";
+
+const first = parseMarkdownContent({
+  collection: "posts",
+  slug: "html-first",
+  source: `---\ntitle: HTML First\ntags: framework, html\n---\n# Visible UI`
+}, { basePath: "/blog" });
+
+const collection = createContentCollection({
+  collection: "posts",
+  basePath: "/blog",
+  files: [
+    {
+      collection: "posts",
+      slug: "html-first",
+      source: `---\ntitle: HTML First\n---\n# Visible UI`
+    }
+  ]
+});
+
+const entries = [first];
+const byRouteAndTag = createContentIndex(entries);
+const searchRecords = createContentSearchIndex(entries);
+const seoRoutes = createContentSeoEntries(entries);
+const sitemapRecords = createContentSitemap(entries, "https://example.com");
+```
+
+`createContentCollection()` already returns `entries`, `index`, `seoEntries`,
+`sitemap`, and `searchIndex`; call the individual helpers only when composing a
+custom build pipeline. Markdown HTML is deliberately conservative. Sanitize or
+extend application-specific Markdown through an application-owned content
+adapter rather than adding CMS policy to the browser runtime.
 
 ## Deployment and Static Hosting
 

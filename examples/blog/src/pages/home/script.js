@@ -23,7 +23,8 @@ export async function init({ state }) {
     { level: "International", duration: "11 min", title: "RTL and direction", description: "Set language direction through an optional plugin and author layouts with logical CSS.", href: "/features#rtl" },
     { level: "Performance", duration: "9 min", title: "Assets and lazy loading", description: "Use native image loading hints, explicit responsive variants, and compiler-selected runtime features.", href: "/features#assets" },
     { level: "Production", duration: "14 min", title: "SEO and content", description: "Generate route metadata, static content, sitemaps, content records, and locale-aware URLs.", href: "/features#production" },
-    { level: "Tooling", duration: "12 min", title: "CLI and verification", description: "Inspect projects, generate types, test components, and keep package boundaries explicit.", href: "/features#tooling" }
+    { level: "Tooling", duration: "12 min", title: "CLI and verification", description: "Inspect projects, generate types, test components, and keep package boundaries explicit.", href: "/features#tooling" },
+    { level: "Reference", duration: "20 min", title: "Complete public API", description: "See every supported package subpath, runtime value, compiler helper, and build-time integration.", href: "/reference" }
   ];
 
   const result = await listArticles();

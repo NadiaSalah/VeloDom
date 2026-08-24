@@ -122,6 +122,19 @@ a browser translation provider. See
   API routes, middleware, provider-based authentication, public-data caching
   and retries, RTL direction, native lazy images, responsive asset helpers,
   and their explicit production boundaries.
+- Added a dedicated `/reference` route to the academic application. It catalogs
+  every supported package boundary, all 61 public runtime/build values, the 43
+  preferred directive names, and the 12 CLI commands with copyable examples.
+- Extended documentation consistency checks to derive public value exports,
+  preferred directives, and CLI commands directly from framework source. The
+  canonical guide now fails verification when a public capability is omitted.
+- Corrected project intelligence so literal examples inside `vd-pre` remain
+  available to the compiler but are excluded from dead-code, reference, event,
+  and directive analysis. This removed false `vd doctor` warnings from
+  documentation applications.
+- Removed five obsolete, unreferenced showcase components after confirming
+  that no routed page or live component used them. The example now reports no
+  doctor issues, 100/100 health, and SEO configuration for all six pages.
 
 ## Next Tasks
 

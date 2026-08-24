@@ -1,0 +1,272 @@
+<main class="docs-shell">
+  <aside class="docs-sidebar" aria-label="VeloDom public API sections">
+    <a href="/reference#overview" vd-nav>Package map</a>
+    <a href="/reference#runtime" vd-nav>Runtime</a>
+    <a href="/reference#requests" vd-nav>Requests and auth</a>
+    <a href="/reference#compiler" vd-nav>Compiler</a>
+    <a href="/reference#content" vd-nav>Content</a>
+    <a href="/reference#localization" vd-nav>Localization</a>
+    <a href="/reference#assets" vd-nav>Assets</a>
+    <a href="/reference#integrations" vd-nav>Integrations</a>
+    <a href="/reference#syntax" vd-nav>Syntax index</a>
+    <a href="/reference#cli" vd-nav>CLI</a>
+  </aside>
+
+  <article class="docs-article">
+    <header class="mb-12 rounded-[2rem] border border-indigo-100 bg-white p-7 shadow-sm md:p-10">
+      <p class="eyebrow">Source-verified V1 catalog</p>
+      <h1 class="mt-3 text-4xl font-black tracking-tight text-slate-950 md:text-6xl">One public contract, organized by purpose.</h1>
+      <p class="section-copy text-lg">
+        This page mirrors VeloDom's supported package entry points. Internal
+        files are intentionally absent: applications import only the short,
+        stable paths below and keep framework implementation out of their
+        source tree.
+      </p>
+      <div class="mt-7 flex flex-wrap gap-2">
+        <span class="badge badge-primary badge-outline">61 public values</span>
+        <span class="badge badge-primary badge-outline">11 package exports</span>
+        <span class="badge badge-primary badge-outline">43 preferred directives</span>
+        <span class="badge badge-primary badge-outline">12 CLI commands</span>
+      </div>
+    </header>
+
+    <section id="overview" class="doc-section">
+      <p class="eyebrow">01 · package map</p>
+      <h2>Import only the capability you need.</h2>
+      <p class="mt-3">The main entry contains browser runtime and authoring helpers. Compiler, content, assets, localization, Node, testing, and tool integrations use explicit subpaths so optional build-time code never enters the browser accidentally.</p>
+      <div class="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-950 text-white"><tr><th class="p-4">Import</th><th class="p-4">Responsibility</th><th class="p-4">Browser runtime?</th></tr></thead>
+          <tbody class="divide-y divide-slate-200">
+            <tr><td class="p-4"><code>velodom</code></td><td class="p-4">App, state, plugins, requests, auth</td><td class="p-4">When imported</td></tr>
+            <tr><td class="p-4"><code>velodom/vite</code></td><td class="p-4">Convention-first application bootstrap</td><td class="p-4">Creates runtime</td></tr>
+            <tr><td class="p-4"><code>velodom/compiler</code></td><td class="p-4">Template compilation and editor analysis</td><td class="p-4">Build/tooling</td></tr>
+            <tr><td class="p-4"><code>velodom/content</code></td><td class="p-4">Markdown, indexes, SEO, sitemap, RSS</td><td class="p-4">Node/build</td></tr>
+            <tr><td class="p-4"><code>velodom/localization</code></td><td class="p-4">Typed dictionaries, locale routes, Intl</td><td class="p-4">Build or app choice</td></tr>
+            <tr><td class="p-4"><code>velodom/assets</code></td><td class="p-4">Image inspection and responsive attributes</td><td class="p-4">Node/build</td></tr>
+            <tr><td class="p-4"><code>velodom/node</code></td><td class="p-4">Fetch-style application response bridge</td><td class="p-4">Server only</td></tr>
+            <tr><td class="p-4"><code>velodom/testing</code></td><td class="p-4">Page and component mount helpers</td><td class="p-4">Tests only</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="runtime" class="doc-section">
+      <p class="eyebrow">02 · runtime and authoring</p>
+      <h2>Small defaults, explicit advanced composition.</h2>
+      <p class="mt-3"><code class="inline-code">mountVeloDom()</code> is the beginner path. The main package exposes lower-level application, reactive, authoring, direction, shared-state, validation, progressive-form, plugin, cache, retry, and devtools helpers when a project needs them.</p>
+      <div class="code-window">
+        <div class="code-toolbar"><span>runtime values</span><span>velodom</span></div>
+        <pre class="code-example" vd-pre><code>import {
+  computed, createApp, createDirectionPlugin, createPluginManager,
+  createProgressiveFormsPlugin, createRequestCache, createSharedState,
+  createValidationPlugin, definePageConfig, definePlugin, effect,
+  watch, withRequestRetry
+} from "velodom";
+
+const total = computed(() =&gt; state.price * state.quantity);
+const stop = watch(() =&gt; state.query, search);
+
+const ui = createSharedState({ theme: "system" }, { name: "ui" });
+
+createApp({ adapter, plugins: [ui.plugin] });
+ui.state.theme = "dark";</code></pre>
+      </div>
+      <p class="mt-4">Also public for conformance and integrations: <code class="inline-code">defineResourceAdapter</code>, <code class="inline-code">assertResourceAdapterConformance</code>, <code class="inline-code">assertPluginConformance</code>, <code class="inline-code">createRtlFlipStyles</code>, and <code class="inline-code">createDevtoolsPlugin</code>. Use them only when authoring infrastructure rather than an ordinary page.</p>
+    </section>
+
+    <section id="requests" class="doc-section">
+      <p class="eyebrow">03 · data boundary</p>
+      <h2>Requests, middleware, and auth share one policy engine.</h2>
+      <div class="code-window">
+        <div class="code-toolbar"><span>advanced request API</span><span>velodom</span></div>
+        <pre class="code-example" vd-pre><code>import {
+  ApiError, VD_AUTH, VD_MIDDLEWARE, VD_REQUEST,
+  createAuthRuntime, createServerSessionAuthProvider,
+  defineRequestMiddleware, defineRequestRoute,
+  normalizeAuthSession, requestJson
+} from "velodom";
+
+export const audit = defineRequestMiddleware(async (context, next) =&gt; {
+  const startedAt = performance.now();
+  const result = await next();
+  console.info(context.route, performance.now() - startedAt);
+  return result;
+});
+
+const post = await requestJson("/api/posts/1");</code></pre>
+      </div>
+      <p class="mt-4"><code class="inline-code">createLocalStorageAuthProvider</code> is a demonstration/client-only provider. Prefer <code class="inline-code">createServerSessionAuthProvider</code> for production session authority. Constants centralize framework-owned request defaults; application routes and middleware remain under <code class="inline-code">src/api</code>.</p>
+    </section>
+
+    <section id="compiler" class="doc-section">
+      <p class="eyebrow">04 · compiler</p>
+      <h2>Validate HTML and select runtime features before delivery.</h2>
+      <div class="code-window">
+        <div class="code-toolbar"><span>compiler API</span><span>velodom/compiler</span></div>
+        <pre class="code-example" vd-pre><code>import {
+  analyzeVeloDomDocument, compileTemplate,
+  createRuntimeFeatureManifest, defineTemplateOptimizer,
+  getVeloDomDirectiveCompletions, runTemplateOptimizers
+} from "velodom/compiler";
+
+const result = compileTemplate('&lt;button vd-on:click="save()"&gt;Save&lt;/button&gt;', {
+  filename: "src/pages/editor/index.html"
+});
+
+console.log(result.code, result.metadata);
+console.log(createRuntimeFeatureManifest(result.metadata));</code></pre>
+      </div>
+      <p class="mt-4">Compiler APIs power Vite, diagnostics, editor completions, project intelligence, and optional optimizers. They do not create a second template language or execute application expressions through <code class="inline-code">eval</code>.</p>
+    </section>
+
+    <section id="content" class="doc-section">
+      <p class="eyebrow">05 · content pipeline</p>
+      <h2>Turn local or external records into consistent build artifacts.</h2>
+      <div class="code-window">
+        <div class="code-toolbar"><span>build-content.mjs</span><span>velodom/content</span></div>
+        <pre class="code-example" vd-pre><code>import {
+  createContentIndex, createContentRssFeed, createContentSearchIndex,
+  createContentSeoEntries, createContentSitemap,
+  loadContentCollection, loadExternalContentCollection,
+  parseMarkdownContent
+} from "velodom/content";
+
+const posts = await loadContentCollection({
+  root: "src/content", collection: "posts", basePath: "/blog"
+});
+
+const rss = createContentRssFeed(posts.entries, {
+  title: "VeloDom Notes", siteUrl: "https://example.com"
+});</code></pre>
+      </div>
+      <p class="mt-4"><code class="inline-code">createContentCollection</code> composes parsing, indexes, SEO, sitemap, and search output. Use the individual pure helpers for custom build pipelines; use <code class="inline-code">loadExternalContentCollection</code> to normalize CMS records without shipping credentials or vendor SDKs to the browser.</p>
+    </section>
+
+    <section id="localization" class="doc-section">
+      <p class="eyebrow">06 · localization and RTL</p>
+      <h2>Typed messages and locale SEO without a mandatory i18n runtime.</h2>
+      <div class="code-window">
+        <div class="code-toolbar"><span>src/localization.js</span><span>velodom/localization</span></div>
+        <pre class="code-example" vd-pre><code>import {
+  createLocaleFormatter, createLocalization, defineLocaleDictionary,
+  generateLocaleKeyDeclaration, inspectLocalization
+} from "velodom/localization";
+
+const options = {
+  defaultLocale: "en",
+  locales: {
+    en: { lang: "en", messages: defineLocaleDictionary({ hello: "Hello" }) },
+    ar: { lang: "ar", messages: defineLocaleDictionary({ hello: "مرحبا" }) }
+  }
+};
+
+const i18n = createLocalization(options);
+i18n.t("ar", "hello");
+createLocaleFormatter("ar-EG").formatCurrency(1200, "EGP");
+inspectLocalization(options);</code></pre>
+      </div>
+    </section>
+
+    <section id="assets" class="doc-section">
+      <p class="eyebrow">07 · asset quality</p>
+      <h2>Inspect images at build time; use native browser behavior at runtime.</h2>
+      <div class="code-window">
+        <div class="code-toolbar"><span>asset audit</span><span>velodom/assets</span></div>
+        <pre class="code-example" vd-pre><code>import {
+  createResponsiveImageAttributes, inspectImageAsset, inspectImageDirectory
+} from "velodom/assets";
+
+const report = await inspectImageDirectory({
+  root: "src/assets", maxBytes: 300_000
+});
+
+const image = createResponsiveImageAttributes({
+  src: "/hero-960.webp",
+  variants: [
+    { src: "/hero-480.webp", width: 480 },
+    { src: "/hero-960.webp", width: 960 }
+  ],
+  sizes: "(max-width: 640px) 100vw, 960px"
+});</code></pre>
+      </div>
+      <p class="mt-4"><code class="inline-code">inspectImageAsset</code> reads one file; directory inspection reports oversized assets. VeloDom generates standard attributes, while the application's chosen image pipeline owns resizing and compression.</p>
+    </section>
+
+    <section id="integrations" class="doc-section">
+      <p class="eyebrow">08 · explicit integrations</p>
+      <h2>Vite is convenient; Node, devtools, and testing remain optional.</h2>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <div class="code-window">
+          <div class="code-toolbar"><span>application bootstrap</span><span>velodom/vite</span></div>
+          <pre class="code-example" vd-pre><code>import {
+  createViteAdapter, createViteApp, mountVeloDom
+} from "velodom/vite";
+
+await mountVeloDom(); // recommended
+
+// Advanced projects may create the adapter/app explicitly.</code></pre>
+        </div>
+        <div class="code-window">
+          <div class="code-toolbar"><span>vite.config.js</span><span>velodom/vite-plugin</span></div>
+          <pre class="code-example" vd-pre><code>import { createTemplateModule, velodom } from "velodom/vite-plugin";
+
+const preview = createTemplateModule("&lt;h1&gt;{{ title }}&lt;/h1&gt;", {
+  filename: "preview.html"
+});
+
+export default {
+  plugins: [velodom({ emitManifest: true })]
+};</code></pre>
+        </div>
+      </div>
+      <div class="code-window">
+        <div class="code-toolbar"><span>tests and boundaries</span><span>public optional subpaths</span></div>
+        <pre class="code-example" vd-pre><code>import { createNodeRequestAdapter } from "velodom/node";
+import { mountDevtoolsInspector } from "velodom/devtools";
+import { mountTestComponent, mountTestPage } from "velodom/testing";
+
+const mounted = await mountTestPage(pageResource);
+await mounted.destroy();</code></pre>
+      </div>
+      <p class="mt-4">The Node adapter converts Node HTTP to Fetch request/response semantics; it is not automatic SSR. The devtools inspector is read-only and development-only. Test mounts use browser-like DOM environments and preserve normal lifecycle cleanup.</p>
+    </section>
+
+    <section id="syntax" class="doc-section">
+      <p class="eyebrow">09 · template syntax index</p>
+      <h2>The preferred vocabulary stays close to HTML.</h2>
+      <div class="mt-6 grid gap-4 md:grid-cols-2">
+        <div class="rounded-2xl border border-slate-200 bg-white p-5"><h3>Content and flow</h3><p class="mt-2 text-sm leading-7"><code>vd-text</code>, <code>vd-if</code>, <code>vd-elseif</code>, <code>vd-else</code>, <code>vd-show</code>, <code>vd-for</code>, <code>vd-key</code>, <code>vd-pre</code></p></div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-5"><h3>Values and attributes</h3><p class="mt-2 text-sm leading-7"><code>vd-model</code>, <code>vd-value</code>, <code>vd-checked</code>, <code>vd-disabled</code>, <code>vd-alt</code>, <code>vd-src</code>, <code>vd-href</code>, <code>vd-class</code>, <code>vd-style</code>, <code>vd-attr</code></p></div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-5"><h3>Composition and routes</h3><p class="mt-2 text-sm leading-7"><code>vd-component</code>, <code>vd-props</code>, <code>vd-prop-*</code>, <code>vd-child</code>, <code>vd-get-child</code>, <code>vd-ref</code>, <code>vd-state</code>, <code>vd-nav</code>, <code>vd-path</code>, <code>vd-prefetch</code></p></div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-5"><h3>Requests and forms</h3><p class="mt-2 text-sm leading-7"><code>vd-request</code>, <code>vd-request-config</code>, <code>vd-request-state</code>, <code>vd-params</code>, <code>vd-target</code>, <code>vd-auto-state</code>, <code>vd-loading</code>, <code>vd-error</code>, <code>vd-form</code>, <code>vd-form-status</code>, <code>vd-form-error</code>, <code>vd-validate</code>, <code>vd-debounce</code>, <code>vd-throttle</code>, <code>vd-rtl-flip</code></p></div>
+      </div>
+      <div class="callout"><strong>Dynamic families:</strong> events use <code>vd-on:event</code> and supported attribute bindings use <code>vd-bind:name</code>. Interpolation uses <code>&#123;&#123; value &#125;&#125;</code>; escape it with <code>\&#123;&#123; value &#125;&#125;</code> or wrap literal examples in <code>vd-pre</code>.</div>
+    </section>
+
+    <section id="cli" class="doc-section">
+      <p class="eyebrow">10 · project intelligence</p>
+      <h2>Static tooling lives outside application runtime.</h2>
+      <div class="code-window">
+        <div class="code-toolbar"><span>terminal</span><span>vd CLI</span></div>
+        <pre class="code-example" vd-pre><code>vd help
+vd inspect
+vd doctor
+vd stats
+vd routes
+vd graph --mermaid
+vd health --min-score 80
+vd benchmark
+vd build-report --json
+vd docs
+vd types
+vd create page account --ts</code></pre>
+      </div>
+      <p class="mt-4">Inspection detects invalid directives, dead references, unused resources, cycles, large templates, SEO gaps, accessibility signals, and bundle opportunities without adding AI or browser runtime weight. Scaffolding writes visible conventional files and never requires a central registry.</p>
+      <div class="mt-7 flex flex-wrap gap-3">
+        <a href="/features" vd-nav class="btn btn-primary rounded-xl">Read guided lessons</a>
+        <a href="/single-file" vd-nav class="btn btn-outline rounded-xl">Open the .vd example</a>
+      </div>
+    </section>
+  </article>
+</main>

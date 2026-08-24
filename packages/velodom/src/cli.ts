@@ -502,6 +502,7 @@ async function runDoctor(root: string) {
     const html = template.source.endsWith(".vd")
       ? source.match(/<template\b[^>]*>([\s\S]*?)<\/template>/i)?.[1] || ""
       : source;
+    const analysisHtml = maskPreservedTemplateContent(html);
     const script = await readModuleScript(root, template.source);
 
     try {
@@ -525,7 +526,7 @@ async function runDoctor(root: string) {
       });
     }
 
-    findComponentReferences(html).forEach(component => {
+    findComponentReferences(analysisHtml).forEach(component => {
       if (!componentNames.has(component)) {
         issues.push({
           file: template.source,
@@ -535,7 +536,7 @@ async function runDoctor(root: string) {
       }
     });
 
-    findRequestReferences(html).forEach(request => {
+    findRequestReferences(analysisHtml).forEach(request => {
       if (!requestRoutes.has(request)) {
         issues.push({
           file: template.source,
@@ -545,8 +546,8 @@ async function runDoctor(root: string) {
       }
     });
 
-    findMissingRefUsages(html).forEach(ref => {
-      if (!findRefReferences(html).includes(ref)) {
+    findMissingRefUsages(analysisHtml).forEach(ref => {
+      if (!findRefReferences(analysisHtml).includes(ref)) {
         issues.push({
           file: template.source,
           level: "warning",
@@ -555,7 +556,7 @@ async function runDoctor(root: string) {
       }
     });
 
-    findEventBindings(html).forEach(binding => {
+    findEventBindings(analysisHtml).forEach(binding => {
       if (!binding.handler) return;
       if (hasScriptSymbol(script, binding.handler)) return;
 
@@ -566,7 +567,7 @@ async function runDoctor(root: string) {
       });
     });
 
-    findDuplicateValues(findStateDeclarationReferences(html)).forEach(name => {
+    findDuplicateValues(findStateDeclarationReferences(analysisHtml)).forEach(name => {
       issues.push({
         file: template.source,
         level: "warning",
@@ -574,7 +575,7 @@ async function runDoctor(root: string) {
       });
     });
 
-    findUnsafeDirectiveExpressions(html).forEach(expression => {
+    findUnsafeDirectiveExpressions(analysisHtml).forEach(expression => {
       issues.push({
         file: template.source,
         level: "warning",
@@ -1108,10 +1109,16 @@ async function countDirectives(
   const usage: Record<string, number> = {};
 
   await Promise.all(files.map(async file => {
-    const source = await readOptionalText(join(root, file));
+    const source = await readTemplateSource(root, file);
+    const metadata = compileTemplate(source, {
+      filename: file
+    }).metadata;
 
-    for (const match of source.matchAll(/\b(?:data-)?vd-[\w:-]+/g)) {
-      usage[match[0]] = (usage[match[0]] || 0) + 1;
+    for (const directive of metadata) {
+      const name = directive.originalName || directive.name;
+
+      if (!/^(?:data-)?vd-[\w:-]+$/.test(name)) continue;
+      usage[name] = (usage[name] || 0) + 1;
     }
   }));
 
@@ -1719,10 +1726,25 @@ function pushNestedList(
 
 async function readTemplateSource(root: string, file: string) {
   const source = await readOptionalText(join(root, file));
-
-  return file.endsWith(".vd")
+  const template = file.endsWith(".vd")
     ? source.match(/<template\b[^>]*>([\s\S]*?)<\/template>/i)?.[1] || ""
     : source;
+
+  return maskPreservedTemplateContent(template);
+}
+
+/**
+ * Keeps `vd-pre` containers visible to analysis while masking their literal
+ * descendants. Documentation examples must not look like live directives,
+ * refs, events, or component references to project-intelligence commands.
+ */
+function maskPreservedTemplateContent(source: string) {
+  return source.replace(
+    /(<([a-z][\w:-]*)\b[^>]*\b(?:data-)?vd-pre\b[^>]*>)([\s\S]*?)(<\/\2\s*>)/gi,
+    (_, opening, _tagName, content, closing) => (
+      `${opening}${content.replace(/[^\r\n]/g, " ")}${closing}`
+    )
+  );
 }
 
 async function readModuleScript(root: string, file: string) {
