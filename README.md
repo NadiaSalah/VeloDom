@@ -8,6 +8,8 @@ the authoring model.
 The full framework guide, installation instructions, API examples,
 architecture, release notes, and roadmap are in
 [docs/README.md](docs/README.md).
+The maintained documentation surface is intentionally small: the guide plus
+`docs/TODO.md`, `docs/CHANGELOG.md`, `docs/NOTES.md`, and `docs/RELEASING.md`.
 
 For the publishable package, see
 [packages/velodom](packages/velodom/README.md). The repository's working
@@ -103,6 +105,8 @@ requiring a browser translation provider. See
 - Registered stable optional VS Code language tools as a private workspace
   consumer pending Marketplace publisher ownership.
 - Added npm metadata and automated package-boundary checks.
+- Consolidated specialized documentation into the main guide and four focused
+  operational files without dropping architecture or release details.
 - Static SEO output now waits for Vite to write the HTML shell before it
   renders route artifacts, including with the current Vite/Rolldown lifecycle.
 

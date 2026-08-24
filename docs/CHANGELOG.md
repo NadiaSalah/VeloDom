@@ -32,6 +32,11 @@ package versions.
   project doctor, 100/100 project health, and targeted Chromium E2E.
 - Recorded the external dependency-advisory lookup as an explicit release task
   because it requires permission to send the lockfile dependency tree to npm.
+- Consolidated the documentation surface from many specialized files into the
+  main guide plus `TODO.md`, `CHANGELOG.md`, `NOTES.md`, and `RELEASING.md`.
+  Architecture identity, adapters, browser policy, deployment, editor
+  intelligence, devtools, and future-research boundaries remain documented;
+  only duplicate file boundaries were removed.
 
 ### Strategic Roadmap Review
 

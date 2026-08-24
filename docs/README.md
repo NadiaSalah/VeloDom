@@ -49,6 +49,7 @@ JavaScript or TypeScript independently for every page and component.
 - [Static Rendering and Localization Boundaries](#static-rendering-and-localization-boundaries)
 - [JavaScript and TypeScript](#javascript-and-typescript)
 - [Error and Security Model](#error-and-security-model)
+- [Consolidated Architecture and Integration Reference](#consolidated-architecture-and-integration-reference)
 - [Public Package Boundaries](#public-package-boundaries)
 - [Showcase Routes](#showcase-routes)
 - [Verification](#verification)
@@ -57,7 +58,7 @@ JavaScript or TypeScript independently for every page and component.
 - [Best Practices](#best-practices)
 - [Current Limitations](#current-limitations)
 - [Roadmap and Handoff](#roadmap-and-handoff)
-- [Documentation Map](DOCUMENTATION_MAP.md)
+- [Documentation and Maintenance](#documentation-and-maintenance)
 
 ## What Works Today
 
@@ -119,8 +120,8 @@ virtual DOM, JSX, schema-heavy validation system, full SSR/hydration, or a full
 browser devtools panel.
 
 The current build-time content helper layer and future content improvements are
-documented in [CONTENT_MODE_DESIGN.md](CONTENT_MODE_DESIGN.md). It is
-intentionally tooling-oriented, not a mandatory browser runtime layer.
+documented in the Content and Assets section below. It is intentionally
+tooling-oriented, not a mandatory browser runtime layer.
 
 ## Authoring Reference
 
@@ -561,8 +562,9 @@ Ownership rule:
 - Repository-wide TypeScript, ESLint, tests, and release scripts stay under
   `tools/`. Application Vite/Tailwind configuration belongs to the app.
 
-Use the [documentation map](DOCUMENTATION_MAP.md) to distinguish shipped V1
-capabilities from optional tooling and approved future research.
+Use the sections in this guide to distinguish shipped V1 capabilities from
+optional tooling and approved future research. Operational checklists and
+history remain in the small companion files listed at the end of this guide.
 
 ## Package and Import Boundaries
 
@@ -3023,7 +3025,8 @@ Use a normal `<nav aria-label="Language">` and visible language names; the
 framework does not inject a picker or decide the visitor's locale. ICU-style
 messages, locale negotiation, cookies, domains, CMS loading, and server
 rendering remain adapter or application concerns. Their scoped V2 decision is
-recorded in [LOCALIZATION_DESIGN.md](LOCALIZATION_DESIGN.md).
+recorded in the [Static Rendering and Localization Boundaries](#static-rendering-and-localization-boundaries)
+section below.
 
 ## SEO and Static Route HTML
 
@@ -3357,7 +3360,7 @@ ship a CMS SDK, send credentials to the browser, or prescribe a vendor.
 
 ## Deployment and Static Hosting
 
-Detailed provider recipes live in [DEPLOYMENT.md](DEPLOYMENT.md).
+The provider-neutral recipes are collected in the deployment section below.
 The short version is:
 
 Build the application with:
@@ -3917,6 +3920,177 @@ unexpected failures as fatal.
 Frontend auth and roles improve application UX only. A backend must enforce
 real access control.
 
+## Consolidated Architecture and Integration Reference
+
+This section combines the former identity, adapter, browser, editor, devtools,
+and future-research notes so the framework guide is the single technical source
+for the VeloDom site.
+
+### Framework identity
+
+VeloDom is for content sites, blogs, documentation, marketing pages, dashboards,
+CRUD tools, and small-to-medium SPAs where readable HTML, SEO, static analysis,
+and a small browser runtime matter. It removes repetitive wiring for reactive
+text, conditions, lists, routing, components, slots, request status, middleware,
+auth coordination, SEO, and project inspection while keeping application code
+in visible folders.
+
+Choose VeloDom when you want declarative productivity without JSX/TSX, a virtual
+DOM, a mandatory global store, universal SSR, or a large compatibility runtime.
+Those exclusions are architectural boundaries, not missing beginner setup.
+
+### Adapter and plugin contract
+
+The Core runtime does not inspect folders or depend on Vite. An adapter supplies
+lazy page, component, layout, script, data, style, config, and compiler-manifest
+resources. `createViteAdapter()` implements contract version `1`:
+
+```ts
+import {
+  assertResourceAdapterConformance,
+  defineResourceAdapter
+} from "velodom";
+
+const adapter = defineResourceAdapter({
+  version: 1,
+  capabilities: ["resource-discovery", "page-config", "page-data"],
+  pages: {
+    html: { home: async () => "<main>Home</main>" },
+    modules: {},
+    data: {},
+    styles: {},
+    configs: {}
+  }
+});
+
+assertResourceAdapterConformance(adapter);
+```
+
+Adapters must keep discovery outside the router, return lazy loaders, validate
+their own contract, and never add sessions, cookies, server rendering, or
+request-time policy to the browser runtime. Plugins are setup functions or
+objects with `setup()` and optional `cleanup()`; setup order is preserved and
+cleanup runs in reverse order.
+
+### Browser policy and real-browser verification
+
+The V1 target is the latest two stable versions of Chrome, Edge, Firefox,
+macOS Safari, iOS Safari, and Android Chrome. Internet Explorer, EdgeHTML,
+Opera Mini, and browsers without native ES modules, `Proxy`, `AbortController`,
+`URL`, `fetch`, history, or DOM events are outside the default policy.
+
+Run the local smoke matrix with:
+
+```bash
+npm run test:browser
+VELODOM_BROWSER_STRICT=1 npm run test:browser
+VELODOM_BROWSER_TARGETS=chromium,firefox,webkit,mobile-webkit npm run test:browser
+```
+
+Chromium is the required local target. Firefox, WebKit, and mobile WebKit are
+attempted when their Playwright binaries exist; release CI should use strict
+mode. The suite covers direct routes, client navigation, dynamic params,
+forms, requests, cleanup, focus, and no-JavaScript SEO output. `happy-dom`
+tests are fast checks, not a replacement for real browsers. VeloDom does not
+ship browser polyfills by default.
+
+### Editor intelligence
+
+The compiler API can power any editor without making an editor mandatory:
+
+```ts
+import {
+  analyzeVeloDomDocument,
+  getVeloDomDirectiveCompletions
+} from "velodom/compiler";
+
+const analysis = analyzeVeloDomDocument({
+  filename: "src/pages/about.vd",
+  source: editorText
+});
+```
+
+Diagnostics retain source offsets and remap `.vd` template locations to the
+original file. Completions use preferred `vd-*` names. The optional workspace
+VS Code package consumes this API, but is excluded from the browser package and
+is not required by applications.
+
+### Development inspection
+
+`createDevtoolsPlugin()` installs a read-only bridge only when explicitly
+registered. `mountDevtoolsInspector` is a separate development import and
+throws when the bridge is absent. The initial snapshot is intentionally small:
+
+```ts
+type VeloDomDevtoolsSnapshot = {
+  sharedStateNames: string[];
+};
+```
+
+The bridge does not expose mutable internals, retain page DOM, or collect
+secrets. Future panels, route summaries, and request details remain optional
+extensions rather than a mandatory in-app panel.
+
+### Static rendering and server boundary
+
+`config.prerender` and `seo.renderPage` are explicit build-only contracts.
+Applications own data loading, escaping, authorization, and concrete dynamic
+paths. `hydration: "client-takeover"` means the router replaces initial static
+content after JavaScript loads; it is not DOM reconciliation. Universal SSR,
+server components, database sessions, `renderToString`, streaming, and Edge
+runtime policy are not V1 capabilities.
+
+### Future research boundaries
+
+AI, migrations, CMS, and hosting integrations remain external tools. If AI is
+ever explored, it must be an optional provider interface supporting local or
+custom providers, explicit file/secret boundaries, prompt previews, and code
+review. It must never be required for build, inspection, or deployment.
+
+Migration assistants are acceptable only when they output reviewable normal
+VeloDom folders; JSX compatibility runtimes and hidden render functions remain
+rejected. CMS and deployment adapters may map typed external records through
+`velodom/content`, but Core must never own credentials, remote browser fetching,
+or a provider marketplace.
+
+### Master architecture rules
+
+The framework source is TypeScript and must ship declarations, lint cleanly,
+and keep framework-owned logic under `packages/velodom/src`. Applications may
+choose JavaScript or TypeScript in each page or component with no API difference;
+JSX and TSX are never required. Folder conventions remain the source of truth:
+pages, components, layouts, and API code belong to the consuming project, while
+filesystem discovery belongs to adapters and never to the runtime router.
+
+The compiler owns HTML parsing, source-aware diagnostics, preferred `vd-*`
+normalization, safe-expression validation, runtime feature manifests,
+optimizers, accessibility warnings, and static SEO output. The browser runtime
+only mounts the resources supplied by an adapter: routing, state, components,
+directives, requests, middleware, auth coordination, lifecycle, refs, and
+runtime SEO. Template expressions never use `eval` or `new Function`; complex
+logic stays in the page or component script.
+
+Requests should be declarative for common cases (name, params, result/loading/
+error state, auth policy, and middleware names). The Core owns contracts and
+orchestration; application handlers and business middleware stay under
+`src/api`, and advanced `next()` pipelines are optional. SEO remains explicit
+and build-aware: static output may provide crawler content and client takeover,
+but it must not be described as universal SSR or hydration reconciliation.
+
+Accessibility starts with static HTML and compiler diagnostics, including image
+alt text, form names, anchor targets, keyboard-safe interactive elements, and
+heading order. Development favors warnings and source locations; production
+favors small metadata, lazy modules, tree-shaking, static SEO, and package
+boundary correctness. Application assets stay under `src/assets` and should not
+be duplicated at the repository root without a deployment reason.
+
+Every framework TypeScript source file begins with an English responsibility
+header. Every exported framework API has adjacent JSDoc, and comments explain
+architectural reasons rather than obvious operations. New features are first
+classified as V1.x, V2, Future Research, or Rejected; features that imitate
+other frameworks, require JSX, mandate global state, or add runtime cost for a
+static-tooling problem are deferred or rejected.
+
 ## Public Package Boundaries
 
 Intended public imports:
@@ -3983,9 +4157,9 @@ though they are visible in the repository.
 
 VeloDom Core accepts build-tool-neutral lazy resources. The built-in Vite
 adapter implements the documented versioned contract; future adapters can use
-the same contract and verify it without importing router internals. See
-[ADAPTERS.md](ADAPTERS.md) for resource groups, capabilities, and a
-conformance example.
+the same contract and verify it without importing router internals. See the
+Adapter and plugin contract section above for resource groups, capabilities,
+and a conformance example.
 
 Optional integrations may likewise use `assertPluginConformance()` in their
 own tests. This checks the small setup/cleanup shape without installing the
@@ -4033,7 +4207,7 @@ valid. The optional Node-only `velodom/assets` subpath inspects local image
 dimensions/file sizes and creates standard `srcset`, `sizes`, `width`, and
 `height` attributes from variants generated by the application's own image
 pipeline. It does not add a browser directive, CDN dependency, or image
-transformer. See [ASSETS.md](ASSETS.md).
+transformer.
 
 ## Editor Intelligence
 
@@ -4041,8 +4215,7 @@ transformer. See [ASSETS.md](ASSETS.md).
 integrations. They reuse compiler diagnostics and directive metadata for HTML
 and `.vd` documents, remapping `.vd` template diagnostics to their original
 file lines. This is a dependency-free foundation for future editor extensions,
-not a mandatory VS Code plugin or browser runtime feature. See
-[EDITOR_INTELLIGENCE.md](EDITOR_INTELLIGENCE.md). The optional VS Code package
+not a mandatory VS Code plugin or browser runtime feature. The optional VS Code package
 in `packages/velodom-vscode` reuses that surface for diagnostics, directive
 completion/hover text, and conventional component/static-route definitions and
 completion. It is stable as workspace tooling but awaits Marketplace publisher
@@ -4057,11 +4230,8 @@ localization is now an optional build-time helper separate from RTL direction
 and any translation provider. Its typed keys, native `Intl`, locale path
 switching, and `hreflang` output are documented in the localization section;
 ICU parsing and request-time locale policy remain adapter research.
-The implementation contracts and required test gates are documented in
-[static rendering](STATIC_RENDERING_DESIGN.md),
-[progressive forms](PROGRESSIVE_FORMS.md),
-[localization](LOCALIZATION_DESIGN.md), and the
-[development inspection protocol](DEVTOOLS_PROTOCOL.md).
+The implementation contracts and required test gates are documented in the
+corresponding sections of this guide.
 
 ### `velodom/vite`
 
@@ -4188,9 +4358,9 @@ Latest implementation update:
   RELEASE_DECISION, Content Mode docs, and DX rubric describe the same current
   release-candidate state.
 - Marked the local package identity as `1.0.0` while keeping `private: true`.
-- Added `RELEASE_DECISION.md` as the publication approval note for npm
+- Added the release decision section as the publication approval note for npm
   ownership, access, 2FA, final version, and tagging decisions.
-- Added provider-neutral deployment recipes in `docs/DEPLOYMENT.md`.
+- Added provider-neutral deployment recipes to the deployment section.
 - Added optional `velodom/content` build-time helpers for Markdown
   collections, SEO entries, sitemap records, RSS XML, search-index records,
   and typed content metadata.
@@ -4277,7 +4447,8 @@ Latest implementation update:
 - Added DX, future research, and framework identity documents under `docs/`.
 - Added optional direction management through `createDirectionPlugin()` and
   compiler support for explicit `vd-rtl-flip` directional icon markers.
-- Updated `TODO.md`, `NOTES.md`, `CHANGELOG.md`, and `ARCHITECTURE.md` to
+- Updated `TODO.md`, `NOTES.md`, `CHANGELOG.md`, and the consolidated architecture
+  section to
   distinguish client takeover from
   true SSR hydration.
 - Browser E2E passed for Chromium/Chrome/Edge; Firefox/WebKit targets were
@@ -4335,12 +4506,13 @@ happy-dom.
 The repository is now aligned as a local `1.0.0` release candidate, but npm
 publication is intentionally blocked by `private: true` in the publishable
 workspace package.
-[RELEASE_DECISION.md](RELEASE_DECISION.md) records the current owner-approval
+[Current Release Decision](#current-release-decision) records the current owner-approval
 requirements before publishing, tagging, or removing the private package guard.
 
 ## Browser Support
 
-The V1 candidate browser policy is documented in [BROWSERS.md](BROWSERS.md).
+The V1 candidate browser policy is documented in the [Browser Policy](#browser-policy)
+section of the release guide.
 VeloDom targets modern evergreen browsers:
 
 - latest two stable versions of Chrome, Edge, Firefox, and Safari
@@ -4414,10 +4586,8 @@ The prioritized roadmap and progress counter live in [TODO.md](TODO.md).
 Important milestone history lives in [CHANGELOG.md](CHANGELOG.md). Architecture
 decisions and deferred ideas live in [NOTES.md](NOTES.md). Release rules live
 in [RELEASING.md](RELEASING.md).
-DX acceptance rules live in [DX_RUBRIC.md](DX_RUBRIC.md), optional
-AI and migration research lives in
-[FUTURE_RESEARCH.md](FUTURE_RESEARCH.md), and VeloDom positioning
-lives in [FRAMEWORK_IDENTITY.md](FRAMEWORK_IDENTITY.md).
+DX acceptance rules, optional AI and migration research, and VeloDom positioning
+live in the consolidated architecture section above.
 
 The local V1 release candidate is functionally complete. Remaining unchecked
 items are release governance, a strict Firefox-capable browser run, starter

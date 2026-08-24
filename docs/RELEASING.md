@@ -4,7 +4,12 @@ VeloDom follows Semantic Versioning for the public package entry points:
 
 - `velodom`
 - `velodom/compiler`
+- `velodom/assets`
 - `velodom/content`
+- `velodom/devtools`
+- `velodom/localization`
+- `velodom/node`
+- `velodom/testing`
 - `velodom/vite`
 - `velodom/vite-plugin`
 
@@ -42,10 +47,9 @@ Completing local checks never implies permission to publish.
 - Confirm the release scope: patch, minor, major, or pre-release.
 - Confirm the package version follows the rules above.
 - Confirm `CHANGELOG.md` describes all user-visible changes.
-- Confirm `README.md`, `RELEASE_DECISION.md`, `TODO.md`, and `NOTES.md`
-  match the current behavior.
-- Confirm `BROWSERS.md` matches the current browser-support and E2E target
-  policy.
+- Confirm `README.md`, `TODO.md`, and `NOTES.md` match the current behavior.
+- Confirm the Browser Policy and Current Release Decision sections in this
+  file match the current browser-support, E2E, and publication state.
 - Confirm public API changes, if any, were intentional and are reflected in the
   package-boundary tests.
 
@@ -116,6 +120,34 @@ The checks must confirm:
 - Record the final dry-run tarball file count and compressed/unpacked sizes so
   unexpected growth is visible during release review.
 - Confirm public API freeze tests pass before changing any export names.
+
+## Browser Policy
+
+The V1 target is the latest two stable versions of Chrome, Edge, Firefox,
+macOS Safari, iOS Safari, and Android Chrome. Internet Explorer, EdgeHTML,
+Opera Mini, and browsers without native ES modules, `Proxy`, `AbortController`,
+`URL`, `fetch`, history, or DOM events are outside the default policy.
+
+Run the local smoke matrix with:
+
+```bash
+npm run test:browser
+VELODOM_BROWSER_STRICT=1 npm run test:browser
+VELODOM_BROWSER_TARGETS=chromium,firefox,webkit,mobile-webkit npm run test:browser
+```
+
+Chromium is the required local target. Firefox, WebKit, and mobile WebKit are
+attempted when their Playwright binaries exist; release CI should use strict
+mode. `happy-dom` tests are fast checks, not a replacement for real browsers.
+VeloDom does not ship browser polyfills by default.
+
+## Current Release Decision
+
+The repository is a local `1.0.0` release candidate, not a published package.
+`packages/velodom/package.json` intentionally keeps `private: true` until a
+human confirms npm ownership or reservation, account and organization access,
+2FA, the exact version, release notes, and publication approval. A successful
+local check or `npm pack --dry-run` never grants permission to publish.
 
 ### 5. Publication Approval
 

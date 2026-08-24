@@ -77,13 +77,13 @@ runtime features.
   status.
 - [x] Clarify that checked research roadmap items are completed decisions, not
   shipped future features.
-- [x] Reconcile `docs/CONTENT_MODE_DESIGN.md` with the implemented
+- [x] Reconcile the content section in `docs/README.md` with the implemented
   `velodom/content` package subpath.
-- [x] Update `docs/DX_RUBRIC.md` so graph, health, build-report, docs, and
+- [x] Update the consolidated DX architecture section so graph, health, build-report, docs, and
   maintainability analysis are no longer mislabeled as V2-only work.
 - [x] Keep Future Research items clearly research-only and outside the browser
   runtime.
-- [x] Audit README positioning against `docs/FRAMEWORK_IDENTITY.md`.
+- [x] Audit README positioning against the consolidated Framework identity section.
 - [x] Synchronize current release-verification results after running the local
   release-gate commands.
 - [ ] Run strict full browser matrix with all intended Playwright browsers

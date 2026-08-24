@@ -101,6 +101,12 @@
 - Repository-level documentation lives under `docs/`. The root README is a
   stable short link to `docs/README.md`; `packages/velodom/README.md` remains
   adjacent to the package manifest because npm uses it as the package page.
+- The documentation surface is intentionally consolidated into five maintained
+  files: `README.md` for the complete guide and architecture reference,
+  `TODO.md` for the roadmap, `CHANGELOG.md` for history, `NOTES.md` for
+  decisions and handoff, and `RELEASING.md` for release and browser gates.
+  Specialized capability notes were merged into the main guide so links do not
+  fragment the beginner path.
 - Release preparation is intentionally separated from publication. The
   checklist in `RELEASING.md` records gates, but only explicit human approval
   for an exact version can authorize removing `private: true` or publishing.
@@ -152,9 +158,9 @@
   duplicates are intentionally removed because `index.html` already references
   `src/assets/favicon.png`; root-level static duplicates should only return if
   a deployment target requires them.
-- `ARCHITECTURE.md` is treated as the concise guiding
-  architecture brief. It mirrors the npm package boundary at
-  `packages/velodom/src` and keeps application folders outside Core.
+- The Master architecture rules are maintained in the consolidated
+  `docs/README.md` guide. They mirror the npm package boundary at
+  `packages/velodom/src` and keep application folders outside Core.
 - Large runtime entry modules coordinate features while focused modules own
   reusable behavior: `directives/expression.ts` handles expression state
   access, and `requests/request-bindings.ts` handles request destinations and
@@ -177,7 +183,7 @@
   lives under `tools/test-support` so Node test discovery does not count it as an
   empty test file.
 - Browser support is documented as an evergreen V1 policy in
-  `BROWSERS.md` and mirrored by `package.json#browserslist`. The Playwright
+  section of `RELEASING.md` and mirrored by `package.json#browserslist`. The Playwright
   smoke suite now attempts Chromium/Chrome/Edge, Firefox, WebKit, and a mobile
   WebKit viewport profile. Chromium remains required locally; optional targets
   are skipped when their binaries are unavailable unless
