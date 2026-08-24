@@ -33,7 +33,7 @@ pre {
 }
 
 .site-brand-mark {
-  @apply grid size-9 place-items-center rounded-xl bg-gradient-to-br from-indigo-600 to-sky-500 text-sm font-black text-white shadow-lg shadow-indigo-500/25;
+  @apply size-9 rounded-xl object-cover shadow-lg shadow-indigo-500/25;
 }
 
 .hero-orbit {

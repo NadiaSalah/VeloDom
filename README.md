@@ -135,6 +135,8 @@ a browser translation provider. See
 - Removed five obsolete, unreferenced showcase components after confirming
   that no routed page or live component used them. The example now reports no
   doctor issues, 100/100 health, and SEO configuration for all six pages.
+- Replaced the documentation application's temporary `VD` text marks with the
+  application-owned VeloDom logo asset in its shared navigation and footer.
 
 ## Next Tasks
 
