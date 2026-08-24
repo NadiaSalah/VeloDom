@@ -1,37 +1,211 @@
 # VeloDom
 
-VeloDom is an HTML-first, compiler-first frontend framework with folder-based
-pages, components, layouts, routing, reactive state, requests, and static SEO.
+VeloDom is an HTML-first, compiler-first frontend framework for building
+folder-based web applications with a lightweight browser runtime. Ordinary HTML
+stays at the center while the framework adds reactive state, routing,
+components, layouts, requests, validation, and static SEO output.
+
+VeloDom follows six principles:
+
+- HTML First: templates remain readable HTML.
+- Compiler First: expensive discovery and validation happen during development
+  and build time.
+- Folder First: folders and file names provide useful conventions.
+- Convention over Configuration: common applications need little setup.
+- Runtime Lightweight: browser code focuses on reactivity and interaction.
+- Vanilla Friendly: JavaScript is the default and TypeScript is optional.
+
+## Requirements
+
+- Node.js `20.19+` or `22.12+`.
+- Vite `6`, `7`, or `8` for the standard development workflow.
+- TypeScript is optional for application code.
+
+## Create or Install
+
+After the package is published, create a project with:
+
+```bash
+npx create-velodom my-site
+cd my-site
+npm install
+npm run dev
+```
+
+To add VeloDom to an existing Vite project:
 
 ```bash
 npm install velodom
 npm install --save-dev vite
 ```
 
-Use the beginner Vite entry:
+Add the Vite plugin:
 
 ```js
+// vite.config.js
+import { defineConfig } from "vite";
+import { velodom } from "velodom/vite-plugin";
+
+export default defineConfig({
+  plugins: [velodom()],
+});
+```
+
+Then use the beginner entry point:
+
+```js
+// src/main.js
 import { mountVeloDom } from "velodom/vite";
 
 await mountVeloDom();
 ```
 
-Use focused public entry points when needed:
+## Folder-First Pages
 
-```js
-import { createApp } from "velodom";
-import { velodom } from "velodom/vite-plugin";
-import { compileTemplate } from "velodom/compiler";
+A page can be a small, predictable folder:
+
+```text
+src/pages/about/
+  index.html
+  script.js
+  style.css
+  config.js
 ```
 
-Application modules can keep portable relative imports or configure local
-aliases such as `@/api/posts.js` through Vite and `#app/api/posts.js` through
-`package.json#imports`. These aliases point to the application's `src` folder;
-framework code always uses the documented `velodom` package subpaths.
+```html
+<!-- src/pages/about/index.html -->
+<main>
+  <h1>{{ title }}</h1>
+  <button vd-on:click="increment()">
+    Count: <span vd-text="count"></span>
+  </button>
+</main>
+```
 
-Application pages, components, layouts, API routes, middleware, and assets stay
-inside the consuming project. Framework internals are installed under
-`node_modules/velodom` and must not be copied into application source.
+```js
+// src/pages/about/script.js
+export function init({ state }) {
+  state.title = "About VeloDom";
+  state.count = 0;
+  state.increment = () => {
+    state.count += 1;
+  };
+}
+```
 
-See the [framework documentation](https://github.com/NadiaSalah/velodom/tree/master/docs)
-for the complete guide, examples, architecture, and release notes.
+```js
+// src/pages/about/config.js
+export default {
+  path: "/about",
+  seo: {
+    title: "About VeloDom",
+    description: "A folder-first VeloDom page.",
+  },
+};
+```
+
+## Optional Single-File Authoring
+
+Folder mode remains the default, but pages, components, and layouts may use a
+`.vd` file when keeping a small feature together is clearer:
+
+```html
+<template>
+  <main>
+    <h1>{{ title }}</h1>
+    <button vd-on:click="increment()">Count: {{ count }}</button>
+  </main>
+</template>
+
+<script>
+export function init({ state }) {
+  state.title = "About VeloDom";
+  state.count = 0;
+  state.increment = () => { state.count += 1; };
+}
+</script>
+
+<style>
+main { padding: 2rem; }
+</style>
+
+<config>
+export default {
+  path: "/about",
+  seo: { title: "About VeloDom" },
+};
+</config>
+```
+
+## Main Capabilities
+
+- Reactive interpolation with `{{ expression }}` and directives such as
+  `vd-text`, `vd-if`, `vd-for`, `vd-model`, and `vd-on:*`.
+- Folder or `.vd` pages, components, and nested layouts.
+- File-based routing, route parameters, guards, browser history, and same-page
+  hash navigation.
+- Request helpers with validation, cache, retry, timeout, loading, errors, and
+  user-defined middleware.
+- Static SEO snapshots generated from page configuration and page content.
+- Lazy modules, asset helpers, development diagnostics, testing helpers, and
+  compiler-powered project inspection.
+- Vanilla JavaScript and TypeScript application authoring through the same API.
+
+Literal interpolation braces can be escaped as `\{{ value }}`. Use `vd-pre` on
+an element when all interpolation inside it must remain literal.
+
+## Public Entry Points
+
+| Import | Purpose |
+| --- | --- |
+| `velodom` | Application runtime and public APIs |
+| `velodom/vite` | Beginner-friendly Vite bootstrap |
+| `velodom/vite-plugin` | Vite integration |
+| `velodom/compiler` | Template and `.vd` compilation |
+| `velodom/content` | Content discovery and loading |
+| `velodom/assets` | Asset helpers |
+| `velodom/devtools` | Optional development diagnostics |
+| `velodom/testing` | Framework testing utilities |
+
+Only these documented package paths are public. Importing files from
+`velodom/lib/*` is unsupported because those files are internal build output.
+
+## CLI
+
+The `vd` command supports project creation and static project intelligence:
+
+```bash
+vd create page about
+vd create component ui/button
+vd create api posts
+vd create middleware auth
+vd doctor
+vd inspect
+vd graph
+vd health
+vd stats
+vd build-report
+vd docs
+```
+
+Run `vd --help` or `vd <command> --help` for the current options.
+
+## Application Imports
+
+Application modules may use portable relative imports. Teams may also configure
+aliases such as `@/api/posts.js` through Vite or `#app/api/posts.js` through
+`package.json#imports`. These aliases belong to the application; framework code
+uses only the documented `velodom` package entry points.
+
+Application pages, components, layouts, APIs, middleware, and assets stay in
+the consuming project. Framework internals are installed under
+`node_modules/velodom` and should never be copied into application source.
+
+## Documentation and Source
+
+- [Complete documentation](https://github.com/NadiaSalah/velodom/tree/master/docs)
+- [Example application](https://github.com/NadiaSalah/velodom/tree/master/examples/blog)
+- [Issues](https://github.com/NadiaSalah/velodom/issues)
+- [Source repository](https://github.com/NadiaSalah/velodom)
+
+VeloDom is released under the MIT License.

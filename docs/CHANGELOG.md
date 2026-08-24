@@ -4,6 +4,32 @@ All important local changes to VeloDom are recorded here. The project is not
 published yet, so entries describe development milestones rather than released
 package versions.
 
+## 2026-08-24
+
+### npm Package Readiness and Workspace Cleanup
+
+- Audited the repository and confirmed the publishable boundary is
+  `packages/velodom`; examples, editor tooling, tests, fixtures, and release
+  scripts remain workspace-owned and are excluded from the npm tarball.
+- Completed npm discovery metadata with author, keywords, monorepo directory,
+  and public-access intent while retaining `private: true` as the accidental
+  publication guard.
+- Rebuilt the registry-facing package README around installation, folder and
+  optional `.vd` authoring, public subpaths, CLI capabilities, and package
+  ownership rules.
+- Registered `packages/velodom-vscode` as a private workspace consumer and
+  synchronized the lockfile.
+- Hardened package checks and tests so metadata, self-contained build scripts,
+  prepack behavior, workspace consumers, and public-package boundaries cannot
+  silently regress.
+- Kept generated `lib`, `types`, dependency, and example `dist` outputs local
+  and ignored; they are reproducible artifacts rather than tracked source.
+- Verified 216 tests, documentation headers/JSDoc, types, lint, an isolated
+  package consumer, production build, performance budgets, package dry-run,
+  project doctor, 100/100 project health, and targeted Chromium E2E.
+- Recorded the external dependency-advisory lookup as an explicit release task
+  because it requires permission to send the lockfile dependency tree to npm.
+
 ## 2026-08-17
 
 ### Beginner-First V1 Authoring

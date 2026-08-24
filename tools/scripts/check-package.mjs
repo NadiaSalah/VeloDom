@@ -69,9 +69,47 @@ const allowedPackageFiles = new Set([
   "lib",
   "types"
 ]);
+const requiredKeywords = new Set([
+  "frontend-framework",
+  "html-first",
+  "compiler-first",
+  "vite"
+]);
 
 if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?$/.test(manifest.version)) {
   violations.push(`package version "${manifest.version}" is not valid SemVer`);
+}
+
+if (manifest.repository?.directory !== "packages/velodom") {
+  violations.push(
+    "repository.directory must identify packages/velodom in the monorepo"
+  );
+}
+
+if (manifest.publishConfig?.access !== "public") {
+  violations.push("publishConfig.access must be public for velodom");
+}
+
+if (!manifest.author?.name || !manifest.author?.url) {
+  violations.push("package author name and URL are required");
+}
+
+const packageKeywords = new Set(manifest.keywords || []);
+
+for (const keyword of requiredKeywords) {
+  if (!packageKeywords.has(keyword)) {
+    violations.push(`package keywords are missing "${keyword}"`);
+  }
+}
+
+const packageScripts = JSON.stringify(manifest.scripts || {});
+
+if (packageScripts.includes("tools/") || packageScripts.includes("../..")) {
+  violations.push("package scripts must not depend on workspace-owned files");
+}
+
+if (manifest.scripts?.prepack !== "npm run package:build") {
+  violations.push("prepack must build only the self-contained package");
 }
 
 const packageFiles = new Set(manifest.files || []);

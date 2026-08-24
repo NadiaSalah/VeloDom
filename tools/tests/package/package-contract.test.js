@@ -17,6 +17,12 @@ const blogManifest = JSON.parse(
     "utf8"
   )
 );
+const editorManifest = JSON.parse(
+  await readFile(
+    new URL("../../../packages/velodom-vscode/package.json", import.meta.url),
+    "utf8"
+  )
+);
 const blogViteConfig = await readFile(
   new URL("../../../examples/blog/vite.config.js", import.meta.url),
   "utf8"
@@ -36,6 +42,12 @@ test("published package boundaries use built allowlisted artifacts", () => {
 
   assert.equal(manifest.private, true);
   assert.match(manifest.version, /^\d+\.\d+\.\d+(?:-[\w.-]+)?$/);
+  assert.equal(manifest.repository.directory, "packages/velodom");
+  assert.equal(manifest.publishConfig.access, "public");
+  assert.equal(manifest.author.name, "Nadia Salah");
+  assert.match(manifest.author.url, /github\.com\/NadiaSalah/);
+  assert.ok(manifest.keywords.includes("html-first"));
+  assert.ok(manifest.keywords.includes("compiler-first"));
   assert.equal(manifest.peerDependencies.typescript, ">=5.7");
   assert.equal(
     manifest.peerDependenciesMeta.typescript.optional,
@@ -54,6 +66,8 @@ test("published package boundaries use built allowlisted artifacts", () => {
     "README.md",
     "LICENSE"
   ]);
+  assert.equal(manifest.scripts.prepack, "npm run package:build");
+  assert.doesNotMatch(JSON.stringify(manifest.scripts), /tools\/|\.\.\/\.\./);
 
   publicEntries.forEach(entry => {
     const definition = manifest.exports[entry];
@@ -64,12 +78,15 @@ test("published package boundaries use built allowlisted artifacts", () => {
   });
 });
 
-test("workspace keeps the blog behind public package imports", () => {
+test("workspace keeps consumers behind public package imports", () => {
   assert.deepEqual(workspaceManifest.workspaces, [
     "packages/velodom",
+    "packages/velodom-vscode",
     "examples/blog"
   ]);
   assert.equal(blogManifest.dependencies.velodom, manifest.version);
+  assert.equal(editorManifest.private, true);
+  assert.equal(editorManifest.dependencies.velodom, `^${manifest.version}`);
   assert.equal(blogManifest.imports["#app/*"], "./src/*");
   assert.match(blogViteConfig, /from "velodom\/vite-plugin"/);
   assert.match(blogViteConfig, /find: "@"/);

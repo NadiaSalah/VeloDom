@@ -1,6 +1,6 @@
 # VeloDom V1 Release Decision
 
-Date: 2026-08-17
+Date: 2026-08-24
 
 ## Current Decision
 
@@ -46,17 +46,24 @@ Before publication, the owner must confirm:
 - Package version: `1.0.0`
 - Publication guard: `private: true`
 - Package dry-run artifact: `velodom-1.0.0.tgz`
+- Package dry-run contents: 206 allowlisted entries, 343,666 compressed bytes,
+  and 1,520,480 unpacked bytes
 - `npm run pack:check`: passed locally
 - `npm test`: 216 tests passed locally
 - `npm run check`: passed locally
 - `npm run build`: passed locally
+- `vd doctor`: no issues; `vd health`: 100/100 with SEO config on 5/5 pages
+- Targeted Chromium/Chrome/Edge browser E2E: passed locally on 2026-08-24
 - `npm run test:browser`: passed locally for Chromium/Chrome/Edge, WebKit, and
   mobile WebKit after installing the missing Playwright browser binaries
 - `VELODOM_BROWSER_STRICT=1 npm run test:browser`: still pending because
   Firefox headless startup timed out locally with a graphics/compositor launch
-  error and stalled again on 2026-08-17; rerun on a Firefox-capable release or
-  CI machine before public V1
+  error and the complete local matrix again stalled before its summary on
+  2026-08-24; rerun on a Firefox-capable release or CI machine before public V1
 - Deployment/static SEO contract: passed locally for `/`, `/features/`,
   `/blog/posts/html-first/`, and an unknown SPA fallback route
+- External `npm audit` advisory lookup: not run during the 2026-08-24 review
+  because it sends the locked dependency tree to the npm registry; run it only
+  after the owner explicitly authorizes that external metadata transfer
 
 This file is a release governance note. It is not a release automation script.

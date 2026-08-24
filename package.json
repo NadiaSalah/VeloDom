@@ -6,6 +6,7 @@
   "type": "module",
   "workspaces": [
     "packages/velodom",
+    "packages/velodom-vscode",
     "examples/blog"
   ],
   "scripts": {

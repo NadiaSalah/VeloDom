@@ -54,6 +54,17 @@
   expose framework internals.
 - The npm package uses an explicit file allowlist. Application code, tests,
   assets, and workspace configuration are never package contents.
+- The package manifest records the monorepo directory, author, discovery
+  keywords, and intended public access. `publishConfig.access` documents the
+  eventual release target but does not override the `private: true` safety
+  guard or authorize publication.
+- `packages/velodom-vscode` is a private workspace consumer of the public
+  `velodom/compiler` contract. It is not part of the framework tarball and
+  never becomes a browser runtime dependency.
+- Generated `packages/velodom/lib` and `packages/velodom/types` outputs remain
+  on disk when useful for local verification but stay ignored by Git. Their
+  presence is not repository clutter and their deletion is not required for a
+  clean package release.
 - Repository-level documentation lives under `docs/`. The root README is a
   stable short link to `docs/README.md`; `packages/velodom/README.md` remains
   adjacent to the package manifest because npm uses it as the package page.

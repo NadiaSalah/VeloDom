@@ -74,6 +74,10 @@ npm run pack:check
 npm run test:browser
 ```
 
+With owner approval for sending lockfile dependency metadata to the npm
+registry, also run `npm audit`. This is a workspace-tooling supply-chain check;
+the published VeloDom package currently has no direct runtime dependencies.
+
 The checks must confirm:
 
 - the core documentation audit passes;
@@ -88,6 +92,12 @@ The checks must confirm:
 
 ### 4. Package Boundary Review
 
+- Confirm npm discovery metadata includes the intended author, keywords,
+  repository URL and `repository.directory`, license, bugs URL, homepage,
+  engines, and public access intent.
+- Confirm the registry-facing package README documents installation, beginner
+  setup, public subpaths, and the boundary between framework and application
+  files.
 - Confirm `packages/velodom/package.json#exports` exposes only:
   - `velodom`
   - `velodom/assets`
@@ -103,6 +113,8 @@ The checks must confirm:
 - Confirm the package tarball contains its focused `README.md`, `LICENSE`,
   `bin`, `lib`, and `types`, but excludes workspace examples and framework
   TypeScript source.
+- Record the final dry-run tarball file count and compressed/unpacked sizes so
+  unexpected growth is visible during release review.
 - Confirm public API freeze tests pass before changing any export names.
 
 ### 5. Publication Approval

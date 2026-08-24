@@ -3,10 +3,25 @@
   "private": true,
   "version": "1.0.0",
   "description": "Compiler-first, HTML-first frontend framework with reactive state, routing, components, and requests.",
+  "keywords": [
+    "frontend-framework",
+    "html-first",
+    "compiler-first",
+    "vite",
+    "reactive",
+    "typescript",
+    "vanilla-javascript",
+    "components"
+  ],
+  "author": {
+    "name": "Nadia Salah",
+    "url": "https://github.com/NadiaSalah"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NadiaSalah/velodom.git"
+    "url": "git+https://github.com/NadiaSalah/velodom.git",
+    "directory": "packages/velodom"
   },
   "bugs": {
     "url": "https://github.com/NadiaSalah/velodom/issues"
@@ -30,6 +45,9 @@
   ],
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "browserslist": [
     "last 2 Chrome versions",

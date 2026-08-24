@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**380 of 385 tasks completed — 99%**
+**381 of 387 tasks completed — 98%**
 
 `[###################-]`
 
-Remaining tasks: **5**
+Remaining tasks: **6**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -93,6 +93,9 @@ runtime features.
 - [ ] Confirm npm package ownership/reservation and publication account.
 - [ ] Confirm npm access level, 2FA policy, final release notes, and tag
   decision before removing `private: true`.
+- [ ] Review locked workspace dependency advisories through the npm registry
+  after the owner explicitly approves sending dependency metadata; the
+  published `velodom` runtime itself currently has no direct dependencies.
 
 Strict browser note: Firefox and WebKit Playwright binaries were installed
 locally on 2026-08-16. Strict WebKit and mobile WebKit passed, but Firefox
@@ -862,3 +865,9 @@ browser runtime small, and remain optional where a project does not need it.
       at the repository root — Fit: explicit package ownership;
       Value: a cleaner source tree with reproducible package outputs;
       Complexity: low; Target: V1
+- [x] Audit npm publication structure, complete discovery metadata and the
+      registry-facing README, register the optional editor consumer as a
+      workspace, and enforce those boundaries in package checks — Fit:
+      package-first delivery without changing runtime authoring; Value: a
+      predictable npm install and clearer first-use experience; Complexity:
+      low; Target: V1

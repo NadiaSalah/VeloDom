@@ -11,7 +11,9 @@ JavaScript or TypeScript independently for every page and component.
 > Project status: local V1 release candidate. The publishable package lives at
 > `packages/velodom`, uses version `1.0.0`, and keeps `private: true` until the
 > npm release is explicitly approved. Public API names are frozen locally and
-> protected by package-boundary tests.
+> protected by package-boundary tests. The npm manifest and registry-facing
+> README are release-ready, while account ownership and publication approval
+> remain human gates.
 
 ## Contents
 
