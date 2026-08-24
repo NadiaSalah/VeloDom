@@ -243,6 +243,7 @@ vd docs
 vd types
 vd create page blog/posts/[id] --ts
 vd create component shared/post-card --single-file
+vd create feature articles --blog
 vd create api posts
 vd create demo features/demo
 vd create middleware
@@ -289,6 +290,25 @@ projects do nothing, while TypeScript projects may import the generated
 `VeloDomComponentPropsFor` without a runtime dependency.
 `vd benchmark` delegates to the project's `benchmark:rendering` script so
 performance checks stay repeatable and outside the browser runtime.
+
+### Feature Scaffolding
+
+Create the smallest feature with one command:
+
+```bash
+vd create feature articles
+```
+
+It creates only a static page and its SEO config. When a blog-shaped vertical
+slice is useful, add `--blog`:
+
+```bash
+vd create feature articles --blog
+```
+
+The blog template additionally creates a page script, `articles/post-card`
+component, application-owned API source, and a small Node test placeholder.
+It never edits a central route registry or overwrites existing files.
 
 ### Optional CSS Budget
 

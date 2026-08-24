@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**399 of 413 tasks completed — 97%**
+**400 of 413 tasks completed — 97%**
 
 `[###################-]`
 
-Remaining tasks: **14**
+Remaining tasks: **13**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -921,7 +921,7 @@ These items reduce application boilerplate through visible conventions. They
 must not add a second template language, hidden browser behavior, automatic
 networking, or a mandatory global store.
 
-- [ ] Add `vd create feature <name>` to scaffold one small vertical slice
+- [x] Add `vd create feature <name>` to scaffold one small vertical slice
       (page, optional component, API handler, and test/example) from a named
       minimal or blog template — Fit: folder-first; Value: beginners start a
       real feature with one command instead of assembling files manually;

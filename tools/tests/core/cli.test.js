@@ -329,6 +329,14 @@ test("CLI create scaffolds convention-first project resources", async () => {
     ], options), 0);
     assert.equal(await runVeloDomCli([
       "create",
+      "feature",
+      "articles",
+      "--blog",
+      "--root",
+      root
+    ], options), 0);
+    assert.equal(await runVeloDomCli([
+      "create",
       "middleware",
       "--root",
       root
@@ -354,6 +362,11 @@ test("CLI create scaffolds convention-first project resources", async () => {
     await assertFile(join(root, "src/components/shared/post-card.vd"));
     await assertFile(join(root, "src/api/posts.js"));
     await assertFile(join(root, "src/pages/features/demo/index.html"));
+    await assertFile(join(root, "src/pages/articles/index.html"));
+    await assertFile(join(root, "src/pages/articles/script.js"));
+    await assertFile(join(root, "src/components/articles/post-card/index.html"));
+    await assertFile(join(root, "src/api/articles.js"));
+    await assertFile(join(root, "tests/articles.test.js"));
     await assertFile(join(root, "src/api/middleware.js"));
     await assertFile(join(root, "src/plugins/analytics.js"));
     await assertFile(join(root, "starter/src/pages/home/config.js"));

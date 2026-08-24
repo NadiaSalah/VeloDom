@@ -135,6 +135,7 @@ Usage:
   vd create component <name> [--ts] [--single-file] [--root <dir>]
   vd create api <name> [--root <dir>]
   vd create demo <name> [--root <dir>]
+  vd create feature <name> [--blog] [--root <dir>]
   vd create middleware [--root <dir>]
   vd create plugin <name> [--root <dir>]
   create-velodom <project-name>
@@ -144,6 +145,7 @@ Examples:
   vd stats --json
   vd create page blog/posts/[id] --ts
   vd create component shared/post-card --single-file
+  vd create feature articles --blog
 `;
 
 /** Runs the VeloDom command-line interface and returns a process exit code. */

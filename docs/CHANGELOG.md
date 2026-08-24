@@ -32,6 +32,9 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Added `vd create feature <name>` for minimal pages and optional `--blog`
+  vertical slices. It creates conventional user-owned files without touching a
+  route registry or adding browser runtime behavior.
 - Added a bounded future authoring-ergonomics phase: feature scaffolding,
   optional file-based API/middleware conventions, a small exported state seed,
   and focused page demos. It explicitly rejects a second terse template syntax.

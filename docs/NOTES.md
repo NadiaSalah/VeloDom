@@ -499,6 +499,10 @@
   JavaScript exports over shorthand syntax. VeloDom should retain explicit
   `vd-*` attributes and `init()` as the advanced lifecycle escape hatch instead
   of copying Vue-style template aliases or composition APIs.
+- Feature scaffolding deliberately composes existing page/component/API/test
+  conventions instead of inventing a new feature runtime or editing central
+  registries. The minimal template creates only a page; `--blog` is an explicit
+  request for the larger vertical slice.
 - CSS budgets remain build-only and opt-in. VeloDom reports generated CSS for
   every project but does not ship a default threshold because framework-owned
   limits would make a visual design-system choice look like a runtime defect.

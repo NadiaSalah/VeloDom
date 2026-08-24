@@ -45,6 +45,9 @@ export async function createResource(
     case "demo":
       await createDemo(context, requireName(rawName, "demo"));
       break;
+    case "feature":
+      await createFeature(context, requireName(rawName, "feature"), flags);
+      break;
     case "middleware":
       await createMiddleware(context);
       break;
@@ -56,7 +59,7 @@ export async function createResource(
       break;
     default:
       throw new Error(
-        "Use vd create page|component|api|middleware|plugin|project."
+        "Use vd create page|component|api|demo|feature|middleware|plugin|project."
       );
   }
 }
@@ -126,6 +129,45 @@ async function createDemo(context: CliContext, name: string) {
   await writeNewFile(join(folder, "style.css"), createStyleTemplate());
   await writeNewFile(join(folder, "config.js"), createPageConfigTemplate(name));
   context.stdout(`Created demo page ${relativePath(context.cwd, folder)}`);
+}
+
+async function createFeature(
+  context: CliContext,
+  name: string,
+  flags: Set<string>
+) {
+  const feature = safeName(name);
+  const pageFolder = join(context.cwd, "src", "pages", feature);
+
+  await writeNewFile(
+    join(pageFolder, "index.html"),
+    createFeaturePageTemplate(name, flags.has("blog"))
+  );
+  await writeNewFile(join(pageFolder, "config.js"), createPageConfigTemplate(name));
+
+  if (flags.has("blog")) {
+    const cardName = `${feature}/post-card`;
+    const componentFolder = join(context.cwd, "src", "components", cardName);
+    const apiFile = join(context.cwd, "src", "api", `${feature}.js`);
+    const testFile = join(context.cwd, "tests", `${feature.replaceAll("/", "-")}.test.js`);
+
+    await writeNewFile(
+      join(pageFolder, "script.js"),
+      createFeatureBlogScriptTemplate(name)
+    );
+    await writeNewFile(
+      join(componentFolder, "index.html"),
+      createFeatureCardTemplate()
+    );
+    await writeNewFile(apiFile, createFeatureApiTemplate(name));
+    await writeNewFile(testFile, createFeatureTestTemplate(name));
+  }
+
+  const template = flags.has("blog") ? "blog" : "minimal";
+
+  context.stdout(
+    `Created ${template} feature ${relativePath(context.cwd, pageFolder)}`
+  );
 }
 
 async function createMiddleware(context: CliContext) {
@@ -322,6 +364,76 @@ function createDemoScriptTemplate(name: string) {
     "}",
     ""
   ].join("\n");
+}
+
+function createFeaturePageTemplate(name: string, blog = false) {
+  const title = titleFromName(name);
+
+  if (blog) {
+    return `<main class="vd-page">
+  <h1 vd-text="title"></h1>
+  <vd-component
+    name="${safeName(name)}/post-card"
+    vd-prop-title="posts[0].title"
+    vd-prop-excerpt="posts[0].excerpt"
+  ></vd-component>
+</main>
+`;
+  }
+
+  return `<main class="vd-page">
+  <h1>${title}</h1>
+  <p>Start with ordinary HTML. Add a script only when this feature needs behavior.</p>
+</main>
+`;
+}
+
+function createFeatureBlogScriptTemplate(name: string) {
+  const title = titleFromName(name);
+  const component = `${safeName(name)}/post-card`;
+
+  return `export function init({ state }) {
+  state.title = "${title}";
+  state.posts = [
+    {
+      id: 1,
+      title: "First ${title} post",
+      excerpt: "Replace this local example with your own data."
+    }
+  ];
+  state.cardComponent = "${component}";
+}
+`;
+}
+
+function createFeatureCardTemplate() {
+  return `<article class="vd-card">
+  <h2 vd-text="props.title"></h2>
+  <p vd-text="props.excerpt"></p>
+</article>
+`;
+}
+
+function createFeatureApiTemplate(name: string) {
+  const title = titleFromName(name);
+
+  return `/** Application-owned ${title} data. Register it explicitly today, or use file API discovery when enabled. */
+export async function list() {
+  return [];
+}
+`;
+}
+
+function createFeatureTestTemplate(name: string) {
+  const title = titleFromName(name);
+
+  return `import assert from "node:assert/strict";
+import test from "node:test";
+
+test("${title} feature is ready for application tests", () => {
+  assert.ok(true);
+});
+`;
 }
 
 function createApiTemplate(name: string) {
