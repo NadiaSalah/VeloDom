@@ -154,6 +154,14 @@ a browser translation provider. See
 - Added route-aware active states to the shared primary navigation. Learn,
   Guides, API, and Single-file now expose the selected route with
   `aria-current="page"` on both wide and compact menus.
+- Re-audited the public feature surface against framework source: documentation
+  still covers all 11 package exports, 61 public values, 43 preferred
+  directives, and 12 CLI commands. The example guide now also groups page
+  data, prefetch, compiler safety diagnostics, and recoverable boundaries in a
+  dedicated quality lesson.
+- Deferred showcase sidebar viewport observation until router hash restoration
+  completes, preventing direct lesson links from momentarily selecting the
+  preceding tab.
 
 ## Next Tasks
 

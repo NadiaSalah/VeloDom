@@ -4464,8 +4464,10 @@ features itself.
 | --- | --- |
 | `/` | V1 landing page, article loops, reusable components, routing, and SEO |
 | `/blog/posts/html-first` | dynamic article route, local API data, and `vd-request` reload |
-| `/features` | framework feature documentation with live directive examples |
+| `/features` | framework feature documentation with live directive examples, page data, prefetch, recovery, and compiler safety guidance |
+| `/reference` | source-verified package/API catalog and preferred template syntax index |
 | `/single-file` | optional `.vd` page/component authoring with scoped style and config blocks |
+| `/404` | route-not-found recovery experience with a normal VeloDom page config |
 
 The showcase uses Tailwind CSS and daisyUI. Those libraries are application
 choices, not VeloDom Core dependencies or requirements.

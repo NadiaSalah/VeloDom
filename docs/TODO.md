@@ -145,6 +145,8 @@ application browser runtime weight:
   open state at tablet and small-desktop widths.
 - [x] The shared primary navigation highlights the current route consistently
   in wide and compact menus and exposes the state to assistive technology.
+- [x] The showcase now has a dedicated quality lesson for public page data,
+  recoverable error boundaries, opt-in prefetch, and compiler safety signals.
 
 ## V1 Ecosystem — Current
 

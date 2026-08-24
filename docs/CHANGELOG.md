@@ -41,6 +41,13 @@ package versions.
   tablet and small-desktop layouts.
 - Added route-aware active styling and `aria-current="page"` to the shared
   Learn, Guides, API, and Single-file navigation links in both menu layouts.
+- Re-audited public source contracts against the guide and showcase. The
+  canonical documentation remains complete for 11 package exports, 61 public
+  values, 43 preferred directives, and 12 CLI commands; the guided site now
+  groups page data, error recovery, prefetch, and compiler safety in a
+  dedicated lesson.
+- Delayed documentation-sidebar viewport observation until hash scrolling
+  finishes, so a direct lesson URL cannot briefly select its preceding section.
 
 ### Documentation and Project-Intelligence Audit
 

@@ -40,12 +40,17 @@ export function mountDocsSidebar(ctx, selector = ".docs-sidebar-link") {
     return sections.some(item => item.id === hash) ? hash : sections[0].id;
   };
 
-  const onLocationChange = () => activeSection(locationSection());
+  let pendingSection = null;
+  const selectSection = id => {
+    pendingSection = id;
+    activeSection(id);
+  };
+  const onLocationChange = () => selectSection(locationSection());
   const onLinkClick = event => {
     const href = event.currentTarget.getAttribute("href") || "";
     const id = decodeHash(href.split("#")[1] || "");
 
-    if (id) activeSection(id);
+    if (id) selectSection(id);
   };
 
   links.forEach(link => link.addEventListener("click", onLinkClick));
@@ -54,6 +59,21 @@ export function mountDocsSidebar(ctx, selector = ".docs-sidebar-link") {
 
   const observer = "IntersectionObserver" in window
     ? new IntersectionObserver(entries => {
+      if (pendingSection) {
+        const pendingEntry = entries.find(entry => (
+          entry.isIntersecting && entry.target.id === pendingSection
+        ));
+
+        // CSS smooth scrolling may take longer than lifecycle hooks. Keep the
+        // URL-selected tab visible until its target actually reaches the
+        // observation area, then resume normal scroll-driven selection.
+        if (!pendingEntry) return;
+
+        pendingSection = null;
+        activeSection(pendingEntry.target.id);
+        return;
+      }
+
       const visible = entries
         .filter(entry => entry.isIntersecting)
         .sort((left, right) => left.boundingClientRect.top - right.boundingClientRect.top)[0];
@@ -65,10 +85,28 @@ export function mountDocsSidebar(ctx, selector = ".docs-sidebar-link") {
     })
     : null;
 
-  sections.forEach(item => observer?.observe(item.section));
+  let firstFrame = 0;
+  let secondFrame = 0;
+  const startObserving = () => {
+    sections.forEach(item => observer?.observe(item.section));
+    onLocationChange();
+  };
+
+  // The router restores a direct hash target after page/component hooks mount.
+  // Deferring viewport observation prevents the previous section from briefly
+  // replacing the hash-selected tab before that restoration completes.
   onLocationChange();
+  if (typeof window.requestAnimationFrame === "function") {
+    firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(startObserving);
+    });
+  } else {
+    startObserving();
+  }
 
   ctx.onCleanup(() => {
+    window.cancelAnimationFrame?.(firstFrame);
+    window.cancelAnimationFrame?.(secondFrame);
     observer?.disconnect();
     links.forEach(link => link.removeEventListener("click", onLinkClick));
     window.removeEventListener("hashchange", onLocationChange);

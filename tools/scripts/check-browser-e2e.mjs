@@ -352,6 +352,12 @@ async function assertRouting(page, origin) {
       && active?.getAttribute("aria-current") === "location";
   });
 
+  await page.goto(`${origin}/features#quality`);
+  await page.waitForFunction(() => (
+    document.querySelector('.docs-sidebar-link.is-active')
+      ?.getAttribute("href") === "/features#quality"
+  ));
+
   await page.locator('a[href="/features#directives"]').click();
   await page.waitForURL(`${origin}/features#directives`);
   await page.waitForFunction(() => (

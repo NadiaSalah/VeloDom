@@ -13,6 +13,7 @@
     <a class="docs-sidebar-link" href="/features#assets" vd-nav>Assets and lazy loading</a>
     <a class="docs-sidebar-link" href="/features#production" vd-nav>SEO and production</a>
     <a class="docs-sidebar-link" href="/features#tooling" vd-nav>Tooling and testing</a>
+    <a class="docs-sidebar-link" href="/features#quality" vd-nav>Quality and recovery</a>
     <a class="docs-sidebar-link" href="/features#architecture" vd-nav>Architecture</a>
   </aside>
 
@@ -527,8 +528,70 @@ vd create page guide --demo seo</code></pre>
       </div>
     </section>
 
+    <section id="quality" class="doc-section">
+      <p class="eyebrow">14 · reliability</p>
+      <h2>Data, recovery, and browser safety stay explicit.</h2>
+      <p class="mt-3">
+        A page data module owns initial public data before a page initializes.
+        The compiler reports common accessibility and security mistakes before
+        delivery, while an application error boundary decides how a recoverable
+        failure should look. None of these features creates a hidden server or
+        a second rendering model.
+      </p>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <div class="code-window">
+          <div class="code-toolbar"><span>src/pages/catalog/data.js</span><span>initial public data</span></div>
+          <pre class="code-example" vd-pre><code>export async function load({ params, query, mode }) {
+  const response = await fetch(`/api/catalog?tag=${query.tag || "all"}`);
+
+  return {
+    products: await response.json(),
+    source: mode
+  };
+}
+
+// Optional: public data only. This cache is memory-only.
+export const cache = {
+  maxAgeMs: 30_000,
+  staleWhileRevalidateMs: 120_000
+};</code></pre>
+        </div>
+        <div class="code-window">
+          <div class="code-toolbar"><span>src/main.js</span><span>recoverable boundary</span></div>
+          <pre class="code-example" vd-pre><code>await mountVeloDom({
+  errorBoundary({ title, message, retry }) {
+    const fallback = document.createElement("section");
+    fallback.setAttribute("role", "alert");
+    fallback.textContent = `${title}: ${message}`;
+
+    const button = document.createElement("button");
+    button.textContent = "Try again";
+    button.addEventListener("click", () =&gt; retry());
+    fallback.append(button);
+    return fallback;
+  }
+});</code></pre>
+        </div>
+      </div>
+      <div class="code-window mt-5">
+        <div class="code-toolbar"><span>safe navigation and assets</span><span>compiler + browser defaults</span></div>
+        <pre class="code-example" vd-pre><code>&lt;a href="/blog/posts/html-first" vd-nav vd-prefetch&gt;
+  Read the article when intent is clear
+&lt;/a&gt;
+
+&lt;img
+  src="/hero-960.webp"
+  alt="Developer reading VeloDom source"
+  width="960"
+  height="540"
+  loading="lazy"
+&gt;</code></pre>
+      </div>
+      <div class="callout"><strong>Guardrails, not guesses:</strong> compiler diagnostics identify common missing image descriptions, dimensions, form labels, unsafe URLs, and non-semantic click targets. Fix the source; do not suppress a useful warning. Prefetch only likely next routes, and never put private data in static page-data output.</div>
+    </section>
+
     <section id="architecture" class="doc-section">
-      <p class="eyebrow">14 · architecture</p>
+      <p class="eyebrow">15 · architecture</p>
       <h2>A small runtime is an architectural decision.</h2>
       <p class="mt-3">
         VeloDom Core receives resources from adapters. It does not discover your
