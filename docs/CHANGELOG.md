@@ -32,6 +32,9 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Added a bounded future authoring-ergonomics phase: feature scaffolding,
+  optional file-based API/middleware conventions, a small exported state seed,
+  and focused page demos. It explicitly rejects a second terse template syntax.
 - Completed the optional research boundary for AI providers, migration helpers,
   and CMS/deployment adapters. The decisions permit separate, reviewable tools
   while rejecting mandatory AI, vendor runtimes, credential stores, and

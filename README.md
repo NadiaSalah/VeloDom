@@ -60,6 +60,9 @@ remaining V1 release work is external governance, a strict Firefox-capable
 browser run, and starter presets that require the public npm path. Optional
 V2 hybrid rendering, islands, richer DevTools, and streaming/Edge adapters
 remain deliberately unshipped rather than being folded into the V1 runtime.
+The roadmap also records five future authoring-ergonomics improvements—feature
+scaffolding, file conventions for simple API/middleware code, and smaller page
+state/demo patterns—without adopting a second template syntax.
 
 The npm package has a strict `files` allowlist, explicit public exports,
 package-consumer tests, and a dry-run tarball check. It intentionally keeps

@@ -495,6 +495,10 @@
   documented research boundaries, not shipped framework features. Any future
   implementation must remain separately installed, reviewable, and free of
   hidden browser-runtime dependencies or credentials.
+- Future authoring ergonomics favor discoverable files and optional plain
+  JavaScript exports over shorthand syntax. VeloDom should retain explicit
+  `vd-*` attributes and `init()` as the advanced lifecycle escape hatch instead
+  of copying Vue-style template aliases or composition APIs.
 - CSS budgets remain build-only and opt-in. VeloDom reports generated CSS for
   every project but does not ship a default threshold because framework-owned
   limits would make a visual design-system choice look like a runtime defect.

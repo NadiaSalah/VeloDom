@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**399 of 408 tasks completed — 98%**
+**399 of 413 tasks completed — 97%**
 
 `[###################-]`
 
-Remaining tasks: **9**
+Remaining tasks: **14**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -914,6 +914,43 @@ publication.
       framework-owned features — Fit: vendor-neutral Core; Value: broader
       production adoption without package bloat; Complexity: medium; Target:
       Future Research
+
+### Phase 24 — Authoring Ergonomics (Future V1.x)
+
+These items reduce application boilerplate through visible conventions. They
+must not add a second template language, hidden browser behavior, automatic
+networking, or a mandatory global store.
+
+- [ ] Add `vd create feature <name>` to scaffold one small vertical slice
+      (page, optional component, API handler, and test/example) from a named
+      minimal or blog template — Fit: folder-first; Value: beginners start a
+      real feature with one command instead of assembling files manually;
+      Complexity: medium; Target: V1.x
+- [ ] Support optional file-based API discovery such as
+      `src/api/posts/get.js -> posts.get`, with explicit `src/api/routes.js`
+      taking precedence — Fit: convention over configuration; Value: removes a
+      registry for straightforward handlers while preserving advanced routing;
+      Complexity: medium; Target: V1.x
+- [ ] Support optional named application middleware files such as
+      `src/api/middleware/auth.js -> auth`, while keeping
+      `src/api/middleware.js` as the explicit advanced registry — Fit:
+      user-owned API code; Value: small middleware needs no central map;
+      Complexity: medium; Target: V1.x
+- [ ] Support an optional `export const state = { ... }` page/component script
+      seed that VeloDom merges before `init()`, so simple bindings such as
+      `vd-on:click="count++"` need no initialization function; keep `init()`
+      for async work, lifecycle, and advanced behavior — Fit: Vanilla Friendly;
+      Value: less code for small interactive pages; Complexity: low; Target:
+      V1.x
+- [ ] Add a `vd create page <name> --demo <kind>` option for focused, readable
+      examples (`static`, `counter`, `request`, `form`, or `seo`) using only
+      the files each example needs — Fit: beginner-first; Value: teaches the
+      smallest useful syntax without forcing a large starter; Complexity: low;
+      Target: V1.x
+
+Authoring guard: retain readable `vd-*` directives and ordinary JavaScript.
+Do not add terse `@event`, `:attribute`, implicit imports, or a second
+composition/template syntax merely to imitate another framework.
 
 ### Explicitly Rejected for V1
 
