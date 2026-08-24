@@ -128,6 +128,10 @@ a browser translation provider. See
 - Enabled named browser-test stages in the release workflow logs, making it
   clear when an Actions rerun is using the current test harness and where any
   future browser-specific failure occurs.
+- Restored the observable `hashchange` contract for intercepted same-page
+  `vd-nav` links. The router still uses history and scrolls without reloading,
+  while route-aware tabs and other application listeners now update reliably
+  after navigation in Chromium, Firefox, and WebKit.
 - Static SEO output now waits for Vite to write the HTML shell before it
   renders route artifacts, including with the current Vite/Rolldown lifecycle.
 - Rebuilt `examples/blog` as the polished VeloDom academic reference: a modern
@@ -184,11 +188,8 @@ a browser translation provider. See
 
 ## Next Tasks
 
-- Complete the strict Firefox/WebKit matrix on a graphics-capable CI/release
-  machine. Local Chromium, WebKit desktop, and Mobile WebKit pass; the local
-  Firefox SWGL compositor cannot map its headless framebuffer. The committed
-  GitHub Actions browser-matrix workflow is ready to provide this gate after
-  the repository is pushed.
+- Re-run the strict GitHub Actions browser matrix after the cross-browser
+  same-page `hashchange` fix and record the passing release-gate result.
 - Sign in to the approved npm owner account, confirm `npm whoami`, package-name
   ownership/reservation, access level, and 2FA before considering publication.
 - Confirm npm package ownership, publishing account, access, and 2FA policy.

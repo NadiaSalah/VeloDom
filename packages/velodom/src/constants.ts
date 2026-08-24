@@ -170,6 +170,7 @@ export const VD_ROUTER = Object.freeze({
   HISTORY_POP: "pop",
   HISTORY_PUSH: "push",
   HISTORY_REPLACE: "replace",
+  HASHCHANGE_EVENT: "hashchange",
   HREF_ATTRIBUTE: "href",
   MANAGED_FOCUS_ATTRIBUTE: "data-vd-focus-managed",
   POPSTATE_EVENT: "popstate",

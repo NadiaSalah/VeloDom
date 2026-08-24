@@ -1059,6 +1059,7 @@ test("page router moves focus to the page focus target after navigation", async 
 test("page router scrolls to hash fragments after navigation", async () => {
   document.body.innerHTML = '<main id="app"></main>';
   const calls = [];
+  const hashChanges = [];
   let initCount = 0;
   const router = createPageRouter({
     pages: {
@@ -1084,10 +1085,17 @@ test("page router scrolls to hash fragments after navigation", async () => {
     }
   });
   const originalScrollIntoView = Element.prototype.scrollIntoView;
+  const onHashChange = event => {
+    hashChanges.push({
+      newURL: event.newURL,
+      oldURL: event.oldURL
+    });
+  };
 
   Element.prototype.scrollIntoView = function scrollIntoView() {
     calls.push(this.id);
   };
+  window.addEventListener("hashchange", onHashChange);
 
   try {
     await router.init();
@@ -1103,9 +1111,13 @@ test("page router scrolls to hash fragments after navigation", async () => {
       document.getElementById("details")?.getAttribute("tabindex"),
       "-1"
     );
+    assert.equal(hashChanges.length, 1);
+    assert.equal(hashChanges[0].newURL.endsWith("/#details"), true);
+    assert.equal(hashChanges[0].oldURL.endsWith("/#details"), false);
     assert.equal(initCount, 1);
   } finally {
     Element.prototype.scrollIntoView = originalScrollIntoView;
+    window.removeEventListener("hashchange", onHashChange);
     await router.destroy();
   }
 });

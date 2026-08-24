@@ -30,6 +30,12 @@ package versions.
   from executing when JavaScript is disabled.
 - Enabled browser E2E stage logging in the release workflow so stale reruns and
   browser-specific failures can be identified from Actions output immediately.
+- Fixed the router's intercepted same-page hash contract. After updating
+  history, scrolling, and focus, VeloDom now emits the `hashchange` notification
+  that native anchor navigation would have produced. Documentation tabs and
+  other route-aware listeners therefore synchronize consistently in Firefox
+  and WebKit without reloading the current page. Added a router regression test
+  for the event URLs and single-page lifecycle preservation.
 
 ## 2026-08-24
 

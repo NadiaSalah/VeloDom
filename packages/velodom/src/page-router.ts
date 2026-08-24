@@ -136,11 +136,14 @@ export function createPageRouter(
           historyMode
         )
       ) {
+        const previousUrl = window.location.href;
+
         saveScrollPosition(scrollPositions, previousScrollKey);
         applyHistoryMode(historyMode, path);
         currentRoute.hash = route.hash;
         restoreScrollPosition(currentRoute, scrollPositions, historyMode);
         moveFocusAfterNavigation(currentRoute, historyMode);
+        dispatchRouterHashChange(previousUrl);
         return true;
       }
 
@@ -765,6 +768,26 @@ function applyHistoryMode(historyMode: string, path: string) {
   } else if (historyMode === VD_ROUTER.HISTORY_REPLACE) {
     history.replaceState({}, "", path);
   }
+}
+
+/**
+ * Restores the observable browser behavior replaced by intercepted hash links.
+ * `history.pushState()` does not emit `hashchange`, so route-aware components
+ * would otherwise miss successful same-page navigation.
+ */
+function dispatchRouterHashChange(previousUrl: string) {
+  const currentUrl = window.location.href;
+
+  if (previousUrl === currentUrl) return;
+
+  const event = typeof HashChangeEvent === "function"
+    ? new HashChangeEvent(VD_ROUTER.HASHCHANGE_EVENT, {
+      oldURL: previousUrl,
+      newURL: currentUrl
+    })
+    : new Event(VD_ROUTER.HASHCHANGE_EVENT);
+
+  window.dispatchEvent(event);
 }
 
 function canHandleSamePageHashNavigation(
