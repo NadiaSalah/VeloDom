@@ -32,6 +32,10 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Added `velodom/localization`, an optional build-time-only dictionary helper.
+  It validates typed message trees, surfaces missing keys through the Vite
+  plugin, and expands route-specific static SEO records per locale without a
+  browser translation runtime.
 - Added explicit `data.js|ts` page-data cache policies for public data only.
   The router-local cache is opt-in, route/query scoped, memory-only, and can
   stale-while-revalidate without touching cookies, headers, secrets, or
@@ -71,8 +75,8 @@ package versions.
 - Added an ordered post-V1 roadmap: static prerendering, unified page data,
   progressive forms, optional typed declarations, adapter contracts, compiler
   security diagnostics, CLI improvements, and derived state for V1.1.
-- Deferred Node rendering, cache/revalidation, localization, editor tooling,
-  and typed content loaders to V1.2; hybrid rendering, partial hydration,
+- Deferred Node rendering, editor tooling, and typed content loaders to V1.2;
+  hybrid rendering, partial hydration,
   DevTools, and Edge/streaming work remain V2 concerns.
 - Kept AI, migration tools, and CMS integrations optional research items and
   explicitly rejected JSX, mandatory Virtual DOM, mandatory SSR, mandatory

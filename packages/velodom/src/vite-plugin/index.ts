@@ -33,6 +33,8 @@ import {
   stripBuildOnlySeoEntries
 } from "./single-file.ts";
 import { VD_SINGLE_FILE } from "../constants.ts";
+import { inspectLocalization } from "../localization.ts";
+import type { LocalizationOptions } from "../localization.ts";
 import type {
   CompilerMode,
   CompilerOptions
@@ -47,7 +49,14 @@ export interface VeloDomVitePluginOptions {
   compiler?: Omit<CompilerOptions, "filename" | "mode">;
   emitManifest?: boolean;
   emitMetadata?: boolean | "development";
+  localization?: false | VeloDomLocalizationBuildOptions;
   seo?: false | VeloDomSeoBuildOptions;
+}
+
+/** Optional build diagnostics for application-owned locale dictionaries. */
+export interface VeloDomLocalizationBuildOptions extends LocalizationOptions {
+  /** Treat missing default-dictionary keys as build errors. Defaults to true. */
+  failOnMissing?: boolean;
 }
 
 /** Controls static SEO output produced after a successful Vite build. */
@@ -96,6 +105,25 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
       mode = config.mode === "production"
         ? "production"
         : "development";
+    },
+
+    buildStart() {
+      if (!options.localization) return;
+
+      const diagnostics = inspectLocalization(options.localization);
+
+      for (const diagnostic of diagnostics) {
+        const message = `[VD_I18N] ${diagnostic.message}`;
+
+        if (
+          diagnostic.severity === "error"
+          && options.localization.failOnMissing !== false
+        ) {
+          this.error(message);
+        } else {
+          this.warn(message);
+        }
+      }
     },
 
     transformIndexHtml(html, context) {

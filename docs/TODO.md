@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**392 of 408 tasks completed — 96%**
+**393 of 408 tasks completed — 96%**
 
 `[###################-]`
 
-Remaining tasks: **16**
+Remaining tasks: **15**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -868,7 +868,7 @@ publication.
       page data; cookies, headers, secrets, and user-specific state remain
       application-owned and uncached — Fit: secure conventions; Value: fresh
       content without accidental data leakage; Complexity: medium; Target: V1.2
-- [ ] Implement build-time localization with typed dictionaries, locale routes,
+- [x] Implement build-time localization with typed dictionaries, locale routes,
       missing-key diagnostics, and per-locale SEO — Fit: optional and
       compiler-first; Value: multilingual sites without a mandatory runtime;
       Complexity: high; Target: V1.2

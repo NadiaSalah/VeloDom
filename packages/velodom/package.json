@@ -75,6 +75,11 @@
       "import": "./lib/content.js",
       "default": "./lib/content.js"
     },
+    "./localization": {
+      "types": "./types/localization.d.ts",
+      "import": "./lib/localization.js",
+      "default": "./lib/localization.js"
+    },
     "./assets": {
       "types": "./types/assets.d.ts",
       "import": "./lib/assets.js",

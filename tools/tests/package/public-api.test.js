@@ -5,6 +5,7 @@ import * as compilerApi from "../../../packages/velodom/src/compiler/index.ts";
 import * as assetsApi from "../../../packages/velodom/src/assets.ts";
 import * as devtoolsApi from "../../../packages/velodom/src/devtools.ts";
 import * as contentApi from "../../../packages/velodom/src/content.ts";
+import * as localizationApi from "../../../packages/velodom/src/localization.ts";
 import * as runtimeApi from "../../../packages/velodom/src/index.ts";
 import * as testingApi from "../../../packages/velodom/src/testing.ts";
 import * as vitePluginApi from "../../../packages/velodom/src/vite-plugin/index.ts";
@@ -15,6 +16,7 @@ const devtoolsEntrySource = await readSource("../../../packages/velodom/src/devt
 const rootEntrySource = await readSource("../../../packages/velodom/src/index.ts");
 const compilerEntrySource = await readSource("../../../packages/velodom/src/compiler/index.ts");
 const contentEntrySource = await readSource("../../../packages/velodom/src/content.ts");
+const localizationEntrySource = await readSource("../../../packages/velodom/src/localization.ts");
 const testingEntrySource = await readSource("../../../packages/velodom/src/testing.ts");
 const vitePluginEntrySource = await readSource("../../../packages/velodom/src/vite-plugin/index.ts");
 const manifest = JSON.parse(await readSource("../../../packages/velodom/package.json"));
@@ -206,6 +208,25 @@ test("asset public exports remain build-time only", () => {
   ]);
 });
 
+test("localization remains an explicit build-time subpath", () => {
+  assert.deepEqual(Object.keys(localizationApi).sort(), [
+    "createLocalization",
+    "defineLocaleDictionary",
+    "inspectLocalization"
+  ]);
+  assert.deepEqual(readInterfaceExportNames(localizationEntrySource), [
+    "LocaleDefinition",
+    "Localization",
+    "LocalizationDiagnostic",
+    "LocalizationOptions",
+    "LocalizedSeoContext",
+    "LocalizedSeoSource"
+  ]);
+  assert.deepEqual(readTypeExportNames(localizationEntrySource, "local"), [
+    "LocaleDictionary"
+  ]);
+});
+
 test("optional devtools inspector remains an explicit subpath", () => {
   assert.deepEqual(Object.keys(devtoolsApi), [
     "mountDevtoolsInspector"
@@ -231,6 +252,7 @@ test("vite adapter and plugin public exports are frozen", () => {
   ]);
   assert.deepEqual(readInterfaceExportNames(vitePluginEntrySource), [
     "TemplateModuleOptions",
+    "VeloDomLocalizationBuildOptions",
     "VeloDomSeoBuildOptions",
     "VeloDomVitePluginOptions"
   ]);
@@ -256,6 +278,7 @@ test("package subpath exports are frozen", () => {
     "./compiler",
     "./content",
     "./devtools",
+    "./localization",
     "./package.json",
     "./testing",
     "./vite",

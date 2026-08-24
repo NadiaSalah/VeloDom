@@ -2654,10 +2654,83 @@ const css = createRtlFlipStyles();
 If an icon already needs a transform, compose it through a project-owned custom
 property rather than relying on hidden framework rewriting.
 
-Translation dictionaries, pluralization, message formatting, and locale-aware
-routes are intentionally separate from this direction layer. They remain future
-plugin research so VeloDom does not make multilingual presentation depend on a
-mandatory i18n runtime.
+### Build-time Translation and Locale Routes
+
+For static multilingual sites, use the optional `velodom/localization` build
+helper. It has no browser runtime and accepts ordinary JavaScript or TypeScript
+objects. The default dictionary is the key baseline, so missing keys are found
+before a production build:
+
+```js
+// src/localization.js
+import {
+  createLocalization,
+  defineLocaleDictionary
+} from "velodom/localization";
+
+const options = {
+  defaultLocale: "en",
+  locales: {
+    en: {
+      lang: "en",
+      messages: defineLocaleDictionary({
+        nav: { home: "Home" },
+        seo: { title: "VeloDom" }
+      })
+    },
+    ar: {
+      lang: "ar",
+      messages: defineLocaleDictionary({
+        nav: { home: "الرئيسية" },
+        seo: { title: "فيلو دوم" }
+      })
+    }
+  }
+};
+
+export const i18n = createLocalization(options);
+export { options as localizationOptions };
+```
+
+Pass the same options to the Vite plugin. Missing default keys fail the build by
+default; set `failOnMissing: false` only while incrementally translating an
+application. Extra keys are warnings so locale-specific copy remains possible:
+
+```js
+// vite.config.js
+import { defineConfig } from "vite";
+import { velodom } from "velodom/vite-plugin";
+import { i18n, localizationOptions } from "./src/localization.js";
+
+export default defineConfig({
+  plugins: [
+    velodom({
+      localization: localizationOptions,
+      seo: {
+        siteUrl: "https://example.com",
+        entries: () => i18n.createSeoEntries([
+          {
+            path: "/",
+            seo: ({ t }) => ({
+              title: t("seo.title"),
+              description: t("nav.home")
+            })
+          }
+        ])
+      }
+    })
+  ]
+});
+```
+
+This emits `/` for the default locale and `/ar` for Arabic by default; set
+`prefixDefaultLocale: true` when every locale should have a prefix. Generated
+SEO entries include each locale's `lang`, so they work with VeloDom's static
+SEO and sitemap generation. `i18n.t("ar", "nav.home")` is available for
+build hooks and application scripts, but it is deliberately not a template
+directive or a required runtime locale system. Pluralization, ICU-style message
+formatting, language negotiation, and server rendering remain application or
+integration concerns.
 
 ## SEO and Static Route HTML
 
@@ -3931,8 +4004,8 @@ These features are not implemented and should not be described as available:
 - schema-based validation and custom validation rules beyond the optional
   native validation plugin
 - declarative request cache
-- full translation/i18n dictionaries, pluralization, message formatting, and
-  locale routing
+- pluralization, ICU-style message formatting, locale negotiation, and a
+  browser translation runtime beyond optional build-time dictionaries/routes
 - broader keyboard/focus UX beyond the current integration coverage
 - advanced shared-state patterns beyond the optional `createSharedState()`
   helper

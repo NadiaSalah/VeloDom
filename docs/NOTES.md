@@ -478,6 +478,11 @@
   in-memory freshness/stale-while-revalidate cache; credentials, headers,
   secrets, and user-specific state stay outside that policy and must remain
   application-owned.
+- Localization is a build-time subpath, not a template directive or a global
+  browser store. Its default dictionary defines the required key set, while
+  Vite surfaces missing translations before a build and the helper expands
+  route/SEO records. Message formatting, negotiation, and client-side language
+  switching remain integration concerns instead of hidden runtime behavior.
 - CSS budgets remain build-only and opt-in. VeloDom reports generated CSS for
   every project but does not ship a default threshold because framework-owned
   limits would make a visual design-system choice look like a runtime defect.
