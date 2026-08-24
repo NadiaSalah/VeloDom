@@ -32,6 +32,9 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Audited the beginner CLI/Vite path: convention scaffolds, routes, build
+  reports, and source-offset compiler errors already cover the V1.1 workflow
+  without adding a separate HMR abstraction.
 - Added high-confidence compiler security diagnostics for `javascript:` URLs,
   new-tab links without `noopener`, password forms using GET, and likely secret
   Vite environment variables without treating static checks as server policy.

@@ -494,6 +494,9 @@
   They flag browser-executable URLs, credential URL exposure, opener risks,
   and secret-like Vite variable names, while server authorization, CSRF, and
   actual secret classification remain application/deployment responsibilities.
+- Vite owns hot-module replacement. VeloDom supplies original file/offset
+  diagnostics to Vite's standard development overlay instead of introducing a
+  second HMR error UI or runtime protocol.
 - The VS Code prototype remains outside the package and consumes the public
   compiler language-service API. Its navigation intentionally follows only
   conventional folders and `.vd` names; route-config overrides need a future

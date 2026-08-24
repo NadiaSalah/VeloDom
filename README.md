@@ -67,8 +67,8 @@ name ownership, 2FA policy, version, and release approval are confirmed.
 The next product roadmap is intentionally staged: V1.1 has completed opt-in
 static prerendering, conventional page data loading, and progressive native
 forms, plus optional generated application declarations; it next prioritizes
-compiler diagnostics. V1.2 adds optional production adapters and ecosystem
-tooling; V2 investigates hybrid rendering and partial hydration. See
+derived state. V1.2 adds optional production adapters and ecosystem tooling;
+V2 investigates hybrid rendering and partial hydration. See
 [docs/TODO.md](docs/TODO.md) for the complete rationale and order.
 
 ## Completed Organization Work

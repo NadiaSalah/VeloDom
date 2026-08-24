@@ -3165,7 +3165,8 @@ The plugin:
 - compiles optional `.vd` single-file pages and components into the same
   internal resource shape
 - converts preferred directive names
-- reports compiler errors through Vite
+- reports compiler errors through Vite with the original file and offset, so
+  Vite's development overlay/HMR cycle points to the source that needs repair
 - keeps baseline accessibility diagnostics as non-blocking compiler warnings
 - emits development metadata by default in development
 - emits deterministic runtime feature manifests

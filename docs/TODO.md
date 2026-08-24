@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**389 of 408 tasks completed — 95%**
+**390 of 408 tasks completed — 96%**
 
 `[###################-]`
 
-Remaining tasks: **19**
+Remaining tasks: **18**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -849,10 +849,10 @@ publication.
       without pretending to replace server security — Fit: compiler-first
       quality; Value: catches production problems before runtime; Complexity:
       medium; Target: V1.1
-- [ ] Complete the beginner CLI path with project/page/component/API
-      scaffolding, route exploration, actionable HMR errors, and build reports
-      — Fit: Convention over Configuration; Value: fewer commands and faster
-      onboarding; Complexity: medium; Target: V1.1
+- [x] Complete the beginner CLI path with project/page/component/API
+      scaffolding, route exploration, source-aware Vite development-overlay
+      errors, and build reports — Fit: Convention over Configuration; Value:
+      fewer commands and faster onboarding; Complexity: medium; Target: V1.1
 - [ ] Add optional derived-state primitives for `computed`, `watch`, and
       `effect` without replacing plain-object state or introducing a new
       template language — Fit: Runtime-lightweight; Value: less repetitive
