@@ -54,7 +54,7 @@ allowlisted by `packages/velodom/package.json`.
 
 ## Current Status
 
-V1 is locally verified with 253 automated tests, package-consumer validation,
+V1 is locally verified with 255 automated tests, package-consumer validation,
 and production build checks. The roadmap is [docs/TODO.md](docs/TODO.md);
 remaining V1 release work is external governance, a strict Firefox-capable
 browser run, and starter presets that require the public npm path. Optional
@@ -71,21 +71,26 @@ Pages and components can now export a small plain `state` object before their
 optional lifecycle `init()`, including concise state-only `count++` bindings.
 Focused `vd create page <name> --demo <kind>` templates now teach static,
 counter, request, form, and SEO behavior without generating unnecessary files.
+The optional `velodom/localization` subpath now infers TypeScript translation
+keys, can generate an application-owned key declaration, formats values through
+native `Intl`, preserves query/hash values when changing locale paths, and
+emits localized canonical plus `hreflang` SEO records without a translation
+provider.
 
 The npm package has a strict `files` allowlist, explicit public exports,
 package-consumer tests, and a dry-run tarball check. It intentionally keeps
 `private: true`; this prevents accidental publication until the npm account,
 name ownership, 2FA policy, version, and release approval are confirmed.
 
-The next product roadmap is intentionally staged: V1.1/V1.2 now include
+The product roadmap is intentionally staged: V1.1/V1.2 delivered
 static prerendering, conventional page data loading with optional public-data
 cache/revalidation, build-time localization, typed build-time content loading,
 an optional Node request bridge, progressive native forms, generated
 application declarations, derived state, and editor tooling. V2 investigates
 hybrid rendering and partial hydration only behind explicit architecture and
-browser-validation gates. The roadmap also records optional localization DX
-work—typed keys, native `Intl` formatting, locale-aware links, and static
-`hreflang` output—without requiring a browser translation provider. See
+browser-validation gates. Localization DX now includes typed keys, native
+`Intl` formatting, locale-aware links, and static `hreflang` output without
+requiring a browser translation provider. See
 [docs/TODO.md](docs/TODO.md) for the complete rationale and order.
 
 ## Completed Organization Work

@@ -126,6 +126,8 @@ export interface SeoMetadata {
   title: string;
   description: string;
   canonical?: string;
+  /** Locale-specific alternate URLs keyed by BCP 47 language tag or `x-default`. */
+  alternates?: Record<string, string>;
   robots?: string;
   keywords?: string[];
   lang?: string;

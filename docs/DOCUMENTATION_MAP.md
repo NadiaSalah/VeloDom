@@ -31,7 +31,7 @@ framework guide.
 | --- | --- |
 | [Static rendering](STATIC_RENDERING_DESIGN.md) | Build-only route HTML; not universal SSR/hydration. |
 | [Progressive forms](PROGRESSIVE_FORMS.md) | Enhance native HTML submission through optional adapters. |
-| [Localization](LOCALIZATION_DESIGN.md) | Optional build tooling, separate from direction/RTL support. |
+| [Localization](LOCALIZATION_DESIGN.md) | Optional build helpers, static locale SEO, and deferred ICU/server boundaries. |
 | [Future research](FUTURE_RESEARCH.md) | Deferred ideas that still require proof and scope review. |
 
 ## Documentation Rules

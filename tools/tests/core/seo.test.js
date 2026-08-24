@@ -51,6 +51,10 @@ test("runtime SEO replaces managed metadata during navigation", () => {
     title: "First page",
     description: "First description",
     canonical: "/first",
+    alternates: {
+      en: "/first",
+      ar: "/ar/first"
+    },
     lang: "ar",
     openGraph: {
       type: "article"
@@ -73,6 +77,10 @@ test("runtime SEO replaces managed metadata during navigation", () => {
   assert.match(
     document.querySelector('link[rel="canonical"]').href,
     /\/first$/
+  );
+  assert.match(
+    document.querySelector('link[rel="alternate"][hreflang="ar"]').href,
+    /\/ar\/first$/
   );
 
   applyPageSeo(undefined, "/second");
@@ -128,5 +136,16 @@ test("invalid SEO config fails before a page is mounted", () => {
       description: "Description"
     }),
     /title must be a non-empty string/
+  );
+});
+
+test("SEO config rejects invalid alternate language declarations", () => {
+  assert.throws(
+    () => normalizeSeoConfig({
+      title: "Alternates",
+      description: "Invalid alternate links",
+      alternates: { "arabic language": "/ar" }
+    }),
+    /BCP 47/
   );
 });

@@ -794,6 +794,8 @@ function renderHeadMetadata(
     );
   }
 
+  tags.push(...renderAlternateLinks(seo.alternates, canonical));
+
   tags.push(
     renderMeta("property", "og:title", graph.title || seo.title),
     renderMeta(
@@ -848,6 +850,29 @@ function renderMeta(
   if (!content) return "";
 
   return `<meta ${attribute}="${escapeAttribute(key)}" content="${escapeAttribute(content)}" ${VD_SEO.MANAGED_ATTRIBUTE}>`;
+}
+
+function renderAlternateLinks(
+  alternates: Record<string, string> | undefined,
+  canonical: string
+) {
+  if (!alternates) return [];
+
+  return Object.entries(alternates).map(([lang, href]) => {
+    const localizedHref = resolveAlternateHref(href, canonical);
+
+    return `<link rel="alternate" hreflang="${escapeAttribute(lang)}" href="${escapeAttribute(localizedHref)}" ${VD_SEO.MANAGED_ATTRIBUTE}>`;
+  });
+}
+
+function resolveAlternateHref(href: string, canonical: string) {
+  if (!canonical) return href;
+
+  try {
+    return new URL(href, canonical).href;
+  } catch {
+    return href;
+  }
 }
 
 function renderSummary(heading: string, text: string) {

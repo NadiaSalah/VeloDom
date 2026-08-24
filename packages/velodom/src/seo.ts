@@ -117,6 +117,8 @@ export function applyPageSeo(
     appendLink(doc, "canonical", canonical);
   }
 
+  applyAlternateLinks(doc, seo.alternates);
+
   applyOpenGraph(doc, seo, canonical);
   applyTwitterCard(doc, seo);
   appendJsonLd(doc, seo.jsonLd);
@@ -139,6 +141,10 @@ function normalizeSeoMetadata(
   assignOptionalText(normalized, "canonical", value.canonical, label);
   assignOptionalText(normalized, "robots", value.robots, label);
   assignOptionalText(normalized, "lang", value.lang, label);
+
+  if (value.alternates !== undefined) {
+    normalized.alternates = normalizeAlternates(value.alternates, label);
+  }
 
   if (value.keywords !== undefined) {
     if (!Array.isArray(value.keywords)) {
@@ -209,6 +215,27 @@ function normalizeSummary(
     heading: requireText(value.heading, `${label}.heading`),
     text: requireText(value.text, `${label}.text`)
   };
+}
+
+function normalizeAlternates(value: unknown, label: string) {
+  if (!isPlainObject(value)) {
+    throw new TypeError(`${label}.alternates must be a plain object`);
+  }
+
+  return Object.fromEntries(Object.entries(value).map(([lang, href]) => {
+    const normalizedLang = requireText(lang, `${label}.alternates language`);
+
+    if (normalizedLang !== "x-default" && !/^[A-Za-z0-9-]+$/.test(normalizedLang)) {
+      throw new TypeError(
+        `${label}.alternates language keys must be BCP 47 tags or "x-default"`
+      );
+    }
+
+    return [
+      normalizedLang,
+      requireText(href, `${label}.alternates.${normalizedLang}`)
+    ];
+  }));
 }
 
 function normalizeTextRecord(
@@ -369,6 +396,26 @@ function appendLink(doc: Document, rel: string, href: string) {
   link.setAttribute("href", href);
   link.setAttribute(VD_SEO.MANAGED_ATTRIBUTE, "");
   doc.head.append(link);
+}
+
+function applyAlternateLinks(
+  doc: Document,
+  alternates: Record<string, string> | undefined
+) {
+  if (!alternates) return;
+
+  for (const [lang, href] of Object.entries(alternates)) {
+    const resolvedHref = resolveCanonicalUrl(href, doc.baseURI);
+
+    if (!resolvedHref) continue;
+
+    const link = doc.createElement("link");
+    link.setAttribute("rel", "alternate");
+    link.setAttribute("hreflang", lang);
+    link.setAttribute("href", resolvedHref);
+    link.setAttribute(VD_SEO.MANAGED_ATTRIBUTE, "");
+    doc.head.append(link);
+  }
 }
 
 function applyOpenGraph(

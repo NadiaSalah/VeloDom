@@ -39,6 +39,12 @@
   `hreflang`, and a future ICU evaluation. Runtime providers, locale
   negotiation, cookies, domains, and CMS loading stay outside Core unless an
   explicit adapter contract is approved.
+- `velodom/localization` now uses inferred default-dictionary keys for typed
+  controller calls and exposes a pure declaration generator for wider
+  application types. Its `Intl` formatter and locale-path helpers hold no
+  browser state; generated localized SEO records own canonical and alternate
+  links at build time. ICU and request-time locale selection remain deferred
+  under the documented adapter boundary.
 - Common users should configure requests declaratively. Custom middleware and
   explicit `next()` pipelines remain an advanced option.
 - Authentication is provider-based. Frontend auth and role checks improve UX

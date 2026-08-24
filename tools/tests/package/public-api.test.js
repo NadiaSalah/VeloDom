@@ -216,12 +216,15 @@ test("asset public exports remain build-time only", () => {
 
 test("localization remains an explicit build-time subpath", () => {
   assert.deepEqual(Object.keys(localizationApi).sort(), [
+    "createLocaleFormatter",
     "createLocalization",
     "defineLocaleDictionary",
+    "generateLocaleKeyDeclaration",
     "inspectLocalization"
   ]);
   assert.deepEqual(readInterfaceExportNames(localizationEntrySource), [
     "LocaleDefinition",
+    "LocaleFormatter",
     "Localization",
     "LocalizationDiagnostic",
     "LocalizationOptions",
@@ -229,7 +232,8 @@ test("localization remains an explicit build-time subpath", () => {
     "LocalizedSeoSource"
   ]);
   assert.deepEqual(readTypeExportNames(localizationEntrySource, "local"), [
-    "LocaleDictionary"
+    "LocaleDictionary",
+    "LocaleMessageKey"
   ]);
 });
 

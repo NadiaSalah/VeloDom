@@ -19,7 +19,8 @@
   },
   "include": [
     "packages/velodom/src/**/*.ts",
-    "examples/blog/src/**/*.ts"
+    "examples/blog/src/**/*.ts",
+    "tools/type-tests/**/*.ts"
   ],
   "exclude": [
     "node_modules",

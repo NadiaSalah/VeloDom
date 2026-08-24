@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  createLocaleFormatter,
   createLocalization,
   defineLocaleDictionary,
+  generateLocaleKeyDeclaration,
   inspectLocalization
 } from "../../../packages/velodom/src/localization.ts";
 import { velodom } from "../../../packages/velodom/src/vite-plugin/index.ts";
@@ -60,6 +62,14 @@ test("localization expands public routes and per-locale SEO without a runtime", 
   assert.equal(i18n.t("ar", "nav.posts"), "المقالات");
   assert.equal(i18n.localizePath("en", "/blog"), "/blog");
   assert.equal(i18n.localizePath("ar", "/blog"), "/ar/blog");
+  assert.equal(
+    i18n.localizePath("ar", "/blog?tag=html-first#latest"),
+    "/ar/blog?tag=html-first#latest"
+  );
+  assert.equal(
+    i18n.switchLocalePath("en", "/ar/blog?tag=html-first#latest"),
+    "/blog?tag=html-first#latest"
+  );
   assert.deepEqual(i18n.createSeoEntries([
     {
       path: "/",
@@ -71,18 +81,62 @@ test("localization expands public routes and per-locale SEO without a runtime", 
   ]), [
     {
       path: "/",
+      canonical: "/",
+      alternates: {
+        en: "/",
+        ar: "/ar"
+      },
       lang: "en",
       title: "VeloDom",
       description: "Home"
     },
     {
       path: "/ar",
+      canonical: "/ar",
+      alternates: {
+        en: "/",
+        ar: "/ar"
+      },
       lang: "ar",
       title: "فيلو دوم",
       description: "الرئيسية"
     }
   ]);
   assert.doesNotThrow(() => i18n.assertComplete());
+});
+
+test("localization exposes pure typed-key and native formatting helpers", () => {
+  assert.equal(
+    generateLocaleKeyDeclaration(english, "TranslationKey"),
+    [
+      "/** Generated from an application-owned VeloDom locale dictionary. */",
+      "export type TranslationKey =",
+      '  | "nav.home"',
+      '  | "nav.posts"',
+      '  | "seo.title";',
+      ""
+    ].join("\n")
+  );
+
+  const format = createLocaleFormatter("en-US");
+
+  assert.equal(
+    format.formatNumber(1234.5),
+    new Intl.NumberFormat("en-US").format(1234.5)
+  );
+  assert.equal(
+    format.formatCurrency(12.5, "usd"),
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD"
+    }).format(12.5)
+  );
+  assert.equal(
+    format.formatDate("2026-01-02T12:00:00Z", { timeZone: "UTC" }),
+    new Intl.DateTimeFormat("en-US", { timeZone: "UTC" }).format(
+      new Date("2026-01-02T12:00:00Z")
+    )
+  );
 });
 
 test("localization can fail a build policy for incomplete dictionaries", () => {

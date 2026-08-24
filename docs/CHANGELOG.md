@@ -27,7 +27,7 @@ package versions.
   silently regress.
 - Kept generated `lib`, `types`, dependency, and example `dist` outputs local
   and ignored; they are reproducible artifacts rather than tracked source.
-- Verified 233 tests, documentation headers/JSDoc, types, lint, an isolated
+- Verified 255 tests, documentation headers/JSDoc, types, lint, an isolated
   package consumer, production build, performance budgets, package dry-run,
   project doctor, 100/100 project health, and targeted Chromium E2E.
 - Recorded the external dependency-advisory lookup as an explicit release task
@@ -35,6 +35,11 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Completed the V1.1 optional localization-DX work without a translation
+  runtime: inferred and generated translation keys, native `Intl` formatting,
+  locale switching that preserves query/hash values, and static canonical plus
+  `hreflang` SEO records. ICU and request-time locale concerns remain future
+  adapter research rather than Core behavior.
 - Added `vd create page <name> --demo <kind>` for small static, counter,
   request, form, and SEO examples. The files stay folder-first, use the smallest
   necessary syntax, and request demos include a matching file API handler.

@@ -2842,12 +2842,64 @@ export default defineConfig({
 
 This emits `/` for the default locale and `/ar` for Arabic by default; set
 `prefixDefaultLocale: true` when every locale should have a prefix. Generated
-SEO entries include each locale's `lang`, so they work with VeloDom's static
-SEO and sitemap generation. `i18n.t("ar", "nav.home")` is available for
-build hooks and application scripts, but it is deliberately not a template
-directive or a required runtime locale system. Pluralization, ICU-style message
-formatting, language negotiation, and server rendering remain application or
-integration concerns.
+SEO entries include each locale's `lang`, localized canonical URL, and
+`hreflang` alternate links, so they work with VeloDom's static SEO and sitemap
+generation. `i18n.t("ar", "nav.home")` is available for build hooks and
+application scripts, but it is deliberately not a template directive or a
+required runtime locale system.
+
+In TypeScript, `createLocalization()` infers the default dictionary's leaf
+keys, so an unknown `i18n.t("ar", "nav.missing")` is a type error. For code
+outside the controller, generate an application-owned declaration in any small
+build script:
+
+```js
+import { writeFile } from "node:fs/promises";
+import {
+  defineLocaleDictionary,
+  generateLocaleKeyDeclaration
+} from "velodom/localization";
+
+const messages = defineLocaleDictionary({
+  nav: { home: "Home" },
+  seo: { title: "VeloDom" }
+});
+
+await writeFile(
+  "src/localization.generated.d.ts",
+  generateLocaleKeyDeclaration(messages, "TranslationKey")
+);
+```
+
+The helper only returns text; it never writes application files on its own.
+Use `createLocaleFormatter(locale)` for native date, number, currency, and
+relative-time formatting. It delegates directly to `Intl`, so time zones and
+the browser or Node locale data remain platform-owned:
+
+```js
+import { createLocaleFormatter } from "velodom/localization";
+
+const format = createLocaleFormatter("ar-EG");
+format.formatCurrency(1200, "EGP");
+format.formatDate("2026-08-24T12:00:00Z", { timeZone: "Africa/Cairo" });
+```
+
+`localizePath()` preserves a query string and hash. For an accessible language
+switcher, use ordinary links and the explicit `switchLocalePath()` helper:
+
+```js
+const current = `${location.pathname}${location.search}${location.hash}`;
+
+languageLink.href = i18n.switchLocalePath("ar", current);
+languageLink.lang = "ar";
+languageLink.hreflang = "ar";
+```
+
+Use a normal `<nav aria-label="Language">` and visible language names; the
+framework does not inject a picker or decide the visitor's locale. ICU-style
+messages, locale negotiation, cookies, domains, CMS loading, and server
+rendering remain adapter or application concerns. Their scoped V2 decision is
+recorded in [LOCALIZATION_DESIGN.md](LOCALIZATION_DESIGN.md).
 
 ## SEO and Static Route HTML
 
@@ -2859,6 +2911,10 @@ export default {
     title: "Articles | Example",
     description: "Practical articles built with VeloDom.",
     canonical: "/articles",
+    alternates: {
+      en: "/articles",
+      ar: "/ar/articles"
+    },
     lang: "en",
     robots: "index,follow",
     keywords: ["VeloDom", "HTML-first"],
@@ -3855,7 +3911,8 @@ ownership; it remains outside every VeloDom application runtime.
 VeloDom's accepted V2 designs keep expansion outside the mandatory browser
 runtime: richer static route rendering remains build-time and distinct from
 SSR; progressive form enhancement is now an optional native HTML bridge; and
-localization stays an optional build-time plugin separate from RTL direction.
+localization stays an optional build-time helper separate from RTL direction
+and any translation provider.
 The implementation contracts and required test gates are documented in
 [static rendering](STATIC_RENDERING_DESIGN.md),
 [progressive forms](PROGRESSIVE_FORMS.md),
@@ -4187,8 +4244,9 @@ These features are not implemented and should not be described as available:
 - schema-based validation and custom validation rules beyond the optional
   native validation plugin
 - declarative request cache
-- pluralization, ICU-style message formatting, locale negotiation, and a
-  browser translation runtime beyond optional build-time dictionaries/routes
+- ICU-style message formatting, locale negotiation, and a browser translation
+  provider beyond optional build-time dictionaries, native `Intl` helpers, and
+  locale routes
 - broader keyboard/focus UX beyond the current integration coverage
 - advanced shared-state patterns beyond the optional `createSharedState()`
   helper
@@ -4217,12 +4275,10 @@ AI and migration research lives in
 lives in [FRAMEWORK_IDENTITY.md](FRAMEWORK_IDENTITY.md).
 
 The local V1 release candidate is functionally complete. Remaining unchecked
-items combine release governance with bounded V1.x improvements: npm ownership,
-final publication approval, a strict Firefox-capable browser run, optional CSS
-budgets, and starter presets. Phase 19 records longer-term adapter, editor,
-static-rendering, progressive-form, localization, and inspection work. None of
-these items authorizes a mandatory virtual DOM, JSX, CMS, global store, or
-universal SSR runtime.
+items are release governance, a strict Firefox-capable browser run, starter
+presets that depend on the public npm path, and intentionally deferred V2
+capabilities. None authorizes a mandatory virtual DOM, JSX, CMS, global store,
+or universal SSR runtime.
 
 When continuing development:
 

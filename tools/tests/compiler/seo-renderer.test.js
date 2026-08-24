@@ -32,6 +32,10 @@ test("static SEO renderer emits metadata and visible fallback content", () => {
     title: "Guide & Examples",
     description: "Learn <VeloDom> safely.",
     canonical: "/guide",
+    alternates: {
+      en: "/guide",
+      ar: "/ar/guide"
+    },
     lang: "ar",
     keywords: ["VeloDom", "HTML first"],
     openGraph: {
@@ -52,6 +56,10 @@ test("static SEO renderer emits metadata and visible fallback content", () => {
   assert.match(html, /<title>Guide &amp; Examples<\/title>/);
   assert.match(html, /content="Learn &lt;VeloDom&gt; safely\."/);
   assert.match(html, /href="https:\/\/example\.com\/guide"/);
+  assert.match(
+    html,
+    /rel="alternate" hreflang="ar" href="https:\/\/example\.com\/ar\/guide"/
+  );
   assert.match(html, /data-vd-seo-fallback/);
   assert.match(html, /<h1>A concise guide<\/h1>/);
   assert.match(html, /lang="ar"/);
