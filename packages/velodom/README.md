@@ -33,9 +33,7 @@ provider.
 - Vite `6`, `7`, or `8` for the standard integration.
 - TypeScript is optional for application code.
 
-The repository currently keeps publication behind `private: true` until the
-package owner confirms npm ownership, access, 2FA, version, and release notes.
-When the package is published, a new app can start with:
+VeloDom `1.0.0` is published on npm. A new app can start with:
 
 ```bash
 npx create-velodom my-site
@@ -484,9 +482,8 @@ state plus async cleanup; they do not create a router or hide application setup.
 
 Installed framework code belongs in `node_modules/velodom`. Application pages,
 components, layouts, APIs, middleware, assets, content, and business policy
-remain in the consuming project. The package is MIT-licensed. Publication is
-intentionally blocked until the owner approves the npm account, package name,
-2FA policy, exact version, and release notes.
+remain in the consuming project. The package is MIT-licensed and published at
+[npmjs.com/package/velodom](https://www.npmjs.com/package/velodom).
 
 Full examples, architecture decisions, deployment guidance, and the living
 roadmap are in the repository

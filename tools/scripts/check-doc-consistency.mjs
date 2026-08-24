@@ -86,8 +86,23 @@ const publicApiNames = new Set(
 );
 const preferredDirectives = collectPreferredDirectives(directiveSource);
 
-if (packageManifest.private !== true) {
-  violations.push("packages/velodom must remain private until human publication approval");
+if (packageManifest.private === true) {
+  if (!releaseGuide.includes("private")) {
+    violations.push(
+      "docs/RELEASING.md must explain the private package publication guard"
+    );
+  }
+} else {
+  if (!releaseGuide.includes("published and verified in the npm registry")) {
+    violations.push(
+      "docs/RELEASING.md must describe the published package state"
+    );
+  }
+  if (!canonicalGuide.includes("npmjs.com/package/velodom")) {
+    violations.push(
+      "docs/README.md must link to the published npm package"
+    );
+  }
 }
 
 for (const publicImport of publicImports) {

@@ -84,9 +84,9 @@
   runtime exports, public type declarations, compiler exports, Vite adapter
   exports, Vite plugin exports, or package subpaths require an intentional
   architecture decision and documentation update.
-- `packages/velodom/package.json` uses local version `1.0.0` to match the first
-  VeloDom release-candidate identity. `private: true` remains the publication
-  guard; the root package is a private development workspace.
+- `packages/velodom/package.json` uses published version `1.0.0`; the root
+  package remains a private development workspace while the package itself is
+  public on npm.
 - Build-specific framework features use explicit subpath exports:
   `velodom/vite`, `velodom/vite-plugin`, and `velodom/compiler`.
 - Package exports target generated ESM in `packages/velodom/lib` and
@@ -101,9 +101,8 @@
 - The npm package uses an explicit file allowlist. Application code, tests,
   assets, and workspace configuration are never package contents.
 - The package manifest records the monorepo directory, author, discovery
-  keywords, and intended public access. `publishConfig.access` documents the
-  eventual release target but does not override the `private: true` safety
-  guard or authorize publication.
+  keywords, and public access. `publishConfig.access` documents the intended
+  registry visibility for future releases.
 - `packages/velodom-vscode` is a private workspace consumer of the public
   `velodom/compiler` contract. It is not part of the framework tarball and
   never becomes a browser runtime dependency.
@@ -151,15 +150,16 @@
   or prove publisher rights. On 2026-08-25 the `engnadia` account was
   authenticated, email verified, and protected by write-level 2FA; `npm view
   velodom` returned 404 and `npm access list packages` returned no packages.
-  The release remains private until the owner explicitly approves publication
-  of the exact `1.0.0` version.
+  The owner approved publication, and `velodom@1.0.0` is now public with the
+  `latest` dist-tag. Future publication operations still require explicit
+  approval for the exact version and tag.
 - `.github/workflows/release-browser-matrix.yml` is the authoritative remote
   replacement for local graphics-limited browser testing. It uses a supported
   Ubuntu runner, installs Playwright's browser binaries, and runs the existing
   strict smoke suite without adding any runtime dependency to VeloDom.
-- Release preparation is intentionally separated from publication. The
-  checklist in `RELEASING.md` records gates, but only explicit human approval
-  for an exact version can authorize removing `private: true` or publishing.
+- Release preparation remains intentionally separated from publication. The
+  checklist in `RELEASING.md` records the gates for every future version, and
+  exact-version approval is still required before republishing or retagging.
 - `npm run pack:check` is a workspace verification command that runs package
   checks before an isolated-cache npm dry-run helper. The package's `prepack`
   hook only builds its own artifacts, avoiding recursive checks and dependence
@@ -542,10 +542,9 @@
   keep lazy chunk behavior; future build work can revisit query-based config
   extraction if Vite/Rolldown supports it without duplicate import warnings.
 - V1 release polish is documentation and verification work, not a new feature
-  phase. Local code readiness, public API freeze, and package checks can be
-  complete while npm publication remains blocked by `private: true` until the
-  owner confirms package ownership, account, access, 2FA, final notes, and tag
-  decisions.
+  phase. Code readiness, public API freeze, package checks, npm publication,
+  and the browser matrix are complete for `1.0.0`; future versions still need
+  the same owner, account, access, 2FA, notes, and tag decisions.
 - The post-V1 competitive roadmap is intentionally bounded: adapter contracts,
   authoring types, asset tooling, editor intelligence, static rendering,
   progressive forms, localization, and dev inspection may be researched or

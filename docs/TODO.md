@@ -14,22 +14,21 @@ product generations.
 | Authoring and application conventions | V1 — Implemented | Folder mode, optional `.vd`, JS/TS parity, layouts, CLI scaffolding |
 | Production features | V1 — Implemented | Routing, requests, forms, SEO, content, localization, package subpaths |
 | Developer intelligence | V1 — Implemented | `vd` inspection commands, compiler language helpers, testing utilities |
-| Public package | V1 — Current | `1.0.0`, `private: true`, exports and consumer checks pass |
+| Public package | V1 — Implemented | Published `velodom@1.0.0`, exports and consumer checks pass |
 | Browser release gate | V1 — Implemented | GitHub Actions Run #27 passed Chromium, Firefox, WebKit, and Mobile WebKit |
-| npm publication | V1 — Current | Account and 2FA preflight complete; explicit `1.0.0` publication approval remains |
+| npm publication | V1 — Implemented | `velodom@1.0.0` published with public access and `latest` dist-tag |
 | Hybrid rendering and islands | V1 — Planned / Experimental | Design must preserve static-first authoring and optional runtime cost |
 | AI, migration, CMS, and Edge integrations | V1 — Research / Deferred | External, optional, and never required by Core |
 
 ### Progress counter
 
-**V1 implementation: complete. Release readiness: 1 external gate open.**
+**V1 implementation: complete. Release readiness: complete.**
 
 `[##################--]`
 
-The npm account is authenticated and protected by write-level 2FA; the
-registry currently has no published `velodom` package. The remaining gate is
-explicit human approval for publishing the exact `1.0.0` package. The local
-package remains private and unpublished until that approval.
+The npm account is authenticated and protected by write-level 2FA. The
+`velodom@1.0.0` package is published with the `latest` dist-tag. Future work
+is optional post-publication development.
 
 ### Status vocabulary
 
@@ -194,8 +193,9 @@ Current release work is governance rather than a new framework feature:
   currently published, the package is public-scoped in `publishConfig`, and
   the `1.0.0` tarball dry run passes. npm does not reserve an unregistered
   name; publication itself is the ownership event.
-- [ ] Remove `private: true` and publish only after explicit human approval for
-  that exact version. Never publish from routine development tasks.
+- [x] Remove `private: true` after explicit approval and publish `velodom@1.0.0`
+  with public access and the `latest` dist-tag. Registry verification confirms
+  the published version and both CLI binaries.
 - [ ] Review registry dependency advisories only after the owner approves
   sending workspace dependency metadata to npm.
 - [ ] Add npm-installable starter presets after the public package path exists.
@@ -261,8 +261,8 @@ npm run build
 npm run pack:check
 ```
 
-Run `npm run test:browser` for the real-browser matrix. Do not run
-`npm publish`, remove `private: true`, or run registry-dependent audit commands
+Run `npm run test:browser` for the real-browser matrix. For future versions,
+do not publish, change package access, or run registry-dependent audit commands
 without explicit owner approval.
 
 ## Historical Implementation Record

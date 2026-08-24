@@ -40,7 +40,7 @@ test("published package boundaries use built allowlisted artifacts", () => {
     "./vite-plugin"
   ];
 
-  assert.equal(manifest.private, true);
+  assert.equal(manifest.private ?? false, false);
   assert.match(manifest.version, /^\d+\.\d+\.\d+(?:-[\w.-]+)?$/);
   assert.equal(manifest.repository.directory, "packages/velodom");
   assert.equal(manifest.publishConfig.access, "public");

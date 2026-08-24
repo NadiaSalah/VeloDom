@@ -15,9 +15,9 @@ VeloDom follows Semantic Versioning for the public package entry points:
 
 ## Version Rules
 
-Current repository package identity: `1.0.0` local release candidate. This
-does not imply npm publication because `private: true` remains enabled until
-the publication gates below are approved.
+Current repository package identity: published `1.0.0`. The package is
+available at [npmjs.com/package/velodom](https://www.npmjs.com/package/velodom)
+with the `latest` dist-tag.
 
 While VeloDom is below `1.0.0`:
 
@@ -62,8 +62,8 @@ Completing local checks never implies permission to publish.
 - Re-confirm ownership or availability of the intended npm package name.
 - Confirm the npm publishing account, organization, access level, and 2FA
   requirements.
-- Keep `private: true` until npm-name ownership, account access, and release
-  approval are all decided.
+- For a future version, keep the package publication guard enabled until
+  npm-name ownership, account access, and release approval are all decided.
 
 ### 3. Local Verification
 
@@ -156,32 +156,19 @@ VeloDom does not ship browser polyfills by default.
 
 ## Current Release Decision
 
-The repository is a local `1.0.0` release candidate, not a published package.
-`packages/velodom/package.json` intentionally keeps `private: true` until a
-human confirms npm ownership or reservation, account and organization access,
-2FA, the exact version, release notes, and publication approval. A successful
-local check or `npm pack --dry-run` never grants permission to publish.
+VeloDom `1.0.0` is published and verified in the npm registry. The package
+manifest, public exports, CLI binaries, tarball allowlist, consumer fixture,
+production build, and GitHub Actions browser matrix were checked before and
+after publication.
 
-### 5. Publication Approval
+### Publication Policy
 
-- Remove `private: true` only after every previous gate is approved.
-- Do not run `npm publish` from routine development tasks.
-- Publish only after explicit human authorization for that exact version.
-- Record the published version and package URL in `CHANGELOG.md`.
+- Do not republish or change the `latest` tag without explicit approval for
+  the exact version and registry operation.
+- Record every published version and package URL in `CHANGELOG.md`.
+- Run the complete package and browser gates before every future release.
 
 ## Current Publication Blockers
 
-- The local package version is `1.0.0`, but this repository is still private
-  and unpublished.
-- npm registry returned 404 for `velodom@1.0.0` again on 2026-08-24. This
-  indicates that the version is not publicly retrievable, not that the name is
-  reserved or safe to publish; an approved account must confirm ownership.
-- `npm whoami` returns 401 in this workspace, so the npm publishing account,
-  organization, access level, and 2FA requirements are not yet verified.
-- `private: true` is intentionally still enabled in
-  `packages/velodom/package.json`.
-- The local strict-matrix attempt on 2026-08-24 confirmed Chromium, WebKit,
-  and Mobile WebKit. Firefox launched but timed out after a
-  `RenderCompositorSWGL` framebuffer-mapping failure. This is a local
-  browser-host limitation, not a verified VeloDom regression; a
-  Firefox-capable CI run remains required before publication.
+- None for V1 `1.0.0`. Optional starter presets and future capabilities remain
+  roadmap work.

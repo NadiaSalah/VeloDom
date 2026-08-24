@@ -61,12 +61,10 @@ allowlisted by `packages/velodom/package.json`.
 V1 is verified with 255 automated tests, package-consumer and tarball
 validation, a production build within its performance budgets, a 100/100
 example-project health report, and a successful GitHub Actions matrix across
-Chromium, Firefox, WebKit, and Mobile WebKit. The npm account preflight is also
-complete: `engnadia` is authenticated, email is verified, 2FA protects writes,
-and the registry has no published `velodom` package yet. The roadmap is
-[docs/TODO.md](docs/TODO.md); only explicit approval to publish `1.0.0` remains
-before the package can leave `private: true`. Starter presets remain
-post-publication work.
+Chromium, Firefox, WebKit, and Mobile WebKit. VeloDom `1.0.0` is now published
+on npm under the authenticated `engnadia` account with write-level 2FA. The
+roadmap is [docs/TODO.md](docs/TODO.md); the remaining work is optional
+post-publication tooling such as starter presets.
 Optional
 Hybrid rendering, islands, richer DevTools, and streaming/Edge adapters remain
 deliberately planned or deferred rather than being folded into the V1 runtime.
@@ -88,9 +86,8 @@ emits localized canonical plus `hreflang` SEO records without a translation
 provider.
 
 The npm package has a strict `files` allowlist, explicit public exports,
-package-consumer tests, and a dry-run tarball check. It intentionally keeps
-`private: true`; this prevents accidental publication until the npm account,
-name ownership, 2FA policy, version, and release approval are confirmed.
+package-consumer tests, and a dry-run tarball check. Version `1.0.0` is
+published at [npmjs.com/package/velodom](https://www.npmjs.com/package/velodom).
 
 The V1 roadmap groups implemented production capabilities together: static
 prerendering, conventional page data loading with optional public-data
@@ -211,12 +208,8 @@ a browser translation provider. See
 
 ## Next Tasks
 
-- Re-run the strict GitHub Actions browser matrix after the cross-browser
-  same-page `hashchange` fix and record the passing release-gate result.
-- Sign in to the approved npm owner account, confirm `npm whoami`, package-name
-  ownership/reservation, access level, and 2FA before considering publication.
-- Approve the exact V1 release notes and tag before enabling publication.
-- Publish the package before adding npm-installable starter presets.
+- Add npm-installable starter presets when their templates and support contract
+  are ready.
 - Continue only the optional items recorded in [docs/TODO.md](docs/TODO.md).
 
 ## Handoff Notes
@@ -225,6 +218,7 @@ a browser translation provider. See
 - Do not import private paths such as `velodom/lib/*`; use documented exports.
 - Do not delete `packages/velodom/lib` or `packages/velodom/types` merely to
   clean the tree. They are ignored, generated local outputs used for testing.
-- Do not remove `private: true` or publish without explicit owner approval.
+- Do not republish, retag, or change package access without explicit owner
+  approval for the exact release operation.
 - Update this file, `docs/TODO.md`, `docs/CHANGELOG.md`, and relevant decisions
   after architecture or release-readiness changes.

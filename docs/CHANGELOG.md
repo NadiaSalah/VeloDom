@@ -22,6 +22,13 @@ package versions.
   consumer, and dry-run checks. `private: true` remains until explicit human
   approval authorizes publication of this exact version.
 
+### VeloDom 1.0.0 Published
+
+- Removed the package-only `private: true` guard after explicit owner approval
+  and published `velodom@1.0.0` with public access and the `latest` dist-tag.
+- Verified the registry version and the published `vd` and `create-velodom`
+  binary mappings after npm's manifest normalization.
+
 ### AI-Friendly Project Context
 
 - Added root `AGENTS.md` and `docs/AI_CONTEXT.md` to give AI tools a concise,

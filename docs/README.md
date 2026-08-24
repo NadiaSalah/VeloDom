@@ -8,12 +8,10 @@ route-aware lifecycle hooks, and an optional request layer without JSX or TSX.
 The framework source is TypeScript. Application authors may choose Vanilla
 JavaScript or TypeScript independently for every page and component.
 
-> Project status: local V1 release candidate. The publishable package lives at
-> `packages/velodom`, uses version `1.0.0`, and keeps `private: true` until the
-> npm release is explicitly approved. Public API names are frozen locally and
-> protected by package-boundary tests. The npm manifest and registry-facing
-> README are release-ready, while account ownership and publication approval
-> remain human gates.
+> Project status: VeloDom V1 `1.0.0` is published on npm. The package lives at
+> `packages/velodom`; public API names are protected by package-boundary tests,
+> and the registry package is available at
+> [npmjs.com/package/velodom](https://www.npmjs.com/package/velodom).
 
 ## Contents
 
