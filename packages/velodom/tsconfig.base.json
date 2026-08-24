@@ -19,8 +19,13 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "strict": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
     "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
     "noUncheckedSideEffectImports": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "skipLibCheck": true
   }
 }

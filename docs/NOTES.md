@@ -61,6 +61,11 @@
   created default runtime. Otherwise custom default providers are bypassed.
 - Framework source is TypeScript and passes TypeScript plus ESLint before
   production builds.
+- TypeScript currently enforces unused-code, indexed-access, return-path,
+  side-effect-import, override, and switch-fallthrough checks. Full `strict`
+  mode is a staged hardening task because enabling it globally exposes legacy
+  implicit contracts across the compiler and request router; it must be solved
+  module-by-module with tests rather than hidden behind broad assertions.
 - Application source may use `script.js` or `script.ts` per folder with no API
   differences and no JSX/TSX.
 - Page policy/SEO may use `config.js` or self-contained `config.ts`. Typed

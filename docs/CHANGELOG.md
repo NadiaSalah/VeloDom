@@ -36,6 +36,14 @@ package versions.
   other route-aware listeners therefore synchronize consistently in Firefox
   and WebKit without reloading the current page. Added a router regression test
   for the event URLs and single-page lifecycle preservation.
+- Preserved `oldURL` and `newURL` on the router's fallback hash event for DOM
+  implementations without a native `HashChangeEvent` constructor.
+- Enabled TypeScript checks for unused locals/parameters, unchecked indexed
+  access, implicit returns, and switch fallthrough; clarified the four early
+  exit paths that were previously implicit.
+- Deduplicated state keys in inspect/stats/docs/graph analysis and reworded
+  build intelligence so compiler-omitted optional runtime modules are treated
+  as evidence of lightweight selection rather than an optimization warning.
 
 ## 2026-08-24
 

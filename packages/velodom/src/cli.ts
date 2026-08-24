@@ -361,7 +361,7 @@ async function printBuildReport(context: CliContext, json: boolean) {
   context.stdout(`SEO coverage: ${report.project.seoCoverage.pagesWithSeo}/${report.project.seoCoverage.totalPages}`);
   context.stdout(`Compiler features: ${report.project.compilerFeatures.join(", ") || "none"}`);
   context.stdout(`Unused directives: ${report.project.unusedDirectives.join(", ") || "none"}`);
-  context.stdout(`Unused runtime features: ${report.project.unusedRuntimeFeatures.join(", ") || "none"}`);
+  context.stdout(`Optional runtime features omitted: ${report.project.unusedRuntimeFeatures.join(", ") || "none"}`);
   context.stdout(`Dist JS total: ${formatBytes(report.dist.jsTotalBytes)}`);
   context.stdout(`Dist CSS total: ${formatBytes(report.dist.cssTotalBytes)}`);
   printSizeGroup(context, "Largest pages", report.project.largestPages);
@@ -676,9 +676,7 @@ async function createBuildReport(root: string) {
     suggestions: createBuildSuggestions({
       largestComponents,
       largestJsChunks,
-      largestPages,
-      unusedDirectives,
-      unusedRuntimeFeatures
+      largestPages
     })
   };
 }
@@ -725,7 +723,7 @@ async function createHealthReport(
       `${warningCount} warning(s)`,
       `${buildReport.project.seoCoverage.pagesWithSeo}/${buildReport.project.seoCoverage.totalPages} page(s) with SEO config`,
       `${formatBytes(buildReport.dist.jsTotalBytes)} generated JavaScript`,
-      `${buildReport.project.unusedRuntimeFeatures.length} unused runtime feature module(s)`
+      `${buildReport.project.unusedRuntimeFeatures.length} optional runtime feature module(s) omitted`
     ],
     issues,
     build: buildReport
@@ -1038,8 +1036,6 @@ function createBuildSuggestions(input: {
   largestComponents: FileSizeReport[];
   largestJsChunks: FileSizeReport[];
   largestPages: FileSizeReport[];
-  unusedDirectives: string[];
-  unusedRuntimeFeatures: string[];
 }) {
   const suggestions: string[] = [];
   const largePage = input.largestPages.find(page => page.bytes > 30_000);
@@ -1063,18 +1059,6 @@ function createBuildSuggestions(input: {
   if (largeChunk) {
     suggestions.push(
       `Review production chunk "${largeChunk.name}" (${formatBytes(largeChunk.bytes)}) for lazy routes or heavy dependencies.`
-    );
-  }
-
-  if (input.unusedDirectives.length) {
-    suggestions.push(
-      "Unused directive families were not found in templates; keep optional examples/docs separate from runtime-critical pages."
-    );
-  }
-
-  if (input.unusedRuntimeFeatures.length) {
-    suggestions.push(
-      "Unused runtime feature modules were detected from the compiler manifest; verify tree-shaking before publishing."
     );
   }
 
@@ -1515,13 +1499,13 @@ function findHandlerName(expression: string) {
 }
 
 function findStateAssignments(source: string) {
-  const names: string[] = [];
+  const names = new Set<string>();
 
   for (const match of source.matchAll(/\bstate\s*\.\s*([A-Za-z_$][\w$]*)\s*=/g)) {
-    names.push(match[1]);
+    names.add(match[1]);
   }
 
-  return names;
+  return [...names].sort();
 }
 
 function findStateDeclarationReferences(source: string) {

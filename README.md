@@ -132,6 +132,14 @@ a browser translation provider. See
   `vd-nav` links. The router still uses history and scrolls without reloading,
   while route-aware tabs and other application listeners now update reliably
   after navigation in Chromium, Firefox, and WebKit.
+- Made the hash event fallback carry the same `oldURL` and `newURL` contract in
+  limited DOM environments, and added regression coverage for that behavior.
+- Strengthened framework TypeScript checks for unused code, unchecked indexed
+  access, implicit return paths, and accidental `switch` fallthrough. Ambiguous
+  early exits now return explicitly.
+- Corrected project-intelligence output: state keys are unique per owner, and
+  compiler-omitted optional runtime modules are reported as a lightweight-build
+  success rather than as dead-code debt.
 - Static SEO output now waits for Vite to write the HTML shell before it
   renders route artifacts, including with the current Vite/Rolldown lifecycle.
 - Rebuilt `examples/blog` as the polished VeloDom academic reference: a modern

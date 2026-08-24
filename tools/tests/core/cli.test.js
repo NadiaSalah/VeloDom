@@ -133,7 +133,7 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
     assert.equal(stats.compilerFeatures, 6);
     assert.equal(stats.refs, 1);
     assert.equal(stats.eventBindings, 1);
-    assert.ok(stats.stateKeys >= 1);
+    assert.equal(stats.stateKeys, 2);
     assert.equal(stats.exposeNames, 1);
     assert.deepEqual(stats.seoCoverage, {
       pagesWithSeo: 1,
@@ -190,6 +190,10 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
     ].sort());
     assert.ok(report.project.unusedDirectives.includes("for"));
     assert.ok(report.project.unusedRuntimeFeatures.includes("loops"));
+    assert.equal(
+      report.suggestions.some(suggestion => suggestion.includes("unused runtime")),
+      false
+    );
     assert.equal(report.dist.jsTotalBytes, Buffer.byteLength("console.log('app');"));
     assert.equal(report.dist.cssTotalBytes, Buffer.byteLength("body { color: red; }"));
     assert.ok(Array.isArray(report.dist.largestRouteChunks));

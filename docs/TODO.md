@@ -201,6 +201,10 @@ optional and pass a compiler-first/runtime-budget design review:
   internals or secret collection.
 - [ ] Evaluate streaming and Edge adapters as separate contracts, not as hidden
   behavior in the browser package.
+- [ ] Harden framework typing module-by-module until `strict` mode can replace
+  the current bounded checks. Start with shared contracts and small leaf
+  modules, then the compiler, mount/router, and request router; do not introduce
+  application-facing API changes solely to satisfy the checker.
 
 ## V1 Research — Deferred
 

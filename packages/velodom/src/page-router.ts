@@ -419,7 +419,7 @@ export function createPageRouter(
         hint: "Set a valid href on links with vd-nav."
       });
 
-      return;
+      return undefined;
     }
 
     if (!path.startsWith("/")) {
@@ -430,7 +430,7 @@ export function createPageRouter(
         hint: "Use app-relative paths such as /profile or /posts/create-post."
       });
 
-      return;
+      return undefined;
     }
 
 
@@ -780,14 +780,31 @@ function dispatchRouterHashChange(previousUrl: string) {
 
   if (previousUrl === currentUrl) return;
 
-  const event = typeof HashChangeEvent === "function"
-    ? new HashChangeEvent(VD_ROUTER.HASHCHANGE_EVENT, {
+  const event = typeof window.HashChangeEvent === "function"
+    ? new window.HashChangeEvent(VD_ROUTER.HASHCHANGE_EVENT, {
       oldURL: previousUrl,
       newURL: currentUrl
     })
-    : new Event(VD_ROUTER.HASHCHANGE_EVENT);
+    : createHashChangeFallback(previousUrl, currentUrl);
 
   window.dispatchEvent(event);
+}
+
+function createHashChangeFallback(oldURL: string, newURL: string) {
+  const event = new Event(VD_ROUTER.HASHCHANGE_EVENT);
+
+  Object.defineProperties(event, {
+    newURL: {
+      enumerable: true,
+      value: newURL
+    },
+    oldURL: {
+      enumerable: true,
+      value: oldURL
+    }
+  });
+
+  return event;
 }
 
 function canHandleSamePageHashNavigation(

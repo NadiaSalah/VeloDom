@@ -154,7 +154,7 @@ export function createDevtoolsPlugin(
 
   return {
     setup(context) {
-      if (!enabled || typeof window === "undefined") return;
+      if (!enabled || typeof window === "undefined") return undefined;
 
       const bridge = createDevtoolsBridge(context);
       const globals = window as unknown as Record<string, unknown>;

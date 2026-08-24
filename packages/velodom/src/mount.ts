@@ -614,7 +614,7 @@ function once<TResult>(fn: () => TResult) {
   let called = false;
 
   return () => {
-    if (called) return;
+    if (called) return undefined;
 
     called = true;
     return fn();
