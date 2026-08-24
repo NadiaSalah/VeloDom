@@ -64,6 +64,12 @@ package-consumer tests, and a dry-run tarball check. It intentionally keeps
 `private: true`; this prevents accidental publication until the npm account,
 name ownership, 2FA policy, version, and release approval are confirmed.
 
+The next product roadmap is intentionally staged: V1.1 prioritizes static
+prerendering, page data loading, progressive forms, typed declarations, and
+compiler diagnostics; V1.2 adds optional production adapters and ecosystem
+tooling; V2 investigates hybrid rendering and partial hydration. See
+[docs/TODO.md](docs/TODO.md) for the complete rationale and order.
+
 ## Completed Organization Work
 
 - Consolidated reusable framework code under `packages/velodom`.

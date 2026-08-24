@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**381 of 387 tasks completed — 98%**
+**382 of 408 tasks completed — 94%**
 
 `[###################-]`
 
-Remaining tasks: **6**
+Remaining tasks: **26**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -805,6 +805,117 @@ browser runtime small, and remain optional where a project does not need it.
       after the protocol proves useful; do not ship a mandatory in-app panel —
       Fit: opt-in tooling; Value: advanced debugging without beginner clutter;
       Complexity: high; Target: V2
+
+---
+
+## Strategic Roadmap: VeloDom's Competitive Path
+
+This roadmap translates the framework comparison into an implementation order.
+It strengthens VeloDom's HTML-first, compiler-first, folder-first identity
+without making SSR, a global store, JSX, or AI mandatory. Existing release
+gates in Phase Z remain separate and must be completed before public npm
+publication.
+
+### Phase 20 — V1.1 Product Foundations
+
+- [ ] Implement build-time static prerendering that emits complete HTML per
+      public route, keeps client takeover optional, and works on static hosting
+      — Fit: HTML-first and SEO-friendly; Value: fast first content and
+      crawlable pages without a server; Complexity: high; Target: V1.1
+- [ ] Define one page-data loading contract for build, server, and client
+      navigation, including safe serialized transfer and cache invalidation —
+      Fit: compiler-first and request-aware; Value: prevents duplicate fetches
+      and reduces page boilerplate; Complexity: high; Target: V1.1
+- [ ] Implement progressive native HTML forms with optional enhancement for
+      validation, loading, errors, redirects, and application-owned CSRF — Fit:
+      HTML-first and Vanilla Friendly; Value: forms work without JavaScript and
+      remain easy to understand; Complexity: high; Target: V1.1
+- [ ] Generate application declarations for typed route parameters, page
+      config, request routes, and public component props while keeping
+      TypeScript optional — Fit: compiler-first and flexible authoring; Value:
+      safer refactors without forcing TypeScript; Complexity: medium; Target:
+      V1.1
+- [ ] Stabilize the public Plugin and Adapter contracts with conformance
+      fixtures and an official static adapter boundary — Fit: framework Core
+      stays generic; Value: integrations can evolve without copying internals;
+      Complexity: medium; Target: V1.1
+- [ ] Extend compiler diagnostics for security-sensitive HTML, environment
+      secret exposure, links, forms, and accessibility regressions — Fit:
+      compiler-first quality; Value: catches production problems before runtime;
+      Complexity: medium; Target: V1.1
+- [ ] Complete the beginner CLI path with project/page/component/API
+      scaffolding, route exploration, actionable HMR errors, and build reports
+      — Fit: Convention over Configuration; Value: fewer commands and faster
+      onboarding; Complexity: medium; Target: V1.1
+- [ ] Add optional derived-state primitives for `computed`, `watch`, and
+      `effect` without replacing plain-object state or introducing a new
+      template language — Fit: Runtime-lightweight; Value: less repetitive
+      synchronization code; Complexity: medium; Target: V1.1
+
+### Phase 21 — V1.2 Ecosystem and Production Integration
+
+- [ ] Add an optional Node request adapter for dynamic rendering while keeping
+      static output and the browser runtime independent — Fit: Adapter-first;
+      Value: supports authenticated and request-time pages without enlarging
+      Core; Complexity: high; Target: V1.2
+- [ ] Add cache and revalidation policies for page data with explicit ownership
+      of cookies, headers, secrets, and user-specific state — Fit: secure
+      conventions; Value: fresh content without accidental data leakage;
+      Complexity: high; Target: V1.2
+- [ ] Implement build-time localization with typed dictionaries, locale routes,
+      missing-key diagnostics, and per-locale SEO — Fit: optional and
+      compiler-first; Value: multilingual sites without a mandatory runtime;
+      Complexity: high; Target: V1.2
+- [ ] Promote the optional VS Code prototype into a stable language-tooling
+      package with shared compiler diagnostics and route/component completion —
+      Fit: convention-first; Value: a gentler authoring experience for
+      beginners and teams; Complexity: high; Target: V1.2
+- [ ] Extend content helpers with typed external loaders and generated content
+      indexes while keeping CMS integrations outside Core — Fit: content-first
+      and vendor-neutral; Value: production blogs and documentation sites can
+      scale data sources safely; Complexity: medium; Target: V1.2
+
+### Phase 22 — V2 Optional Hybrid Capabilities
+
+- [ ] Add opt-in hybrid server rendering with explicit static, server, and
+      client route modes; do not introduce implicit server behavior — Fit:
+      preserves predictable deployment; Value: handles personalized pages when
+      static output is insufficient; Complexity: very high; Target: V2
+- [ ] Design compiler-generated islands or partial hydration boundaries so only
+      interactive regions load client code — Fit: compiler-first and
+      runtime-lightweight; Value: smaller initial JavaScript for content-heavy
+      pages; Complexity: very high; Target: V2
+- [ ] Provide an optional standalone DevTools protocol and inspector for
+      routes, state, requests, events, and component relationships — Fit:
+      development-only and tree-shakable; Value: advanced debugging without
+      beginner runtime clutter; Complexity: high; Target: V2
+- [ ] Evaluate streaming and Edge adapters only after static and hybrid
+      rendering contracts are proven with browser and deployment fixtures — Fit:
+      adapter-owned complexity; Value: progressive delivery on modern hosting;
+      Complexity: very high; Target: V2
+
+### Phase 23 — Future Research (Optional)
+
+- [ ] Design an optional AI Provider interface with privacy, offline, cost, and
+      security boundaries; AI must never be required by Core — Fit: optional
+      provider architecture; Value: assisted review and generation for teams;
+      Complexity: high; Target: Future Research
+- [ ] Research HTML, Vue, and React migration assistants only if they preserve
+      readable HTML and produce maintainable VeloDom conventions — Fit:
+      strengthens adoption without compatibility bloat; Value: lowers
+      migration cost; Complexity: high; Target: Future Research
+- [ ] Research CMS and deployment integrations as external adapters rather than
+      framework-owned features — Fit: vendor-neutral Core; Value: broader
+      production adoption without package bloat; Complexity: medium; Target:
+      Future Research
+
+### Explicitly Rejected for V1
+
+- [x] Keep JSX/TSX, a mandatory Virtual DOM, a mandatory global store, a
+      mandatory SSR server, a built-in CSS system, and required AI outside the
+      VeloDom Core — Fit: protects the framework identity; Value: keeps the
+      beginner path small and the browser runtime light; Decision: reject for
+      V1
 
 ---
 

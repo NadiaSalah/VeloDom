@@ -30,6 +30,18 @@ package versions.
 - Recorded the external dependency-advisory lookup as an explicit release task
   because it requires permission to send the lockfile dependency tree to npm.
 
+### Strategic Roadmap Review
+
+- Added an ordered post-V1 roadmap: static prerendering, unified page data,
+  progressive forms, optional typed declarations, adapter contracts, compiler
+  security diagnostics, CLI improvements, and derived state for V1.1.
+- Deferred Node rendering, cache/revalidation, localization, editor tooling,
+  and typed content loaders to V1.2; hybrid rendering, partial hydration,
+  DevTools, and Edge/streaming work remain V2 concerns.
+- Kept AI, migration tools, and CMS integrations optional research items and
+  explicitly rejected JSX, mandatory Virtual DOM, mandatory SSR, mandatory
+  global state, mandatory CSS, and required AI for V1.
+
 ## 2026-08-17
 
 ### Beginner-First V1 Authoring
