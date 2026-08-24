@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**391 of 408 tasks completed — 96%**
+**392 of 408 tasks completed — 96%**
 
 `[###################-]`
 
-Remaining tasks: **17**
+Remaining tasks: **16**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -864,10 +864,10 @@ publication.
       static output and the browser runtime independent — Fit: Adapter-first;
       Value: supports authenticated and request-time pages without enlarging
       Core; Complexity: high; Target: V1.2
-- [ ] Add cache and revalidation policies for page data with explicit ownership
-      of cookies, headers, secrets, and user-specific state — Fit: secure
-      conventions; Value: fresh content without accidental data leakage;
-      Complexity: high; Target: V1.2
+- [x] Add opt-in in-memory cache and stale-while-revalidate policies for public
+      page data; cookies, headers, secrets, and user-specific state remain
+      application-owned and uncached — Fit: secure conventions; Value: fresh
+      content without accidental data leakage; Complexity: medium; Target: V1.2
 - [ ] Implement build-time localization with typed dictionaries, locale routes,
       missing-key diagnostics, and per-locale SEO — Fit: optional and
       compiler-first; Value: multilingual sites without a mandatory runtime;

@@ -770,6 +770,25 @@ export async function load({ params, query, mode }) {
 }
 ```
 
+For public, repeat-visited content, a page may opt into a small in-memory
+browser cache. Without this export VeloDom always runs `load()`, exactly as it
+did before:
+
+```js
+// Cache only public data. Do not enable this for account or session data.
+export const cache = {
+  maxAgeMs: 30_000,
+  staleWhileRevalidateMs: 120_000
+};
+```
+
+The cache belongs to one running VeloDom app, is keyed by page, route, and
+query, and disappears on a full refresh. During the optional stale window the
+current navigation receives the previous public value while VeloDom refreshes
+the value for the next visit. It never reads or stores cookies, headers,
+credentials, or secrets. Keep user-specific data uncached or own that policy
+in an application server/API.
+
 VeloDom loads this module before `init()`. Its return value is available as
 `data` in page hooks and as `data` in page templates:
 
@@ -3502,7 +3521,8 @@ Runtime:
 - `VD_MIDDLEWARE`
 - `VD_REQUEST`
 
-Public types include page/component contexts, route/auth/request/plugin
+Public types include page/component contexts, page-data cache policy,
+route/auth/request/plugin
 contracts, request hook payloads, optional cache/retry/devtools contracts,
 direction plugin contracts, shared-state contracts, validation plugin options,
 SEO contracts, application options, and HTTP options.

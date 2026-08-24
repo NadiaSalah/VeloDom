@@ -83,6 +83,7 @@ export const VD_PAGE_DATA = Object.freeze({
   ROUTE_ATTRIBUTE: "data-vd-page-data-route",
   SCRIPT_SELECTOR: "script[data-vd-page-data]",
   STATE_KEY: "data",
+  CACHE_KEY_PREFIX: "page-data:",
   MODES: Object.freeze({
     BUILD: "build",
     CLIENT: "client",

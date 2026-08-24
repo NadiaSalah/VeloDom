@@ -471,11 +471,13 @@
   build-only and not SSR; forms enhance native submission through adapters;
   translations remain optional build tooling; and inspection stays opt-in with
   a read-only bridge. Hybrid rendering and partial hydration remain V2 work.
-- Conventional page data is a separate, optional V1.1 concern: a nearby
-  `data.js|ts` loader receives the same route-shaped contract for client,
-  build, and future server modes. A matching prerender entry may transfer only
-  safely serializable public data; cache, revalidation, credentials, and
-  user-specific state remain explicitly outside this first contract.
+- Conventional page data is a separate, optional concern: a nearby `data.js|ts`
+  loader receives the same route-shaped contract for client, build, and future
+  server modes. A matching prerender entry may transfer only safely
+  serializable public data. A page may additionally opt into a router-local,
+  in-memory freshness/stale-while-revalidate cache; credentials, headers,
+  secrets, and user-specific state stay outside that policy and must remain
+  application-owned.
 - CSS budgets remain build-only and opt-in. VeloDom reports generated CSS for
   every project but does not ship a default threshold because framework-owned
   limits would make a visual design-system choice look like a runtime defect.

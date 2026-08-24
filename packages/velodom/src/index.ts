@@ -56,6 +56,7 @@ export type {
   NavigationGuard,
   PageConfig,
   PageDataContext,
+  PageDataCachePolicy,
   PageDataLoader,
   PagePrerenderConfig,
   PageScriptContext,

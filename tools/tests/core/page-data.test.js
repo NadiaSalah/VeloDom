@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  createPageDataCache,
   consumePageDataTransfer,
   loadClientPageData,
   renderPageDataTransfer
@@ -76,6 +77,48 @@ test("static page data rejects non-serializable values", () => {
   assert.throws(
     () => renderPageDataTransfer("home", "/", circular),
     /must be JSON-serializable/
+  );
+});
+
+test("page data cache is opt-in and route-query scoped", async () => {
+  let now = 1_000;
+  let calls = 0;
+  const cache = createPageDataCache(() => now);
+  const loader = async () => ({
+    cache: { maxAgeMs: 500 },
+    load: () => ({ call: ++calls })
+  });
+  const context = {
+    page: "blog/[slug]",
+    route: createRoute(),
+    params: { slug: "html-first" },
+    query: { filter: "recent" },
+    meta: {}
+  };
+
+  assert.deepEqual(await loadClientPageData(loader, context, cache), { call: 1 });
+  now += 500;
+  assert.deepEqual(await loadClientPageData(loader, context, cache), { call: 1 });
+  assert.deepEqual(
+    await loadClientPageData(loader, { ...context, query: { filter: "popular" } }, cache),
+    { call: 2 }
+  );
+});
+
+test("page data cache rejects unsafe policy values", async () => {
+  await assert.rejects(
+    () => loadClientPageData(
+      async () => ({ cache: { maxAgeMs: -1 }, load: () => null }),
+      {
+        page: "home",
+        route: { ...createRoute(), page: "home" },
+        params: {},
+        query: {},
+        meta: {}
+      },
+      createPageDataCache()
+    ),
+    /non-negative maxAgeMs/
   );
 });
 

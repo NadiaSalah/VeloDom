@@ -32,6 +32,10 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Added explicit `data.js|ts` page-data cache policies for public data only.
+  The router-local cache is opt-in, route/query scoped, memory-only, and can
+  stale-while-revalidate without touching cookies, headers, secrets, or
+  user-specific values.
 - Added opt-in `computed`, `watch`, and `effect` helpers over an explicitly
   supplied shallow state source; they add no global store, automatic dependency
   graph, or template syntax.

@@ -39,6 +39,7 @@ import { validateResourceAdapter } from "./resource-adapter.ts";
 import { applyPageSeo } from "./seo.ts";
 import {
   consumePageDataTransfer,
+  createPageDataCache,
   loadClientPageData
 } from "./page-data.ts";
 import { normalizeFolderPath } from "./shared/path.ts";
@@ -84,6 +85,7 @@ export function createPageRouter(
   const pageConfigs = pageResources.configs || Object.create(null);
   const pageStyles = pageResources.styles || Object.create(null);
   const pageData = pageResources.data || Object.create(null);
+  const pageDataCache = createPageDataCache();
   const pageManifests = pageResources.manifests || Object.create(null);
   const layoutHtml = layoutResources.html || Object.create(null);
   const layoutStyles = layoutResources.styles || Object.create(null);
@@ -254,7 +256,7 @@ export function createPageRouter(
           params: route.params,
           query: route.query,
           meta: route.meta
-        });
+        }, pageDataCache);
 
       state[VD_PAGE_DATA.STATE_KEY] = data;
       const directionCleanup = attachDirectionToPageState(
