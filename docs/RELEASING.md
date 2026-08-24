@@ -108,6 +108,8 @@ The checks must confirm:
   - `velodom/compiler`
   - `velodom/content`
   - `velodom/devtools`
+  - `velodom/localization`
+  - `velodom/node`
   - `velodom/testing`
   - `velodom/vite`
   - `velodom/vite-plugin`

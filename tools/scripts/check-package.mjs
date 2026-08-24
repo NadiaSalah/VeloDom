@@ -41,6 +41,14 @@ const expectedExports = {
     "./lib/content.js",
     "./types/content.d.ts"
   ],
+  "./localization": [
+    "./lib/localization.js",
+    "./types/localization.d.ts"
+  ],
+  "./node": [
+    "./lib/node.js",
+    "./types/node.d.ts"
+  ],
   "./assets": [
     "./lib/assets.js",
     "./types/assets.d.ts"
@@ -62,6 +70,10 @@ const expectedExports = {
     "./types/testing.d.ts"
   ]
 };
+const expectedExportNames = new Set([
+  ...Object.keys(expectedExports),
+  "./package.json"
+]);
 const allowedPackageFiles = new Set([
   "LICENSE",
   "README.md",
@@ -113,6 +125,22 @@ if (manifest.scripts?.prepack !== "npm run package:build") {
 }
 
 const packageFiles = new Set(manifest.files || []);
+
+for (const name of Object.keys(manifest.exports || {})) {
+  if (!expectedExportNames.has(name)) {
+    violations.push(`unexpected public export "${name}"`);
+  }
+}
+
+for (const name of expectedExportNames) {
+  if (!manifest.exports?.[name]) {
+    violations.push(`missing public export "${name}"`);
+  }
+}
+
+if (manifest.exports?.["./package.json"] !== "./package.json") {
+  violations.push("export \"./package.json\" must point at ./package.json");
+}
 
 if (manifest.peerDependencies?.typescript !== ">=5.7") {
   violations.push(

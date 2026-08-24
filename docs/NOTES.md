@@ -107,6 +107,14 @@
   decisions and handoff, and `RELEASING.md` for release and browser gates.
   Specialized capability notes were merged into the main guide so links do not
   fragment the beginner path.
+- Current product documentation uses one V1 lifecycle vocabulary: Implemented,
+  Current, Planned, Research, Deferred / Experimental, and Rejected. Older
+  V1.1/V1.2/V2 labels remain only as historical context in `CHANGELOG.md` or
+  the roadmap's historical implementation record; they do not announce public
+  releases or make research decisions into shipped features.
+- Documentation/package consistency is automated from the public export map.
+  Release documentation must include every package subpath, while current guides
+  must not link to the specialized documentation files that were consolidated.
 - Release preparation is intentionally separated from publication. The
   checklist in `RELEASING.md` records gates, but only explicit human approval
   for an exact version can authorize removing `private: true` or publishing.
@@ -506,10 +514,11 @@
   service instead of an editor-specific runtime. It maps `.vd` template
   diagnostics back to original file locations and leaves editor UI, project
   navigation, and code actions as optional integration work.
-- Static prerendering is now a bounded V1.1 build capability: output is
+- Static prerendering is now a bounded V1 build capability: output is
   build-only and not SSR; forms enhance native submission through adapters;
   translations remain optional build tooling; and inspection stays opt-in with
-  a read-only bridge. Hybrid rendering and partial hydration remain V2 work.
+  a read-only bridge. Hybrid rendering and partial hydration remain planned
+  experimental work.
 - Conventional page data is a separate, optional concern: a nearby `data.js|ts`
   loader receives the same route-shaped contract for client, build, and future
   server modes. A matching prerender entry may transfer only safely

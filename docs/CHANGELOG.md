@@ -40,6 +40,18 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Reorganized the active roadmap around one VeloDom V1 product line with
+  implemented, current, planned, research, deferred, and rejected states.
+  Legacy V1.1/V1.2/V2 phase names remain historical context rather than public
+  product generations.
+- Added a documentation consistency audit that derives public imports from the
+  package manifest, verifies release documentation covers every export, and
+  rejects references to removed specialized documentation files.
+- Strengthened the package contract audit so `velodom/localization` and
+  `velodom/node` are verified alongside every other public subpath.
+- Clarified static rendering, client takeover, hydration, and the Node adapter
+  boundary in the primary guide without adding server/runtime features.
+
 - Rebuilt the main framework guide and npm package README around the current V1
   authoring model: folder mode, optional `.vd` files, the complete directive
   syntax, layouts, components, requests, forms, SEO, localization, CLI, public

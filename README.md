@@ -60,8 +60,8 @@ V1 is locally verified with 255 automated tests, package-consumer validation,
 and production build checks. The roadmap is [docs/TODO.md](docs/TODO.md);
 remaining V1 release work is external governance, a strict Firefox-capable
 browser run, and starter presets that require the public npm path. Optional
-V2 hybrid rendering, islands, richer DevTools, and streaming/Edge adapters
-remain deliberately unshipped rather than being folded into the V1 runtime.
+Hybrid rendering, islands, richer DevTools, and streaming/Edge adapters remain
+deliberately planned or deferred rather than being folded into the V1 runtime.
 The roadmap records smaller authoring-ergonomics improvements without adopting
 a second template syntax. `vd create feature <name>` offers an optional
 `--blog` vertical-slice template, and a nested default export such as
@@ -84,15 +84,15 @@ package-consumer tests, and a dry-run tarball check. It intentionally keeps
 `private: true`; this prevents accidental publication until the npm account,
 name ownership, 2FA policy, version, and release approval are confirmed.
 
-The product roadmap is intentionally staged: V1.1/V1.2 delivered
-static prerendering, conventional page data loading with optional public-data
+The V1 roadmap groups implemented production capabilities together: static
+prerendering, conventional page data loading with optional public-data
 cache/revalidation, build-time localization, typed build-time content loading,
 an optional Node request bridge, progressive native forms, generated
-application declarations, derived state, and editor tooling. V2 investigates
-hybrid rendering and partial hydration only behind explicit architecture and
-browser-validation gates. Localization DX now includes typed keys, native
-`Intl` formatting, locale-aware links, and static `hreflang` output without
-requiring a browser translation provider. See
+application declarations, derived state, and editor tooling. Hybrid rendering
+and partial hydration remain planned only behind explicit architecture and
+browser-validation gates. Localization DX includes typed keys, native `Intl`
+formatting, locale-aware links, and static `hreflang` output without requiring
+a browser translation provider. See
 [docs/TODO.md](docs/TODO.md) for the complete rationale and order.
 
 ## Completed Organization Work

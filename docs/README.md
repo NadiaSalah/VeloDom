@@ -18,9 +18,10 @@ JavaScript or TypeScript independently for every page and component.
 ## Contents
 
 - [What Works Today](#what-works-today)
+- [V1 Feature Matrix](#v1-feature-matrix)
+- [Authoring Reference](#authoring-reference)
 - [Five-Minute Start](#five-minute-start)
 - [Requirements and Commands](#requirements-and-commands)
-- [Authoring Reference](#authoring-reference)
 - [CLI and Project Intelligence](#cli-and-project-intelligence)
 - [Testing Utilities](#testing-utilities)
 - [Project Structure](#project-structure)
@@ -46,7 +47,7 @@ JavaScript or TypeScript independently for every page and component.
 - [Compiler and Vite Integration](#compiler-and-vite-integration)
 - [Adapter Contract and Optional Types](#adapter-contract-and-optional-types)
 - [Editor Intelligence](#editor-intelligence)
-- [Static Rendering and Localization Boundaries](#static-rendering-and-localization-boundaries)
+- [Rendering, Localization and Server Boundaries](#rendering-localization-and-server-boundaries)
 - [JavaScript and TypeScript](#javascript-and-typescript)
 - [Error and Security Model](#error-and-security-model)
 - [Consolidated Architecture and Integration Reference](#consolidated-architecture-and-integration-reference)
@@ -122,6 +123,23 @@ browser devtools panel.
 The current build-time content helper layer and future content improvements are
 documented in the Content and Assets section below. It is intentionally
 tooling-oriented, not a mandatory browser runtime layer.
+
+## V1 Feature Matrix
+
+| Surface | V1 capabilities |
+| --- | --- |
+| Authoring | Folder pages/components/layouts, optional `.vd`, JavaScript or TypeScript, shallow state, typed config |
+| UI | `vd-*` directives, interpolation, loops, components, slots, refs, events, lifecycle, scoped CSS |
+| Routing | Static and nested routes, dynamic params, query values, guards, hashes, focus, scroll restoration, prefetch |
+| Data | Page data loaders, request bindings, middleware, auth providers, cancellation, debounce, throttle, retry, cache helpers, validation, progressive forms |
+| Build | Compiler diagnostics, feature manifests, SEO/static output, content collections, localization helpers, asset inspection |
+| Tooling | `vd` CLI, doctor, graph, health, benchmark, build report, generated docs/types, editor helpers, testing, devtools bridge |
+| Server boundary | Optional `velodom/node` Fetch-style Node adapter owned by the application; no automatic SSR or hydration |
+
+Project intelligence belongs to build and development tooling. It should not
+become application runtime weight. Advanced hybrid rendering, islands,
+streaming, and Edge work are planned or research-only and are not part of the
+normal V1 browser model.
 
 ## Authoring Reference
 
@@ -3024,8 +3042,8 @@ languageLink.hreflang = "ar";
 Use a normal `<nav aria-label="Language">` and visible language names; the
 framework does not inject a picker or decide the visitor's locale. ICU-style
 messages, locale negotiation, cookies, domains, CMS loading, and server
-rendering remain adapter or application concerns. Their scoped V2 decision is
-recorded in the [Static Rendering and Localization Boundaries](#static-rendering-and-localization-boundaries)
+rendering remain adapter or application concerns. Their deferred request-time
+policy is recorded in the [Rendering, Localization and Server Boundaries](#rendering-localization-and-server-boundaries)
 section below.
 
 ## SEO and Static Route HTML
@@ -3284,8 +3302,8 @@ createServer(adapter.listener).listen(3000);
 This is not automatic VeloDom SSR: it does not discover pages, render templates,
 reconcile DOM, or hydrate markup. It is an optional adapter boundary for teams
 that need a small Node server beside static output. Responses are intentionally
-buffered; streaming and Edge transport stay deferred until a separate V2
-contract is proven.
+buffered; streaming and Edge transport remain deferred until a separate
+optional contract is proven.
 
 ### Content Mode Helpers
 
@@ -4087,7 +4105,8 @@ be duplicated at the repository root without a deployment reason.
 Every framework TypeScript source file begins with an English responsibility
 header. Every exported framework API has adjacent JSDoc, and comments explain
 architectural reasons rather than obvious operations. New features are first
-classified as V1.x, V2, Future Research, or Rejected; features that imitate
+classified as V1 — Implemented, Current, Planned, Research, Deferred /
+Experimental, or Rejected; features that imitate
 other frameworks, require JSX, mandate global state, or add runtime cost for a
 static-tooling problem are deferred or rejected.
 
@@ -4221,17 +4240,31 @@ completion/hover text, and conventional component/static-route definitions and
 completion. It is stable as workspace tooling but awaits Marketplace publisher
 ownership; it remains outside every VeloDom application runtime.
 
-## Static Rendering and Localization Boundaries
+## Rendering, Localization and Server Boundaries
 
-VeloDom's accepted V2 designs keep expansion outside the mandatory browser
-runtime: richer static route rendering remains build-time and distinct from
-SSR; progressive form enhancement is now an optional native HTML bridge; and
-localization is now an optional build-time helper separate from RTL direction
-and any translation provider. Its typed keys, native `Intl`, locale path
-switching, and `hreflang` output are documented in the localization section;
-ICU parsing and request-time locale policy remain adapter research.
-The implementation contracts and required test gates are documented in the
-corresponding sections of this guide.
+### Available in V1
+
+- static SEO HTML with metadata and concise crawler/no-JavaScript fallback;
+- explicit build-time prerender for application-owned route entries;
+- page data loaders and typed content collections;
+- progressive native forms and optional build-time localization helpers;
+- locale-aware paths, native `Intl`, canonical URLs, and `hreflang` records;
+- the optional `velodom/node` Fetch-style Node HTTP adapter.
+
+### Planned or deferred in V1
+
+Hybrid request-time rendering, route rendering modes, compiler-generated
+islands, partial hydration, streaming, and Edge adapters remain optional
+planned or research work. They must not redefine the normal browser-first V1
+architecture or add mandatory runtime dependencies.
+
+### Explicitly not automatic
+
+Static rendering is not SSR. Client takeover is not hydration. The Node adapter
+does not discover pages, render templates, manage sessions/cookies, enforce
+authentication, reconcile DOM, or stream responses. Localization does not
+install a browser translation store; request-time locale negotiation, domains,
+cookies, and ICU parsing remain application or adapter concerns.
 
 ### `velodom/vite`
 
@@ -4591,7 +4624,7 @@ live in the consolidated architecture section above.
 
 The local V1 release candidate is functionally complete. Remaining unchecked
 items are release governance, a strict Firefox-capable browser run, starter
-presets that depend on the public npm path, and intentionally deferred V2
+presets that depend on the public npm path, and intentionally deferred advanced
 capabilities. None authorizes a mandatory virtual DOM, JSX, CMS, global store,
 or universal SSR runtime.
 
