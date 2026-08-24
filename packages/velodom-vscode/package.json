@@ -1,15 +1,15 @@
 {
   "name": "velodom-language",
   "displayName": "VeloDom Language Tools",
-  "description": "Optional VeloDom diagnostics and directive completion for VS Code.",
-  "version": "0.1.0",
+  "description": "Optional VeloDom compiler diagnostics, directive completion, and convention navigation for VS Code.",
+  "version": "1.0.0",
   "private": true,
   "engines": {
     "vscode": "^1.85.0"
   },
   "main": "./extension.js",
   "extensionKind": ["workspace"],
-  "activationEvents": ["onLanguage:velodom"],
+  "activationEvents": ["onLanguage:velodom", "onLanguage:html"],
   "dependencies": {
     "velodom": "^1.0.0"
   },
@@ -28,6 +28,11 @@
           "type": "boolean",
           "default": false,
           "description": "Analyze HTML files with VeloDom compiler diagnostics when enabled."
+        },
+        "velodom.language.enableConventionalCompletions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Suggest conventional VeloDom component names and static routes in VeloDom templates."
         }
       }
     }

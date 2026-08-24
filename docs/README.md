@@ -3663,9 +3663,11 @@ integrations. They reuse compiler diagnostics and directive metadata for HTML
 and `.vd` documents, remapping `.vd` template diagnostics to their original
 file lines. This is a dependency-free foundation for future editor extensions,
 not a mandatory VS Code plugin or browser runtime feature. See
-[EDITOR_INTELLIGENCE.md](EDITOR_INTELLIGENCE.md). An optional VS Code
-prototype lives in `packages/velodom-vscode`; it offers directive
-completion/hover text and conventional component or static-route definitions.
+[EDITOR_INTELLIGENCE.md](EDITOR_INTELLIGENCE.md). The optional VS Code package
+in `packages/velodom-vscode` reuses that surface for diagnostics, directive
+completion/hover text, and conventional component/static-route definitions and
+completion. It is stable as workspace tooling but awaits Marketplace publisher
+ownership; it remains outside every VeloDom application runtime.
 
 ## Future Static Rendering and Localization
 

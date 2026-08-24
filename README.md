@@ -41,7 +41,7 @@ npm run pack:check
 
 ```text
 packages/velodom/         Publishable framework package
-packages/velodom-vscode/  Optional private editor-tooling prototype
+packages/velodom-vscode/  Optional private VS Code language-tools package
 examples/blog/            Real application consuming public package exports
 tools/                    Repository tests and release/build verification
 docs/                     Guide, architecture, decisions, roadmap, and history
@@ -54,7 +54,7 @@ allowlisted by `packages/velodom/package.json`.
 
 ## Current Status
 
-V1 is locally verified with 240 automated tests, package-consumer validation,
+V1 is locally verified with 241 automated tests, package-consumer validation,
 and production build checks. The roadmap is [docs/TODO.md](docs/TODO.md);
 remaining work is release governance, a strict Firefox-capable browser run,
 and starter presets.
@@ -79,7 +79,8 @@ hybrid rendering and partial hydration. See
   independent example project.
 - Moved repository-only tests, fixtures, and scripts under `tools`.
 - Made framework builds self-contained inside the npm package workspace.
-- Registered the optional VS Code prototype as a private workspace consumer.
+- Registered stable optional VS Code language tools as a private workspace
+  consumer pending Marketplace publisher ownership.
 - Added npm metadata and automated package-boundary checks.
 
 ## Next Tasks

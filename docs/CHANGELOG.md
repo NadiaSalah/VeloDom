@@ -32,6 +32,10 @@ package versions.
 
 ### Strategic Roadmap Review
 
+- Promoted the optional VS Code integration to stable workspace language tools:
+  it activates for opted-in HTML diagnostics, reuses compiler diagnostics, and
+  indexes conventional component/route names for completion and definition
+  navigation without becoming an application dependency.
 - Added `velodom/localization`, an optional build-time-only dictionary helper.
   It validates typed message trees, surfaces missing keys through the Vite
   plugin, and expands route-specific static SEO records per locale without a
@@ -177,8 +181,8 @@ package versions.
 - Recorded V2 implementation contracts for build-time prerendering,
   progressive native forms, optional localization, and development inspection;
   added a fixture confirming that native forms add no runtime feature.
-- Added an optional standalone `velodom/devtools` inspector and a VS Code
-  prototype backed by the public compiler language service. Neither is a
+- Added an optional standalone `velodom/devtools` inspector and VS Code tools
+  backed by the public compiler language service. Neither is a
   required application runtime dependency.
 
 ### V1 Release Polish

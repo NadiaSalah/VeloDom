@@ -1,20 +1,26 @@
 /**
- * Optional VS Code prototype for VeloDom compiler diagnostics.
- * It depends on the published `velodom/compiler` language-service surface.
+ * Module: VeloDom VS Code Language Tools
+ *
+ * Reuses the public VeloDom compiler language-service API for diagnostics and
+ * directive metadata. Project convention indexing stays editor-only.
  */
 
 const vscode = require("vscode");
+const { indexProjectPaths } = require("./project-index.js");
 
+/** Activates optional VeloDom editor diagnostics and completions. */
 function activate(context) {
   const diagnostics = vscode.languages.createDiagnosticCollection("velodom");
   const completionProvider = vscode.languages.registerCompletionItemProvider(
     [{ language: "velodom" }, { language: "html", scheme: "file" }],
     {
-      provideCompletionItems(document) {
+      async provideCompletionItems(document, position) {
         if (!shouldAnalyze(document)) return [];
-        const compiler = loadCompiler();
+        const projectItems = await createConventionCompletions(document, position);
 
-        return compiler.getVeloDomDirectiveCompletions().map(item => {
+        if (projectItems.length) return projectItems;
+
+        return loadCompiler().getVeloDomDirectiveCompletions().map(item => {
           const completion = new vscode.CompletionItem(
             item.label,
             vscode.CompletionItemKind.Property
@@ -69,6 +75,7 @@ function activate(context) {
   vscode.workspace.textDocuments.forEach(refresh);
 }
 
+/** Releases VS Code-managed subscriptions when the extension is unloaded. */
 function deactivate() {}
 
 function updateDiagnostics(document, collection) {
@@ -128,22 +135,17 @@ async function findProjectDefinition(document, position) {
   const component = readAttribute(line, "vd-component", "name");
 
   if (component) {
-    return findExistingProjectFile([
-      `src/components/${component}.vd`,
-      `src/components/${component}/index.html`
-    ]);
+    const project = await readProjectIndex();
+
+    return project.uriByPath.get(project.index.componentFiles[component]) || null;
   }
 
   const route = readRouteHref(line);
 
   if (route) {
-    const relative = route === "/"
-      ? "home"
-      : route.replace(/^\/+|\/+$/g, "");
-    return findExistingProjectFile([
-      `src/pages/${relative}.vd`,
-      `src/pages/${relative}/index.html`
-    ]);
+    const project = await readProjectIndex();
+
+    return project.uriByPath.get(project.index.routeFiles[route]) || null;
   }
 
   return null;
@@ -161,23 +163,66 @@ function readRouteHref(line) {
   return match ? match[1] : null;
 }
 
-async function findExistingProjectFile(candidates) {
-  const folder = vscode.workspace.workspaceFolders?.[0];
-
-  if (!folder) return null;
-
-  for (const candidate of candidates) {
-    const uri = vscode.Uri.joinPath(folder.uri, ...candidate.split("/"));
-
-    try {
-      await vscode.workspace.fs.stat(uri);
-      return uri;
-    } catch {
-      // Try the next conventional file without emitting an editor warning.
-    }
+async function createConventionCompletions(document, position) {
+  if (!vscode.workspace.getConfiguration("velodom.language")
+    .get("enableConventionalCompletions", true)) {
+    return [];
   }
 
-  return null;
+  const line = document.lineAt(position.line).text.slice(0, position.character);
+  const project = await readProjectIndex();
+
+  if (/<vd-component\b[^>]*\bname=["'][^"']*$/.test(line)) {
+    return project.index.componentNames.map(name => {
+      const item = new vscode.CompletionItem(
+        name,
+        vscode.CompletionItemKind.Class
+      );
+      item.detail = "VeloDom component";
+      return item;
+    });
+  }
+
+  if (/\bvd-nav\b/.test(line) && /\bhref=["'][^"']*$/.test(line)) {
+    return project.index.routes.map(route => {
+      const item = new vscode.CompletionItem(
+        route,
+        vscode.CompletionItemKind.Reference
+      );
+      item.detail = "VeloDom route";
+      return item;
+    });
+  }
+
+  return [];
+}
+
+async function readProjectIndex() {
+  const folder = vscode.workspace.workspaceFolders?.[0];
+
+  if (!folder) {
+    return {
+      index: indexProjectPaths([]),
+      uriByPath: new Map()
+    };
+  }
+
+  const files = await Promise.all([
+    vscode.workspace.findFiles("src/components/**/*.vd"),
+    vscode.workspace.findFiles("src/components/**/index.html"),
+    vscode.workspace.findFiles("src/pages/**/*.vd"),
+    vscode.workspace.findFiles("src/pages/**/index.html")
+  ]);
+  const uriByPath = new Map();
+
+  for (const uri of files.flat()) {
+    uriByPath.set(vscode.workspace.asRelativePath(uri, false), uri);
+  }
+
+  return {
+    index: indexProjectPaths([...uriByPath.keys()]),
+    uriByPath
+  };
 }
 
 module.exports = { activate, deactivate };

@@ -11,11 +11,11 @@ The priority is to make the existing core stable, clear, documented, and release
 
 ## Progress Counter
 
-**393 of 408 tasks completed — 96%**
+**394 of 408 tasks completed — 97%**
 
 `[###################-]`
 
-Remaining tasks: **15**
+Remaining tasks: **14**
 
 Update this counter whenever checklist items are added or completed.
 
@@ -872,7 +872,7 @@ publication.
       missing-key diagnostics, and per-locale SEO — Fit: optional and
       compiler-first; Value: multilingual sites without a mandatory runtime;
       Complexity: high; Target: V1.2
-- [ ] Promote the optional VS Code prototype into a stable language-tooling
+- [x] Promote the optional VS Code prototype into a stable language-tooling
       package with shared compiler diagnostics and route/component completion —
       Fit: convention-first; Value: a gentler authoring experience for
       beginners and teams; Complexity: high; Target: V1.2

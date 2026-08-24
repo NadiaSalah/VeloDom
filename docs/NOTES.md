@@ -507,10 +507,12 @@
 - Derived-state helpers intentionally subscribe to the supplied shallow state
   as a whole. This is predictable and easy to clean up, while fine-grained
   dependency tracking remains outside VeloDom's lightweight runtime goal.
-- The VS Code prototype remains outside the package and consumes the public
-  compiler language-service API. Its navigation intentionally follows only
-  conventional folders and `.vd` names; route-config overrides need a future
-  project-aware index before they can be resolved reliably.
+- The VS Code language-tools package remains outside the framework tarball and
+  consumes the public compiler language-service API. Its navigation and
+  completion intentionally follow only conventional folders and `.vd` names;
+  route-config overrides need a future editor-project index rather than router
+  imports. Marketplace publication additionally needs a verified publisher and
+  is not implied by workspace stability.
 - The standalone `velodom/devtools` inspector is an explicit subpath. It
   requires an existing bridge and is not part of createApp or production builds
   unless an application imports it.
