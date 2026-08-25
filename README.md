@@ -67,10 +67,12 @@ allowlisted by `packages/velodom/package.json`.
 
 ## Current Status
 
-V1 is verified with 256 automated tests, package-consumer and tarball
-validation, a production build within its performance budgets, a 100/100
-example-project health report, and a successful GitHub Actions matrix across
-Chromium, Firefox, WebKit, and Mobile WebKit. VeloDom `1.0.0` is now published
+V1 is verified locally with 256 automated tests, package-consumer and tarball
+validation, a production build within its performance budgets, and a 100/100
+example-project health report. The GitHub Actions release matrix is configured
+for Chromium, Firefox, WebKit, and Mobile WebKit; its first `main` run is
+currently being corrected after the browser harness referenced the old
+`examples/blog` path. VeloDom `1.0.0` is now published
 on npm under the authenticated `engnadia` account with write-level 2FA. The
 roadmap is [docs/TODO.md](docs/TODO.md); the remaining work is optional
 post-publication tooling and research. The current workspace lockfile passes

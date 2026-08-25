@@ -32,7 +32,9 @@ import {
 const projectRoot = resolve(
   fileURLToPath(new URL("../..", import.meta.url))
 );
-const distRoot = join(projectRoot, "examples", "blog", "dist");
+// The showcase directory is application-owned and is named explicitly so
+// release verification follows the same path used by the build and docs.
+const distRoot = join(projectRoot, "examples", "velodom-blog", "dist");
 const strictBrowserMatrix = process.env.VELODOM_BROWSER_STRICT === "1";
 const debugBrowserE2e = process.env.VELODOM_BROWSER_E2E_DEBUG === "1";
 const browserLaunchTimeoutMs = readPositiveDuration(
