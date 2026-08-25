@@ -84,7 +84,7 @@
   runtime exports, public type declarations, compiler exports, Vite adapter
   exports, Vite plugin exports, or package subpaths require an intentional
   architecture decision and documentation update.
-- `packages/velodom/package.json` uses published version `1.0.0`; the root
+- `packages/velodom/package.json` uses published version `1.0.1`; the root
   package remains a private development workspace while the package itself is
   public on npm.
 - Build-specific framework features use explicit subpath exports:

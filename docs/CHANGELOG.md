@@ -5,6 +5,10 @@ both development milestones and published package verification.
 
 ## Unreleased
 
+_No unreleased changes._
+
+## 1.0.1 - 2026-08-25
+
 - Removed the duplicate root starter and the obsolete generated-logo template;
   `packages/velodom/velodomProj` is now the only editable starter source.
 - Split live documentation exercises into `/playground`, added a component

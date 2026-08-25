@@ -10,7 +10,7 @@ JavaScript or TypeScript independently for every page and component.
 
 Source repository: [github.com/NadiaSalah/VeloDom](https://github.com/NadiaSalah/VeloDom).
 
-> Project status: VeloDom V1 `1.0.0` is published on npm. The package lives at
+> Project status: VeloDom V1 `1.0.1` is published on npm. The package lives at
 > `packages/velodom`; public API names are protected by package-boundary tests,
 > and the registry package is available at
 > [npmjs.com/package/velodom](https://www.npmjs.com/package/velodom).
@@ -487,8 +487,8 @@ published default starter preset; it is a Vite application with a shared
 layout/navbar, supplied SVG brand and favicon, `/about` single-file lesson,
 `/guide` component lesson, and an npm-safe `jsconfig.json`. Install its
 dependencies and run it immediately with `npm run dev`.
-The `velodom` alias is prepared in this workspace for the next patch release;
-the current registry `1.0.0` remains compatible through `create-velodom`.
+The `velodom` alias is included in the current patch release; both
+`npx velodom@latest <name>` and `create-velodom <name>` are supported.
 The npm tarball also carries an editable copy at
 `node_modules/velodom/velodomProj`; copy that folder when you want to learn by
 modifying a complete small project instead of starting from an empty folder.
