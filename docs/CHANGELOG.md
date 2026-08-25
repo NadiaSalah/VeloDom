@@ -35,6 +35,8 @@ both development milestones and published package verification.
   single-file `.vd` page, `/guide` demonstrates reusable components and props,
   `default.vd` provides a shared layout, and `site-nav/script.js` keeps the
   navbar's active route accessible.
+- Added `ignoreDeprecations: "6.0"` to generated and example JavaScript
+  configurations so TypeScript 6 does not block the Vite/Bundler setup.
 
 ### GitHub Actions Release Matrix
 

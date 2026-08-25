@@ -496,6 +496,7 @@ test("CLI create scaffolds convention-first project resources", async () => {
     assert.match(starterLayout, /<vd-component name="site-nav"><\/vd-component>/);
     assert.match(starterLayout, /<vd-page><\/vd-page>/);
     assert.match(starterViteConfig, /from "velodom\/vite-plugin"/);
+    assert.match(await readFile(join(root, "starter/jsconfig.json"), "utf8"), /"ignoreDeprecations": "6\.0"/);
     assert.match(starterViteConfig, /"@": fileURLToPath/);
     assert.equal(starterManifest.imports["#app/*"], "./src/*");
   } finally {

@@ -139,6 +139,8 @@ a browser translation provider. See
   reproducible; local npm caches are ignored.
 - Updated the browser-matrix workflow to `actions/checkout@v5` and
   `actions/setup-node@v5`, removing the Node 20 deprecation warning on runners.
+- Added TypeScript 6 deprecation compatibility to generated and example
+  `jsconfig.json` files with `ignoreDeprecations: "6.0"`.
 - Made the application-owned documentation sidebars resilient to browser-specific
   `IntersectionObserver` timing through a scroll fallback, and made browser
   smoke-test failures identify the exact route step and visible page state.

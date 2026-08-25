@@ -766,6 +766,7 @@ function createProjectJsConfig() {
   return `${JSON.stringify({
     compilerOptions: {
       baseUrl: ".",
+      ignoreDeprecations: "6.0",
       checkJs: false,
       module: "ESNext",
       moduleResolution: "Bundler",
