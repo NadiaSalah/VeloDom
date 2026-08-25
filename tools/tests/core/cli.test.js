@@ -437,6 +437,7 @@ test("CLI create scaffolds convention-first project resources", async () => {
     assert.match(starterMain, /import "\.\/style\.css"/);
     assert.doesNotMatch(starterMain, /createViteAdapter/);
     assert.match(starterHome, /vd-component name="brand-mark"/);
+    assert.match(starterHome, /class="brand-name">VeloDom<\/span>/);
     assert.match(starterHome, /class="hero-art"/);
     assert.match(starterHome, /Build with a visible mark/);
     assert.match(starterHome, /vd-on:click="toggleTheme\(\)"/);

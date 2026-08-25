@@ -26,6 +26,8 @@ both development milestones and published package verification.
   repository URL in a new tab.
 - Added a responsive, large inline-SVG brand panel beside the starter hero so
   the first screen communicates the framework identity without an image request.
+- Added the visible `VeloDom` wordmark beside the header logo for clearer brand
+  recognition in the starter project.
 
 ### GitHub Actions Release Matrix
 
