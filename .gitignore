@@ -4,7 +4,6 @@ lib/
 .vite/
 coverage/
 types/
-/packages/velodom/velodomProj/
 
 *.log
 .DS_Store

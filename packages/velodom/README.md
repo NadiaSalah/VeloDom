@@ -153,17 +153,17 @@ public/
   velodom-favicon.svg       # supplied VeloDom SVG favicon
 ```
 
-The generated starter also contains `src/components/site-nav/` and
+The default starter contains `src/components/site-nav/` and
 `src/components/feature-card/`, plus `src/pages/about.vd` and
 `src/pages/guide/`. Read those files in the generated project to learn the
 framework conventions without opening framework internals.
 
-The npm tarball also includes the same small editable project at
+The npm tarball includes this source-controlled small editable project at
 `velodomProj/`. After installing the package, copy
 `node_modules/velodom/velodomProj` into your workspace, run `npm install`, and
-edit its `src/` files. The directory is generated from the `create-velodom`
-scaffold during packaging, so the downloadable example and the CLI starter
-cannot drift into two different conventions.
+edit its `src/` files. It is the visible default framework example. The CLI
+copies this same source-controlled project and changes only its package name,
+so the two starting paths cannot drift.
 This additional tarball entry is prepared for the next patch publication;
 the current registry `1.0.0` remains unchanged until that release is approved.
 

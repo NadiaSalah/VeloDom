@@ -100,8 +100,8 @@ The npm package has a strict `files` allowlist, explicit public exports,
 package-consumer tests, and a dry-run tarball check. Version `1.0.0` is
 published at [npmjs.com/package/velodom](https://www.npmjs.com/package/velodom).
 
-The repository also contains [`velodomProj`](velodomProj/README.md), a clean
-consumer project generated from that published package. Its home page includes
+The repository also contains [`velodomProj`](velodomProj/README.md), the
+source-controlled consumer project shipped as the package starter. Its home page includes
 a reusable inline-SVG logo component with the visible `VeloDom` wordmark beside
 the textual `VeloDom` brand name, a short framework introduction, and a large
 responsive SVG mark beside the hero copy, an SVG favicon sourced from the
@@ -116,9 +116,9 @@ The starter also includes `/about` as a complete single-file `.vd` lesson and
 props, and a component-owned `script.js`.
 The single-file lesson uses a high-contrast, gradient code panel so its source
 examples remain readable in both light and dark themes.
-The published package also includes an editable `velodomProj/` copy generated
-from the same starter scaffold; copy it from `node_modules/velodom/` when you
-want to begin by modifying a working example.
+The published package also includes the source-controlled editable
+`velodomProj/` default example; copy it from `node_modules/velodom/` when you
+want to begin by modifying a working application.
 
 The V1 roadmap groups implemented production capabilities together: static
 prerendering, conventional page data loading with optional public-data

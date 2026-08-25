@@ -208,8 +208,9 @@ Current release work is governance rather than a new framework feature:
   application with `mountVeloDom()`, the supplied SVG brand/favicon, a shared
   layout/navbar, `/about` single-file lesson, `/guide` component lesson,
   `ignoreDeprecations: "6.0"`, and public package dependencies.
-  The package tarball also includes the generated editable `velodomProj/`
-  example. Additional opinionated presets remain optional research.
+  The package tarball also includes the source-controlled editable
+  `velodomProj/` default example. Additional opinionated presets remain
+  optional research.
 - [ ] Publish the starter-page and CLI-alias refinement as the next patch
   release after explicit owner approval; the current npm `1.0.0` remains
   unchanged.

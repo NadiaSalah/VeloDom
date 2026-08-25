@@ -48,8 +48,8 @@ The package's beginner entry point is `create-velodom`. Its default starter is
 the maintained reference for a first project: it includes a shared
 `default.vd` layout/navbar, the `/about` single-file lesson, the `/guide`
 component lesson, the supplied SVG favicon, and a TypeScript-compatible
-`jsconfig.json`. Keep those generated files aligned with the package CLI and
-with `velodomProj` when the starter changes.
+`jsconfig.json`. The CLI copies the source-controlled `velodomProj` files, so
+the example is the starter source rather than a second template to maintain.
 
 Do not treat an old prompt, a copied snippet, or an example-only helper as a
 framework feature until it is present in the public contract and documented.

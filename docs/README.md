@@ -482,8 +482,8 @@ Inside this repository, run `npm run package:build` first, then use
 After installation from npm, the `vd`, `velodom`, and `create-velodom` binaries
 are available directly through the package manager. The shortest command is
 `npx velodom@latest my-site`; it delegates to `vd init`. The explicit
-`create-velodom` command remains available for scripts. Both commands create the
-published default starter preset; it creates a Vite application with a shared
+`create-velodom` command remains available for scripts. Both commands copy the
+published default starter preset; it is a Vite application with a shared
 layout/navbar, supplied SVG brand and favicon, `/about` single-file lesson,
 `/guide` component lesson, and an npm-safe `jsconfig.json`. Install its
 dependencies and run it immediately with `npm run dev`.

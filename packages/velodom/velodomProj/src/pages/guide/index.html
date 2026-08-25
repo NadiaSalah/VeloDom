@@ -1,0 +1,27 @@
+<main class="lesson-page">
+  <p class="eyebrow">Components and layout</p>
+  <h1>Reuse HTML with a component, then wrap pages with a layout.</h1>
+  <p class="lesson-copy">
+    This page uses <code>src/layouts/default.vd</code> for the navbar and
+    footer. Its cards come from one component folder with a separate
+    <code>script.js</code> file.
+  </p>
+
+  <div class="component-grid">
+    <vd-component
+      name="feature-card"
+      vd-prop-title="HTML stays visible"
+      vd-prop-text="Write normal elements first. Add a directive only when the page needs behavior."
+    ></vd-component>
+    <vd-component
+      name="feature-card"
+      vd-prop-title="JavaScript stays nearby"
+      vd-prop-text="Component state and lifecycle code live in its own script.js file."
+    ></vd-component>
+    <vd-component
+      name="feature-card"
+      vd-prop-title="Layout is shared"
+      vd-prop-text="A layout can provide navigation, a footer, and a consistent shell for many pages."
+    ></vd-component>
+  </div>
+</main>

@@ -464,6 +464,10 @@ test("CLI create scaffolds convention-first project resources", async () => {
       join(root, "starter/package.json"),
       "utf8"
     ));
+    const starterLockfile = JSON.parse(await readFile(
+      join(root, "starter/package-lock.json"),
+      "utf8"
+    ));
 
     assert.match(config, /path: "\/blog\/posts\/:id"/);
     assert.match(config, /satisfies PageConfig/);
@@ -498,7 +502,41 @@ test("CLI create scaffolds convention-first project resources", async () => {
     assert.match(starterViteConfig, /from "velodom\/vite-plugin"/);
     assert.match(await readFile(join(root, "starter/jsconfig.json"), "utf8"), /"ignoreDeprecations": "6\.0"/);
     assert.match(starterViteConfig, /"@": fileURLToPath/);
+    assert.equal(starterManifest.name, "starter");
     assert.equal(starterManifest.imports["#app/*"], "./src/*");
+    assert.equal(starterLockfile.name, "starter");
+    assert.equal(starterLockfile.packages[""].name, "starter");
+
+    for (const file of [
+      "index.html",
+      "jsconfig.json",
+      "vite.config.js",
+      "public/velodom-favicon.svg",
+      "src/main.js",
+      "src/style.css",
+      "src/components/brand-mark/index.html",
+      "src/components/site-nav/index.html",
+      "src/components/site-nav/script.js",
+      "src/components/site-nav/style.css",
+      "src/components/feature-card/index.html",
+      "src/components/feature-card/script.js",
+      "src/components/feature-card/style.css",
+      "src/layouts/default.vd",
+      "src/pages/about.vd",
+      "src/pages/guide/config.js",
+      "src/pages/guide/index.html",
+      "src/pages/home/config.js",
+      "src/pages/home/index.html",
+      "src/pages/home/script.js"
+    ]) {
+      const generated = await readFile(join(root, "starter", file), "utf8");
+      const shipped = await readFile(
+        new URL(`../../../packages/velodom/velodomProj/${file}`, import.meta.url),
+        "utf8"
+      );
+
+      assert.equal(generated, shipped, `Starter drifted from velodomProj/${file}`);
+    }
   } finally {
     await removeFixture(root);
   }
