@@ -438,6 +438,9 @@ test("CLI create scaffolds convention-first project resources", async () => {
     assert.doesNotMatch(starterMain, /createViteAdapter/);
     assert.match(starterHome, /vd-component name="brand-mark"/);
     assert.match(starterHome, /vd-on:click="toggleTheme\(\)"/);
+    assert.match(starterHome, /href="\/#principles" vd-nav/);
+    assert.match(starterHome, /href="https:\/\/github\.com\/NadiaSalah\/VeloDom"/);
+    assert.match(starterHome, /target="_blank" rel="noreferrer"/);
     assert.match(starterBrand, /viewBox="0 0 850\.39 850\.39"/);
     assert.doesNotMatch(starterBrand, /<img\b/);
     assert.match(starterShell, /<!doctype html>/i);

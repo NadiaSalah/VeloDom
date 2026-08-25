@@ -779,8 +779,8 @@ function createProjectHomeTemplate() {
     <h1 id="hero-title">Build visible web apps from ordinary HTML.</h1>
     <p class="hero-copy">VeloDom keeps your pages close to the files you write, then adds routing, state, components, requests, and SEO only when your feature needs them.</p>
     <div class="hero-actions">
-      <a class="button button-primary" href="#principles">Explore the model</a>
-      <a class="button button-secondary" href="https://github.com/NadiaSalah/velodom">View on GitHub</a>
+      <a class="button button-primary" href="/#principles" vd-nav>Explore the model</a>
+      <a class="button button-secondary" href="https://github.com/NadiaSalah/VeloDom" target="_blank" rel="noreferrer">View on GitHub</a>
     </div>
   </section>
 

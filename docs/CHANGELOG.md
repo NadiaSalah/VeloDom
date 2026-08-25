@@ -21,6 +21,9 @@ both development milestones and published package verification.
   visible `VeloDom` wordmark, removing an unnecessary public asset.
 - Updated the inline mark to the supplied square `VeloDom-logo-01.svg` artwork
   while keeping the generated component image-free.
+- Corrected starter home-page CTAs: the model link now uses the router-safe
+  `/#principles` same-page hash, and the GitHub link uses the canonical
+  repository URL in a new tab.
 
 ### GitHub Actions Release Matrix
 

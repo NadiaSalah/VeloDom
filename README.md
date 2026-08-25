@@ -95,6 +95,8 @@ The repository also contains [`velodomProj`](velodomProj/README.md), a clean
 consumer project generated from that published package. Its home page includes
 a reusable inline-SVG logo component with the visible `VeloDom` wordmark, a
 short framework introduction, and a dependency-free light/dark theme toggle.
+Its primary call-to-action uses VeloDom's router-safe `/#principles` hash link,
+and the GitHub call-to-action points to the canonical repository URL.
 Run `npm install` and `npm run build` inside it to verify the public
 installation path independently of the framework workspace.
 
