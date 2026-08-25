@@ -1,5 +1,9 @@
 # VeloDom
 
+<p align="center">
+  <img src="velodomProj/public/velodom-favicon.svg" alt="VeloDom logo" width="180">
+</p>
+
 VeloDom is an HTML-first, compiler-first frontend framework for lightweight,
 folder-first web applications. Framework internals are written in TypeScript;
 application authors may use Vanilla JavaScript or TypeScript without changing
