@@ -116,6 +116,9 @@ The starter also includes `/about` as a complete single-file `.vd` lesson and
 props, and a component-owned `script.js`.
 The single-file lesson uses a high-contrast, gradient code panel so its source
 examples remain readable in both light and dark themes.
+The published package also includes an editable `velodomProj/` copy generated
+from the same starter scaffold; copy it from `node_modules/velodom/` when you
+want to begin by modifying a working example.
 
 The V1 roadmap groups implemented production capabilities together: static
 prerendering, conventional page data loading with optional public-data

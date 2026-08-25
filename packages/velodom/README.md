@@ -158,6 +158,15 @@ The generated starter also contains `src/components/site-nav/` and
 `src/pages/guide/`. Read those files in the generated project to learn the
 framework conventions without opening framework internals.
 
+The npm tarball also includes the same small editable project at
+`velodomProj/`. After installing the package, copy
+`node_modules/velodom/velodomProj` into your workspace, run `npm install`, and
+edit its `src/` files. The directory is generated from the `create-velodom`
+scaffold during packaging, so the downloadable example and the CLI starter
+cannot drift into two different conventions.
+This additional tarball entry is prepared for the next patch publication;
+the current registry `1.0.0` remains unchanged until that release is approved.
+
 Folder mode and `.vd` mode compile to the same internal resource shape. Do not
 create both JavaScript and TypeScript variants for one convention slot; VeloDom
 reports that ambiguity instead of silently choosing one.

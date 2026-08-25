@@ -79,7 +79,8 @@ const allowedPackageFiles = new Set([
   "README.md",
   "bin",
   "lib",
-  "types"
+  "types",
+  "velodomProj"
 ]);
 const requiredKeywords = new Set([
   "frontend-framework",
@@ -169,6 +170,27 @@ if (manifest.peerDependenciesMeta?.vite?.optional !== true) {
 for (const required of allowedPackageFiles) {
   if (!packageFiles.has(required)) {
     violations.push(`package files allowlist is missing "${required}"`);
+  }
+}
+
+const requiredExampleFiles = [
+  "package.json",
+  "README.md",
+  "index.html",
+  "jsconfig.json",
+  "vite.config.js",
+  "public/velodom-favicon.svg",
+  "src/main.js",
+  "src/layouts/default.vd",
+  "src/pages/about.vd",
+  "src/pages/guide/index.html"
+];
+
+for (const file of requiredExampleFiles) {
+  try {
+    await access(join(packageRoot, "velodomProj", file));
+  } catch {
+    violations.push(`editable package example is missing "velodomProj/${file}"`);
   }
 }
 

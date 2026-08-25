@@ -64,6 +64,7 @@ test("published package boundaries use built allowlisted artifacts", () => {
     "bin",
     "lib",
     "types",
+    "velodomProj",
     "README.md",
     "LICENSE"
   ]);

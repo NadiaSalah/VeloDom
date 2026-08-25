@@ -489,6 +489,9 @@ layout/navbar, supplied SVG brand and favicon, `/about` single-file lesson,
 dependencies and run it immediately with `npm run dev`.
 The `velodom` alias is prepared in this workspace for the next patch release;
 the current registry `1.0.0` remains compatible through `create-velodom`.
+The npm tarball also carries an editable copy at
+`node_modules/velodom/velodomProj`; copy that folder when you want to learn by
+modifying a complete small project instead of starting from an empty folder.
 
 The CLI is intentionally static and local. `vd inspect` and `vd stats` read
 folders, `.vd` files, API route registrations, middleware files, template

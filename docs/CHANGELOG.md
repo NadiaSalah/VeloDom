@@ -10,6 +10,8 @@ both development milestones and published package verification.
   as `create-velodom`; the existing explicit command remains supported.
 - Added a package-level AI authoring contract in `packages/velodom/README.md`
   plus repository-local Core guidance in `packages/velodom/AGENTS.md`.
+- Added the generated `velodomProj/` source example to the npm package allowlist;
+  packaging creates it from the same scaffold used by `create-velodom`.
 
 ## 2026-08-25
 
