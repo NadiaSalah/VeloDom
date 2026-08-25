@@ -1,7 +1,7 @@
 # VeloDom
 
 <p align="center">
-  <img src="packages/velodom/velodomProj/public/velodom-favicon.svg" alt="VeloDom logo" width="180">
+  <img src="docs/assets/VeloDom-logo.svg" alt="VeloDom logo" width="260">
 </p>
 
 VeloDom is an HTML-first, compiler-first frontend framework for lightweight,
