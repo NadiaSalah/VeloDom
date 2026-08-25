@@ -1,5 +1,6 @@
 node_modules/
 dist/
+velodomProj/
 lib/
 .vite/
 coverage/
