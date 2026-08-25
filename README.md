@@ -47,6 +47,7 @@ npm run pack:check
 packages/velodom/         Publishable framework package
 packages/velodom-vscode/  Optional private VS Code language-tools package
 examples/blog/            Real application consuming public package exports
+velodomProj/              Standalone npm consumer starter smoke project
 tools/                    Repository tests and release/build verification
 docs/                     Guide, architecture, decisions, roadmap, and history
 ```
@@ -89,6 +90,11 @@ provider.
 The npm package has a strict `files` allowlist, explicit public exports,
 package-consumer tests, and a dry-run tarball check. Version `1.0.0` is
 published at [npmjs.com/package/velodom](https://www.npmjs.com/package/velodom).
+
+The repository also contains [`velodomProj`](velodomProj/README.md), a clean
+consumer project generated from that published package. Run `npm install` and
+`npm run build` inside it to verify the public installation path independently
+of the framework workspace.
 
 The V1 roadmap groups implemented production capabilities together: static
 prerendering, conventional page data loading with optional public-data
@@ -211,6 +217,8 @@ a browser translation provider. See
 
 - The default npm-installable starter preset is available through
   `npx --yes --package velodom create-velodom <name>`.
+- `velodomProj` is the checked-in consumer smoke project for
+  `velodom@1.0.0`; its dependencies and production build have been verified.
 - Continue only the optional items recorded in [docs/TODO.md](docs/TODO.md).
 
 ## Handoff Notes

@@ -1,10 +1,17 @@
 # Changelog
 
-All important local changes to VeloDom are recorded here. The project is not
-published yet, so entries describe development milestones rather than released
-package versions.
+All important local changes to VeloDom are recorded here. Entries describe
+both development milestones and published package verification.
 
 ## 2026-08-25
+
+### npm Consumer Starter Smoke Project
+
+- Added `velodomProj`, a standalone project generated with the published
+  `create-velodom` preset.
+- Installed `velodom@1.0.0` from npm and verified the package with `npm ls`.
+- Confirmed the consumer project builds successfully with Vite and reports zero
+  dependency vulnerabilities.
 
 ### GitHub Actions Release Matrix
 
