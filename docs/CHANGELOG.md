@@ -17,8 +17,8 @@ both development milestones and published package verification.
   toggle without adding a UI dependency.
 - The refinement is prepared in the workspace and consumer project; npm
   `1.0.0` is intentionally unchanged until the owner approves a patch release.
-- Replaced the starter mark with the supplied VeloDom wordmark and kept it in
-  `public` so Vite copies the logo into production builds without distortion.
+- Replaced the image-based starter logo with an inline SVG component and the
+  visible `VeloDom` wordmark, removing an unnecessary public asset.
 
 ### GitHub Actions Release Matrix
 

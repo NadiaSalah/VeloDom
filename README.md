@@ -93,10 +93,10 @@ published at [npmjs.com/package/velodom](https://www.npmjs.com/package/velodom).
 
 The repository also contains [`velodomProj`](velodomProj/README.md), a clean
 consumer project generated from that published package. Its home page includes
-a reusable component with the supplied VeloDom wordmark, a short framework
-introduction, and a dependency-free light/dark theme toggle. Run `npm install`
-and `npm run build` inside it to verify the public installation path
-independently of the framework workspace.
+a reusable inline-SVG logo component with the visible `VeloDom` wordmark, a
+short framework introduction, and a dependency-free light/dark theme toggle.
+Run `npm install` and `npm run build` inside it to verify the public
+installation path independently of the framework workspace.
 
 The V1 roadmap groups implemented production capabilities together: static
 prerendering, conventional page data loading with optional public-data

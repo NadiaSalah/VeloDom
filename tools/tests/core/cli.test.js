@@ -398,7 +398,6 @@ test("CLI create scaffolds convention-first project resources", async () => {
     await assertFile(join(root, "starter/src/pages/home/index.html"));
     await assertFile(join(root, "starter/src/pages/home/script.js"));
     await assertFile(join(root, "starter/src/components/brand-mark/index.html"));
-    await assertFile(join(root, "starter/public/velodom-mark.svg"));
     await assertFile(join(root, "starter/src/style.css"));
     await assertFile(join(root, "starter/vite.config.js"));
     await assertFile(join(root, "starter/jsconfig.json"));
@@ -415,8 +414,8 @@ test("CLI create scaffolds convention-first project resources", async () => {
       join(root, "starter/src/pages/home/index.html"),
       "utf8"
     );
-    const starterLogo = await readFile(
-      join(root, "starter/public/velodom-mark.svg"),
+    const starterBrand = await readFile(
+      join(root, "starter/src/components/brand-mark/index.html"),
       "utf8"
     );
     const starterShell = await readFile(
@@ -439,7 +438,8 @@ test("CLI create scaffolds convention-first project resources", async () => {
     assert.doesNotMatch(starterMain, /createViteAdapter/);
     assert.match(starterHome, /vd-component name="brand-mark"/);
     assert.match(starterHome, /vd-on:click="toggleTheme\(\)"/);
-    assert.match(starterLogo, /viewBox="0 0 1661\.36 850\.39"/);
+    assert.match(starterBrand, /<svg class="brand-icon"/);
+    assert.doesNotMatch(starterBrand, /<img\b/);
     assert.match(starterShell, /<!doctype html>/i);
     assert.match(starterShell, /name="description"/);
     assert.match(starterViteConfig, /from "velodom\/vite-plugin"/);

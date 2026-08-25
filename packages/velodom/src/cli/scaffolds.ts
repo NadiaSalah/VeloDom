@@ -22,7 +22,6 @@ import {
   toPosix,
   toRoutePath
 } from "./analyzer.ts";
-import { STARTER_LOGO_SVG } from "./logo.ts";
 import type { CliContext } from "./types.ts";
 
 /** Creates one supported VeloDom resource from parsed CLI values and flags. */
@@ -271,7 +270,6 @@ async function createProject(context: CliContext, name: string) {
     join(folder, "src", "components", "brand-mark", "index.html"),
     createProjectBrandComponent()
   );
-  await writeNewFile(join(folder, "public", "velodom-mark.svg"), createProjectLogo());
   await writeNewFile(join(folder, "src", "style.css"), createProjectStyles());
   context.stdout(`Created VeloDom project ${relativePath(context.cwd, folder)}`);
 }
@@ -767,6 +765,7 @@ function createProjectHomeTemplate() {
   <header class="site-header">
     <a class="brand" href="/" vd-nav aria-label="VeloDom home">
       <vd-component name="brand-mark"></vd-component>
+      <span>VeloDom</span>
     </a>
     <button class="theme-toggle" type="button" aria-label="Toggle color theme" vd-on:click="toggleTheme()">
       <span vd-text="themeIcon" aria-hidden="true"></span>
@@ -838,11 +837,14 @@ function createProjectHomeConfig() {
 }
 
 function createProjectBrandComponent() {
-  return `<span class="brand-mark"><img src="/velodom-mark.svg" alt="VeloDom"></span>\n`;
-}
-
-function createProjectLogo() {
-  return `${STARTER_LOGO_SVG}\n`;
+  return `<span class="brand-mark">
+  <svg class="brand-icon" viewBox="0 0 64 64" role="img" aria-labelledby="brand-title" fill="none">
+    <title id="brand-title">VeloDom</title>
+    <rect width="64" height="64" rx="18" fill="#060B18"></rect>
+    <path d="M11 18h10l11 27 10-27h10L38 51H26L11 18Z" fill="#28C7FF"></path>
+    <path d="M37 18h8c10 0 16 6 16 15s-6 15-16 15h-8V18Zm8 8v14h1c5 0 8-3 8-7s-3-7-8-7h-1Z" fill="#F8FAFC"></path>
+  </svg>
+</span>\n`;
 }
 
 function createProjectStyles() {
@@ -867,8 +869,8 @@ a { color: inherit; }
 .site-header, .hero, .principles, .site-footer { width: min(1080px, calc(100% - 2rem)); margin-inline: auto; }
 .site-header { display: flex; align-items: center; justify-content: space-between; padding-block: 1.25rem; }
 .brand { display: inline-flex; align-items: center; gap: .65rem; font-size: 1.15rem; font-weight: 800; text-decoration: none; }
-.brand-mark { display: inline-flex; width: 9.5rem; padding: .35rem .5rem; border-radius: .75rem; overflow: hidden; background: #01040f; box-shadow: 0 8px 20px rgb(15 23 42 / .24); }
-.brand-mark img { display: block; width: 100%; height: auto; }
+.brand-mark { display: inline-flex; width: 2.5rem; height: 2.5rem; border-radius: .75rem; overflow: hidden; box-shadow: 0 8px 20px rgb(79 70 229 / .24); }
+.brand-icon { display: block; width: 100%; height: 100%; }
 .theme-toggle, .button { border: 1px solid var(--border); border-radius: .8rem; font: inherit; font-weight: 700; cursor: pointer; transition: transform 160ms ease, border-color 160ms ease; }
 .theme-toggle { display: inline-flex; align-items: center; gap: .5rem; padding: .55rem .8rem; background: var(--surface); color: var(--text); }
 .theme-toggle:hover, .button:hover { transform: translateY(-2px); border-color: var(--accent); }
