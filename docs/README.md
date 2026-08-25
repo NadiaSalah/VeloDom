@@ -10,7 +10,7 @@ JavaScript or TypeScript independently for every page and component.
 
 Source repository: [github.com/NadiaSalah/VeloDom](https://github.com/NadiaSalah/VeloDom).
 
-> Project status: VeloDom V1 `1.0.1` is published on npm. The package lives at
+> Project status: VeloDom V1 `1.0.2` is published on npm. The package lives at
 > `packages/velodom`; public API names are protected by package-boundary tests,
 > and the registry package is available at
 > [npmjs.com/package/velodom](https://www.npmjs.com/package/velodom).

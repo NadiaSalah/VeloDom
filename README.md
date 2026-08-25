@@ -70,7 +70,7 @@ allowlisted by `packages/velodom/package.json`.
 V1 is verified with 256 automated tests, package-consumer and tarball
 validation, a production build within its performance budgets, a 100/100
 example-project health report, and a successful GitHub Actions matrix across
-Chromium, Firefox, WebKit, and Mobile WebKit. VeloDom `1.0.1` is now published
+Chromium, Firefox, WebKit, and Mobile WebKit. VeloDom `1.0.2` is now published
 on npm under the authenticated `engnadia` account with write-level 2FA. The
 roadmap is [docs/TODO.md](docs/TODO.md); the remaining work is optional
 post-publication tooling and research. The current workspace lockfile passes
@@ -96,7 +96,7 @@ emits localized canonical plus `hreflang` SEO records without a translation
 provider.
 
 The npm package has a strict `files` allowlist, explicit public exports,
-package-consumer tests, and a dry-run tarball check. Version `1.0.1` is
+package-consumer tests, and a dry-run tarball check. Version `1.0.2` is
 published at [npmjs.com/package/velodom](https://www.npmjs.com/package/velodom).
 
 The package contains [`velodomProj`](packages/velodom/velodomProj/README.md),
@@ -253,7 +253,7 @@ a browser translation provider. See
   `npx velodom@latest <name>` command is available in the current patch release. The explicit
   `npx --yes --package velodom create-velodom <name>` form remains supported.
 - `packages/velodom/velodomProj` is the checked-in package starter for
-  `velodom@1.0.1`; its dependencies, production build, logo component, and
+  `velodom@1.0.2`; its dependencies, production build, logo component, and
   light/dark starter experience, shared layout, navbar, `.vd` lesson, and
   component lesson have been verified. The package's `create-velodom` binary
   copies this same source after the next package build/publication.

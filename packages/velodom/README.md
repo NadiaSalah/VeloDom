@@ -60,7 +60,7 @@ framework runtime.
 - Vite `6`, `7`, or `8` for the standard integration.
 - TypeScript is optional for application code.
 
-VeloDom `1.0.1` is published on npm. The package includes a shorter
+VeloDom `1.0.2` is published on npm. The package includes a shorter
 `velodom` binary alongside `create-velodom`.
 a new app can start with:
 
@@ -164,7 +164,7 @@ The npm tarball includes this source-controlled small editable project at
 edit its `src/` files. It is the visible default framework example. The CLI
 copies this same source-controlled project and changes only its package name,
 so the two starting paths cannot drift.
-This additional tarball entry is included in the published `1.0.1` package;
+This additional tarball entry is included in the published `1.0.2` package;
 the `latest` registry tag points to this release.
 
 Folder mode and `.vd` mode compile to the same internal resource shape. Do not
