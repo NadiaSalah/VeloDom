@@ -22,6 +22,9 @@ The maintained documentation surface is intentionally small: the guide plus
 For the publishable package, see
 [packages/velodom](packages/velodom/README.md). The repository's working
 application is the VeloDom documentation blog in `examples/blog`.
+AI assistants working inside the package should also read
+[packages/velodom/AGENTS.md](packages/velodom/AGENTS.md); the published package
+README carries the portable version of that guidance.
 
 ## Technology
 

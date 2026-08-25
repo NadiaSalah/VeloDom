@@ -8,6 +8,8 @@ both development milestones and published package verification.
 - Added the concise `vd init <name>` project initializer and the package-level
   `npx velodom@latest <name>` shortcut. Both generate the same complete starter
   as `create-velodom`; the existing explicit command remains supported.
+- Added a package-level AI authoring contract in `packages/velodom/README.md`
+  plus repository-local Core guidance in `packages/velodom/AGENTS.md`.
 
 ## 2026-08-25
 

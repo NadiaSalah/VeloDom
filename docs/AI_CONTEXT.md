@@ -38,6 +38,12 @@ When sources disagree, use this order:
 4. `packages/velodom/README.md`, which is the registry-facing quick guide.
 5. `examples/blog`, which demonstrates usage but does not define the API.
 
+When working directly inside the package, also read
+`packages/velodom/AGENTS.md`. It is repository-local contributor guidance for
+the Core and is intentionally not part of the npm publish allowlist. The
+published README contains the same application-generation contract for tools
+that only have access to the installed package.
+
 The package's beginner entry point is `create-velodom`. Its default starter is
 the maintained reference for a first project: it includes a shared
 `default.vd` layout/navbar, the `/about` single-file lesson, the `/guide`

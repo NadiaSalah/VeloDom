@@ -11,6 +11,33 @@ working site, while keeping explicit escape hatches for advanced applications.
 It does not require JSX, TSX, a virtual DOM, a global store, or a translation
 provider.
 
+## AI-assisted project generation
+
+This README is also the package-level contract for AI coding assistants. When
+generating a VeloDom application, keep framework code and application code
+separate: import only public `velodom/*` entry points, write visible HTML under
+`src/pages` and `src/components`, keep layouts under `src/layouts`, and place
+API handlers or middleware under `src/api`. Do not copy `packages/velodom/src`
+into an application and do not invent undocumented `vd-*` directives.
+
+Use JavaScript or TypeScript consistently within each file; both languages use
+the same HTML-first authoring model. Prefer the smallest conventional shape:
+
+```text
+src/pages/about/
+  index.html
+  script.js       # or script.ts
+  style.css
+  config.js       # or config.ts
+```
+
+Choose a `.vd` page when template, behavior, style, and route policy are
+small enough to stay together. Add `config.js`/`config.ts` for route, layout,
+SEO, and guard policy, and keep loading, error, empty, accessibility, and SEO
+states explicit. The AI should run the project's `vd doctor`, build, and test
+checks after generating code instead of hiding diagnostics or adding a second
+framework runtime.
+
 ## Principles
 
 - **HTML First** — templates remain readable HTML and progressively enhanced
