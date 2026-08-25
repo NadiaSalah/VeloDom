@@ -1032,7 +1032,8 @@ ${"export"} function init({ state }) {
 .lesson-grid article, .lesson-grid pre { padding: 1.5rem; border: 1px solid var(--border); border-radius: 1.25rem; background: var(--surface); box-shadow: var(--shadow); }
 .lesson-grid h2 { font-size: 1.3rem; }
 .lesson-grid ol { display: grid; gap: .75rem; padding-inline-start: 1.25rem; color: var(--muted); line-height: 1.6; }
-.lesson-grid pre { overflow: auto; background: #0b1120; color: #dbeafe; line-height: 1.6; }
+.lesson-grid pre { overflow: auto; border-color: rgb(129 140 248 / .45); background: radial-gradient(circle at 90% 0%, rgb(99 102 241 / .28), transparent 42%), linear-gradient(145deg, #111a38, #060a18 70%); box-shadow: 0 24px 60px rgb(15 23 42 / .25), inset 0 1px 0 rgb(255 255 255 / .08); color: #e0e7ff; line-height: 1.6; }
+.lesson-grid pre code { display: block; color: #e0e7ff; font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: .92rem; text-shadow: 0 0 14px rgb(129 140 248 / .35); }
 @media (max-width: 720px) { .lesson-grid { grid-template-columns: 1fr; } }
 </style>
 

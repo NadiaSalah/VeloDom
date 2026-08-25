@@ -105,6 +105,8 @@ installation path independently of the framework workspace.
 The starter also includes `/about` as a complete single-file `.vd` lesson and
 `/guide` as a folder page demonstrating a shared layout, navbar, component
 props, and a component-owned `script.js`.
+The single-file lesson uses a high-contrast, gradient code panel so its source
+examples remain readable in both light and dark themes.
 
 The V1 roadmap groups implemented production capabilities together: static
 prerendering, conventional page data loading with optional public-data

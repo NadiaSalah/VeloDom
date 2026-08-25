@@ -37,6 +37,8 @@ both development milestones and published package verification.
   navbar's active route accessible.
 - Added `ignoreDeprecations: "6.0"` to generated and example JavaScript
   configurations so TypeScript 6 does not block the Vite/Bundler setup.
+- Refined the `/about` single-file lesson's code panel with a high-contrast
+  gradient surface, readable monospace text, and a subtle glow.
 
 ### GitHub Actions Release Matrix
 
