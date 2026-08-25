@@ -170,5 +170,5 @@ after publication.
 
 ## Current Publication Blockers
 
-- None for V1 `1.0.0`. Optional starter presets and future capabilities remain
-  roadmap work.
+- None for V1 `1.0.0`. Additional starter variants and future capabilities
+  remain roadmap work; the default starter is maintained by `create-velodom`.

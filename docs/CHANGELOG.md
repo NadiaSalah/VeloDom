@@ -41,6 +41,9 @@ both development milestones and published package verification.
   configurations so TypeScript 6 does not block the Vite/Bundler setup.
 - Refined the `/about` single-file lesson's code panel with a high-contrast
   gradient surface, readable monospace text, and a subtle glow.
+- Updated the package-facing starter documentation to describe the complete
+  npm-generated learning project and its shared layout, navbar, `.vd` page,
+  component script, SVG favicon, and TypeScript compatibility setting.
 
 ### GitHub Actions Release Matrix
 

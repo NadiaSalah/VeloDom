@@ -42,11 +42,15 @@ npm install
 npm run dev
 ```
 
-This is the published default starter preset. It creates a Vite project with
-the VeloDom plugin, `mountVeloDom()` bootstrap, a small HTML-first home page,
-a reusable logo component, a dependency-free light/dark theme toggle, and
-JavaScript configuration. Use `vd create` after installation for additional pages,
-components, API routes, middleware, plugins, and focused demos.
+This is the default starter preset shipped by the package. It creates a Vite project with
+the VeloDom plugin, `mountVeloDom()` bootstrap, an HTML-first home page, the
+supplied SVG logo and favicon, a shared layout/navbar, a dependency-free
+light/dark theme toggle, and JavaScript configuration. It also includes two
+small runnable lessons: `/about` is a complete single-file `.vd` page and
+`/guide` demonstrates `vd-component`, props, and a component `script.js`.
+The generated `jsconfig.json` includes `ignoreDeprecations: "6.0"` for the
+TypeScript 6 Bundler configuration. Use `vd create` after installation for
+additional pages, components, API routes, middleware, plugins, and demos.
 
 To integrate an existing Vite project:
 
@@ -96,9 +100,7 @@ src/
       style.css
     badge.vd           # optional one-file component
   layouts/
-    default/
-      index.html
-      style.css
+    default.vd             # shared navbar, page slot, and footer
   api/
     posts.js           # importable helper module
     posts/get.js       # optional file route: posts.get
@@ -106,7 +108,14 @@ src/
     routes.js          # advanced route registry
     middleware.js      # advanced middleware registry
   assets/
+public/
+  velodom-favicon.svg       # supplied VeloDom SVG favicon
 ```
+
+The generated starter also contains `src/components/site-nav/` and
+`src/components/feature-card/`, plus `src/pages/about.vd` and
+`src/pages/guide/`. Read those files in the generated project to learn the
+framework conventions without opening framework internals.
 
 Folder mode and `.vd` mode compile to the same internal resource shape. Do not
 create both JavaScript and TypeScript variants for one convention slot; VeloDom

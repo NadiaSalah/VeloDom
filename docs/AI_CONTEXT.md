@@ -38,6 +38,13 @@ When sources disagree, use this order:
 4. `packages/velodom/README.md`, which is the registry-facing quick guide.
 5. `examples/blog`, which demonstrates usage but does not define the API.
 
+The package's beginner entry point is `create-velodom`. Its default starter is
+the maintained reference for a first project: it includes a shared
+`default.vd` layout/navbar, the `/about` single-file lesson, the `/guide`
+component lesson, the supplied SVG favicon, and a TypeScript-compatible
+`jsconfig.json`. Keep those generated files aligned with the package CLI and
+with `velodomProj` when the starter changes.
+
 Do not treat an old prompt, a copied snippet, or an example-only helper as a
 framework feature until it is present in the public contract and documented.
 

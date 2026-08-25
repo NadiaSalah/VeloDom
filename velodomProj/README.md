@@ -1,8 +1,9 @@
 # velodomProj
 
-Small consumer project generated from the published VeloDom starter preset.
+Small consumer project generated from the VeloDom package starter preset.
 It demonstrates the public npm workflow: application code stays in `src/`,
-while the framework is installed from the registry as `velodom@1.0.0`.
+while the framework is installed as the public `velodom` package. The checked-in
+project is also the smoke fixture for the starter that `create-velodom` emits.
 
 ## Run it
 
@@ -45,3 +46,12 @@ The `/about` page is a complete `.vd` example. The `/guide` page demonstrates
 `vd-component`, component props, a component `script.js`, and the shared
 `default.vd` layout. The small navbar links these examples so a new developer
 can explore the framework by reading the files and clicking the result.
+
+The same starter shape is generated for a new project with:
+
+```bash
+npx --yes --package velodom create-velodom my-app
+```
+
+The generated project includes the supplied SVG favicon and an npm-safe
+`jsconfig.json` with `ignoreDeprecations: "6.0"`.

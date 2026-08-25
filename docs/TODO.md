@@ -204,8 +204,9 @@ Current release work is governance rather than a new framework feature:
   install resolution.
 - [x] Add the published default starter preset through
   `npx --yes --package velodom create-velodom <name>`. It generates a Vite
-  application with `mountVeloDom()`, a small introduction home page, a logo
-  component, a light/dark theme toggle, and public package dependencies.
+  application with `mountVeloDom()`, the supplied SVG brand/favicon, a shared
+  layout/navbar, `/about` single-file lesson, `/guide` component lesson,
+  `ignoreDeprecations: "6.0"`, and public package dependencies.
   Additional opinionated presets remain optional research.
 - [ ] Publish the starter-page refinement as the next patch release after
   explicit owner approval; the current npm `1.0.0` remains unchanged.

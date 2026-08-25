@@ -479,8 +479,10 @@ Inside this repository, run `npm run package:build` first, then use
 `packages/velodom/lib/cli.js`.
 After installation from npm, the `vd` and `create-velodom` binaries are
 available directly through the package manager. The command above is the
-published default starter preset; it creates a minimal Vite application that
-can immediately install dependencies and run with `npm run dev`.
+published default starter preset; it creates a Vite application with a shared
+layout/navbar, supplied SVG brand and favicon, `/about` single-file lesson,
+`/guide` component lesson, and an npm-safe `jsconfig.json`. Install its
+dependencies and run it immediately with `npm run dev`.
 
 The CLI is intentionally static and local. `vd inspect` and `vd stats` read
 folders, `.vd` files, API route registrations, middleware files, template

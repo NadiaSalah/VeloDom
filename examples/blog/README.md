@@ -5,6 +5,12 @@ package. It is deliberately a real consumer: the framework lives in
 `packages/velodom`, while branding, content, Tailwind classes, routes, and
 request policy remain here.
 
+It is intentionally richer than the beginner project emitted by
+`create-velodom`. Use `velodomProj` (or `npx --yes --package velodom
+create-velodom <name>`) for the smallest generated starting point; use this
+blog when you need a complete documentation site with multiple routes,
+layouts, requests, and content.
+
 ## What the example demonstrates
 
 | Route | Purpose |

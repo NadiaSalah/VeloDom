@@ -547,7 +547,9 @@
   the same owner, account, access, 2FA, notes, and tag decisions.
 - The default starter preset intentionally ships inside the published `velodom`
   package rather than creating a second package name. `npx --yes --package
-  velodom create-velodom <name>` is the stable beginner entry point; additional
+  velodom create-velodom <name>` is the stable beginner entry point. It now
+  generates the shared layout/navbar, `.vd` lesson, component lesson, supplied
+  SVG favicon, and TypeScript-compatible `jsconfig.json`; additional
   opinionated presets remain optional until they have distinct support value.
 - Dependency advisory review is now complete for the published V1 workspace.
   The approved npm audit found and fixed three transitive high-severity issues;
