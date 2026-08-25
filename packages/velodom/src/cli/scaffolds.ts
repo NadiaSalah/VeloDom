@@ -22,6 +22,7 @@ import {
   toPosix,
   toRoutePath
 } from "./analyzer.ts";
+import { STARTER_BRAND_SVG } from "./brand.ts";
 import type { CliContext } from "./types.ts";
 
 /** Creates one supported VeloDom resource from parsed CLI values and flags. */
@@ -837,14 +838,7 @@ function createProjectHomeConfig() {
 }
 
 function createProjectBrandComponent() {
-  return `<span class="brand-mark">
-  <svg class="brand-icon" viewBox="0 0 64 64" role="img" aria-labelledby="brand-title" fill="none">
-    <title id="brand-title">VeloDom</title>
-    <rect width="64" height="64" rx="18" fill="#060B18"></rect>
-    <path d="M11 18h10l11 27 10-27h10L38 51H26L11 18Z" fill="#28C7FF"></path>
-    <path d="M37 18h8c10 0 16 6 16 15s-6 15-16 15h-8V18Zm8 8v14h1c5 0 8-3 8-7s-3-7-8-7h-1Z" fill="#F8FAFC"></path>
-  </svg>
-</span>\n`;
+  return `<span class="brand-mark">\n${STARTER_BRAND_SVG}\n</span>\n`;
 }
 
 function createProjectStyles() {

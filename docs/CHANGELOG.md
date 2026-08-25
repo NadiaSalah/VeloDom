@@ -19,6 +19,8 @@ both development milestones and published package verification.
   `1.0.0` is intentionally unchanged until the owner approves a patch release.
 - Replaced the image-based starter logo with an inline SVG component and the
   visible `VeloDom` wordmark, removing an unnecessary public asset.
+- Updated the inline mark to the supplied square `VeloDom-logo-01.svg` artwork
+  while keeping the generated component image-free.
 
 ### GitHub Actions Release Matrix
 
