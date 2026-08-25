@@ -14,9 +14,9 @@ product generations.
 | Authoring and application conventions | V1 — Implemented | Folder mode, optional `.vd`, JS/TS parity, layouts, CLI scaffolding |
 | Production features | V1 — Implemented | Routing, requests, forms, SEO, content, localization, package subpaths |
 | Developer intelligence | V1 — Implemented | `vd` inspection commands, compiler language helpers, testing utilities |
-| Public package | V1 — Implemented | Published `velodom@1.0.2`, exports and consumer checks pass |
+| Public package | V1 — Implemented | Published `velodom@1.0.0`, exports and consumer checks pass |
 | Browser release gate | V1 — Implemented | GitHub Actions Run #27 passed Chromium, Firefox, WebKit, and Mobile WebKit |
-| npm publication | V1 — Implemented | `velodom@1.0.2` published with public access and `latest` dist-tag |
+| npm publication | V1 — Implemented | `velodom@1.0.0` published with public access and `latest` dist-tag |
 | Hybrid rendering and islands | V1 — Planned / Experimental | Design must preserve static-first authoring and optional runtime cost |
 | AI, migration, CMS, and Edge integrations | V1 — Research / Deferred | External, optional, and never required by Core |
 
@@ -27,7 +27,7 @@ product generations.
 `[####################] 100%`
 
 The npm account is authenticated and protected by write-level 2FA. The
-`velodom@1.0.2` package is published with the `latest` dist-tag. Future work
+`velodom@1.0.0` package is published with the `latest` dist-tag. Future work
 is optional post-publication development.
 
 ### Status vocabulary

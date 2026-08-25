@@ -15,7 +15,7 @@ VeloDom follows Semantic Versioning for the public package entry points:
 
 ## Version Rules
 
-Current repository package identity: published `1.0.2`. The package is
+Current repository package identity: published `1.0.0`. The package is
 available at [npmjs.com/package/velodom](https://www.npmjs.com/package/velodom)
 with the `latest` dist-tag.
 
@@ -159,7 +159,7 @@ VeloDom does not ship browser polyfills by default.
 
 ## Current Release Decision
 
-VeloDom `1.0.2` is published and verified in the npm registry. The package
+VeloDom `1.0.0` is published and verified in the npm registry. The package
 manifest, public exports, CLI binaries, tarball allowlist, consumer fixture,
 production build, and GitHub Actions browser matrix were checked before and
 after publication.
@@ -173,5 +173,5 @@ after publication.
 
 ## Current Publication Blockers
 
-- None for V1 `1.0.2`. Additional starter variants and future capabilities
+- None for V1 `1.0.0`. Additional starter variants and future capabilities
   remain roadmap work; the default starter is maintained by `create-velodom`.

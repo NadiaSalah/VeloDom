@@ -1,6 +1,6 @@
 {
   "name": "velodom",
-  "version": "1.0.2",
+  "version": "1.0.0",
   "description": "Compiler-first, HTML-first frontend framework with reactive state, routing, components, and requests.",
   "keywords": [
     "frontend-framework",

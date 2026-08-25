@@ -9,13 +9,6 @@ both development milestones and published package verification.
   `examples/velodom-blog` and synchronized workspace, tooling, tests, and
   documentation paths. The showcase's public `/blog` routes are unchanged.
 
-## 1.0.2 - 2026-08-25
-
-- Promoted the canonical repository branch from `master` to `main` and
-  updated the release workflow to run only for the canonical branch.
-- Republished the verified VeloDom package as `velodom@1.0.2` with the same
-  public API and starter allowlist as V1.
-
 ## 1.0.1 - 2026-08-25
 
 - Removed the duplicate root starter and the obsolete generated-logo template;
