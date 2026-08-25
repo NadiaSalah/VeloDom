@@ -24,6 +24,8 @@ both development milestones and published package verification.
 - Corrected starter home-page CTAs: the model link now uses the router-safe
   `/#principles` same-page hash, and the GitHub link uses the canonical
   repository URL in a new tab.
+- Added a responsive, large inline-SVG brand panel beside the starter hero so
+  the first screen communicates the framework identity without an image request.
 
 ### GitHub Actions Release Matrix
 

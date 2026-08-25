@@ -775,12 +775,18 @@ function createProjectHomeTemplate() {
   </header>
 
   <section class="hero" aria-labelledby="hero-title">
-    <p class="eyebrow">HTML-first · compiler-first · vanilla friendly</p>
-    <h1 id="hero-title">Build visible web apps from ordinary HTML.</h1>
-    <p class="hero-copy">VeloDom keeps your pages close to the files you write, then adds routing, state, components, requests, and SEO only when your feature needs them.</p>
-    <div class="hero-actions">
-      <a class="button button-primary" href="/#principles" vd-nav>Explore the model</a>
-      <a class="button button-secondary" href="https://github.com/NadiaSalah/VeloDom" target="_blank" rel="noreferrer">View on GitHub</a>
+    <div class="hero-content">
+      <p class="eyebrow">HTML-first · compiler-first · vanilla friendly</p>
+      <h1 id="hero-title">Build visible web apps from ordinary HTML.</h1>
+      <p class="hero-copy">VeloDom keeps your pages close to the files you write, then adds routing, state, components, requests, and SEO only when your feature needs them.</p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="/#principles" vd-nav>Explore the model</a>
+        <a class="button button-secondary" href="https://github.com/NadiaSalah/VeloDom" target="_blank" rel="noreferrer">View on GitHub</a>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <vd-component name="brand-mark"></vd-component>
+      <p>Build with a visible mark.</p>
     </div>
   </section>
 
@@ -868,7 +874,11 @@ a { color: inherit; }
 .theme-toggle, .button { border: 1px solid var(--border); border-radius: .8rem; font: inherit; font-weight: 700; cursor: pointer; transition: transform 160ms ease, border-color 160ms ease; }
 .theme-toggle { display: inline-flex; align-items: center; gap: .5rem; padding: .55rem .8rem; background: var(--surface); color: var(--text); }
 .theme-toggle:hover, .button:hover { transform: translateY(-2px); border-color: var(--accent); }
-.hero { padding-block: clamp(4rem, 12vw, 8rem) 5rem; }
+.hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(15rem, .75fr); align-items: center; gap: clamp(2rem, 7vw, 7rem); padding-block: clamp(4rem, 12vw, 8rem) 5rem; }
+.hero-content { min-width: 0; }
+.hero-art { display: grid; justify-items: center; gap: 1rem; padding: clamp(1.5rem, 5vw, 3rem); border: 1px solid var(--border); border-radius: 2rem; background: linear-gradient(145deg, rgb(99 102 241 / .14), transparent 70%), var(--surface); box-shadow: var(--shadow); transform: rotate(2deg); }
+.hero-art .brand-mark { width: min(100%, 18rem); height: auto; aspect-ratio: 1; border-radius: 2rem; box-shadow: 0 22px 48px rgb(79 70 229 / .28); }
+.hero-art p { margin: 0; color: var(--muted); font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; }
 .eyebrow { margin: 0; color: var(--accent); font-size: .76rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
 h1, h2, h3 { margin: 0; line-height: 1.08; }
 h1 { max-width: 780px; margin-top: 1rem; font-size: clamp(2.7rem, 7vw, 5.8rem); letter-spacing: -.06em; }
@@ -885,6 +895,7 @@ h1 { max-width: 780px; margin-top: 1rem; font-size: clamp(2.7rem, 7vw, 5.8rem); 
 .principle-card h3 { margin-top: 1.5rem; font-size: 1.2rem; }
 .principle-card p { margin: .75rem 0 0; color: var(--muted); line-height: 1.65; }
 .site-footer { display: flex; justify-content: space-between; gap: 1rem; padding-block: 1.5rem 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .9rem; }
+@media (max-width: 760px) { .hero { grid-template-columns: 1fr; gap: 2.5rem; } .hero-art { max-width: 22rem; margin-inline: auto; transform: none; } }
 @media (max-width: 720px) { .principle-grid { grid-template-columns: 1fr; } .site-footer { flex-direction: column; } .theme-toggle span:last-child { display: none; } }
 `;
 }
