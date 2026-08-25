@@ -13,7 +13,7 @@ const workspaceManifest = JSON.parse(
 );
 const blogManifest = JSON.parse(
   await readFile(
-    new URL("../../../examples/blog/package.json", import.meta.url),
+    new URL("../../../examples/velodom-blog/package.json", import.meta.url),
     "utf8"
   )
 );
@@ -24,7 +24,7 @@ const editorManifest = JSON.parse(
   )
 );
 const blogViteConfig = await readFile(
-  new URL("../../../examples/blog/vite.config.js", import.meta.url),
+  new URL("../../../examples/velodom-blog/vite.config.js", import.meta.url),
   "utf8"
 );
 
@@ -84,7 +84,7 @@ test("workspace keeps consumers behind public package imports", () => {
   assert.deepEqual(workspaceManifest.workspaces, [
     "packages/velodom",
     "packages/velodom-vscode",
-    "examples/blog"
+    "examples/velodom-blog"
   ]);
   assert.equal(blogManifest.dependencies.velodom, manifest.version);
   assert.equal(editorManifest.private, true);

@@ -5,7 +5,7 @@
 - VeloDom is compiler-first, HTML-first, and folder-first.
 - `packages/velodom/src` is the single home for reusable framework source,
   including the compiler, shared contracts, adapters, and Vite plugin.
-- `examples/blog/src` is the repository's application-owned showcase. External
+- `examples/velodom-blog/src` is the repository's application-owned showcase. External
   applications own their own `src/pages`, `src/components`, and `src/api`.
 - Build-tool discovery belongs to adapters; the runtime accepts injected
   resource maps.
@@ -188,7 +188,7 @@
 - The showcase application is now the first VeloDom framework site: a local
   documentation blog that explains V1 capabilities while using VeloDom pages,
   components, dynamic routes, local request routes, layouts, and SEO config.
-  It stays application-owned under `examples/blog/src`; framework-neutral
+  It stays application-owned under `examples/velodom-blog/src`; framework-neutral
   behavior must stay in `packages/velodom/src`.
 - The showcase is also the academic learning surface for VeloDom. Literal
   template examples use semantic `<pre><code>` markup and `vd-pre` so example
@@ -198,7 +198,7 @@
   browser dependency into Core. All live and copyable `vd-if` examples use an
   explicit Boolean expression, preserving the framework's strict conditional
   contract instead of relying on truthy strings or optional-chain values.
-- Showcase `examples/blog/src/api/routes.js` is the declarative request
+- Showcase `examples/velodom-blog/src/api/routes.js` is the declarative request
   registry for `vd-request`, not a list of every exported API helper. Page scripts
   may still import API helpers directly when imperative loading is clearer.
 - The V1 site intentionally does not ship application middleware, auth, or CRUD

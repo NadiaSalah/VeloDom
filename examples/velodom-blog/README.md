@@ -74,8 +74,8 @@ From the repository root:
 ```bash
 npm run dev
 npm run build
-vd doctor --root examples/blog
-vd health --root examples/blog
+vd doctor --root examples/velodom-blog
+vd health --root examples/velodom-blog
 ```
 
 When adding a lesson, update the page/lesson map, keep the example source

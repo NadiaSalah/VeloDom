@@ -5,7 +5,9 @@ both development milestones and published package verification.
 
 ## Unreleased
 
-_No unreleased changes._
+- Renamed the application-owned showcase directory from `examples/blog` to
+  `examples/velodom-blog` and synchronized workspace, tooling, tests, and
+  documentation paths. The showcase's public `/blog` routes are unchanged.
 
 ## 1.0.2 - 2026-08-25
 
@@ -120,7 +122,7 @@ _No unreleased changes._
 - Added root `AGENTS.md` and `docs/AI_CONTEXT.md` to give AI tools a concise,
   source-aligned contract for VeloDom identity, public syntax, Core/application
   boundaries, optional capabilities, and safe site-generation workflow.
-- Added `examples/blog/README.md` to document the showcase routes, application
+- Added `examples/velodom-blog/README.md` to document the showcase routes, application
   conventions, and verification expectations without promoting demo code to
   framework API.
 - Linked the AI context from the root README and canonical guide and recorded
@@ -190,7 +192,7 @@ _No unreleased changes._
 
 ### Academic Documentation Showcase
 
-- Rebuilt the application-owned `examples/blog` site as a modern VeloDom
+- Rebuilt the application-owned `examples/velodom-blog` site as a modern VeloDom
   reference and learning path. It now teaches folder and one-file authoring,
   state, directives, components, layouts, routing, requests, forms, SEO,
   build-only helpers, testing, and developer tooling through public syntax.
@@ -456,7 +458,7 @@ _No unreleased changes._
 - Replaced the former repository-document tarball allowlist with a focused npm
   README and license; full roadmap and architecture records remain repository
   documentation instead of application dependencies.
-- Moved the documentation blog to `examples/blog` and removed every direct
+- Moved the documentation blog to `examples/velodom-blog` and removed every direct
   framework-source import so it verifies the same `velodom` public subpaths as
   an external application.
 - Added application-local `@` and standards-based `#app/*` aliases while
@@ -470,7 +472,7 @@ _No unreleased changes._
 - Consolidated repository-level Markdown documentation into `docs/`; the root
   README now acts as a short entry point and the npm package retains its own
   focused README for registry rendering.
-- Kept the runnable documentation blog in `examples/blog`, moved the
+- Kept the runnable documentation blog in `examples/velodom-blog`, moved the
   installed-package verification fixture to `tools/test-fixtures/package-consumer`,
   and relocated the optional VS Code integration to `packages/velodom-vscode`.
 - Moved repository-only release, package, browser, documentation, and

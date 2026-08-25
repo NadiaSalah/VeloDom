@@ -12,19 +12,19 @@
         "./packages/velodom/src/vite-plugin/index.ts"
       ],
       "@/*": [
-        "./examples/blog/src/*"
+        "./examples/velodom-blog/src/*"
       ]
     },
     "noEmit": true
   },
   "include": [
     "packages/velodom/src/**/*.ts",
-    "examples/blog/src/**/*.ts",
+    "examples/velodom-blog/src/**/*.ts",
     "tools/type-tests/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "examples/blog/dist",
+    "examples/velodom-blog/dist",
     "packages/velodom/lib",
     "packages/velodom/types"
   ]

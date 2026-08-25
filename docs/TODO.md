@@ -78,7 +78,7 @@ is optional post-publication development.
 - [x] Added root AI/contributor guidance plus `docs/AI_CONTEXT.md`, a concise
   generation contract that explains Core/application ownership, supported
   syntax, boundaries, and verification.
-- [x] Added `examples/blog/README.md` so the showcase is an explicit consumer
+- [x] Added `examples/velodom-blog/README.md` so the showcase is an explicit consumer
   example rather than an accidental source of framework conventions.
 
 ## V1 Production — Implemented

@@ -443,7 +443,7 @@ What the main checks do:
 | `npm run test:browser` | Builds the showcase and runs the Playwright browser matrix. Chromium/Chrome/Edge is required; Firefox, WebKit, and mobile WebKit run when installed. |
 | `npm run build` | Runs all quality/package gates, builds the showcase, then checks performance budgets. |
 
-Generated `examples/blog/dist`, `packages/velodom/lib`, and
+Generated `examples/velodom-blog/dist`, `packages/velodom/lib`, and
 `packages/velodom/types` folders are build output and should not be edited
 manually.
 
@@ -677,7 +677,7 @@ Ownership rule:
   `packages/velodom/src` and is published only as built `lib` plus `types`.
 - Business pages, components, route handlers, and custom middleware stay in
   the consuming application's `src/pages`, `src/components`, and `src/api`.
-- The blog is a real workspace consumer under `examples/blog`; it does not
+- The blog is a real workspace consumer under `examples/velodom-blog`; it does not
   import framework source or carry a private copy of Core.
 - `tools/test-fixtures/package-consumer` verifies the packed npm artifact; it is not
   an application example or a published package file.
@@ -4546,7 +4546,7 @@ Latest implementation update:
   Markdown under `docs/`, with a deliberately short repository README that
   directs contributors to this complete guide.
 - Separated the publishable `velodom` package into `packages/velodom` and
-  moved the documentation blog to `examples/blog`, where it consumes only
+  moved the documentation blog to `examples/velodom-blog`, where it consumes only
   public package exports like a real client project.
 - Added flexible client imports: stable `velodom/*` package subpaths, a short
   Vite/editor `@` alias, standards-based `#app/*` imports, and unchanged
@@ -4809,7 +4809,7 @@ or universal SSR runtime.
 When continuing development:
 
 1. Keep generic framework logic under `packages/velodom/src`.
-2. Keep the blog example under `examples/blog/src`; client projects own their
+2. Keep the blog example under `examples/velodom-blog/src`; client projects own their
    own `src/pages`, `src/components`, and `src/api`.
 3. Update README, TODO, CHANGELOG, and NOTES after significant work.
 4. Add a regression test for every Core bug or behavior change.

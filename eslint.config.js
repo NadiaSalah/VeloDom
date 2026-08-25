@@ -20,7 +20,7 @@ export default tseslint.config(
       "node_modules/**",
       "packages/velodom/lib/**",
       "packages/velodom/types/**",
-      "examples/blog/dist/**"
+      "examples/velodom-blog/dist/**"
     ]
   },
   {

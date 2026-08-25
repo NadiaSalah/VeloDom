@@ -21,7 +21,7 @@ The maintained documentation surface is intentionally small: the guide plus
 
 For the publishable package, see
 [packages/velodom](packages/velodom/README.md). The repository's working
-application is the VeloDom documentation blog in `examples/blog`.
+application is the VeloDom documentation blog in `examples/velodom-blog`.
 AI assistants working inside the package should also read
 [packages/velodom/AGENTS.md](packages/velodom/AGENTS.md); the published package
 README carries the portable version of that guidance.
@@ -55,7 +55,7 @@ npm run pack:check
 ```text
 packages/velodom/         Publishable framework package
 packages/velodom-vscode/  Optional private VS Code language-tools package
-examples/blog/            Real application consuming public package exports
+examples/velodom-blog/    Real application consuming public package exports
 tools/                    Repository tests and release/build verification
 docs/                     Guide, architecture, decisions, roadmap, and history
 ```
@@ -145,7 +145,7 @@ a browser translation provider. See
 - Extended documentation checks to verify public exports, CLI examples, private
   import boundaries, and the consolidated documentation layout.
 - Added root `AGENTS.md`, the machine-oriented [AI context](docs/AI_CONTEXT.md),
-  and an application guide at `examples/blog/README.md` so AI-generated sites
+  and an application guide at `examples/velodom-blog/README.md` so AI-generated sites
   can follow the same public contract and Core/application boundary.
 - Regenerated the npm lockfile with the Node 22/npm 10 toolchain used in GitHub
   Actions, preserving Linux optional WASI peer metadata so `npm ci` remains
@@ -177,7 +177,7 @@ a browser translation provider. See
   availability rather than as application dead-code debt.
 - Static SEO output now waits for Vite to write the HTML shell before it
   renders route artifacts, including with the current Vite/Rolldown lifecycle.
-- Rebuilt `examples/blog` as the polished VeloDom academic reference: a modern
+- Rebuilt `examples/velodom-blog` as the polished VeloDom academic reference: a modern
   documentation application with a structured learning path, a separate live
   playground, dynamic study notes, and literal `<pre><code>` examples that are
   safe from template compilation through `vd-pre`.

@@ -56,7 +56,7 @@ test("performance budgets keep CSS unconstrained until an app opts in", async ()
 });
 
 async function createBuildFixture(root) {
-  const assets = join(root, "examples", "blog", "dist", "assets");
+  const assets = join(root, "examples", "velodom-blog", "dist", "assets");
   const packageLib = join(root, "packages", "velodom", "lib");
 
   await mkdir(assets, { recursive: true });

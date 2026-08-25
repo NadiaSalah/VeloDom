@@ -13,7 +13,7 @@ generating an example.
 - Keep branding, business data, Tailwind classes, page copy, and application
   policy out of framework `src/`. Only generic starter teaching content may
   live in the allowlisted `velodomProj/` template.
-- Do not solve a consumer problem by importing `examples/blog` or by exposing
+- Do not solve a consumer problem by importing `examples/velodom-blog` or by exposing
   an internal file as a new public subpath.
 - Preserve VeloDom's HTML-first, compiler-first, folder-first,
   convention-over-configuration, runtime-light, and vanilla-friendly identity.

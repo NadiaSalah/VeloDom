@@ -11,7 +11,7 @@ const workspaceRoot = process.cwd();
 const distAssetsRoot = path.join(
   workspaceRoot,
   "examples",
-  "blog",
+  "velodom-blog",
   "dist",
   "assets"
 );
@@ -36,7 +36,7 @@ const checks = [];
 
 if (!existsSync(distAssetsRoot)) {
   fail(
-    "Missing examples/blog/dist/assets. Run npm run build before checking generated chunk budgets."
+    "Missing examples/velodom-blog/dist/assets. Run npm run build before checking generated chunk budgets."
   );
 }
 

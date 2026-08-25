@@ -32,6 +32,6 @@ guide and source-verified API reference.
 ## Scope boundary
 
 The published package is `packages/velodom`. The documentation blog under
-`examples/blog` is a real consumer and teaching example, not part of Core.
+`examples/velodom-blog` is a real consumer and teaching example, not part of Core.
 Never solve an application problem by coupling Core to the blog's data,
 branding, Tailwind classes, or backend policy.

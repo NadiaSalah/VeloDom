@@ -36,7 +36,7 @@ When sources disagree, use this order:
 2. Public package exports in `packages/velodom/package.json`.
 3. `docs/README.md`, which is the source-verified human guide.
 4. `packages/velodom/README.md`, which is the registry-facing quick guide.
-5. `examples/blog`, which demonstrates usage but does not define the API.
+5. `examples/velodom-blog`, which demonstrates usage but does not define the API.
 
 When working directly inside the package, also read
 `packages/velodom/AGENTS.md`. It is repository-local contributor guidance for

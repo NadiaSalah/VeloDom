@@ -1,5 +1,5 @@
 {
-  "name": "@velodom/example-blog",
+  "name": "@velodom/velodom-blog",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -12,7 +12,7 @@
     "#app/*": "./src/*"
   },
   "dependencies": {
-    "velodom": "1.0.0"
+    "velodom": "1.0.2"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.0",

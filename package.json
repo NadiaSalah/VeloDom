@@ -7,12 +7,12 @@
   "workspaces": [
     "packages/velodom",
     "packages/velodom-vscode",
-    "examples/blog"
+    "examples/velodom-blog"
   ],
   "scripts": {
-    "dev": "npm run package:build && vite --config examples/blog/vite.config.js",
-    "build": "npm run check && npm run package:check && vite build --config examples/blog/vite.config.js && npm run performance:check",
-    "preview": "vite preview --config examples/blog/vite.config.js",
+    "dev": "npm run package:build && vite --config examples/velodom-blog/vite.config.js",
+    "build": "npm run check && npm run package:check && vite build --config examples/velodom-blog/vite.config.js && npm run performance:check",
+    "preview": "vite preview --config examples/velodom-blog/vite.config.js",
     "test": "node --test \"tools/tests/**/*.test.js\"",
     "docs:check": "node tools/scripts/check-core-docs.mjs && node tools/scripts/check-doc-consistency.mjs",
     "typecheck": "tsc --noEmit",

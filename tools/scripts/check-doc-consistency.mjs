@@ -45,7 +45,7 @@ const currentGuides = await Promise.all([
   "docs/RELEASING.md",
   "docs/AI_CONTEXT.md",
   "packages/velodom/README.md",
-  "examples/blog/README.md"
+  "examples/velodom-blog/README.md"
 ].map(async path => ({ path, source: await readWorkspaceFile(path) })));
 const violations = [];
 const publicImports = Object.keys(packageManifest.exports || {}).map(name => (
