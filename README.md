@@ -101,6 +101,9 @@ Its primary call-to-action uses VeloDom's router-safe `/#principles` hash link,
 and the GitHub call-to-action points to the canonical repository URL.
 Run `npm install` and `npm run build` inside it to verify the public
 installation path independently of the framework workspace.
+The starter also includes `/about` as a complete single-file `.vd` lesson and
+`/guide` as a folder page demonstrating a shared layout, navbar, component
+props, and a component-owned `script.js`.
 
 The V1 roadmap groups implemented production capabilities together: static
 prerendering, conventional page data loading with optional public-data

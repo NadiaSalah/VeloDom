@@ -399,6 +399,15 @@ test("CLI create scaffolds convention-first project resources", async () => {
     await assertFile(join(root, "starter/src/pages/home/index.html"));
     await assertFile(join(root, "starter/src/pages/home/script.js"));
     await assertFile(join(root, "starter/src/components/brand-mark/index.html"));
+    await assertFile(join(root, "starter/src/layouts/default.vd"));
+    await assertFile(join(root, "starter/src/components/site-nav/index.html"));
+    await assertFile(join(root, "starter/src/components/site-nav/script.js"));
+    await assertFile(join(root, "starter/src/components/site-nav/style.css"));
+    await assertFile(join(root, "starter/src/components/feature-card/index.html"));
+    await assertFile(join(root, "starter/src/components/feature-card/script.js"));
+    await assertFile(join(root, "starter/src/pages/about.vd"));
+    await assertFile(join(root, "starter/src/pages/guide/index.html"));
+    await assertFile(join(root, "starter/src/pages/guide/config.js"));
     await assertFile(join(root, "starter/src/style.css"));
     await assertFile(join(root, "starter/vite.config.js"));
     await assertFile(join(root, "starter/jsconfig.json"));
@@ -415,6 +424,10 @@ test("CLI create scaffolds convention-first project resources", async () => {
       join(root, "starter/src/pages/home/index.html"),
       "utf8"
     );
+    const starterHomeConfig = await readFile(
+      join(root, "starter/src/pages/home/config.js"),
+      "utf8"
+    );
     const starterBrand = await readFile(
       join(root, "starter/src/components/brand-mark/index.html"),
       "utf8"
@@ -425,6 +438,22 @@ test("CLI create scaffolds convention-first project resources", async () => {
     );
     const starterFavicon = await readFile(
       join(root, "starter/public/velodom-favicon.svg"),
+      "utf8"
+    );
+    const starterAbout = await readFile(
+      join(root, "starter/src/pages/about.vd"),
+      "utf8"
+    );
+    const starterNavScript = await readFile(
+      join(root, "starter/src/components/site-nav/script.js"),
+      "utf8"
+    );
+    const starterNav = await readFile(
+      join(root, "starter/src/components/site-nav/index.html"),
+      "utf8"
+    );
+    const starterLayout = await readFile(
+      join(root, "starter/src/layouts/default.vd"),
       "utf8"
     );
     const starterViteConfig = await readFile(
@@ -442,19 +471,29 @@ test("CLI create scaffolds convention-first project resources", async () => {
     assert.match(starterMain, /import "\.\/style\.css"/);
     assert.doesNotMatch(starterMain, /createViteAdapter/);
     assert.match(starterHome, /vd-component name="brand-mark"/);
-    assert.match(starterHome, /class="brand-name">VeloDom<\/span>/);
     assert.match(starterHome, /class="hero-art"/);
     assert.match(starterHome, /Build with a visible mark/);
-    assert.match(starterHome, /vd-on:click="toggleTheme\(\)"/);
+    assert.match(starterNav, /vd-on:click="toggleTheme\(\)"/);
+    assert.match(starterNav, /<span>VeloDom<\/span>/);
+    assert.match(starterNav, /href="\/about" vd-nav/);
     assert.match(starterHome, /href="\/#principles" vd-nav/);
     assert.match(starterHome, /href="https:\/\/github\.com\/NadiaSalah\/VeloDom"/);
     assert.match(starterHome, /target="_blank" rel="noreferrer"/);
+    assert.match(starterHomeConfig, /layout: "default"/);
     assert.match(starterBrand, /viewBox="0 0 850\.39 850\.39"/);
     assert.doesNotMatch(starterBrand, /<img\b/);
     assert.match(starterShell, /<!doctype html>/i);
     assert.match(starterShell, /name="description"/);
     assert.match(starterShell, /rel="icon" type="image\/svg\+xml" href="\/velodom-favicon\.svg"/);
     assert.match(starterFavicon, /<title id="title">VeloDom<\/title>/);
+    assert.match(starterAbout, /<template>/);
+    assert.match(starterAbout, /<style>/);
+    assert.match(starterAbout, /<config>/);
+    assert.match(starterAbout, /layout: "default"/);
+    assert.match(starterNavScript, /aria-current/);
+    assert.match(starterNavScript, /localStorage/);
+    assert.match(starterLayout, /<vd-component name="site-nav"><\/vd-component>/);
+    assert.match(starterLayout, /<vd-page><\/vd-page>/);
     assert.match(starterViteConfig, /from "velodom\/vite-plugin"/);
     assert.match(starterViteConfig, /"@": fileURLToPath/);
     assert.equal(starterManifest.imports["#app/*"], "./src/*");

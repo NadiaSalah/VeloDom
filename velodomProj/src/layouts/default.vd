@@ -1,0 +1,34 @@
+<template>
+  <div class="app-layout">
+    <vd-component name="site-nav"></vd-component>
+    <vd-page></vd-page>
+    <footer class="app-footer">
+      <span>VeloDom starter · HTML-first and compiler-first</span>
+      <a href="https://github.com/NadiaSalah/VeloDom" target="_blank" rel="noreferrer">GitHub</a>
+    </footer>
+  </div>
+</template>
+
+<style>
+.app-layout {
+  min-height: 100vh;
+}
+
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  width: min(1080px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1.5rem 0 2rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+@media (max-width: 600px) {
+  .app-footer {
+    flex-direction: column;
+  }
+}
+</style>

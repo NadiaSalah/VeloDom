@@ -1,20 +1,4 @@
 <main class="home-page">
-  <header class="site-header">
-    <a class="brand" href="/" vd-nav aria-label="VeloDom home">
-      <vd-component name="brand-mark"></vd-component>
-      <span class="brand-name">VeloDom</span>
-    </a>
-    <button
-      class="theme-toggle"
-      type="button"
-      aria-label="Toggle color theme"
-      vd-on:click="toggleTheme()"
-    >
-      <span vd-text="themeIcon" aria-hidden="true"></span>
-      <span vd-text="themeLabel"></span>
-    </button>
-  </header>
-
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-content">
       <p class="eyebrow">HTML-first · compiler-first · vanilla friendly</p>
@@ -25,6 +9,7 @@
       </p>
       <div class="hero-actions">
         <a class="button button-primary" href="/#principles" vd-nav>Explore the model</a>
+        <a class="button button-secondary" href="/about" vd-nav>Open starter examples</a>
         <a class="button button-secondary" href="https://github.com/NadiaSalah/VeloDom" target="_blank" rel="noreferrer">View on GitHub</a>
       </div>
     </div>
@@ -58,8 +43,4 @@
     </div>
   </section>
 
-  <footer class="site-footer">
-    <span>VeloDom starter project</span>
-    <span>Theme: <strong vd-text="theme"></strong></span>
-  </footer>
 </main>

@@ -278,6 +278,46 @@ async function createProject(context: CliContext, name: string) {
     join(folder, "src", "components", "brand-mark", "index.html"),
     createProjectBrandComponent()
   );
+  await writeNewFile(
+    join(folder, "src", "layouts", "default.vd"),
+    createProjectLayoutTemplate()
+  );
+  await writeNewFile(
+    join(folder, "src", "components", "site-nav", "index.html"),
+    createProjectNavTemplate()
+  );
+  await writeNewFile(
+    join(folder, "src", "components", "site-nav", "script.js"),
+    createProjectNavScript()
+  );
+  await writeNewFile(
+    join(folder, "src", "components", "site-nav", "style.css"),
+    createProjectNavStyles()
+  );
+  await writeNewFile(
+    join(folder, "src", "components", "feature-card", "index.html"),
+    createProjectFeatureCardTemplate()
+  );
+  await writeNewFile(
+    join(folder, "src", "components", "feature-card", "script.js"),
+    createProjectFeatureCardScript()
+  );
+  await writeNewFile(
+    join(folder, "src", "components", "feature-card", "style.css"),
+    createProjectFeatureCardStyles()
+  );
+  await writeNewFile(
+    join(folder, "src", "pages", "about.vd"),
+    createProjectAboutTemplate()
+  );
+  await writeNewFile(
+    join(folder, "src", "pages", "guide", "index.html"),
+    createProjectGuideTemplate()
+  );
+  await writeNewFile(
+    join(folder, "src", "pages", "guide", "config.js"),
+    createProjectGuideConfig()
+  );
   await writeNewFile(join(folder, "src", "style.css"), createProjectStyles());
   context.stdout(`Created VeloDom project ${relativePath(context.cwd, folder)}`);
 }
@@ -771,17 +811,6 @@ await mountVeloDom();
 
 function createProjectHomeTemplate() {
   return `<main class="home-page">
-  <header class="site-header">
-    <a class="brand" href="/" vd-nav aria-label="VeloDom home">
-      <vd-component name="brand-mark"></vd-component>
-      <span class="brand-name">VeloDom</span>
-    </a>
-    <button class="theme-toggle" type="button" aria-label="Toggle color theme" vd-on:click="toggleTheme()">
-      <span vd-text="themeIcon" aria-hidden="true"></span>
-      <span vd-text="themeLabel"></span>
-    </button>
-  </header>
-
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-content">
       <p class="eyebrow">HTML-first · compiler-first · vanilla friendly</p>
@@ -789,6 +818,7 @@ function createProjectHomeTemplate() {
       <p class="hero-copy">VeloDom keeps your pages close to the files you write, then adds routing, state, components, requests, and SEO only when your feature needs them.</p>
       <div class="hero-actions">
         <a class="button button-primary" href="/#principles" vd-nav>Explore the model</a>
+        <a class="button button-secondary" href="/about" vd-nav>Open starter examples</a>
         <a class="button button-secondary" href="https://github.com/NadiaSalah/VeloDom" target="_blank" rel="noreferrer">View on GitHub</a>
       </div>
     </div>
@@ -810,39 +840,20 @@ function createProjectHomeTemplate() {
     </div>
   </section>
 
-  <footer class="site-footer"><span>VeloDom starter project</span><span>Theme: <strong vd-text="theme"></strong></span></footer>
 </main>
 `;
 }
 
 function createProjectHomeScript() {
-  return `export const state = {
-  theme: "light",
-  themeIcon: "☾",
-  themeLabel: "Dark mode"
-};
-
-/** Connects the starter theme button to the page state. */
-export function init({ state }) {
-  state.toggleTheme = () => {
-    state.theme = state.theme === "dark" ? "light" : "dark";
-    state.themeIcon = state.theme === "dark" ? "☀" : "☾";
-    state.themeLabel = state.theme === "dark" ? "Light mode" : "Dark mode";
-    document.documentElement.dataset.theme = state.theme;
-    localStorage.setItem("velodom-theme", state.theme);
-  };
-}
-
-/** Restores the user's theme preference after the page mounts. */
-export function mounted({ state }) {
-  if (localStorage.getItem("velodom-theme") === "dark") state.toggleTheme();
-}
+  return `// This page needs no page-owned behavior. The shared layout owns the navbar
+// and theme toggle, leaving the page focused on readable HTML.
 `;
 }
 
 function createProjectHomeConfig() {
   return `export default {
   path: "/",
+  layout: "default",
   seo: {
     title: "VeloDom | HTML-first frontend",
     description: "A small VeloDom starter project built with ordinary HTML, components, and reactive state."
@@ -855,6 +866,208 @@ function createProjectBrandComponent() {
   return `<span class="brand-mark">\n${STARTER_BRAND_SVG}\n</span>\n`;
 }
 
+function createProjectLayoutTemplate() {
+  return `<template>
+  <div class="app-layout">
+    <vd-component name="site-nav"></vd-component>
+    <vd-page></vd-page>
+    <footer class="app-footer">
+      <span>VeloDom starter · HTML-first and compiler-first</span>
+      <a href="https://github.com/NadiaSalah/VeloDom" target="_blank" rel="noreferrer">GitHub</a>
+    </footer>
+  </div>
+</template>
+
+<style>
+.app-layout { min-height: 100vh; }
+.app-footer { display: flex; justify-content: space-between; gap: 1rem; width: min(1080px, calc(100% - 2rem)); margin: 0 auto; padding: 1.5rem 0 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .9rem; }
+@media (max-width: 600px) { .app-footer { flex-direction: column; } }
+</style>
+`;
+}
+
+function createProjectNavTemplate() {
+  return `<nav class="site-nav" aria-label="Main navigation">
+  <div class="site-nav-inner">
+    <a class="site-nav-brand" href="/" vd-nav><vd-component name="brand-mark"></vd-component><span>VeloDom</span></a>
+    <div class="site-nav-links">
+      <a class="site-nav-link" href="/" vd-nav>Home</a>
+      <a class="site-nav-link" href="/about" vd-nav>Single-file</a>
+      <a class="site-nav-link" href="/guide" vd-nav>Components</a>
+    </div>
+    <button class="site-theme-toggle" type="button" aria-label="Toggle color theme" vd-on:click="toggleTheme()"><span vd-text="themeIcon" aria-hidden="true"></span><span vd-text="themeLabel"></span></button>
+  </div>
+</nav>
+`;
+}
+
+function createProjectNavScript() {
+  return `/** Owns shared theme state and keeps the navbar highlight route-aware. */
+export function init({ state }) {
+  state.theme = "light";
+  state.themeIcon = "☾";
+  state.themeLabel = "Dark mode";
+  state.toggleTheme = () => {
+    state.theme = state.theme === "dark" ? "light" : "dark";
+    state.themeIcon = state.theme === "dark" ? "☀" : "☾";
+    state.themeLabel = state.theme === "dark" ? "Light mode" : "Dark mode";
+    document.documentElement.dataset.theme = state.theme;
+    localStorage.setItem("velodom-theme", state.theme);
+  };
+}
+
+/** Updates active navigation state after route changes. */
+export function mounted({ ctx, state }) {
+  const links = [...document.querySelectorAll(".site-nav-link")];
+
+  const updateActiveLink = () => {
+    const currentPath = normalizePath(window.location.pathname);
+
+    links.forEach(link => {
+      const targetPath = normalizePath(new URL(link.href, window.location.origin).pathname);
+      const active = targetPath === currentPath;
+
+      link.classList.toggle("is-active", active);
+      if (active) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+  };
+
+  updateActiveLink();
+  if (localStorage.getItem("velodom-theme") === "dark") state.toggleTheme();
+  window.addEventListener("popstate", updateActiveLink);
+  window.addEventListener("hashchange", updateActiveLink);
+  ctx.onCleanup(() => {
+    window.removeEventListener("popstate", updateActiveLink);
+    window.removeEventListener("hashchange", updateActiveLink);
+  });
+}
+
+function normalizePath(path) {
+  const value = String(path || "/").replace(/\\/+$/, "");
+  return value || "/";
+}
+`;
+}
+
+function createProjectNavStyles() {
+  return `.site-nav { border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--page) 88%, transparent); backdrop-filter: blur(14px); }
+.site-nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: min(1080px, calc(100% - 2rem)); min-height: 4.25rem; margin: 0 auto; }
+.site-nav-brand { display: inline-flex; align-items: center; gap: .6rem; color: var(--text); font-size: 1.1rem; font-weight: 900; letter-spacing: -.04em; text-decoration: none; }
+.site-nav-brand .brand-mark { width: 2.25rem; height: 2.25rem; border-radius: .65rem; overflow: hidden; }
+.site-nav-brand .brand-icon { display: block; width: 100%; height: 100%; }
+.site-nav-links { display: flex; align-items: center; gap: .35rem; }
+.site-nav-link { padding: .55rem .75rem; border-radius: .65rem; color: var(--muted); font-size: .9rem; font-weight: 750; text-decoration: none; }
+.site-nav-link:hover, .site-nav-link.is-active { background: var(--surface-muted); color: var(--accent-strong); }
+.site-theme-toggle { display: inline-flex; align-items: center; gap: .45rem; padding: .55rem .75rem; border: 1px solid var(--border); border-radius: .65rem; background: var(--surface); color: var(--text); font: inherit; font-size: .85rem; font-weight: 750; cursor: pointer; }
+.site-theme-toggle:hover { border-color: var(--accent); }
+@media (max-width: 520px) { .site-nav-inner { align-items: flex-start; flex-direction: column; justify-content: center; padding: .75rem 0; } .site-nav-links { flex: 1; } .site-theme-toggle span:last-child { display: none; } }
+`;
+}
+
+function createProjectFeatureCardTemplate() {
+  return `<article class="feature-card">
+  <span class="feature-card-label">Component</span>
+  <h2 vd-text="title"></h2>
+  <p vd-text="text"></p>
+</article>
+`;
+}
+
+function createProjectFeatureCardScript() {
+  return `/** Copies public component props into local render state. */
+export function init({ props, state }) {
+  state.title = props.title || "A reusable component";
+  state.text = props.text || "Keep repeated markup in src/components.";
+}
+`;
+}
+
+function createProjectFeatureCardStyles() {
+  return `.feature-card { padding: 1.5rem; border: 1px solid var(--border); border-radius: 1.25rem; background: var(--surface); box-shadow: var(--shadow); }
+.feature-card-label { color: var(--accent); font-size: .72rem; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; }
+.feature-card h2 { margin-top: .8rem; font-size: 1.25rem; }
+.feature-card p { margin: .65rem 0 0; color: var(--muted); line-height: 1.65; }
+`;
+}
+
+function createProjectAboutTemplate() {
+  return `<template>
+  <main class="lesson-page">
+    <p class="eyebrow">Single-file page</p>
+    <h1>Everything for this small page lives in one <code>.vd</code> file.</h1>
+    <p class="lesson-copy">VeloDom keeps the template, behavior, style, and route configuration together when that makes a feature easier to understand.</p>
+    <button class="button button-primary" type="button" vd-on:click="increment()">Clicked {{ count }} times</button>
+    <div class="lesson-grid">
+      <article><h2>Four familiar blocks</h2><ol><li><strong>template</strong> — readable HTML</li><li><strong>script</strong> — plain JavaScript state</li><li><strong>style</strong> — local presentation</li><li><strong>config</strong> — route and SEO metadata</li></ol></article>
+      <pre vd-pre><code>&lt;template&gt;...&lt;/template&gt;
+
+&lt;script&gt;
+${"export"} const state = { count: 0 };
+&lt;/script&gt;
+
+&lt;style&gt;main { padding: 2rem; }&lt;/style&gt;
+
+&lt;config&gt;
+${"export"} default { path: "/about", layout: "default" };
+&lt;/config&gt;</code></pre>
+    </div>
+  </main>
+</template>
+
+<script>
+${"export"} const state = { count: 0 };
+${"export"} function init({ state }) {
+  state.increment = () => { state.count += 1; };
+}
+</script>
+
+<style>
+.lesson-page { width: min(1080px, calc(100% - 2rem)); margin: 0 auto; padding: clamp(3rem, 8vw, 6rem) 0; }
+.lesson-page h1 { max-width: 800px; }
+.lesson-page code { color: var(--accent-strong); }
+.lesson-copy { max-width: 650px; margin: 1.5rem 0 2rem; color: var(--muted); font-size: 1.15rem; line-height: 1.75; }
+.lesson-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 3rem; }
+.lesson-grid article, .lesson-grid pre { padding: 1.5rem; border: 1px solid var(--border); border-radius: 1.25rem; background: var(--surface); box-shadow: var(--shadow); }
+.lesson-grid h2 { font-size: 1.3rem; }
+.lesson-grid ol { display: grid; gap: .75rem; padding-inline-start: 1.25rem; color: var(--muted); line-height: 1.6; }
+.lesson-grid pre { overflow: auto; background: #0b1120; color: #dbeafe; line-height: 1.6; }
+@media (max-width: 720px) { .lesson-grid { grid-template-columns: 1fr; } }
+</style>
+
+<config>
+${"export"} default {
+  path: "/about",
+  layout: "default",
+  seo: { title: "Single-file page | VeloDom", description: "A simple VeloDom .vd page showing template, script, style, and config together." }
+};
+</config>
+`;
+}
+
+function createProjectGuideTemplate() {
+  return `<main class="lesson-page">
+  <p class="eyebrow">Components and layout</p>
+  <h1>Reuse HTML with a component, then wrap pages with a layout.</h1>
+  <p class="lesson-copy">This page uses <code>src/layouts/default.vd</code> for the navbar and footer. Its cards come from one component folder with a separate <code>script.js</code> file.</p>
+  <div class="component-grid">
+    <vd-component name="feature-card" vd-prop-title="HTML stays visible" vd-prop-text="Write normal elements first. Add a directive only when the page needs behavior."></vd-component>
+    <vd-component name="feature-card" vd-prop-title="JavaScript stays nearby" vd-prop-text="Component state and lifecycle code live in its own script.js file."></vd-component>
+    <vd-component name="feature-card" vd-prop-title="Layout is shared" vd-prop-text="A layout can provide navigation, a footer, and a consistent shell for many pages."></vd-component>
+  </div>
+</main>
+`;
+}
+
+function createProjectGuideConfig() {
+  return `export default {
+  path: "/guide",
+  layout: "default",
+  seo: { title: "Components and layout | VeloDom", description: "A practical VeloDom example using a shared layout and a JavaScript-backed component." }
+};
+`;
+}
+
 function createProjectStyles() {
   return `:root {
   color-scheme: light;
@@ -863,26 +1076,24 @@ function createProjectStyles() {
   color: #0f172a;
   --page: #f8fafc;
   --surface: #ffffff;
+  --surface-muted: #eef2ff;
   --text: #0f172a;
   --muted: #475569;
   --border: #dbe4f0;
   --accent: #4f46e5;
+  --accent-strong: #3730a3;
   --shadow: 0 24px 70px rgb(15 23 42 / .12);
 }
-:root[data-theme="dark"] { color-scheme: dark; --page: #0b1120; --surface: #111827; --text: #f8fafc; --muted: #cbd5e1; --border: #26354b; --accent: #818cf8; --shadow: 0 24px 70px rgb(2 6 23 / .45); }
+:root[data-theme="dark"] { color-scheme: dark; --page: #0b1120; --surface: #111827; --surface-muted: #1e1b4b; --text: #f8fafc; --muted: #cbd5e1; --border: #26354b; --accent: #818cf8; --accent-strong: #a5b4fc; --shadow: 0 24px 70px rgb(2 6 23 / .45); }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--page); color: var(--text); transition: background 180ms ease, color 180ms ease; }
 a { color: inherit; }
 .home-page { min-height: 100vh; }
-.site-header, .hero, .principles, .site-footer { width: min(1080px, calc(100% - 2rem)); margin-inline: auto; }
-.site-header { display: flex; align-items: center; justify-content: space-between; padding-block: 1.25rem; }
-.brand { display: inline-flex; align-items: center; gap: .65rem; font-size: 1.15rem; font-weight: 800; text-decoration: none; }
-.brand-name { letter-spacing: -.03em; }
+.hero, .principles { width: min(1080px, calc(100% - 2rem)); margin-inline: auto; }
 .brand-mark { display: inline-flex; width: 2.5rem; height: 2.5rem; border-radius: .75rem; overflow: hidden; box-shadow: 0 8px 20px rgb(79 70 229 / .24); }
 .brand-icon { display: block; width: 100%; height: 100%; }
-.theme-toggle, .button { border: 1px solid var(--border); border-radius: .8rem; font: inherit; font-weight: 700; cursor: pointer; transition: transform 160ms ease, border-color 160ms ease; }
-.theme-toggle { display: inline-flex; align-items: center; gap: .5rem; padding: .55rem .8rem; background: var(--surface); color: var(--text); }
-.theme-toggle:hover, .button:hover { transform: translateY(-2px); border-color: var(--accent); }
+.button { border: 1px solid var(--border); border-radius: .8rem; font: inherit; font-weight: 700; cursor: pointer; transition: transform 160ms ease, border-color 160ms ease; }
+.button:hover { transform: translateY(-2px); border-color: var(--accent); }
 .hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(15rem, .75fr); align-items: center; gap: clamp(2rem, 7vw, 7rem); padding-block: clamp(4rem, 12vw, 8rem) 5rem; }
 .hero-content { min-width: 0; }
 .hero-art { display: grid; justify-items: center; gap: 1rem; padding: clamp(1.5rem, 5vw, 3rem); border: 1px solid var(--border); border-radius: 2rem; background: linear-gradient(145deg, rgb(99 102 241 / .14), transparent 70%), var(--surface); box-shadow: var(--shadow); transform: rotate(2deg); }
@@ -893,6 +1104,11 @@ h1, h2, h3 { margin: 0; line-height: 1.08; }
 h1 { max-width: 780px; margin-top: 1rem; font-size: clamp(2.7rem, 7vw, 5.8rem); letter-spacing: -.06em; }
 .hero-copy { max-width: 680px; margin: 1.5rem 0 0; color: var(--muted); font-size: clamp(1.05rem, 2vw, 1.3rem); line-height: 1.75; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 2rem; }
+.lesson-page { width: min(1080px, calc(100% - 2rem)); margin: 0 auto; padding: clamp(3rem, 8vw, 6rem) 0; }
+.lesson-page h1 { max-width: 800px; }
+.lesson-page code { color: var(--accent-strong); }
+.lesson-copy { max-width: 650px; margin: 1.5rem 0 2rem; color: var(--muted); font-size: 1.15rem; line-height: 1.75; }
+.component-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 3rem; }
 .button { display: inline-flex; align-items: center; justify-content: center; padding: .8rem 1rem; text-decoration: none; }
 .button-primary { border-color: var(--accent); background: var(--accent); color: white; }
 .button-secondary { background: var(--surface); color: var(--text); }
@@ -903,9 +1119,8 @@ h1 { max-width: 780px; margin-top: 1rem; font-size: clamp(2.7rem, 7vw, 5.8rem); 
 .card-number { color: var(--accent); font-size: .75rem; font-weight: 900; letter-spacing: .1em; }
 .principle-card h3 { margin-top: 1.5rem; font-size: 1.2rem; }
 .principle-card p { margin: .75rem 0 0; color: var(--muted); line-height: 1.65; }
-.site-footer { display: flex; justify-content: space-between; gap: 1rem; padding-block: 1.5rem 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .9rem; }
 @media (max-width: 760px) { .hero { grid-template-columns: 1fr; gap: 2.5rem; } .hero-art { max-width: 22rem; margin-inline: auto; transform: none; } }
-@media (max-width: 720px) { .principle-grid { grid-template-columns: 1fr; } .site-footer { flex-direction: column; } .theme-toggle span:last-child { display: none; } }
+@media (max-width: 720px) { .principle-grid, .component-grid { grid-template-columns: 1fr; } }
 `;
 }
 

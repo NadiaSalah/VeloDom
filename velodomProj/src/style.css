@@ -32,15 +32,11 @@ html { scroll-behavior: smooth; }
 body { margin: 0; background: var(--page); color: var(--text); transition: background 180ms ease, color 180ms ease; }
 a { color: inherit; }
 .home-page { min-height: 100vh; }
-.site-header, .hero, .principles, .site-footer { width: min(1080px, calc(100% - 2rem)); margin-inline: auto; }
-.site-header { display: flex; align-items: center; justify-content: space-between; padding-block: 1.25rem; }
-.brand { display: inline-flex; align-items: center; gap: .65rem; font-size: 1.15rem; font-weight: 800; text-decoration: none; }
-.brand-name { letter-spacing: -.03em; }
+.hero, .principles { width: min(1080px, calc(100% - 2rem)); margin-inline: auto; }
 .brand-mark { display: inline-flex; width: 2.5rem; height: 2.5rem; border-radius: .75rem; overflow: hidden; box-shadow: 0 8px 20px rgb(79 70 229 / .24); }
 .brand-icon { display: block; width: 100%; height: 100%; }
-.theme-toggle, .button { border: 1px solid var(--border); border-radius: .8rem; font: inherit; font-weight: 700; cursor: pointer; transition: transform 160ms ease, border-color 160ms ease, background 160ms ease; }
-.theme-toggle { display: inline-flex; align-items: center; gap: .5rem; padding: .55rem .8rem; background: var(--surface); color: var(--text); }
-.theme-toggle:hover, .button:hover { transform: translateY(-2px); border-color: var(--accent); }
+.button { border: 1px solid var(--border); border-radius: .8rem; font: inherit; font-weight: 700; cursor: pointer; transition: transform 160ms ease, border-color 160ms ease, background 160ms ease; }
+.button:hover { transform: translateY(-2px); border-color: var(--accent); }
 .hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(15rem, .75fr); align-items: center; gap: clamp(2rem, 7vw, 7rem); padding-block: clamp(4rem, 12vw, 8rem) 5rem; }
 .hero-content { min-width: 0; }
 .hero-art { display: grid; justify-items: center; gap: 1rem; padding: clamp(1.5rem, 5vw, 3rem); border: 1px solid var(--border); border-radius: 2rem; background: linear-gradient(145deg, rgb(99 102 241 / .14), transparent 70%), var(--surface); box-shadow: var(--shadow); transform: rotate(2deg); }
@@ -51,6 +47,11 @@ h1, h2, h3 { margin: 0; line-height: 1.08; }
 h1 { max-width: 780px; margin-top: 1rem; font-size: clamp(2.7rem, 7vw, 5.8rem); letter-spacing: -.06em; }
 .hero-copy { max-width: 680px; margin: 1.5rem 0 0; color: var(--muted); font-size: clamp(1.05rem, 2vw, 1.3rem); line-height: 1.75; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 2rem; }
+.lesson-page { width: min(1080px, calc(100% - 2rem)); margin: 0 auto; padding: clamp(3rem, 8vw, 6rem) 0; }
+.lesson-page h1 { max-width: 800px; }
+.lesson-page code { color: var(--accent-strong); }
+.lesson-copy { max-width: 650px; margin: 1.5rem 0 2rem; color: var(--muted); font-size: 1.15rem; line-height: 1.75; }
+.component-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 3rem; }
 .button { display: inline-flex; align-items: center; justify-content: center; padding: .8rem 1rem; text-decoration: none; }
 .button-primary { border-color: var(--accent); background: var(--accent); color: white; }
 .button-secondary { background: var(--surface); color: var(--text); }
@@ -61,6 +62,6 @@ h1 { max-width: 780px; margin-top: 1rem; font-size: clamp(2.7rem, 7vw, 5.8rem); 
 .card-number { color: var(--accent); font-size: .75rem; font-weight: 900; letter-spacing: .1em; }
 .principle-card h3 { margin-top: 1.5rem; font-size: 1.2rem; }
 .principle-card p { margin: .75rem 0 0; color: var(--muted); line-height: 1.65; }
-.site-footer { display: flex; justify-content: space-between; gap: 1rem; padding-block: 1.5rem 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .9rem; }
 @media (max-width: 760px) { .hero { grid-template-columns: 1fr; gap: 2.5rem; } .hero-art { max-width: 22rem; margin-inline: auto; transform: none; } }
-@media (max-width: 720px) { .principle-grid { grid-template-columns: 1fr; } .site-footer { flex-direction: column; } .theme-toggle span:last-child { display: none; } }
+@media (max-width: 720px) { .component-grid { grid-template-columns: 1fr; } }
+@media (max-width: 720px) { .principle-grid { grid-template-columns: 1fr; } }
