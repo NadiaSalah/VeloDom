@@ -22,7 +22,7 @@ npm run build
 ```text
 src/main.js                  VeloDom/Vite bootstrap
 src/style.css                Light/dark theme and responsive starter styles
-public/velodom-mark.svg       Starter logo asset
+public/velodom-mark.svg       Official VeloDom wordmark asset
 src/components/brand-mark/   Reusable logo component
 src/pages/home/index.html    HTML-first page template
 src/pages/home/script.js     Page state

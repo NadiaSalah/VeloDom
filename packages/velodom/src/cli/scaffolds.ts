@@ -22,6 +22,7 @@ import {
   toPosix,
   toRoutePath
 } from "./analyzer.ts";
+import { STARTER_LOGO_SVG } from "./logo.ts";
 import type { CliContext } from "./types.ts";
 
 /** Creates one supported VeloDom resource from parsed CLI values and flags. */
@@ -766,7 +767,6 @@ function createProjectHomeTemplate() {
   <header class="site-header">
     <a class="brand" href="/" vd-nav aria-label="VeloDom home">
       <vd-component name="brand-mark"></vd-component>
-      <span>VeloDom</span>
     </a>
     <button class="theme-toggle" type="button" aria-label="Toggle color theme" vd-on:click="toggleTheme()">
       <span vd-text="themeIcon" aria-hidden="true"></span>
@@ -838,17 +838,11 @@ function createProjectHomeConfig() {
 }
 
 function createProjectBrandComponent() {
-  return `<span class="brand-mark" aria-hidden="true"><img src="/velodom-mark.svg" alt=""></span>\n`;
+  return `<span class="brand-mark"><img src="/velodom-mark.svg" alt="VeloDom"></span>\n`;
 }
 
 function createProjectLogo() {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
-  <title>VeloDom</title>
-  <rect width="64" height="64" rx="18" fill="#111827"/>
-  <path d="M13 19h10l9 24 9-24h10L38 51H26z" fill="#38bdf8"/>
-  <path d="M18 19h8l6 16-4 9z" fill="#818cf8"/>
-</svg>
-`;
+  return `${STARTER_LOGO_SVG}\n`;
 }
 
 function createProjectStyles() {
@@ -873,8 +867,8 @@ a { color: inherit; }
 .site-header, .hero, .principles, .site-footer { width: min(1080px, calc(100% - 2rem)); margin-inline: auto; }
 .site-header { display: flex; align-items: center; justify-content: space-between; padding-block: 1.25rem; }
 .brand { display: inline-flex; align-items: center; gap: .65rem; font-size: 1.15rem; font-weight: 800; text-decoration: none; }
-.brand-mark { display: inline-grid; width: 2.4rem; height: 2.4rem; place-items: center; border-radius: .75rem; overflow: hidden; box-shadow: 0 8px 20px rgb(79 70 229 / .24); }
-.brand-mark img { display: block; width: 100%; height: 100%; }
+.brand-mark { display: inline-flex; width: 9.5rem; padding: .35rem .5rem; border-radius: .75rem; overflow: hidden; background: #01040f; box-shadow: 0 8px 20px rgb(15 23 42 / .24); }
+.brand-mark img { display: block; width: 100%; height: auto; }
 .theme-toggle, .button { border: 1px solid var(--border); border-radius: .8rem; font: inherit; font-weight: 700; cursor: pointer; transition: transform 160ms ease, border-color 160ms ease; }
 .theme-toggle { display: inline-flex; align-items: center; gap: .5rem; padding: .55rem .8rem; background: var(--surface); color: var(--text); }
 .theme-toggle:hover, .button:hover { transform: translateY(-2px); border-color: var(--accent); }

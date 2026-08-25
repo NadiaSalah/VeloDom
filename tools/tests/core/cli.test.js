@@ -415,6 +415,10 @@ test("CLI create scaffolds convention-first project resources", async () => {
       join(root, "starter/src/pages/home/index.html"),
       "utf8"
     );
+    const starterLogo = await readFile(
+      join(root, "starter/public/velodom-mark.svg"),
+      "utf8"
+    );
     const starterShell = await readFile(
       join(root, "starter/index.html"),
       "utf8"
@@ -435,6 +439,7 @@ test("CLI create scaffolds convention-first project resources", async () => {
     assert.doesNotMatch(starterMain, /createViteAdapter/);
     assert.match(starterHome, /vd-component name="brand-mark"/);
     assert.match(starterHome, /vd-on:click="toggleTheme\(\)"/);
+    assert.match(starterLogo, /viewBox="0 0 1661\.36 850\.39"/);
     assert.match(starterShell, /<!doctype html>/i);
     assert.match(starterShell, /name="description"/);
     assert.match(starterViteConfig, /from "velodom\/vite-plugin"/);
