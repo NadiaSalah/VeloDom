@@ -134,10 +134,11 @@
   The compiler still receives the original template because preservation is a
   real compiler feature; only higher-level usage analysis receives the masked
   view. This prevents documentation source from creating false health signals.
-- The example documentation information architecture separates learning from
-  exhaustive lookup: `/features` is the guided, live course and `/reference`
-  is the public package/syntax catalog. The canonical repository guide remains
-  the single detailed text source under `docs/README.md`.
+- The example documentation information architecture separates explanation,
+  practice, and exhaustive lookup: `/features` is the guided course,
+  `/playground` owns live exercises, and `/reference` is the public
+  package/syntax catalog. The canonical repository guide remains the single
+  detailed text source under `docs/README.md`.
 - Browser release verification uses a bounded launch timeout so broken local
   browser hosts report a named failed target instead of blocking CI forever.
   The mobile route smoke uses a visible content CTA, not navigation that is
@@ -207,8 +208,9 @@
   importing the complete prebuilt daisyUI stylesheet produced roughly 1.16 MB
   of CSS and was replaced by a generated 70 KB application stylesheet.
 - Browser E2E now follows the V1 documentation site, not the removed CRUD
-  showcase. It verifies the landing page, features page, one-file page,
-  dynamic article route, local `vd-request` example, and no-JavaScript SEO.
+  showcase. It verifies the landing page, features page, playground state and
+  component refs, one-file page, dynamic article route, local `vd-request`
+  example, and no-JavaScript SEO.
 - Components inside `vd-for` should be used carefully until component props
   can receive loop scope values reliably. The showcase uses direct HTML cards
   for repeated posts and keeps the reusable post-card component outside loops.

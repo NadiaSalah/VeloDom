@@ -24,7 +24,7 @@ product generations.
 
 **V1 implementation: complete. Release readiness: complete.**
 
-`[##################--]`
+`[####################] 100%`
 
 The npm account is authenticated and protected by write-level 2FA. The
 `velodom@1.0.0` package is published with the `latest` dist-tag. Future work
@@ -158,6 +158,11 @@ application browser runtime weight:
   in wide and compact menus and exposes the state to assistive technology.
 - [x] The showcase now has a dedicated quality lesson for public page data,
   recoverable error boundaries, opt-in prefetch, and compiler safety signals.
+- [x] Split interactive exercises into `/playground`, keeping `/features`
+  readable and below the CLI large-template warning while dogfooding state,
+  component props, slots, refs, expose, and declarative requests.
+- [x] Project intelligence now detects object-form `expose` APIs, including
+  JavaScript shorthand properties and method syntax.
 - [x] Cross-browser documentation sidebars consume the router-restored
   `hashchange` contract and hold the selected tab until smooth scrolling is
   idle; the complete routing, single-file, requests, article, sidebar, and

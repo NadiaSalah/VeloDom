@@ -750,8 +750,10 @@ async function createFixture() {
   );
   await writeFixtureFile(
     root,
-    "src/pages/home/script.js",
-    `export const state = {
+    "src/pages/home/script.ts",
+    `type ComponentExpose = Record<string, unknown>;
+
+    export const state = {
       initial: 1,
       nested: { enabled: true }
     };
@@ -759,7 +761,13 @@ async function createFixture() {
     export function init({ state }) {
       state.title = "Home";
       state.announce = () => {};
-      expose = ["announce"];
+      const announce = state.announce;
+      const expose: ComponentExpose = { announce };
+
+      return {
+        state,
+        expose
+      };
     }`
   );
   await writeFixtureFile(

@@ -1531,9 +1531,9 @@ function findExportedStateKeys(source: string) {
 }
 
 /**
- * Reads only top-level state seed keys while skipping strings, comments, and
- * nested values. The CLI must remain dependency-free and cannot require a
- * TypeScript parser merely to inspect an ordinary JavaScript project.
+ * Reads top-level object keys while skipping strings, comments, and nested
+ * values. The CLI stays dependency-free and does not require TypeScript merely
+ * to inspect ordinary application objects such as `state` and `expose`.
  */
 function readTopLevelObjectKeys(source: string, objectStart: number) {
   const keys = new Set<string>();
@@ -1581,7 +1581,7 @@ function readTopLevelObjectKeys(source: string, objectStart: number) {
 
     if (character === "}") {
       if (braces === 1) {
-        addStateObjectKey(keys, source.slice(segmentStart, index));
+        addTopLevelObjectKey(keys, source.slice(segmentStart, index));
         break;
       }
       braces -= 1;
@@ -1595,7 +1595,7 @@ function readTopLevelObjectKeys(source: string, objectStart: number) {
       && brackets === 0
       && parentheses === 0
     ) {
-      addStateObjectKey(keys, source.slice(segmentStart, index));
+      addTopLevelObjectKey(keys, source.slice(segmentStart, index));
       segmentStart = index + 1;
     }
   }
@@ -1603,7 +1603,7 @@ function readTopLevelObjectKeys(source: string, objectStart: number) {
   return [...keys].sort();
 }
 
-function addStateObjectKey(keys: Set<string>, segment: string) {
+function addTopLevelObjectKey(keys: Set<string>, segment: string) {
   const value = segment.replace(
     /^(?:\s|\/\/[^\r\n]*(?:\r?\n|$)|\/\*[\s\S]*?\*\/)*/,
     ""
@@ -1612,7 +1612,7 @@ function addStateObjectKey(keys: Set<string>, segment: string) {
   if (!value || value.startsWith("...")) return;
 
   const quoted = value.match(/^(["'])([^"']+)\1\s*:/);
-  const identifier = value.match(/^([A-Za-z_$][\w$]*)\s*(?=:|$)/);
+  const identifier = value.match(/^([A-Za-z_$][\w$]*)\s*(?=:|\(|$)/);
   const key = quoted?.[2] || identifier?.[1];
 
   if (key) keys.add(key);
@@ -1635,6 +1635,14 @@ function findExposeNames(source: string) {
 
   for (const match of source.matchAll(/\bexpose\s*\(\s*["']([^"']+)["']\s*\)/g)) {
     names.add(match[1].trim());
+  }
+
+  const objectPattern = /\bexpose(?:\s*:\s*\{|(?:\s*:\s*[^=;\r\n]+)?\s*=\s*\{)/g;
+
+  for (const match of source.matchAll(objectPattern)) {
+    const objectStart = source.indexOf("{", match.index);
+
+    readTopLevelObjectKeys(source, objectStart).forEach(name => names.add(name));
   }
 
   return [...names].filter(Boolean).sort();

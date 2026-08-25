@@ -83,15 +83,7 @@ export const state = {
   count: 0
 };</code></pre>
       </div>
-      <div class="feature-lab">
-        <div class="feature-lab-header"><strong>Try it: reactive state</strong><span class="feature-lab-label">Live example</span></div>
-        <div class="mt-5 flex flex-wrap items-center gap-3">
-          <button type="button" vd-on:click="increment()" class="btn btn-primary rounded-xl">Count: {{ count }}</button>
-          <button type="button" vd-on:click="resetCount()" class="btn btn-outline rounded-xl">Reset</button>
-          <span vd-if="count === 0" class="text-sm text-slate-500">Click the button to update state.</span>
-          <span vd-else class="text-sm font-semibold text-emerald-700">The template reacted without a render function.</span>
-        </div>
-      </div>
+      <p class="mt-5"><a href="/playground#state" vd-nav class="font-bold text-indigo-700">Try reactive state in the playground →</a></p>
     </section>
 
     <section id="directives" class="doc-section">
@@ -160,6 +152,7 @@ state.openFeatured = () =&gt; {
   &lt;vd-component name="footer"&gt;&lt;/vd-component&gt;
 &lt;/template&gt;</code></pre>
       </div>
+      <p class="mt-5"><a href="/playground#component" vd-nav class="font-bold text-indigo-700">Try props, slots, refs, and expose →</a></p>
     </section>
 
     <section id="routing" class="doc-section">
@@ -211,19 +204,7 @@ state.openFeatured = () =&gt; {
 &lt;p vd-if="articleError !== ''"&gt;{{ articleError }}&lt;/p&gt;
 &lt;h3&gt;{{ articleResult?.title }}&lt;/h3&gt;</code></pre>
       </div>
-      <div class="feature-lab">
-        <div class="feature-lab-header"><strong>Try it: local request route</strong><span class="feature-lab-label">vd-request</span></div>
-        <div class="mt-5 flex flex-wrap items-center gap-3">
-          <button vd-request="articles.getOne" vd-request-config="{ params: { id: 'html-first' }, target: 'lessonResult', autoState: true }" class="btn btn-primary rounded-xl">Load HTML-first lesson</button>
-          <button vd-request="articles.getOne" vd-request-config="{ params: { id: 'compiler-first' }, target: 'lessonResult', autoState: true }" class="btn btn-outline rounded-xl">Load compiler lesson</button>
-        </div>
-        <p vd-show="lessonLoading" class="mt-4 text-sm text-indigo-700">Loading local route…</p>
-        <p vd-if="lessonError !== ''" vd-text="lessonError" class="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700"></p>
-        <div vd-if="Boolean(lessonResult?.title)" class="mt-4 rounded-xl bg-emerald-50 p-4">
-          <strong vd-text="lessonResult.title" class="block text-emerald-950"></strong>
-          <span vd-text="lessonResult.excerpt" class="mt-1 block text-sm text-emerald-800"></span>
-        </div>
-      </div>
+      <p class="mt-5"><a href="/playground#request" vd-nav class="font-bold text-indigo-700">Run the local request example →</a></p>
       <h3>Progressive forms keep native HTML as the baseline.</h3>
       <div class="code-window">
         <div class="code-toolbar"><span>native form + opt-in enhancement</span><span>server owns policy</span></div>

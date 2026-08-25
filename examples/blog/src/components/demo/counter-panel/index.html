@@ -1,0 +1,11 @@
+<article class="counter-panel">
+  <p class="counter-panel-label">Live component</p>
+  <h3>{{ title }}</h3>
+  <p class="counter-panel-value" aria-live="polite">Count: {{ count }}</p>
+  <div class="counter-panel-actions">
+    <button type="button" data-demo-action="component-increment" class="btn btn-primary rounded-xl" vd-on:click="increment()">
+      Increment inside component
+    </button>
+    <div class="counter-panel-note" vd-get-child="note"></div>
+  </div>
+</article>

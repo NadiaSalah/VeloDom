@@ -6,7 +6,8 @@ package. It is deliberately a real consumer: the framework lives in
 request policy remain here.
 
 It is intentionally richer than the beginner project emitted by
-`create-velodom`. Use `velodomProj` (or `npx velodom@latest <name>`) for the
+`create-velodom`. Use `packages/velodom/velodomProj` (or
+`npx velodom@latest <name>`) for the
 smallest generated starting point; the explicit `create-velodom` form remains
 available for scripts. Use this blog when you need a complete documentation site with multiple routes,
 layouts, requests, and content.
@@ -17,14 +18,16 @@ layouts, requests, and content.
 | --- | --- |
 | `/` | Landing page and learning path |
 | `/features` | Guided lessons for the framework capabilities |
+| `/playground` | Live state, component, slot, ref, expose, and request exercises |
 | `/reference` | Source-verified public package catalog |
 | `/single-file` | Optional `.vd` authoring example |
 | `/blog/posts/:id` | Dynamic route and content detail |
 | `/404` | Route-not-found and recovery behavior |
 
 The feature and reference pages use literal `<pre><code>` windows guarded by
-`vd-pre`, live directive examples, active hash-aware sidebars, and semantic
-HTML. They are teaching material, not additional Core APIs.
+`vd-pre`, active hash-aware sidebars, and semantic HTML. Interactive examples
+live on `/playground`, keeping the long-form guide below the project-health
+size threshold. They are teaching material, not additional Core APIs.
 
 ## Application conventions
 

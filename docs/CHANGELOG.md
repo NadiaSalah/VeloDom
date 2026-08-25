@@ -5,6 +5,13 @@ both development milestones and published package verification.
 
 ## Unreleased
 
+- Removed the duplicate root starter and the obsolete generated-logo template;
+  `packages/velodom/velodomProj` is now the only editable starter source.
+- Split live documentation exercises into `/playground`, added a component
+  example for props, slots, refs, and expose, and kept `/features` below the
+  project-health large-template threshold.
+- Fixed CLI project intelligence so object-form `expose` declarations report
+  shorthand properties and method keys.
 - Added the concise `vd init <name>` project initializer and the package-level
   `npx velodom@latest <name>` shortcut. Both generate the same complete starter
   as `create-velodom`; the existing explicit command remains supported.

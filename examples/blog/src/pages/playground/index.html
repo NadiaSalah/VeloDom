@@ -1,0 +1,59 @@
+<main class="site-frame py-14 md:py-20">
+  <header class="max-w-3xl">
+    <p class="eyebrow">VeloDom playground</p>
+    <h1 class="mt-3 text-4xl font-black tracking-tight text-slate-950 md:text-6xl">
+      Read the HTML, then use the feature.
+    </h1>
+    <p class="section-copy text-lg">
+      These small exercises run on the same public directives, components, and
+      request routes described in the guide. No demo-only runtime is involved.
+    </p>
+  </header>
+
+  <div class="mt-12 grid gap-8">
+    <section id="state" class="feature-lab scroll-mt-28">
+      <div class="feature-lab-header"><strong>Reactive state and conditions</strong><span class="feature-lab-label">{{ count }}</span></div>
+      <div class="mt-5 flex flex-wrap items-center gap-3">
+        <button type="button" data-demo-action="state-increment" vd-on:click="increment()" class="btn btn-primary rounded-xl">Count: {{ count }}</button>
+        <button type="button" data-demo-action="state-reset" vd-on:click="resetCount()" class="btn btn-outline rounded-xl">Reset</button>
+        <span vd-if="count === 0" class="text-sm text-slate-500">The state starts from a plain object.</span>
+        <span vd-else class="text-sm font-semibold text-emerald-700">The DOM reacted to the state change.</span>
+      </div>
+    </section>
+
+    <section id="component" class="feature-lab scroll-mt-28">
+      <div class="feature-lab-header"><strong>Props, slot, ref, and expose</strong><span class="feature-lab-label">Component</span></div>
+      <div class="mt-5 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
+        <vd-component
+          name="demo/counter-panel"
+          vd-prop-title="Component-owned state"
+          vd-ref="counterDemo"
+        >
+          <vd-child name="note">This note is supplied by the page through a named slot.</vd-child>
+        </vd-component>
+        <button type="button" data-demo-action="component-reset" class="btn btn-outline rounded-xl" vd-on:click="resetComponentDemo()">
+          Reset through parent ref
+        </button>
+      </div>
+    </section>
+
+    <section id="request" class="feature-lab scroll-mt-28">
+      <div class="feature-lab-header"><strong>Declarative local request</strong><span class="feature-lab-label">vd-request</span></div>
+      <div class="mt-5 flex flex-wrap items-center gap-3">
+        <button vd-request="articles.getOne" vd-request-config="{ params: { id: 'html-first' }, target: 'lessonResult', autoState: true }" class="btn btn-primary rounded-xl">Load HTML-first lesson</button>
+        <button vd-request="articles.getOne" vd-request-config="{ params: { id: 'compiler-first' }, target: 'lessonResult', autoState: true }" class="btn btn-outline rounded-xl">Load compiler lesson</button>
+      </div>
+      <p vd-show="lessonLoading" class="mt-4 text-sm text-indigo-700">Loading local route…</p>
+      <p vd-if="lessonError !== ''" vd-text="lessonError" class="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700"></p>
+      <div vd-if="Boolean(lessonResult?.title)" class="mt-4 rounded-xl bg-emerald-50 p-4">
+        <strong vd-text="lessonResult.title" class="block text-emerald-950"></strong>
+        <span vd-text="lessonResult.excerpt" class="mt-1 block text-sm text-emerald-800"></span>
+      </div>
+    </section>
+  </div>
+
+  <div class="mt-10 flex flex-wrap gap-3">
+    <a href="/features" vd-nav class="btn btn-primary rounded-xl">Read the complete guide</a>
+    <a href="/reference" vd-nav class="btn btn-outline rounded-xl">Open API reference</a>
+  </div>
+</main>

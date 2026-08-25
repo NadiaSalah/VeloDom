@@ -500,6 +500,11 @@ Focused page demos are `static`, `counter`, `request`, `form`, and `seo`.
 `vd create feature name --blog` creates a small vertical slice without moving
 application files into Core.
 
+Project intelligence recognizes both legacy expose-name arrays and the public
+`return { state, expose: { ... } }` component API, including shorthand
+properties and method syntax. This keeps `vd inspect`, `vd graph`, `vd docs`,
+and `vd health` aligned with normal JavaScript authoring.
+
 ## Compiler and Public Entry Points
 
 The compiler can be used independently:

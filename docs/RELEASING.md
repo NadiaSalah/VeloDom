@@ -34,8 +34,10 @@ After `1.0.0`:
 
 Internal files that are not reachable through
 `packages/velodom/package.json#exports` are not
-public API. Application folders, tests, source configuration, and showcase
-assets must never be included in the npm tarball.
+public API. Tests, source configuration, and showcase assets must never be
+included in the npm tarball. The source-controlled `velodomProj/` beginner
+starter is the only intentional application-source exception and must remain
+explicitly allowlisted and package-tested.
 
 ## Release Checklist
 
@@ -114,11 +116,12 @@ The checks must confirm:
   - `velodom/vite`
   - `velodom/vite-plugin`
   - `velodom/package.json`
-- Confirm application folders, tests, source config, assets, and local build
-  scaffolding are not included in the npm tarball.
+- Confirm workspace applications, tests, source config, and local build
+  scaffolding are not included in the npm tarball; only the explicit
+  `velodomProj/` starter exception may contain application files.
 - Confirm the package tarball contains its focused `README.md`, `LICENSE`,
-  `bin`, `lib`, and `types`, but excludes workspace examples and framework
-  TypeScript source.
+  `bin`, `lib`, `types`, and verified `velodomProj`, but excludes workspace
+  examples and framework TypeScript source.
 - Record the final dry-run tarball file count and compressed/unpacked sizes so
   unexpected growth is visible during release review.
 - Confirm public API freeze tests pass before changing any export names.

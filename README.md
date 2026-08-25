@@ -1,7 +1,7 @@
 # VeloDom
 
 <p align="center">
-  <img src="velodomProj/public/velodom-favicon.svg" alt="VeloDom logo" width="180">
+  <img src="packages/velodom/velodomProj/public/velodom-favicon.svg" alt="VeloDom logo" width="180">
 </p>
 
 VeloDom is an HTML-first, compiler-first frontend framework for lightweight,
@@ -56,7 +56,6 @@ npm run pack:check
 packages/velodom/         Publishable framework package
 packages/velodom-vscode/  Optional private VS Code language-tools package
 examples/blog/            Real application consuming public package exports
-velodomProj/              Standalone npm consumer starter smoke project
 tools/                    Repository tests and release/build verification
 docs/                     Guide, architecture, decisions, roadmap, and history
 ```
@@ -68,7 +67,7 @@ allowlisted by `packages/velodom/package.json`.
 
 ## Current Status
 
-V1 is verified with 255 automated tests, package-consumer and tarball
+V1 is verified with 256 automated tests, package-consumer and tarball
 validation, a production build within its performance budgets, a 100/100
 example-project health report, and a successful GitHub Actions matrix across
 Chromium, Firefox, WebKit, and Mobile WebKit. VeloDom `1.0.0` is now published
@@ -100,8 +99,8 @@ The npm package has a strict `files` allowlist, explicit public exports,
 package-consumer tests, and a dry-run tarball check. Version `1.0.0` is
 published at [npmjs.com/package/velodom](https://www.npmjs.com/package/velodom).
 
-The repository also contains [`velodomProj`](velodomProj/README.md), the
-source-controlled consumer project shipped as the package starter. Its home page includes
+The package contains [`velodomProj`](packages/velodom/velodomProj/README.md),
+the source-controlled consumer project shipped as the default starter. Its home page includes
 a reusable inline-SVG logo component with the visible `VeloDom` wordmark beside
 the textual `VeloDom` brand name, a short framework introduction, and a large
 responsive SVG mark beside the hero copy, an SVG favicon sourced from the
@@ -179,9 +178,9 @@ a browser translation provider. See
 - Static SEO output now waits for Vite to write the HTML shell before it
   renders route artifacts, including with the current Vite/Rolldown lifecycle.
 - Rebuilt `examples/blog` as the polished VeloDom academic reference: a modern
-  documentation application with a structured learning path, live directive
-  demonstrations, dynamic study notes, and literal `<pre><code>` examples that
-  are safe from template compilation through `vd-pre`.
+  documentation application with a structured learning path, a separate live
+  playground, dynamic study notes, and literal `<pre><code>` examples that are
+  safe from template compilation through `vd-pre`.
 - Corrected the reference sidebar to use app-relative hash URLs such as
   `/features#architecture`, so `vd-nav` performs same-page scrolling without
   unsupported-target warnings.
@@ -201,15 +200,16 @@ a browser translation provider. See
   documentation applications.
 - Removed five obsolete, unreferenced showcase components after confirming
   that no routed page or live component used them. The example now reports no
-  doctor issues, 100/100 health, and SEO configuration for all six pages.
+  doctor issues, 100/100 health, and SEO configuration for all seven pages.
 - Replaced the documentation application's temporary `VD` text marks with the
   application-owned VeloDom logo asset in its shared navigation and footer.
 - Added a native, keyboard-accessible compact navigation menu below the wide
   desktop breakpoint so documentation links remain available on small desktop
   and tablet screens.
 - Reorganized the showcase navigation into page-level tabs only: Learn, Guides,
-  API, and Single-file. Detailed Requests, Tooling, and other lessons remain in
-  the feature sidebar, preventing duplicate top-level links and hash-based tabs.
+  Playground, API, and Single-file. Detailed Requests, Tooling, and other
+  lessons remain in the feature sidebar, preventing duplicate top-level links
+  and hash-based tabs.
 - Made the feature sidebar stateful and accessible: the URL hash, clicked lesson,
   and currently visible section now select the same active tab, with
   `aria-current` and keyboard focus styling.
@@ -228,7 +228,7 @@ a browser translation provider. See
 - Increased compact-menu contrast and added an open-state treatment so the
   navigation icon remains clear on tablet and small-desktop widths.
 - Added route-aware active states to the shared primary navigation. Learn,
-  Guides, API, and Single-file now expose the selected route with
+  Guides, Playground, API, and Single-file now expose the selected route with
   `aria-current="page"` on both wide and compact menus.
 - Re-audited the public feature surface against framework source: documentation
   still covers all 11 package exports, 61 public values, 43 preferred
@@ -238,22 +238,31 @@ a browser translation provider. See
 - Deferred showcase sidebar viewport observation until router hash restoration
   completes, preventing direct lesson links from momentarily selecting the
   preceding tab.
+- Removed the duplicate root starter and the unused generated-logo source;
+  `packages/velodom/velodomProj` is now the single starter source copied by the
+  CLI and included in the npm tarball.
+- Fixed project-intelligence expose discovery for JavaScript shorthand,
+  object-method, and typed object forms, with regression coverage.
+- Moved interactive state, component, slot, ref, expose, and request examples
+  to `/playground`, keeping the academic guide below the large-template health
+  threshold while preserving complete browser coverage.
 
 ## Next Tasks
 
 - The default npm-installable starter preset is available through the short
   `npx velodom@latest <name>` command after the next patch publication. The explicit
   `npx --yes --package velodom create-velodom <name>` form remains supported.
-- `velodomProj` is the checked-in consumer smoke project for
+- `packages/velodom/velodomProj` is the checked-in package starter for
   `velodom@1.0.0`; its dependencies, production build, logo component, and
   light/dark starter experience, shared layout, navbar, `.vd` lesson, and
-  component lesson have been verified. The same files are generated by the
-  package's `create-velodom` binary after the next package build/publication.
+  component lesson have been verified. The package's `create-velodom` binary
+  copies this same source after the next package build/publication.
 - Continue only the optional items recorded in [docs/TODO.md](docs/TODO.md).
 
 ## Handoff Notes
 
-- Do not move user application files into the framework package.
+- Keep normal user applications outside the framework package. The explicitly
+  allowlisted `velodomProj/` starter is the only application-source exception.
 - Do not import private paths such as `velodom/lib/*`; use documented exports.
 - Do not delete `packages/velodom/lib` or `packages/velodom/types` merely to
   clean the tree. They are ignored, generated local outputs used for testing.

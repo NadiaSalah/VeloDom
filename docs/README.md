@@ -4506,7 +4506,8 @@ features itself.
 | --- | --- |
 | `/` | V1 landing page, article loops, reusable components, routing, and SEO |
 | `/blog/posts/html-first` | dynamic article route, local API data, and `vd-request` reload |
-| `/features` | framework feature documentation with live directive examples, page data, prefetch, recovery, and compiler safety guidance |
+| `/features` | framework feature documentation with code examples, page data, prefetch, recovery, and compiler safety guidance |
+| `/playground` | live reactive state, components, slots, refs, expose, and local request exercises |
 | `/reference` | source-verified package/API catalog and preferred template syntax index |
 | `/single-file` | optional `.vd` page/component authoring with scoped style and config blocks |
 | `/404` | route-not-found recovery experience with a normal VeloDom page config |
@@ -4516,12 +4517,12 @@ choices, not VeloDom Core dependencies or requirements.
 
 ## Verification
 
-Latest local verification on 2026-08-24:
+Latest local verification on 2026-08-25:
 
 - Core documentation audit passes for 72 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 255 automated tests pass
+- 256 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - package dry-run validation passes

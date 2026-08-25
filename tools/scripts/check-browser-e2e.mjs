@@ -334,7 +334,7 @@ async function assertStaticSeo(origin) {
   assertIncludes(html, "<title>VeloDom Framework Features</title>");
   assertIncludes(
     html,
-    'name="description" content="Try working examples of VeloDom V1 reactive state, directives, components, lifecycle hooks, routing, and local request routes."'
+    'name="description" content="Study source-level examples of VeloDom V1 reactive state, directives, components, lifecycle hooks, routing, requests, and production tooling."'
   );
   assertIncludes(html, "data-vd-seo-fallback");
   assertIncludes(html, "VeloDom framework features");
@@ -407,8 +407,24 @@ async function assertSingleFilePage(page, origin) {
 }
 
 async function assertRequestExamples(page, origin) {
-  await page.goto(`${origin}/features`);
-  await waitForPageText(page, "Requests and forms");
+  await page.goto(`${origin}/playground`);
+  await waitForPageText(page, "Read the HTML, then use the feature.");
+
+  await page.locator('[data-demo-action="state-increment"]').click();
+  await page.waitForFunction(() => (
+    document.querySelector('[data-demo-action="state-increment"]')
+      ?.textContent?.includes("Count: 1")
+  ));
+
+  await page.locator('[data-demo-action="component-increment"]').click();
+  await page.waitForFunction(() => (
+    document.querySelector(".counter-panel-value")?.textContent?.includes("Count: 1")
+  ));
+  await page.locator('[data-demo-action="component-reset"]').click();
+  await page.waitForFunction(() => (
+    document.querySelector(".counter-panel-value")?.textContent?.includes("Count: 0")
+  ));
+
   await page.locator('[data-vd-request="articles.getOne"]').nth(1).waitFor();
 
   await page.locator('[data-vd-request="articles.getOne"]').nth(0).click();

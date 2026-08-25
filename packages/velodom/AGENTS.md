@@ -1,7 +1,8 @@
 # VeloDom package AI guidance
 
-This file applies to work inside `packages/velodom`. The package is the
-framework Core, not an application template. Read the package `README.md` and
+This file applies to work inside `packages/velodom`. The `src/` directory is
+framework Core; `velodomProj/` is the explicitly packaged beginner template.
+Read the package `README.md` and
 the repository [AI context](../../docs/AI_CONTEXT.md) before changing code or
 generating an example.
 
@@ -10,7 +11,8 @@ generating an example.
 - Keep compiler, parser, evaluator, adapters, runtime, and public contracts
   framework-agnostic.
 - Keep branding, business data, Tailwind classes, page copy, and application
-  policy in the consuming project's `src/` directory.
+  policy out of framework `src/`. Only generic starter teaching content may
+  live in the allowlisted `velodomProj/` template.
 - Do not solve a consumer problem by importing `examples/blog` or by exposing
   an internal file as a new public subpath.
 - Preserve VeloDom's HTML-first, compiler-first, folder-first,

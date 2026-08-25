@@ -50,6 +50,8 @@ the maintained reference for a first project: it includes a shared
 component lesson, the supplied SVG favicon, and a TypeScript-compatible
 `jsconfig.json`. The CLI copies the source-controlled `velodomProj` files, so
 the example is the starter source rather than a second template to maintain.
+That source lives at `packages/velodom/velodomProj`; do not recreate a duplicate
+starter at the repository root.
 
 Do not treat an old prompt, a copied snippet, or an example-only helper as a
 framework feature until it is present in the public contract and documented.
