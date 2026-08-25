@@ -8,6 +8,8 @@ route-aware lifecycle hooks, and an optional request layer without JSX or TSX.
 The framework source is TypeScript. Application authors may choose Vanilla
 JavaScript or TypeScript independently for every page and component.
 
+Source repository: [github.com/NadiaSalah/VeloDom](https://github.com/NadiaSalah/VeloDom).
+
 > Project status: VeloDom V1 `1.0.0` is published on npm. The package lives at
 > `packages/velodom`; public API names are protected by package-boundary tests,
 > and the registry package is available at

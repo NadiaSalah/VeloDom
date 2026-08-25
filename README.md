@@ -5,6 +5,8 @@ folder-first web applications. Framework internals are written in TypeScript;
 application authors may use Vanilla JavaScript or TypeScript without changing
 the authoring model.
 
+Source repository: [github.com/NadiaSalah/VeloDom](https://github.com/NadiaSalah/VeloDom).
+
 The full framework guide, installation instructions, API examples,
 architecture, release notes, and roadmap are in
 [docs/README.md](docs/README.md).

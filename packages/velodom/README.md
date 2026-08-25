@@ -493,4 +493,4 @@ remain in the consuming project. The package is MIT-licensed and published at
 
 Full examples, architecture decisions, deployment guidance, and the living
 roadmap are in the repository
-[documentation](https://github.com/NadiaSalah/velodom/tree/main/docs).
+[documentation](https://github.com/NadiaSalah/VeloDom/tree/main/docs).

@@ -31,6 +31,8 @@ both development milestones and published package verification.
 - Added a generated `public/velodom-favicon.svg` and linked it from the starter
   HTML shell so the supplied VeloDom SVG mark appears in browser tabs. The
   generated favicon now uses the attached artwork without a simplified redraw.
+- Corrected Markdown repository links to the canonical
+  `github.com/NadiaSalah/VeloDom` path.
 - Expanded the npm starter with a small learning surface: `/about` is a
   single-file `.vd` page, `/guide` demonstrates reusable components and props,
   `default.vd` provides a shared layout, and `site-nav/script.js` keeps the
@@ -42,7 +44,7 @@ both development milestones and published package verification.
 
 ### GitHub Actions Release Matrix
 
-- Uploaded the refactored release candidate to `NadiaSalah/velodom` on `main`.
+- Uploaded the refactored release candidate to `NadiaSalah/VeloDom` on `main`.
 - GitHub Actions Run #27 passed the production build and strict browser matrix
   for Chromium, Firefox, WebKit, and Mobile WebKit. The Firefox gate is now
   closed; only npm ownership and human publication approval remain external.
