@@ -95,7 +95,8 @@ The repository also contains [`velodomProj`](velodomProj/README.md), a clean
 consumer project generated from that published package. Its home page includes
 a reusable inline-SVG logo component with the visible `VeloDom` wordmark beside
 the textual `VeloDom` brand name, a short framework introduction, and a large
-responsive SVG mark beside the hero copy, an SVG favicon, and a
+responsive SVG mark beside the hero copy, an SVG favicon sourced from the
+supplied VeloDom artwork, and a
 dependency-free light/dark theme toggle.
 Its primary call-to-action uses VeloDom's router-safe `/#principles` hash link,
 and the GitHub call-to-action points to the canonical repository URL.

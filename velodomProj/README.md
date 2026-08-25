@@ -21,7 +21,7 @@ npm run build
 
 ```text
 src/main.js                  VeloDom/Vite bootstrap
-public/velodom-favicon.svg   SVG favicon using the VeloDom mark
+public/velodom-favicon.svg   Supplied VeloDom SVG used as the favicon
 src/style.css                Light/dark theme and responsive starter styles
 src/components/brand-mark/   Reusable logo component
 src/components/site-nav/     Navbar component with route-aware script.js

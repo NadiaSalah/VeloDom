@@ -29,7 +29,8 @@ both development milestones and published package verification.
 - Added the visible `VeloDom` wordmark beside the header logo for clearer brand
   recognition in the starter project.
 - Added a generated `public/velodom-favicon.svg` and linked it from the starter
-  HTML shell so the VeloDom mark appears in browser tabs.
+  HTML shell so the supplied VeloDom SVG mark appears in browser tabs. The
+  generated favicon now uses the attached artwork without a simplified redraw.
 - Expanded the npm starter with a small learning surface: `/about` is a
   single-file `.vd` page, `/guide` demonstrates reusable components and props,
   `default.vd` provides a shared layout, and `site-nav/script.js` keeps the

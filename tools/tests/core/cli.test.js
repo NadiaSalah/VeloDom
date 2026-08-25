@@ -485,7 +485,8 @@ test("CLI create scaffolds convention-first project resources", async () => {
     assert.match(starterShell, /<!doctype html>/i);
     assert.match(starterShell, /name="description"/);
     assert.match(starterShell, /rel="icon" type="image\/svg\+xml" href="\/velodom-favicon\.svg"/);
-    assert.match(starterFavicon, /<title id="title">VeloDom<\/title>/);
+    assert.match(starterFavicon, /viewBox="0 0 850\.39 850\.39"/);
+    assert.match(starterFavicon, /id="Layer_1"/);
     assert.match(starterAbout, /<template>/);
     assert.match(starterAbout, /<style>/);
     assert.match(starterAbout, /<config>/);
