@@ -395,6 +395,7 @@ test("CLI create scaffolds convention-first project resources", async () => {
     await assertFile(join(root, "src/api/middleware.js"));
     await assertFile(join(root, "src/plugins/analytics.js"));
     await assertFile(join(root, "starter/src/pages/home/config.js"));
+    await assertFile(join(root, "starter/public/velodom-favicon.svg"));
     await assertFile(join(root, "starter/src/pages/home/index.html"));
     await assertFile(join(root, "starter/src/pages/home/script.js"));
     await assertFile(join(root, "starter/src/components/brand-mark/index.html"));
@@ -420,6 +421,10 @@ test("CLI create scaffolds convention-first project resources", async () => {
     );
     const starterShell = await readFile(
       join(root, "starter/index.html"),
+      "utf8"
+    );
+    const starterFavicon = await readFile(
+      join(root, "starter/public/velodom-favicon.svg"),
       "utf8"
     );
     const starterViteConfig = await readFile(
@@ -448,6 +453,8 @@ test("CLI create scaffolds convention-first project resources", async () => {
     assert.doesNotMatch(starterBrand, /<img\b/);
     assert.match(starterShell, /<!doctype html>/i);
     assert.match(starterShell, /name="description"/);
+    assert.match(starterShell, /rel="icon" type="image\/svg\+xml" href="\/velodom-favicon\.svg"/);
+    assert.match(starterFavicon, /<title id="title">VeloDom<\/title>/);
     assert.match(starterViteConfig, /from "velodom\/vite-plugin"/);
     assert.match(starterViteConfig, /"@": fileURLToPath/);
     assert.equal(starterManifest.imports["#app/*"], "./src/*");

@@ -22,7 +22,10 @@ import {
   toPosix,
   toRoutePath
 } from "./analyzer.ts";
-import { STARTER_BRAND_SVG } from "./brand.ts";
+import {
+  STARTER_BRAND_SVG,
+  STARTER_FAVICON_SVG
+} from "./brand.ts";
 import type { CliContext } from "./types.ts";
 
 /** Creates one supported VeloDom resource from parsed CLI values and flags. */
@@ -254,6 +257,10 @@ async function createProject(context: CliContext, name: string) {
   await writeNewFile(join(folder, "vite.config.js"), createProjectViteConfig());
   await writeNewFile(join(folder, "jsconfig.json"), createProjectJsConfig());
   await writeNewFile(join(folder, "index.html"), createProjectShell());
+  await writeNewFile(
+    join(folder, "public", "velodom-favicon.svg"),
+    STARTER_FAVICON_SVG
+  );
   await writeNewFile(join(folder, "src", "main.js"), createProjectMain());
   await writeNewFile(
     join(folder, "src", "pages", "home", "index.html"),
@@ -742,6 +749,7 @@ function createProjectShell() {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/velodom-favicon.svg">
     <meta name="description" content="A website built with VeloDom.">
     <title>VeloDom App</title>
   </head>

@@ -28,6 +28,8 @@ both development milestones and published package verification.
   the first screen communicates the framework identity without an image request.
 - Added the visible `VeloDom` wordmark beside the header logo for clearer brand
   recognition in the starter project.
+- Added a generated `public/velodom-favicon.svg` and linked it from the starter
+  HTML shell so the VeloDom mark appears in browser tabs.
 
 ### GitHub Actions Release Matrix
 
