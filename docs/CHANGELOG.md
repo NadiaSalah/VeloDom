@@ -3,6 +3,12 @@
 All important local changes to VeloDom are recorded here. Entries describe
 both development milestones and published package verification.
 
+## Unreleased
+
+- Added the concise `vd init <name>` project initializer and the package-level
+  `npx velodom@latest <name>` shortcut. Both generate the same complete starter
+  as `create-velodom`; the existing explicit command remains supported.
+
 ## 2026-08-25
 
 ### npm Consumer Starter Smoke Project

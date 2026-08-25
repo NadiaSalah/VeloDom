@@ -67,6 +67,9 @@ export async function createResource(
     case "project":
       await createProject(context, requireName(rawName, "project"));
       break;
+    case "init":
+      await createProject(context, requireName(rawName, "project"));
+      break;
     default:
       throw new Error(
         "Use vd create page|component|api|demo|feature|middleware|plugin|project."

@@ -463,6 +463,7 @@ vd benchmark
 vd build-report --json
 vd docs
 vd types
+vd init my-site
 vd create page blog/posts/[id] --ts
 vd create page counter --demo counter
 vd create component shared/post-card --single-file
@@ -471,18 +472,23 @@ vd create api posts
 vd create demo features/demo
 vd create middleware
 vd create plugin analytics
+npx velodom@latest my-site
 npx --yes --package velodom create-velodom my-site
 ```
 
 Inside this repository, run `npm run package:build` first, then use
 `node packages/velodom/bin/vd.js ...` because the wrappers load the generated
 `packages/velodom/lib/cli.js`.
-After installation from npm, the `vd` and `create-velodom` binaries are
-available directly through the package manager. The command above is the
+After installation from npm, the `vd`, `velodom`, and `create-velodom` binaries
+are available directly through the package manager. The shortest command is
+`npx velodom@latest my-site`; it delegates to `vd init`. The explicit
+`create-velodom` command remains available for scripts. Both commands create the
 published default starter preset; it creates a Vite application with a shared
 layout/navbar, supplied SVG brand and favicon, `/about` single-file lesson,
 `/guide` component lesson, and an npm-safe `jsconfig.json`. Install its
 dependencies and run it immediately with `npm run dev`.
+The `velodom` alias is prepared in this workspace for the next patch release;
+the current registry `1.0.0` remains compatible through `create-velodom`.
 
 The CLI is intentionally static and local. `vd inspect` and `vd stats` read
 folders, `.vd` files, API route registrations, middleware files, template
@@ -537,6 +543,19 @@ vd create feature articles --blog
 The blog template additionally creates a page script, `articles/post-card`
 component, application-owned API source, and a small Node test placeholder.
 It never edits a central route registry or overwrites existing files.
+
+### Beginner project shortcut
+
+`vd init <name>` is the readable CLI form of the project generator:
+
+```bash
+vd init my-site
+```
+
+It creates the same complete starter as `create-velodom`, including the shared
+layout/navbar, `.vd` lesson, component lesson, supplied SVG favicon, and
+TypeScript-compatible `jsconfig.json`. Use `npx velodom@latest my-site` when
+the package is not installed locally.
 
 ### Focused Page Demos
 
@@ -616,7 +635,7 @@ packages/
     tsconfig.base.json        shared package compiler settings
     tsconfig.build.json       package ESM build configuration
     tsconfig.types.json       package declaration build configuration
-    bin/                      vd and create-velodom CLI wrappers
+    bin/                      vd, velodom, and create-velodom CLI wrappers
     src/                      framework-owned TypeScript
     adapters/                 build-tool resource discovery
     cli/                      static analysis, reporters, scaffolds, contracts

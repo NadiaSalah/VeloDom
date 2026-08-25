@@ -504,6 +504,30 @@ test("CLI create scaffolds convention-first project resources", async () => {
   }
 });
 
+test("CLI init is the concise project starter alias", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-cli-init-"));
+  const output = [];
+
+  try {
+    assert.equal(await runVeloDomCli([
+      "init",
+      "starter",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    }), 0);
+
+    assert.match(output.join("\n"), /Created VeloDom project starter/);
+    await assertFile(join(root, "starter", "src/pages/about.vd"));
+    await assertFile(join(root, "starter", "src/layouts/default.vd"));
+    await assertFile(join(root, "starter", "public/velodom-favicon.svg"));
+  } finally {
+    await removeFixture(root);
+  }
+});
+
 test("CLI types generates optional project declarations from conventions", async () => {
   const root = await createFixture();
   const output = [];

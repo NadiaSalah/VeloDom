@@ -185,7 +185,7 @@ a browser translation provider. See
   and their explicit production boundaries.
 - Added a dedicated `/reference` route to the academic application. It catalogs
   every supported package boundary, all 61 public runtime/build values, the 43
-  preferred directive names, and the 12 CLI commands with copyable examples.
+  preferred directive names, and the 13 CLI commands with copyable examples.
 - Extended documentation consistency checks to derive public value exports,
   preferred directives, and CLI commands directly from framework source. The
   canonical guide now fails verification when a public capability is omitted.
@@ -226,7 +226,7 @@ a browser translation provider. See
   `aria-current="page"` on both wide and compact menus.
 - Re-audited the public feature surface against framework source: documentation
   still covers all 11 package exports, 61 public values, 43 preferred
-  directives, and 12 CLI commands. The example guide now also groups page
+  directives, and 13 CLI commands. The example guide now also groups page
   data, prefetch, compiler safety diagnostics, and recoverable boundaries in a
   dedicated quality lesson.
 - Deferred showcase sidebar viewport observation until router hash restoration
@@ -235,8 +235,9 @@ a browser translation provider. See
 
 ## Next Tasks
 
-- The default npm-installable starter preset is available through
-  `npx --yes --package velodom create-velodom <name>`.
+- The default npm-installable starter preset is available through the short
+  `npx velodom@latest <name>` command after the next patch publication. The explicit
+  `npx --yes --package velodom create-velodom <name>` form remains supported.
 - `velodomProj` is the checked-in consumer smoke project for
   `velodom@1.0.0`; its dependencies, production build, logo component, and
   light/dark starter experience, shared layout, navbar, `.vd` lesson, and

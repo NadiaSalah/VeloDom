@@ -57,7 +57,8 @@ test("published package boundaries use built allowlisted artifacts", () => {
   assert.equal(manifest.peerDependenciesMeta.vite.optional, true);
   assert.deepEqual(manifest.bin, {
     "vd": "./bin/vd.js",
-    "create-velodom": "./bin/create-velodom.js"
+    "create-velodom": "./bin/create-velodom.js",
+    "velodom": "./bin/velodom.js"
   });
   assert.deepEqual(manifest.files, [
     "bin",

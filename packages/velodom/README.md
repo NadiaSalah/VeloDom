@@ -33,7 +33,18 @@ provider.
 - Vite `6`, `7`, or `8` for the standard integration.
 - TypeScript is optional for application code.
 
-VeloDom `1.0.0` is published on npm. A new app can start with:
+VeloDom `1.0.0` is published on npm. The workspace now also includes a shorter
+`velodom` binary for the next patch publication. Once that patch is published,
+a new app can start with:
+
+```bash
+npx velodom@latest my-site
+cd my-site
+npm install
+npm run dev
+```
+
+The explicit binary name remains available when a script or CI job prefers it:
 
 ```bash
 npx --yes --package velodom create-velodom my-site
@@ -41,6 +52,9 @@ cd my-site
 npm install
 npm run dev
 ```
+
+Until the patch is published, use the explicit `create-velodom` command above
+with the current registry release.
 
 This is the default starter preset shipped by the package. It creates a Vite project with
 the VeloDom plugin, `mountVeloDom()` bootstrap, an HTML-first home page, the
@@ -437,8 +451,14 @@ vd build-report  build composition and optimization signals
 vd docs          generated route/component/API documentation
 vd types         application-owned route and component declarations
 vd benchmark     local rendering benchmark
+vd init <name>   create the complete beginner starter project
 vd create ...    convention-first page/component/API/middleware/plugin scaffolds
 ```
+
+For the shortest new-project flow, use `npx velodom@latest <name>`. It is a
+thin package binary that delegates to `vd init`; no framework runtime is added
+to the browser. `create-velodom <name>` remains the explicit, script-friendly
+equivalent.
 
 Focused page demos are `static`, `counter`, `request`, `form`, and `seo`.
 `vd create feature name --blog` creates a small vertical slice without moving

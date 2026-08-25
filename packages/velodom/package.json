@@ -33,7 +33,8 @@
   "sideEffects": false,
   "bin": {
     "vd": "./bin/vd.js",
-    "create-velodom": "./bin/create-velodom.js"
+    "create-velodom": "./bin/create-velodom.js",
+    "velodom": "./bin/velodom.js"
   },
   "files": [
     "bin",

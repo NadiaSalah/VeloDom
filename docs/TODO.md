@@ -117,8 +117,9 @@ application browser runtime weight:
   composition reports without automatic optimization changes.
 - [x] `vd docs` for generated route/component/API/state/event/ref documentation.
 - [x] `vd types` for readable application-owned route/component declarations.
-- [x] `vd create` and `create-velodom` for convention-first project, page,
-  component, API, middleware, plugin, and focused demo scaffolding.
+- [x] `vd init`, `vd create`, and `create-velodom` for convention-first project,
+  page, component, API, middleware, plugin, and focused demo scaffolding. The
+  package also exposes `npx velodom@latest <name>` as the shortest starter flow.
 - [x] Compiler-backed editor analysis/completion and the optional private
   `packages/velodom-vscode` workspace consumer.
 - [x] `velodom/testing`, devtools bridge/inspector, and real-browser Playwright
@@ -208,8 +209,9 @@ Current release work is governance rather than a new framework feature:
   layout/navbar, `/about` single-file lesson, `/guide` component lesson,
   `ignoreDeprecations: "6.0"`, and public package dependencies.
   Additional opinionated presets remain optional research.
-- [ ] Publish the starter-page refinement as the next patch release after
-  explicit owner approval; the current npm `1.0.0` remains unchanged.
+- [ ] Publish the starter-page and CLI-alias refinement as the next patch
+  release after explicit owner approval; the current npm `1.0.0` remains
+  unchanged.
 
 ## V1 Advanced Capabilities — Planned / Experimental
 

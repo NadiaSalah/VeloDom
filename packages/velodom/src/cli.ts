@@ -131,6 +131,7 @@ Usage:
   vd build-report [--json] [--root <dir>]
   vd docs [--json] [--root <dir>]
   vd types [--out <file>] [--root <dir>]
+  vd init <project-name>
   vd create page <name> [--ts] [--single-file] [--demo <kind>] [--root <dir>]
   vd create component <name> [--ts] [--single-file] [--root <dir>]
   vd create api <name> [--root <dir>]
@@ -147,6 +148,8 @@ Examples:
   vd create page counter --demo counter
   vd create component shared/post-card --single-file
   vd create feature articles --blog
+  vd init my-site
+  npx velodom@latest my-site
 `;
 
 /** Runs the VeloDom command-line interface and returns a process exit code. */
@@ -197,6 +200,14 @@ export async function runVeloDomCli(
         return 0;
       case "types":
         await writeApplicationDeclarations(context, parsed.options.out);
+        return 0;
+      case "init":
+        await createResource(
+          context,
+          ["init", values[0] || ""],
+          parsed.flags,
+          parsed.options
+        );
         return 0;
       case "create":
         await createResource(context, values, parsed.flags, parsed.options);

@@ -50,6 +50,12 @@ can explore the framework by reading the files and clicking the result.
 The same starter shape is generated for a new project with:
 
 ```bash
+npx velodom@latest my-app
+```
+
+The explicit equivalent remains available for scripts:
+
+```bash
 npx --yes --package velodom create-velodom my-app
 ```
 

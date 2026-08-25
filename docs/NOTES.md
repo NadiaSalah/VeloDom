@@ -551,6 +551,9 @@
   generates the shared layout/navbar, `.vd` lesson, component lesson, supplied
   SVG favicon, and TypeScript-compatible `jsconfig.json`; additional
   opinionated presets remain optional until they have distinct support value.
+- `vd init <name>` and the package-level `npx velodom@latest <name>` command are
+  intentionally thin aliases for that same starter. They reduce beginner
+  command length without adding a second project generator or browser runtime.
 - Dependency advisory review is now complete for the published V1 workspace.
   The approved npm audit found and fixed three transitive high-severity issues;
   future lockfile changes must rerun `npm audit`, `npm ci --dry-run`, and the
