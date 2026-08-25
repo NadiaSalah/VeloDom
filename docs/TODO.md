@@ -199,7 +199,9 @@ Current release work is governance rather than a new framework feature:
 - [x] Review registry dependency advisories after owner approval. `npm audit`
   now reports 0 vulnerabilities; the lockfile updates `brace-expansion` to
   5.0.9, `nanoid` to 3.3.18, and `postcss` to 8.5.26 and passes `npm ci
-  --dry-run`.
+  --dry-run` under the npm 10.9.2 toolchain used by GitHub Actions. Optional
+  `@emnapi/core` and `@emnapi/runtime` entries are retained for npm 10's clean
+  install resolution.
 - [x] Add the published default starter preset through
   `npx --yes --package velodom create-velodom <name>`. It generates a minimal
   Vite application with `mountVeloDom()`, a home page, and public package

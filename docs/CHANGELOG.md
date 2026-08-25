@@ -43,6 +43,10 @@ package versions.
 - Regenerated the lockfile with fixed versions (`5.0.9`, `3.3.18`, and
   `8.5.26`), removed two unnecessary optional packages, and confirmed
   `npm audit` reports zero vulnerabilities and `npm ci --dry-run` succeeds.
+- Re-generated the lockfile with npm 10.9.2 after GitHub Actions exposed an
+  npm 11 compatibility difference: `@emnapi/core` and `@emnapi/runtime` are
+  retained so the release workflow's clean install resolves the optional WASI
+  tree while the audit fixes remain applied.
 
 ### AI-Friendly Project Context
 

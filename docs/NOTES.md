@@ -552,7 +552,9 @@
 - Dependency advisory review is now complete for the published V1 workspace.
   The approved npm audit found and fixed three transitive high-severity issues;
   future lockfile changes must rerun `npm audit`, `npm ci --dry-run`, and the
-  package/browser verification gates.
+  package/browser verification gates. The lockfile is generated with npm
+  10.9.2 to match GitHub Actions and intentionally retains optional `@emnapi`
+  entries that npm 11 may remove during an audit-only lockfile rewrite.
 - The post-V1 competitive roadmap is intentionally bounded: adapter contracts,
   authoring types, asset tooling, editor intelligence, static rendering,
   progressive forms, localization, and dev inspection may be researched or
