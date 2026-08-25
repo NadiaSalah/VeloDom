@@ -395,6 +395,11 @@ test("CLI create scaffolds convention-first project resources", async () => {
     await assertFile(join(root, "src/api/middleware.js"));
     await assertFile(join(root, "src/plugins/analytics.js"));
     await assertFile(join(root, "starter/src/pages/home/config.js"));
+    await assertFile(join(root, "starter/src/pages/home/index.html"));
+    await assertFile(join(root, "starter/src/pages/home/script.js"));
+    await assertFile(join(root, "starter/src/components/brand-mark/index.html"));
+    await assertFile(join(root, "starter/public/velodom-mark.svg"));
+    await assertFile(join(root, "starter/src/style.css"));
     await assertFile(join(root, "starter/vite.config.js"));
     await assertFile(join(root, "starter/jsconfig.json"));
 
@@ -404,6 +409,10 @@ test("CLI create scaffolds convention-first project resources", async () => {
     );
     const starterMain = await readFile(
       join(root, "starter/src/main.js"),
+      "utf8"
+    );
+    const starterHome = await readFile(
+      join(root, "starter/src/pages/home/index.html"),
       "utf8"
     );
     const starterShell = await readFile(
@@ -422,7 +431,10 @@ test("CLI create scaffolds convention-first project resources", async () => {
     assert.match(config, /path: "\/blog\/posts\/:id"/);
     assert.match(config, /satisfies PageConfig/);
     assert.match(starterMain, /await mountVeloDom\(\)/);
+    assert.match(starterMain, /import "\.\/style\.css"/);
     assert.doesNotMatch(starterMain, /createViteAdapter/);
+    assert.match(starterHome, /vd-component name="brand-mark"/);
+    assert.match(starterHome, /vd-on:click="toggleTheme\(\)"/);
     assert.match(starterShell, /<!doctype html>/i);
     assert.match(starterShell, /name="description"/);
     assert.match(starterViteConfig, /from "velodom\/vite-plugin"/);

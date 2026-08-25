@@ -12,6 +12,11 @@ both development milestones and published package verification.
 - Installed `velodom@1.0.0` from npm and verified the package with `npm ls`.
 - Confirmed the consumer project builds successfully with Vite and reports zero
   dependency vulnerabilities.
+- Replaced the blank starter page with a small responsive introduction that
+  demonstrates a reusable logo component and a persistent light/dark theme
+  toggle without adding a UI dependency.
+- The refinement is prepared in the workspace and consumer project; npm
+  `1.0.0` is intentionally unchanged until the owner approves a patch release.
 
 ### GitHub Actions Release Matrix
 

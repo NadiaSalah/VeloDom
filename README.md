@@ -92,9 +92,10 @@ package-consumer tests, and a dry-run tarball check. Version `1.0.0` is
 published at [npmjs.com/package/velodom](https://www.npmjs.com/package/velodom).
 
 The repository also contains [`velodomProj`](velodomProj/README.md), a clean
-consumer project generated from that published package. Run `npm install` and
-`npm run build` inside it to verify the public installation path independently
-of the framework workspace.
+consumer project generated from that published package. Its home page includes
+a reusable logo component, a short framework introduction, and a dependency-
+free light/dark theme toggle. Run `npm install` and `npm run build` inside it
+to verify the public installation path independently of the framework workspace.
 
 The V1 roadmap groups implemented production capabilities together: static
 prerendering, conventional page data loading with optional public-data
@@ -218,7 +219,8 @@ a browser translation provider. See
 - The default npm-installable starter preset is available through
   `npx --yes --package velodom create-velodom <name>`.
 - `velodomProj` is the checked-in consumer smoke project for
-  `velodom@1.0.0`; its dependencies and production build have been verified.
+  `velodom@1.0.0`; its dependencies, production build, logo component, and
+  light/dark starter experience have been verified.
 - Continue only the optional items recorded in [docs/TODO.md](docs/TODO.md).
 
 ## Handoff Notes

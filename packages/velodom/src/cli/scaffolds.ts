@@ -256,16 +256,22 @@ async function createProject(context: CliContext, name: string) {
   await writeNewFile(join(folder, "src", "main.js"), createProjectMain());
   await writeNewFile(
     join(folder, "src", "pages", "home", "index.html"),
-    createPageHtmlTemplate()
+    createProjectHomeTemplate()
   );
   await writeNewFile(
     join(folder, "src", "pages", "home", "script.js"),
-    createPageScriptTemplate("home")
+    createProjectHomeScript()
   );
   await writeNewFile(
     join(folder, "src", "pages", "home", "config.js"),
-    createPageConfigTemplate("home", "/")
+    createProjectHomeConfig()
   );
+  await writeNewFile(
+    join(folder, "src", "components", "brand-mark", "index.html"),
+    createProjectBrandComponent()
+  );
+  await writeNewFile(join(folder, "public", "velodom-mark.svg"), createProjectLogo());
+  await writeNewFile(join(folder, "src", "style.css"), createProjectStyles());
   context.stdout(`Created VeloDom project ${relativePath(context.cwd, folder)}`);
 }
 
@@ -749,8 +755,147 @@ function createProjectShell() {
 
 function createProjectMain() {
   return `import { mountVeloDom } from "velodom/vite";
+import "./style.css";
 
 await mountVeloDom();
+`;
+}
+
+function createProjectHomeTemplate() {
+  return `<main class="home-page">
+  <header class="site-header">
+    <a class="brand" href="/" vd-nav aria-label="VeloDom home">
+      <vd-component name="brand-mark"></vd-component>
+      <span>VeloDom</span>
+    </a>
+    <button class="theme-toggle" type="button" aria-label="Toggle color theme" vd-on:click="toggleTheme()">
+      <span vd-text="themeIcon" aria-hidden="true"></span>
+      <span vd-text="themeLabel"></span>
+    </button>
+  </header>
+
+  <section class="hero" aria-labelledby="hero-title">
+    <p class="eyebrow">HTML-first · compiler-first · vanilla friendly</p>
+    <h1 id="hero-title">Build visible web apps from ordinary HTML.</h1>
+    <p class="hero-copy">VeloDom keeps your pages close to the files you write, then adds routing, state, components, requests, and SEO only when your feature needs them.</p>
+    <div class="hero-actions">
+      <a class="button button-primary" href="#principles">Explore the model</a>
+      <a class="button button-secondary" href="https://github.com/NadiaSalah/velodom">View on GitHub</a>
+    </div>
+  </section>
+
+  <section id="principles" class="principles" aria-labelledby="principles-title">
+    <div>
+      <p class="eyebrow">A small starting point</p>
+      <h2 id="principles-title">Start simple. Grow by convention.</h2>
+    </div>
+    <div class="principle-grid">
+      <article class="principle-card"><span class="card-number">01</span><h3>Readable folders</h3><p>Pages, components, APIs, and styles stay where a new developer expects to find them.</p></article>
+      <article class="principle-card"><span class="card-number">02</span><h3>Small directives</h3><p>Add reactive behavior next to the HTML without adopting a second template language.</p></article>
+      <article class="principle-card"><span class="card-number">03</span><h3>Lightweight runtime</h3><p>The compiler prepares the page and the browser loads only the capabilities it uses.</p></article>
+    </div>
+  </section>
+
+  <footer class="site-footer"><span>VeloDom starter project</span><span>Theme: <strong vd-text="theme"></strong></span></footer>
+</main>
+`;
+}
+
+function createProjectHomeScript() {
+  return `export const state = {
+  theme: "light",
+  themeIcon: "☾",
+  themeLabel: "Dark mode"
+};
+
+/** Connects the starter theme button to the page state. */
+export function init({ state }) {
+  state.toggleTheme = () => {
+    state.theme = state.theme === "dark" ? "light" : "dark";
+    state.themeIcon = state.theme === "dark" ? "☀" : "☾";
+    state.themeLabel = state.theme === "dark" ? "Light mode" : "Dark mode";
+    document.documentElement.dataset.theme = state.theme;
+    localStorage.setItem("velodom-theme", state.theme);
+  };
+}
+
+/** Restores the user's theme preference after the page mounts. */
+export function mounted({ state }) {
+  if (localStorage.getItem("velodom-theme") === "dark") state.toggleTheme();
+}
+`;
+}
+
+function createProjectHomeConfig() {
+  return `export default {
+  path: "/",
+  seo: {
+    title: "VeloDom | HTML-first frontend",
+    description: "A small VeloDom starter project built with ordinary HTML, components, and reactive state."
+  }
+};
+`;
+}
+
+function createProjectBrandComponent() {
+  return `<span class="brand-mark" aria-hidden="true"><img src="/velodom-mark.svg" alt=""></span>\n`;
+}
+
+function createProjectLogo() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title>VeloDom</title>
+  <rect width="64" height="64" rx="18" fill="#111827"/>
+  <path d="M13 19h10l9 24 9-24h10L38 51H26z" fill="#38bdf8"/>
+  <path d="M18 19h8l6 16-4 9z" fill="#818cf8"/>
+</svg>
+`;
+}
+
+function createProjectStyles() {
+  return `:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+  --page: #f8fafc;
+  --surface: #ffffff;
+  --text: #0f172a;
+  --muted: #475569;
+  --border: #dbe4f0;
+  --accent: #4f46e5;
+  --shadow: 0 24px 70px rgb(15 23 42 / .12);
+}
+:root[data-theme="dark"] { color-scheme: dark; --page: #0b1120; --surface: #111827; --text: #f8fafc; --muted: #cbd5e1; --border: #26354b; --accent: #818cf8; --shadow: 0 24px 70px rgb(2 6 23 / .45); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--text); transition: background 180ms ease, color 180ms ease; }
+a { color: inherit; }
+.home-page { min-height: 100vh; }
+.site-header, .hero, .principles, .site-footer { width: min(1080px, calc(100% - 2rem)); margin-inline: auto; }
+.site-header { display: flex; align-items: center; justify-content: space-between; padding-block: 1.25rem; }
+.brand { display: inline-flex; align-items: center; gap: .65rem; font-size: 1.15rem; font-weight: 800; text-decoration: none; }
+.brand-mark { display: inline-grid; width: 2.4rem; height: 2.4rem; place-items: center; border-radius: .75rem; overflow: hidden; box-shadow: 0 8px 20px rgb(79 70 229 / .24); }
+.brand-mark img { display: block; width: 100%; height: 100%; }
+.theme-toggle, .button { border: 1px solid var(--border); border-radius: .8rem; font: inherit; font-weight: 700; cursor: pointer; transition: transform 160ms ease, border-color 160ms ease; }
+.theme-toggle { display: inline-flex; align-items: center; gap: .5rem; padding: .55rem .8rem; background: var(--surface); color: var(--text); }
+.theme-toggle:hover, .button:hover { transform: translateY(-2px); border-color: var(--accent); }
+.hero { padding-block: clamp(4rem, 12vw, 8rem) 5rem; }
+.eyebrow { margin: 0; color: var(--accent); font-size: .76rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+h1, h2, h3 { margin: 0; line-height: 1.08; }
+h1 { max-width: 780px; margin-top: 1rem; font-size: clamp(2.7rem, 7vw, 5.8rem); letter-spacing: -.06em; }
+.hero-copy { max-width: 680px; margin: 1.5rem 0 0; color: var(--muted); font-size: clamp(1.05rem, 2vw, 1.3rem); line-height: 1.75; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 2rem; }
+.button { display: inline-flex; align-items: center; justify-content: center; padding: .8rem 1rem; text-decoration: none; }
+.button-primary { border-color: var(--accent); background: var(--accent); color: white; }
+.button-secondary { background: var(--surface); color: var(--text); }
+.principles { padding-block: 1rem 5rem; }
+.principles h2 { margin-top: .65rem; font-size: clamp(1.8rem, 4vw, 3rem); letter-spacing: -.04em; }
+.principle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
+.principle-card { padding: 1.35rem; border: 1px solid var(--border); border-radius: 1.2rem; background: var(--surface); box-shadow: var(--shadow); }
+.card-number { color: var(--accent); font-size: .75rem; font-weight: 900; letter-spacing: .1em; }
+.principle-card h3 { margin-top: 1.5rem; font-size: 1.2rem; }
+.principle-card p { margin: .75rem 0 0; color: var(--muted); line-height: 1.65; }
+.site-footer { display: flex; justify-content: space-between; gap: 1rem; padding-block: 1.5rem 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .9rem; }
+@media (max-width: 720px) { .principle-grid { grid-template-columns: 1fr; } .site-footer { flex-direction: column; } .theme-toggle span:last-child { display: none; } }
 `;
 }
 
