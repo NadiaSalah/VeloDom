@@ -64,7 +64,8 @@ example-project health report, and a successful GitHub Actions matrix across
 Chromium, Firefox, WebKit, and Mobile WebKit. VeloDom `1.0.0` is now published
 on npm under the authenticated `engnadia` account with write-level 2FA. The
 roadmap is [docs/TODO.md](docs/TODO.md); the remaining work is optional
-post-publication tooling and research.
+post-publication tooling and research. The current workspace lockfile passes
+`npm audit` with zero vulnerabilities.
 Optional
 Hybrid rendering, islands, richer DevTools, and streaming/Edge adapters remain
 deliberately planned or deferred rather than being folded into the V1 runtime.

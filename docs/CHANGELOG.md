@@ -36,6 +36,14 @@ package versions.
 - The registry smoke test generated a complete Vite project with a package
   manifest, VeloDom bootstrap, home page, config, and plugin configuration.
 
+### Dependency Advisory Remediation
+
+- Ran the approved npm registry audit and found three high-severity transitive
+  advisories in `brace-expansion`, `nanoid`, and `postcss`.
+- Regenerated the lockfile with fixed versions (`5.0.9`, `3.3.18`, and
+  `8.5.26`), removed two unnecessary optional packages, and confirmed
+  `npm audit` reports zero vulnerabilities and `npm ci --dry-run` succeeds.
+
 ### AI-Friendly Project Context
 
 - Added root `AGENTS.md` and `docs/AI_CONTEXT.md` to give AI tools a concise,

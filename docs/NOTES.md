@@ -549,6 +549,10 @@
   package rather than creating a second package name. `npx --yes --package
   velodom create-velodom <name>` is the stable beginner entry point; additional
   opinionated presets remain optional until they have distinct support value.
+- Dependency advisory review is now complete for the published V1 workspace.
+  The approved npm audit found and fixed three transitive high-severity issues;
+  future lockfile changes must rerun `npm audit`, `npm ci --dry-run`, and the
+  package/browser verification gates.
 - The post-V1 competitive roadmap is intentionally bounded: adapter contracts,
   authoring types, asset tooling, editor intelligence, static rendering,
   progressive forms, localization, and dev inspection may be researched or

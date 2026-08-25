@@ -196,8 +196,10 @@ Current release work is governance rather than a new framework feature:
 - [x] Remove `private: true` after explicit approval and publish `velodom@1.0.0`
   with public access and the `latest` dist-tag. Registry verification confirms
   the published version and both CLI binaries.
-- [ ] Review registry dependency advisories only after the owner approves
-  sending workspace dependency metadata to npm.
+- [x] Review registry dependency advisories after owner approval. `npm audit`
+  now reports 0 vulnerabilities; the lockfile updates `brace-expansion` to
+  5.0.9, `nanoid` to 3.3.18, and `postcss` to 8.5.26 and passes `npm ci
+  --dry-run`.
 - [x] Add the published default starter preset through
   `npx --yes --package velodom create-velodom <name>`. It generates a minimal
   Vite application with `mountVeloDom()`, a home page, and public package
