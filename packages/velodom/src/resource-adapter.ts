@@ -15,6 +15,7 @@ import type {
   RuntimeFeatureManifest
 } from "./compiler/types.ts";
 import type {
+  NavigationGuard,
   PageConfig,
   ResourceAdapter,
   ResourceAdapterCapability,
@@ -278,10 +279,16 @@ function normalizePageConfig(
 
   try {
     const layout = normalizeLayoutName(config.layout, label, name);
+    const beforeEnter = normalizePageNavigationGuard(
+      config.beforeEnter,
+      label,
+      name
+    );
 
     return {
       ...config,
       ...(layout !== undefined ? { layout } : {}),
+      ...(beforeEnter !== undefined ? { beforeEnter } : {}),
       seo: normalizeSeoConfig(
         config.seo,
         `Adapter config "${label}.${name}".seo`
@@ -294,6 +301,24 @@ function normalizePageConfig(
       `Check the page configuration exported from ${file}.`
     );
   }
+}
+
+function normalizePageNavigationGuard(
+  value: unknown,
+  label: string,
+  name: string
+): NavigationGuard | undefined {
+  if (value === undefined) return undefined;
+
+  if (typeof value !== "function") {
+    throw createAdapterError(
+      `Adapter config "${label}.${name}".beforeEnter must be a function`,
+      "Export a function that returns true, false, undefined, or an app-relative redirect path.",
+      getResourceSourceFile(label, name)
+    );
+  }
+
+  return value as NavigationGuard;
 }
 
 function normalizeLayoutName(

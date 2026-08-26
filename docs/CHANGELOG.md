@@ -5,6 +5,16 @@ both development milestones and published package verification.
 
 ## Unreleased
 
+- Completed a full router-guard audit and maintenance pass. Page `beforeEnter`
+  and global `beforeEach` configuration now reject non-functions instead of
+  silently disabling protection, and guard redirects accept only safe
+  app-relative paths.
+- Prevented a slow asynchronous guard from committing after a newer navigation,
+  and restored the active route URL when a guard blocks browser history
+  navigation. Added unit and DOM integration coverage for order, context,
+  validation, races, and popstate cancellation.
+- Expanded the package guide, canonical documentation, AI context, and academic
+  example with the verified guard syntax and runtime behavior.
 - Renamed the application-owned showcase directory from `examples/blog` to
   `examples/velodom-blog` and synchronized workspace, tooling, tests, and
   documentation paths. The showcase's public `/blog` routes are unchanged.

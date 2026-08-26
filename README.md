@@ -67,7 +67,7 @@ allowlisted by `packages/velodom/package.json`.
 
 ## Current Status
 
-V1 is verified locally with 256 automated tests, package-consumer and tarball
+V1 is verified locally with 263 automated tests, package-consumer and tarball
 validation, a production build within its performance budgets, a 100/100
 example-project health report, and a successful GitHub Actions matrix across
 Chromium, Firefox, WebKit, and Mobile WebKit. The release matrix now follows
@@ -247,6 +247,9 @@ a browser translation provider. See
 - Moved interactive state, component, slot, ref, expose, and request examples
   to `/playground`, keeping the academic guide below the large-template health
   threshold while preserving complete browser coverage.
+- Completed full router-guard maintenance: invalid global/page guard config and
+  unsafe redirect targets now fail clearly, async guard races cannot overwrite a
+  newer navigation, and blocked history navigation restores the active URL.
 
 ## Next Tasks
 

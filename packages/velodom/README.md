@@ -331,6 +331,13 @@ export default {
 };
 ```
 
+Global `router.beforeEach` guards run before the matched page's `beforeEnter`.
+Each guard may be synchronous or asynchronous and returns `true`/`undefined`
+to continue, `false` to block, or an app-relative path such as `/login` to
+redirect. Invalid functions and external/protocol-relative redirects fail
+clearly instead of silently bypassing route policy. Client guards improve
+navigation UX; server authorization must still protect private data.
+
 ```html
 <a href="/blog/hello#comments" vd-nav>Open article</a>
 ```
@@ -340,7 +347,9 @@ change on the active path updates history, scrolls to the target, and moves
 focus without remounting the page. It then emits the browser `hashchange`
 notification with `oldURL` and `newURL`, so tabs and local navigation indexes
 can synchronize without attaching duplicate click handlers. The router also
-supports opt-in prefetch, focus targets, and scroll restoration.
+supports opt-in prefetch, focus targets, and scroll restoration. Hash-only
+changes do not rerun guards; blocked back/forward navigation restores the
+active route URL.
 
 ## Requests and APIs
 

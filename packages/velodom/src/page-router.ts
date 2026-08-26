@@ -43,13 +43,17 @@ import {
   createPageDataCache,
   loadClientPageData
 } from "./page-data.ts";
-import { normalizeFolderPath } from "./shared/path.ts";
+import {
+  isAppRelativePath,
+  normalizeFolderPath
+} from "./shared/path.ts";
 import type {
   RuntimeFeatureManifest
 } from "./compiler/types.ts";
 import type {
   DirectionController,
   ErrorBoundaryHook,
+  NavigationGuard,
   RouterOptions,
   StateRecord
 } from "./types.ts";
@@ -103,8 +107,10 @@ export function createPageRouter(
   const globalGuards = normalizeGuards(options.beforeEach);
   const notFoundPage = String(options.notFoundPage || "404").trim();
   let activePageCleanup = null;
+  let activeLocationPath = "";
   let currentRoute = null;
   let initialized = false;
+  let latestNavigationId = 0;
   let removeRouterListeners = null;
   const scrollPositions = new Map<string, ScrollPosition>();
   const prefetchedPages = new Set<string>();
@@ -114,7 +120,8 @@ export function createPageRouter(
     path: string,
     pagePath = "",
     historyMode = "",
-    redirectDepth = 0
+    redirectDepth = 0,
+    navigationId = ++latestNavigationId
   ): Promise<boolean | void> {
     const previousScrollKey = getCurrentScrollKey();
     const targetUrl = createRouterUrl(path);
@@ -141,6 +148,7 @@ export function createPageRouter(
         saveScrollPosition(scrollPositions, previousScrollKey);
         applyHistoryMode(historyMode, path);
         currentRoute.hash = route.hash;
+        activeLocationPath = getCurrentLocationPath();
         restoreScrollPosition(currentRoute, scrollPositions, historyMode);
         moveFocusAfterNavigation(currentRoute, historyMode);
         dispatchRouterHashChange(previousUrl);
@@ -158,6 +166,11 @@ export function createPageRouter(
           currentRoute
         );
 
+        // A slower async guard must never commit after a newer navigation.
+        if (navigationId !== latestNavigationId) {
+          return false;
+        }
+
         if (guardResult.redirect) {
           if (redirectDepth >= 10) {
             throw new Error("Navigation guard redirect limit exceeded");
@@ -167,11 +180,13 @@ export function createPageRouter(
             guardResult.redirect,
             "",
             VD_ROUTER.HISTORY_REPLACE,
-            redirectDepth + 1
+            redirectDepth + 1,
+            navigationId
           );
         }
 
         if (!guardResult.allowed) {
+          restoreBlockedPopStateLocation(historyMode, activeLocationPath);
           return false;
         }
       }
@@ -336,6 +351,7 @@ export function createPageRouter(
 
       await runModuleHook(pageModule?.mounted, hookArgs);
       currentRoute = route;
+      activeLocationPath = getCurrentLocationPath();
       restoreScrollPosition(route, scrollPositions, historyMode);
       moveFocusAfterNavigation(route, historyMode);
 
@@ -404,6 +420,7 @@ export function createPageRouter(
         page: notFoundPage,
         matched: false
       };
+      activeLocationPath = getCurrentLocationPath();
       restoreScrollPosition(currentRoute, scrollPositions, historyMode);
       moveFocusAfterNavigation(currentRoute, historyMode);
       return false;
@@ -422,7 +439,7 @@ export function createPageRouter(
       return undefined;
     }
 
-    if (!path.startsWith("/")) {
+    if (!isAppRelativePath(path)) {
       reportUserActionError(`Unsupported path "${path}"`, {
         title: "Unsupported Navigation Target",
         file: "velodom/page-router.ts",
@@ -725,11 +742,20 @@ function createPageContext(state, events, runtime, route, navigate) {
   };
 }
 
-function normalizeGuards(value) {
+function normalizeGuards(
+  value: RouterOptions["beforeEach"]
+): NavigationGuard[] {
   if (value === undefined || value === null) return [];
 
-  return (Array.isArray(value) ? value : [value])
-    .filter(guard => typeof guard === "function");
+  const guards = Array.isArray(value) ? value : [value];
+
+  if (guards.some(guard => typeof guard !== "function")) {
+    throw new TypeError(
+      "router.beforeEach must contain only functions"
+    );
+  }
+
+  return guards as NavigationGuard[];
 }
 
 function createLegacyRoute(path, pagePath) {
@@ -768,6 +794,23 @@ function applyHistoryMode(historyMode: string, path: string) {
   } else if (historyMode === VD_ROUTER.HISTORY_REPLACE) {
     history.replaceState({}, "", path);
   }
+}
+
+function restoreBlockedPopStateLocation(
+  historyMode: string,
+  activeLocationPath: string
+) {
+  if (
+    historyMode !== VD_ROUTER.HISTORY_POP
+    || !activeLocationPath
+    || getCurrentLocationPath() === activeLocationPath
+  ) {
+    return;
+  }
+
+  // A popstate has already changed the address bar. Reinsert the active URL so
+  // the visible page and browser location remain one coherent route.
+  history.pushState({}, "", activeLocationPath);
 }
 
 /**

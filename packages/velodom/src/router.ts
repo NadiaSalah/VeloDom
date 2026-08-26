@@ -9,7 +9,17 @@
  */
 
 import { isPlainObject } from "./shared/object.ts";
-import type { PageConfig } from "./types.ts";
+import { isAppRelativePath } from "./shared/path.ts";
+import type {
+  NavigationGuard,
+  PageConfig,
+  RouteLocation
+} from "./types.ts";
+
+interface NavigationGuardRunResult {
+  allowed: boolean;
+  redirect: string;
+}
 
 /** Builds a specificity-ranked route table from discovered page folders. */
 export function createRouteTable(
@@ -90,15 +100,23 @@ function normalizeHash(hash) {
   return String(hash || "").replace(/^#/, "");
 }
 
-/** Runs navigation guards until one blocks or redirects navigation. */
-export async function runNavigationGuards(guards, to, from) {
+/** Runs navigation guards sequentially until one blocks or redirects. */
+export async function runNavigationGuards(
+  guards: readonly (NavigationGuard | null | undefined)[],
+  to: RouteLocation,
+  from: RouteLocation | null
+): Promise<NavigationGuardRunResult> {
   for (const guard of guards) {
     if (typeof guard !== "function") continue;
 
-    const result = await guard({
+    const result: unknown = await guard({
       to,
       from
     });
+
+    if (result === true || result === undefined) {
+      continue;
+    }
 
     if (result === false) {
       return {
@@ -107,12 +125,22 @@ export async function runNavigationGuards(guards, to, from) {
       };
     }
 
-    if (typeof result === "string" && result.startsWith("/")) {
+    if (typeof result === "string") {
+      if (!isAppRelativePath(result)) {
+        throw new TypeError(
+          "Navigation guard redirects must use an app-relative path such as /login"
+        );
+      }
+
       return {
         allowed: false,
         redirect: result
       };
     }
+
+    throw new TypeError(
+      "Navigation guards must return true, false, undefined, or an app-relative path"
+    );
   }
 
   return {

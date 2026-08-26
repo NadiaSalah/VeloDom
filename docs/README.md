@@ -1208,6 +1208,19 @@ Guard results:
 - `false`: cancel
 - an absolute app path such as `"/login"`: redirect
 
+`router.beforeEach` also accepts an array. Global guards run sequentially in
+array order, followed by the matched page's `beforeEnter`. Both forms may be
+asynchronous. VeloDom validates the configuration for Vanilla JavaScript users:
+non-function guards and redirects such as `"login"`, `"//external.test"`, or
+external URLs fail clearly instead of silently bypassing policy.
+
+Guards are scoped to one navigation. If a slow asynchronous guard finishes
+after the user has already completed a newer navigation, its stale result is
+ignored. When a guard blocks browser back/forward navigation, the router
+restores the active URL so the address bar continues to describe the visible
+page. Guards are a client-navigation convenience and never replace server-side
+authorization for protected data.
+
 ### Hash Navigation, Scroll Restoration, and Focus
 
 Routes may include hash fragments:
@@ -1221,7 +1234,8 @@ exists. Browser scroll restoration is managed manually so back/forward
 navigation restores the previous scroll position. `ctx.route.hash` exposes the
 current fragment without the leading `#`. When only the hash changes on the
 current path and query, VeloDom updates browser history and scrolls directly
-without remounting the current page. Since intercepted `history.pushState()`
+without remounting the current page or rerunning route guards. Since intercepted
+`history.pushState()`
 does not produce a native event itself, VeloDom dispatches `hashchange` after
 scroll and focus restoration with the standard `oldURL` and `newURL` values.
 Route-aware tabs can therefore listen to one browser event:
@@ -4522,7 +4536,7 @@ Latest local verification on 2026-08-25:
 - Core documentation audit passes for 72 TypeScript files
 - TypeScript check passes
 - ESLint passes
-- 256 automated tests pass
+- 263 automated tests pass
 - ESM and declaration generation pass
 - package-contract validation passes
 - package dry-run validation passes

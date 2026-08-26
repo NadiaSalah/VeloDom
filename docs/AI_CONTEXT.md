@@ -227,6 +227,13 @@ Use built-in request behavior first: loading/error/result state, cancellation,
 debounce/throttle, retry, cache, and auth integration. Custom middleware and
 explicit `next()` pipelines are advanced options, not the beginner path.
 
+Route policy uses global `router.beforeEach` functions and an optional page
+`beforeEnter` function. Guards run in that order and may return `true` or
+`undefined` to continue, `false` to block, or a single-slash app-relative path
+such as `/login` to redirect. Keep authorization on the server; client guards
+are navigation UX, not a security boundary. A hash-only change on the active
+path does not remount the page or rerun its guards.
+
 ## 9. Optional capabilities
 
 Use these only when the application needs them:

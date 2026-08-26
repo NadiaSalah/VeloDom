@@ -69,3 +69,55 @@ test("navigation guards can block or redirect", async () => {
   });
   assert.equal(redirected.redirect, "/login");
 });
+
+test("navigation guards run sequentially with destination and previous route", async () => {
+  const calls = [];
+  const to = {
+    path: "/account"
+  };
+  const from = {
+    path: "/"
+  };
+  const result = await runNavigationGuards([
+    async context => {
+      await Promise.resolve();
+      calls.push([
+        "global",
+        context.to.path,
+        context.from.path
+      ]);
+      return true;
+    },
+    context => {
+      calls.push([
+        "page",
+        context.to.path,
+        context.from.path
+      ]);
+    }
+  ], to, from);
+
+  assert.deepEqual(calls, [
+    ["global", "/account", "/"],
+    ["page", "/account", "/"]
+  ]);
+  assert.deepEqual(result, {
+    allowed: true,
+    redirect: ""
+  });
+});
+
+test("navigation guards reject invalid and external redirect results", async () => {
+  await assert.rejects(
+    () => runNavigationGuards([() => "//external.test"], {}, null),
+    /app-relative path/
+  );
+  await assert.rejects(
+    () => runNavigationGuards([() => "login"], {}, null),
+    /app-relative path/
+  );
+  await assert.rejects(
+    () => runNavigationGuards([() => ({ allow: true })], {}, null),
+    /must return true, false, undefined, or an app-relative path/
+  );
+});

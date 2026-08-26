@@ -50,6 +50,9 @@ is optional post-publication development.
 - [x] Text interpolation, escaped interpolation, and `vd-pre` literal regions.
 - [x] Pages, nested routes, dynamic params, query values, guards, hashes,
   scroll restoration, focus management, and opt-in prefetch.
+- [x] Router guards validate Vanilla JavaScript configuration and redirect
+  targets, preserve global-before-page order, ignore stale async completions,
+  and keep the address bar aligned when popstate navigation is blocked.
 - [x] Reactive state, derived state helpers, lifecycle cleanup, abort signals,
   events, DOM refs, component refs, grouped/keyed refs, and `expose`.
 - [x] Components, slots, scoped CSS, layouts, folder mode, and optional `.vd`

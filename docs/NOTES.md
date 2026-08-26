@@ -282,6 +282,13 @@
   path including query and hash, restores them on popstate, and prioritizes
   hash targets when a route contains a fragment. Same-page hash-only
   navigation updates history and scrolls without remounting the page.
+- Navigation guards are an ordered policy boundary: global `beforeEach` guards
+  run first, followed by the matched page's `beforeEnter`. Invalid guard
+  configuration and non-app-relative redirects fail during validation rather
+  than silently opening a protected route. Guard executions are navigation-
+  scoped so a stale asynchronous result cannot commit after a newer route.
+  When popstate is blocked, the router reinserts the active URL because the
+  browser changes its address before application policy can decide.
 - The router also owns predictable post-navigation focus because it depends on
   the rendered DOM, not the compiler. Fragment routes focus their hash target;
   normal route changes prefer `data-vd-focus`, then headings, landmarks, and

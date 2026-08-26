@@ -174,6 +174,21 @@ state.openFeatured = () =&gt; {
 &lt;a href="/blog/posts/html-first" vd-nav&gt;Read article&lt;/a&gt;
 &lt;a href="/#requests" vd-nav&gt;Jump to requests&lt;/a&gt;</code></pre>
       </div>
+      <div class="code-window">
+        <div class="code-toolbar"><span>src/pages/account/config.js</span><span>page guard</span></div>
+        <pre class="code-example" vd-pre><code>export default {
+  meta: { requiresLogin: true },
+  async beforeEnter({ to, from }) {
+    const signedIn = await readSession();
+    return signedIn ? true : "/login";
+  }
+};
+
+// true / undefined → continue
+// false            → block
+// "/login"         → app-relative redirect</code></pre>
+      </div>
+      <div class="callout"><strong>Guard order:</strong> global <code>router.beforeEach</code> functions run before the matched page's <code>beforeEnter</code>. They improve navigation UX; private data still requires server authorization.</div>
       <div class="callout"><strong>Same-page hashes:</strong> the router updates history, scrolls and focuses without remounting, then emits <code>hashchange</code> for route-aware UI.</div>
     </section>
 

@@ -162,6 +162,28 @@ test("resource adapter rejects invalid layout config values", () => {
   );
 });
 
+test("resource adapter rejects invalid page navigation guards", () => {
+  assert.throws(
+    () => validateResourceAdapter({
+      pages: {
+        html: {
+          account: async () => "<main></main>"
+        },
+        configs: {
+          account: {
+            beforeEnter: "require-session"
+          }
+        }
+      }
+    }),
+    error => (
+      error.code === "VD_INVALID_ADAPTER"
+      && error.__vdFile === "src/pages/account/config.js"
+      && /beforeEnter must be a function/.test(error.message)
+    )
+  );
+});
+
 test("resource adapter fails clearly when pages are missing", () => {
   assert.throws(
     () => validateResourceAdapter({

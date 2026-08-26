@@ -10,6 +10,16 @@
 
 import { VD_PROTECTED_STATE_KEYS } from "../constants.ts";
 
+/** Returns whether a navigation target stays on the current application origin. */
+export function isAppRelativePath(value: unknown): value is string {
+  return Boolean(
+    typeof value === "string"
+    && value.startsWith("/")
+    && !value.startsWith("//")
+    && !value.startsWith("/\\")
+  );
+}
+
 /** Normalizes a folder path and rejects traversal segments. */
 export function normalizeFolderPath(value: unknown): string {
   const path = String(value || "").trim();
