@@ -22,7 +22,7 @@ Current repository package identity: `1.0.0`. The manifest declares
 availability. Verify the [npm package page](https://www.npmjs.com/package/velodom)
 and dist-tags immediately before and after any approved publication.
 
-While VeloDom is below `1.0.0`:
+Before the first official `1.0.0` release:
 
 - patch releases fix bugs without intentionally changing public behavior;
 - minor releases may add features or make documented breaking changes;
@@ -88,7 +88,7 @@ npm run test:browser
 
 With owner approval for sending lockfile dependency metadata to the npm
 registry, also run `npm audit`. This is a workspace-tooling supply-chain check;
-the published VeloDom package currently has no direct runtime dependencies.
+the publishable VeloDom artifact currently has no direct runtime dependencies.
 
 The checks must confirm:
 
@@ -168,19 +168,19 @@ VeloDom does not ship browser polyfills by default.
 
 ## Current Release Decision
 
-VeloDom source is prepared as `1.0.0`. The package manifest, public exports,
+VeloDom source is prepared as the planned first official `1.0.0`. The package manifest, public exports,
 CLI binaries, tarball allowlist, consumer fixture, generated starter,
 production build, and GitHub Actions browser matrix are release gates. Passing
 them prepares a release; it does not prove or perform registry publication.
 
 ### Publication Policy
 
-- Do not republish or change the `latest` tag without explicit approval for
+- Do not publish or change the `latest` tag without explicit approval for
   the exact version and registry operation.
 - Record every published version and package URL in `CHANGELOG.md`.
 - Run the complete package and browser gates before every future release.
 
-## Current Publication Blockers
+## Initial Publication Gates
 
 - Complete the final package/tarball/browser gates for the exact release
   commit and verify registry name/version availability.

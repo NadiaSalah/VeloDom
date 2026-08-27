@@ -1,6 +1,6 @@
 # VeloDom package contributor guidance
 
-This directory is the self-contained source of the published `velodom` npm
+This directory is the self-contained source of the publishable `velodom` npm
 package. Framework behavior lives under `src/`; shared starter files live under
 `templates/default`, while Minimal, Blog, and Empty layers live under
 `templates/starters`.
@@ -19,7 +19,7 @@ Rules:
 - Keep starter differences in `templates/starters`; language and optional
   tooling belong in composable `src/scaffolder` feature installers.
 - Consumer docs belong in `docs`; repository audits and release history belong
-  in the root `docs` directory and are not published.
+  in the root `docs` directory and are excluded from the package artifact.
 - Update package tests, docs, types, and the root changelog when public behavior
   changes.
 

@@ -89,6 +89,8 @@ const legacyProductLabel = /\bV1\.\d+\b|\bV[2-9]\b|\bPost-V1\b|\bPhase\s+\d+\b/;
 const privateImport = /(?:from\s+|import\()\s*["'](?:velodom\/lib\/|packages\/velodom\/src\/)/;
 const directLifecycleCleanup = /\b(?:init|mounted|destroy)\s*\(\s*\{[^}]*\bonCleanup\b/;
 const bareHashNavigation = /<a\b(?=[^>]*\bvd-nav\b)(?=[^>]*\bhref=["']#)[^>]*>/i;
+const staleReleaseClaim =
+  /(?:currently published\s+`?velodom|uses published version|is now public with the|private:\s*true\s+in the publishable)/i;
 const cliCommands = new Set(
   [...cliSource.matchAll(/case "([a-z-]+)":/g)]
     .map(match => match[1])
@@ -115,7 +117,7 @@ if (packageManifest.private === true) {
   }
   if (!repositoryGuide.includes("npmjs.com/package/velodom")) {
     violations.push(
-      "docs/README.md must link to the published npm package"
+      "docs/README.md must link to the intended npm package page"
     );
   }
 }
@@ -164,7 +166,7 @@ for (const required of [
 
 for (const requiredFile of ["AI_CONTEXT.md", "docs", "templates"]) {
   if (!packageManifest.files?.includes(requiredFile)) {
-    violations.push(`published package files must include "${requiredFile}"`);
+    violations.push(`package artifact files must include "${requiredFile}"`);
   }
 }
 
@@ -192,6 +194,12 @@ for (const guide of currentGuides) {
   if (bareHashNavigation.test(guide.source)) {
     violations.push(
       `${guide.path} shows a bare hash vd-nav target; use an app-relative path`
+    );
+  }
+
+  if (staleReleaseClaim.test(guide.source)) {
+    violations.push(
+      `${guide.path} contains a stale pre-release publication claim`
     );
   }
 

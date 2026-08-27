@@ -2,9 +2,8 @@
 
 This roadmap describes one VeloDom V1 product family. It separates what is
 implemented from work that is current, planned, research-only, deferred, or
-rejected. Historical phase names are preserved in `CHANGELOG.md` and in the
-implementation record at the end of this file, but they are not separate
-product generations.
+rejected. Discarded pre-public milestones are not product generations; only
+their surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 
 ## V1 Status Summary
 
@@ -14,9 +13,9 @@ product generations.
 | Authoring and application conventions | V1 — Implemented | Folder mode, optional `.vd`, JS/TS parity, layouts, CLI scaffolding |
 | Production features | V1 — Implemented | Routing, requests, forms, SEO, content, localization, package subpaths |
 | Developer intelligence | V1 — Implemented | `vd` inspection commands, compiler language helpers, testing utilities |
-| Public package source | V1 — Implemented | `velodom@1.0.0` manifest, exports, package docs, starter, and consumer checks |
-| Browser release gate | V1 — Implemented | GitHub Actions Run #27 passed Chromium, Firefox, WebKit, and Mobile WebKit |
-| npm registry state | External verification | Verify package/version/dist-tags immediately before any release claim or action |
+| Public package source | V1 — Implemented | Local `1.0.0` manifests, exports, package docs, starters, and consumer checks |
+| Browser release gate | V1 — Current | Strict CI workflow exists; rerun it on the exact initial-release commit |
+| npm registry state | External verification | No official release is represented; verify name/version state before first publication |
 | Hybrid rendering and islands | V1 — Planned / Experimental | Design must preserve static-first authoring and optional runtime cost |
 | AI, migration, CMS, and Edge integrations | V1 — Research / Deferred | External, optional, and never required by Core |
 
@@ -26,9 +25,10 @@ product generations.
 
 `[####################] 100%`
 
-Registry authentication, package availability, and dist-tags are external
-state and must be checked at release time. Repository tests never publish or
-prove registry state. Future framework work remains optional development.
+The repository is the local V1 source baseline. Registry availability,
+authentication, tags, and releases are external state and are deliberately not
+recorded as completed here. Repository tests never publish or prove registry
+state.
 
 ### Status vocabulary
 
@@ -202,34 +202,21 @@ velodom/package.json
 
 Current release work is governance rather than a new framework feature:
 
-- [x] Complete the strict Firefox browser run in a graphics-capable CI/release
-  environment. GitHub Actions Run #27 passed Chromium, Firefox, WebKit, and
-  Mobile WebKit on the current `main` commit. Local Firefox remains limited by
-  the host's SWGL compositor, but this no longer blocks the release gate.
-- [x] Confirm npm account and release preflight: `npm whoami` returns
-  `engnadia`, email is verified, write-level 2FA is enabled, `velodom` is not
-  currently published, the package is public-scoped in `publishConfig`, and
-  the `1.0.0` tarball dry run passes. npm does not reserve an unregistered
-  name; publication itself is the ownership event.
-- [x] Remove `private: true` after explicit approval and configure the package
-  for public publication. Historical publication events remain in the
-  changelog; current registry availability must be verified externally.
-- [x] Review registry dependency advisories after owner approval. `npm audit`
-  now reports 0 vulnerabilities; the lockfile updates `brace-expansion` to
-  5.0.9, `nanoid` to 3.3.18, and `postcss` to 8.5.26 and passes `npm ci
-  --dry-run` under the npm 10.9.2 toolchain used by GitHub Actions. Optional
-  `@emnapi/core` and `@emnapi/runtime` entries are retained for npm 10's clean
-  install resolution.
-- [x] Replace the published default copier with a composable starter engine.
-  Common files, three focused starter overlays, and optional feature installers
-  now generate only selected dependencies/configuration while keeping the full
-  documentation blog outside the tarball.
-- [ ] Publish `create-velodom` only after the matching `velodom` artifact is
-  owner-approved and available, then registry-smoke-test
-  `npm create velodom@latest` from a clean directory.
-- [x] Consolidate the refreshed official starter, package-local AI docs, and
-  installed-consumer validation under the `1.0.0` source contract. Publication
-  or tag changes remain separate owner-authorized actions.
+- [x] Prepare local `1.0.0` manifests, public exports, package-local docs,
+  composable starters, installed-consumer checks, and dry-run tarball audits.
+- [x] Keep the npm 10 clean-install compatibility entries required by the CI
+  lockfile while preserving successful npm 11 local development.
+- [x] Provide a strict Chromium, Firefox, WebKit, and Mobile WebKit workflow;
+  local graphics limitations do not weaken the required release CI run.
+- [ ] Choose the exact initial-release commit and run every package, build,
+  performance, and strict browser gate on that commit.
+- [ ] Verify the `velodom` and `create-velodom` registry names and versions at
+  release time; local documentation must not guess their current availability.
+- [ ] Obtain explicit owner approval, publish `velodom` first, then publish the
+  matching `create-velodom`, and smoke-test `npm create velodom@latest` from a
+  clean directory.
+- [ ] Create the first official Git tag/GitHub release and move verified notes
+  from `Unreleased` into the dated `1.0.0` changelog section.
 
 ## V1 Advanced Capabilities — Planned / Experimental
 

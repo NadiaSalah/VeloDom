@@ -64,21 +64,29 @@ content is recreated by npm scripts and is not hand-edited.
 
 ## Create a User Project
 
-The repository now contains the dedicated `create-velodom` package required by
-npm's `create` naming convention. After that package is published for the same
-release as `velodom`, the primary interactive command is:
+The repository contains the dedicated `create-velodom` package required by
+npm's `create` naming convention. After the first official V1 release makes
+both packages available, the primary interactive command will be:
 
 ```bash
 npm create velodom@latest
 ```
 
-The currently published `velodom` package also exposes its existing generator:
+After release, the `velodom` package also exposes the explicit generator form:
 
 ```bash
 npx --yes --package velodom create-velodom my-app --no-install
 cd my-app
 npm install
 npm run dev
+```
+
+From this source checkout, build the package and invoke the same generator
+without relying on registry state:
+
+```bash
+npm run package:build
+node packages/velodom/bin/create-velodom.js my-app --no-install
 ```
 
 From a globally/locally available VeloDom CLI, the same engine is used by:
@@ -128,9 +136,19 @@ tarball consumer, the generated starter, and browser targets.
 Registry publication or tag changes remain separate owner-authorized actions;
 local checks never publish automatically. Confirm current registry availability
 immediately before giving users registry-dependent release instructions.
+The normalized changelog currently represents no official release: all
+surviving V1 capabilities remain under `Unreleased` until the exact first
+release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
+- Normalized release history around one planned first official `1.0.0` release;
+  discarded private repository and registry experiments are now represented by
+  one concise pre-public note instead of false version chronology.
+- Removed stale current-state claims about npm publication, account history,
+  dated workflow runs, and a nonexistent publishable-package `private` guard.
+- Added a documentation consistency rule that rejects known stale pre-release
+  publication claims in maintained current-state guides.
 - Replaced the one-size starter copier with a shared, feature-based scaffolder
   used by `create-velodom`, `velodom`, `vd init`, and `vd create`.
 - Added Minimal, Blog, and Empty starter layers without creating a template
@@ -153,19 +171,20 @@ immediately before giving users registry-dependent release instructions.
   packed-artifact generation, public-only imports, and representative builds.
 - Removed the duplicated root AI context and updated repository links to the
   package-owned source of truth.
-- Verified 269 automated tests, documentation/type/lint gates, installed
+- Verified the automated suite, documentation/type/lint gates, installed
   tarball builds, a real Recommended install/lint/format/type/build smoke, and
-  both packed packages. The current dry run contains 266 files for `velodom`
-  (454,211 bytes compressed; 1,945,782 unpacked) and four
-  files for `create-velodom` (1,680 bytes compressed; 2,865 unpacked).
+  both packed packages. Exact counts and artifact sizes belong to the release
+  run for the selected commit rather than permanent current-state prose.
 - Fixed Windows package-manager execution by invoking npm through its Node CLI,
   and made every Prettier-enabled generated file formatted at creation time.
 
-Primary changed paths are `packages/velodom/src/scaffolder/`,
-`packages/velodom/templates/`, `packages/create-velodom/`, the VeloDom CLI,
-package/consumer checks under `tools/`, and the package/repository guides.
-The obsolete `packages/velodom/velodomProj` copy was removed after its small
-starter responsibilities moved into the composable templates.
+Primary changed paths are `docs/CHANGELOG.md`, the maintained release/status
+guides, `tools/scripts/check-doc-consistency.mjs`,
+`packages/velodom/src/scaffolder/`, `packages/velodom/templates/`,
+`packages/create-velodom/`, the VeloDom CLI, and package/consumer checks under
+`tools/`.
+Official starter input now lives only in the composable `templates/default`
+and `templates/starters` sources inside the VeloDom package.
 
 ## TODO
 

@@ -111,9 +111,9 @@
   runtime exports, public type declarations, compiler exports, Vite adapter
   exports, Vite plugin exports, or package subpaths require an intentional
   architecture decision and documentation update.
-- `packages/velodom/package.json` uses published version `1.0.0`; the root
-  package remains a private development workspace while the package itself is
-  public on npm.
+- `packages/velodom/package.json` uses local package identity `1.0.0`; the root
+  package remains a private development workspace. This source state does not
+  assert that either package is currently available from npm.
 - Build-specific framework features use explicit subpath exports:
   `velodom/vite`, `velodom/vite-plugin`, and `velodom/compiler`.
 - Package exports target generated ESM in `packages/velodom/lib` and
@@ -169,37 +169,29 @@
 - Browser release verification uses a bounded launch timeout so broken local
   browser hosts report a named failed target instead of blocking CI forever.
   The mobile route smoke uses a visible content CTA, not navigation that is
-  deliberately hidden at the mobile breakpoint. On 2026-08-25 GitHub Actions
-  Run #27 passed the complete Chromium, Firefox, WebKit, and Mobile WebKit
-  journeys after the refactor. Firefox still fails before application startup
-  on this local host because its SWGL compositor cannot map a headless
-  framebuffer; the successful Linux CI run is the release authority.
-- npm registry lookup is only an availability signal. It cannot reserve a name
-  or prove publisher rights. On 2026-08-25 the `engnadia` account was
-  authenticated, email verified, and protected by write-level 2FA; `npm view
-  velodom` returned 404 and `npm access list packages` returned no packages.
-  The owner approved publication, and `velodom@1.0.0` is now public with the
-  `latest` dist-tag. Future publication operations still require explicit
-  approval for the exact version and tag.
+  deliberately hidden at the mobile breakpoint. Strict Linux CI is the
+  release authority when a local Firefox compositor cannot start, but the
+  exact release commit must still pass the workflow before publication.
+- Registry lookup is only a point-in-time availability signal. It cannot
+  reserve a name, prove publisher rights, or establish release history. Prior
+  repository and registry experiments are treated as pre-public development;
+  current availability must be checked again during an authorized release.
 - `.github/workflows/release-browser-matrix.yml` is the authoritative remote
   replacement for local graphics-limited browser testing. It uses a supported
   Ubuntu runner, installs Playwright's browser binaries, and runs the existing
   strict smoke suite without adding any runtime dependency to VeloDom.
 - Release preparation remains intentionally separated from publication. The
-  checklist in `RELEASING.md` records the gates for every future version, and
-  exact-version approval is still required before republishing or retagging.
+  checklist in `RELEASING.md` records the gates for every version, and
+  exact-version approval is required before publishing or tagging.
 - `npm run pack:check` is a workspace verification command that runs package
   checks before an isolated-cache npm dry-run helper. The package's `prepack`
   hook only builds its own artifacts, avoiding recursive checks and dependence
   on workspace-only tooling.
 - Vite adapter globs are rooted at `/src` so discovery is relative to the
   consuming Vite project rather than the installed adapter file.
-- The package uses the MIT License, but stays private until npm name ownership,
-  account access, and publication approval are explicitly confirmed. Local pack
-  checks never authorize publication.
-- npm registry returned 404 for `velodom` on 2026-07-09. Treat that as a
-  current availability signal, not ownership; the name is only secured after an
-  approved npm account reserves or publishes it.
+- The package uses the MIT License and declares intended public access in its
+  manifest. Local pack checks validate the artifact but never prove registry
+  availability or authorize publication.
 - Package-consumer verification must install the tarball into an isolated
   temporary project; resolving the workspace source would not validate npm
   exports or declaration paths.
@@ -457,8 +449,8 @@
   Historical implementation detail belongs in CHANGELOG, while deferred
   architecture decisions belong in NOTES or TODO.
 - Documentation must distinguish supported preferred syntax from compatibility
-  aliases and must label the package as private until publication is actually
-  authorized.
+  aliases, and must distinguish the local package identity from verified
+  registry availability.
 - Performance numbers should not be kept in README unless they are generated
   by a repeatable current benchmark; one-off bundle comparisons become stale
   as framework features change.
@@ -582,9 +574,9 @@
   keep lazy chunk behavior; future build work can revisit query-based config
   extraction if Vite/Rolldown supports it without duplicate import warnings.
 - V1 release polish is documentation and verification work, not a new feature
-  phase. Code readiness, public API freeze, package checks, npm publication,
-  and the browser matrix are complete for `1.0.0`; future versions still need
-  the same owner, account, access, 2FA, notes, and tag decisions.
+  phase. Code readiness, the public API freeze, and local package checks form
+  the `1.0.0` source baseline. Publication and release tagging remain explicit
+  future owner actions after the exact release commit passes every gate.
 - The `velodom` tarball owns the templates and shared scaffolder. A tiny
   `create-velodom` package is now necessary because npm resolves
   `npm create velodom` by package name, not by a bin alias in `velodom`.
@@ -596,9 +588,9 @@
   starter overlays stay small; feature installers generate manifests and
   config only for selected capabilities. This avoids a JS/TS/Tailwind/testing
   template matrix and keeps the generated project understandable.
-- Dependency advisory review is now complete for the published V1 workspace.
-  The approved npm audit found and fixed three transitive high-severity issues;
-  future lockfile changes must rerun `npm audit`, `npm ci --dry-run`, and the
+- Dependency advisory review was completed for the V1 workspace baseline.
+  The approved npm audit fixed three transitive high-severity issues; future
+  lockfile changes must rerun `npm audit`, `npm ci --dry-run`, and the
   package/browser verification gates. The lockfile is generated with npm
   10.9.2 to match GitHub Actions and intentionally retains optional `@emnapi`
   entries that npm 11 may remove during an audit-only lockfile rewrite.

@@ -67,7 +67,7 @@ Source repository: [github.com/NadiaSalah/VeloDom](https://github.com/NadiaSalah
 - [Roadmap and Handoff](#roadmap-and-handoff)
 - [Documentation and Maintenance](#documentation-and-maintenance)
 
-AI assistants generating VeloDom applications should begin with the published
+AI assistants generating VeloDom applications should begin with the package-local
 [AI_CONTEXT.md](../packages/velodom/AI_CONTEXT.md), then confirm exact syntax in
 the [syntax reference](../packages/velodom/docs/SYNTAX_REFERENCE.md) and status
 in the [feature inventory](../packages/velodom/docs/FEATURE_INVENTORY.md). This
@@ -687,13 +687,13 @@ tools/
 Ownership rule:
 
 - Framework behavior that is generic across sites belongs in
-  `packages/velodom/src` and is published only as built `lib` plus `types`.
+  `packages/velodom/src` and is packaged only as built `lib` plus `types`.
 - Business pages, components, route handlers, and custom middleware stay in
   the consuming application's `src/pages`, `src/components`, and `src/api`.
 - The blog is a real workspace consumer under `examples/velodom-blog`; it does not
   import framework source or carry a private copy of Core.
 - `tools/test-fixtures/package-consumer` verifies the packed npm artifact; it is not
-  an application example or a published package file.
+  an application example or an artifact file.
 - `packages/velodom-vscode` is an optional editor integration with its own
   lifecycle. It consumes the public compiler API and is never a runtime
   dependency of a VeloDom site.
@@ -4548,30 +4548,25 @@ choices, not VeloDom Core dependencies or requirements.
 
 ## Verification
 
-Latest local verification on 2026-08-25:
+The current source baseline is verified through repeatable repository commands,
+not historical run counts or registry state. The required gates cover:
 
-- Core documentation audit passes for 72 TypeScript files
-- TypeScript check passes
-- ESLint passes
-- 263 automated tests pass
-- ESM and declaration generation pass
-- package-contract validation passes
-- package dry-run validation passes
+- source documentation headers and documentation consistency
+- TypeScript, ESLint, and automated tests
+- ESM and declaration generation
+- package-contract and package dry-run validation
 - npm tarball includes the focused package README and license while repository
   docs, examples, tests, and raw framework TypeScript remain outside it
 - an isolated local-tarball TypeScript/Vite consumer passes
 - local rendering benchmark script passes
 - JavaScript performance budget check passes
 - production showcase build passes
-- browser E2E passes on Chromium/Chrome/Edge, WebKit, and mobile WebKit in the
-  current local environment
-- strict browser E2E was retried after installing Firefox and WebKit binaries:
-  WebKit and mobile WebKit pass, while Firefox remains pending because its
-  local headless launch timed out with a graphics/compositor error
+- local browser smoke coverage plus the strict Chromium, Firefox, WebKit, and
+  mobile WebKit workflow on the exact release commit
 - deployment/static SEO contract passes locally for root HTML, generated route
   folders, dynamic SEO entries, and unknown-route SPA fallback
 
-Latest implementation update:
+Current V1 source baseline:
 
 - Consolidated roadmap, release, architecture, browser, and engineering
   Markdown under `docs/`, with a deliberately short repository README that
@@ -4596,12 +4591,9 @@ Latest implementation update:
   one-call bootstrap used by the documentation.
 - Reduced showcase CSS from about 1.16 MB to about 70 KB by using the daisyUI
   Tailwind plugin instead of its complete prebuilt stylesheet.
-- Reconciled V1 release-polish documentation so README, TODO, NOTES,
-  RELEASE_DECISION, Content Mode docs, and DX rubric describe the same current
-  release-candidate state.
-- Marked the local package identity as `1.0.0` while keeping `private: true`.
-- Added the release decision section as the publication approval note for npm
-  ownership, access, 2FA, final version, and tagging decisions.
+- Reconciled the consolidated guide, roadmap, decisions, changelog, and release
+  policy around one local `1.0.0` source baseline without claiming registry
+  availability or an official release.
 - Added provider-neutral deployment recipes to the deployment section.
 - Added optional `velodom/content` build-time helpers for Markdown
   collections, SEO entries, sitemap records, RSS XML, search-index records,
@@ -4693,15 +4685,9 @@ Latest implementation update:
   section to
   distinguish client takeover from
   true SSR hydration.
-- Browser E2E passed for Chromium/Chrome/Edge; Firefox/WebKit targets were
-  skipped locally because their Playwright binaries are not installed.
-- Installed the missing Firefox/WebKit Playwright browsers for strict release
-  verification. WebKit and mobile WebKit passed; Firefox still requires a
-  compatible release/CI environment because local headless startup timed out.
-- Verified the documented static-hosting contract locally: real files and
-  generated directories resolve before fallback to `/index.html`, and generated
-  SEO HTML includes metadata, canonical links, visible fallback content, and
-  JSON-LD for a dynamic article route.
+- The static-hosting contract verifies real files and generated directories
+  before fallback to `/index.html`; generated SEO HTML includes metadata,
+  canonical links, visible fallback content, and JSON-LD for dynamic routes.
 
 Test coverage includes:
 
@@ -4745,11 +4731,11 @@ happy-dom.
 
 ## Release Decision
 
-The repository is now aligned as a local `1.0.0` release candidate, but npm
-publication is intentionally blocked by `private: true` in the publishable
-workspace package.
-[Current Release Decision](#current-release-decision) records the current owner-approval
-requirements before publishing, tagging, or removing the private package guard.
+The repository is aligned as the local source candidate for the first official
+`1.0.0` release. No official release or registry availability is inferred from
+the source tree. [Current Release Decision](#current-release-decision) records
+the verification and explicit owner-approval requirements before publishing or
+tagging.
 
 ## Browser Support
 
@@ -4799,7 +4785,6 @@ E2E coverage.
 
 These features are not implemented and should not be described as available:
 
-- npm publication and final npm account/package reservation
 - schema-based validation and custom validation rules beyond the optional
   native validation plugin
 - declarative request cache

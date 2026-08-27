@@ -20,14 +20,17 @@ module model unless application code independently chooses another library.
 
 ## Create and Run
 
+After the first official release makes both packages available:
+
 ```bash
 npm create velodom@latest
 cd my-app
 npm run dev
 ```
 
-Until the dedicated `create-velodom` package is published for the selected
-release, use `npx --yes --package velodom create-velodom my-app`. Project
+Do not infer registry availability from this repository. In a source checkout,
+build the package and run
+`node packages/velodom/bin/create-velodom.js my-app --no-install`. Project
 creation offers Minimal, Blog, and Empty with optional JS/TS, Tailwind, quality
 tools, routing examples, localization, tests, Git, install, and server start.
 

@@ -2,18 +2,21 @@
 
 ## 1. Create the Project
 
+After the first official V1 release makes both packages available:
+
 ```bash
 npm create velodom@latest
 cd my-app
 npm run dev
 ```
 
-Choose a starter and Recommended mode for the short path. The dedicated
-`create-velodom` package must be published for this npm alias. The existing
-framework-package form remains:
+Choose a starter and Recommended mode for the short path. Do not infer npm
+availability from source documentation. Before release, a repository checkout
+uses the local build:
 
 ```bash
-npx --yes --package velodom create-velodom my-app --no-install
+npm run package:build
+node packages/velodom/bin/create-velodom.js my-app --no-install
 cd my-app
 npm install
 npm run dev

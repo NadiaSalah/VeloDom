@@ -11,20 +11,28 @@ JSX, TSX, a virtual DOM, or a required global store.
 
 ## Create a Project
 
-When the dedicated `create-velodom` package is published alongside this
-release, npm's conventional interactive entry point is:
+After the first official V1 release makes `velodom` and `create-velodom`
+available, npm's conventional interactive entry point will be:
 
 ```bash
 npm create velodom@latest
 ```
 
-The `velodom` package itself keeps the existing explicit form:
+The `velodom` package also provides this explicit form after release:
 
 ```bash
 npx --yes --package velodom create-velodom my-app --no-install
 cd my-app
 npm install
 npm run dev
+```
+
+Inside the VeloDom repository, use the local package build instead of assuming
+registry availability:
+
+```bash
+npm run package:build
+node packages/velodom/bin/create-velodom.js my-app --no-install
 ```
 
 Or reuse the same scaffolder from the framework CLI:
