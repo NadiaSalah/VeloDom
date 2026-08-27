@@ -57,7 +57,7 @@ export default tseslint.config(
   },
   {
     files: [
-      "packages/velodom/bin/**/*.js",
+      "packages/*/bin/**/*.js",
       "examples/**/*.js",
       "scripts/**/*.mjs",
       "test/**/*.js",

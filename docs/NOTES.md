@@ -3,6 +3,33 @@
 ## Architectural Decisions
 
 - VeloDom is compiler-first, HTML-first, and folder-first.
+- Consumer and AI documentation ships from `packages/velodom`: the syntax
+  reference and feature inventory are authoritative package-local contracts,
+  `AI_CONTEXT.md` summarizes them, and `AI_GUIDE.md` explains agent workflow.
+  Root `docs` retains the detailed repository handbook, roadmap, decisions,
+  history, and release policy; it does not carry a second AI context copy.
+- Project creation is feature-composed rather than template-matrix based.
+  `packages/velodom/templates/default` contains only shared safe files;
+  `templates/starters/{minimal,blog,empty}` contains starter-specific app code;
+  `packages/velodom/src/scaffolder` applies language/tooling features.
+- `packages/create-velodom` exists only to satisfy npm's `npm create velodom`
+  naming contract. It delegates to `velodom/cli`; `vd create`, `vd init`, the
+  framework-package binaries, and npm-create never duplicate generator logic.
+- The scaffolder is a Node-only public subpath. Prompting, filesystem access,
+  package-manager detection, child processes, and templates cannot be imported
+  from the browser-facing `velodom` entry or increase its client bundle.
+- On Windows, npm is launched through `process.execPath` and npm's own CLI
+  module. Directly spawning `npm.cmd` with `shell: false` produced `EINVAL` on
+  the supported host. Other package-manager names remain a validated enum and
+  use constant arguments through `ComSpec`; user input is never interpolated
+  into a shell command.
+- A generated project that enables Prettier must pass `format:check`
+  immediately. Template sources and generator strings therefore own formatted
+  output; the scaffolder does not depend on Prettier or mutate output after an
+  optional dependency installation.
+- `examples/velodom-blog` remains the complete teaching/showcase consumer.
+  The Blog starter is deliberately smaller and production-editable; smoke
+  tests, not a large synchronization generator, guard their shared conventions.
 - `packages/velodom/src` is the single home for reusable framework source,
   including the compiler, shared contracts, adapters, and Vite plugin.
 - `examples/velodom-blog/src` is the repository's application-owned showcase. External
@@ -49,7 +76,7 @@
   documentation site. They intentionally explain the same folder/`.vd`
   authoring model and preferred `vd-*` syntax; compatibility attributes remain
   documented as migration input rather than beginner examples.
-- `docs/AI_CONTEXT.md` is a compact generation contract, not a second API
+- `packages/velodom/AI_CONTEXT.md` is a compact generation contract, not a second API
   source. It points AI tools back to source-verified exports and the canonical
   guide, and it must be updated whenever the public authoring model changes.
 - Common users should configure requests declaratively. Custom middleware and
@@ -450,6 +477,10 @@
   exist. CSS is intentionally not budgeted yet because the showcase's
   Tailwind/daisyUI output is application-owned and needs a separate design
   decision before strict limits are useful.
+- Package runtime totals exclude `cli`, `scaffolder`, and testing modules. They
+  are explicit Node/development-only entry points and cannot enter the browser
+  through the main package export; counting them as client runtime would hide
+  the metric the budget is intended to protect.
 - The first VeloDom CLI is static/offline developer tooling. `vd inspect`,
   `vd stats`, and `vd routes` read folders, `.vd` templates, API route
   registrations, compiler manifests, SEO config presence, and test-file
@@ -554,19 +585,17 @@
   phase. Code readiness, public API freeze, package checks, npm publication,
   and the browser matrix are complete for `1.0.0`; future versions still need
   the same owner, account, access, 2FA, notes, and tag decisions.
-- The default starter preset intentionally ships inside the published `velodom`
-  package rather than creating a second package name. `npx --yes --package
-  velodom create-velodom <name>` is the stable beginner entry point. It now
-  generates the shared layout/navbar, `.vd` lesson, component lesson, supplied
-  SVG favicon, and TypeScript-compatible `jsconfig.json`; additional
-  opinionated presets remain optional until they have distinct support value.
-- `vd init <name>` and the package-level `npx velodom@latest <name>` command are
-  intentionally thin aliases for that same starter. They reduce beginner
-  command length without adding a second project generator or browser runtime.
-- The package tarball includes `velodomProj/` as a source-controlled editable
-  default example. The CLI copies these same files and adjusts only the target
-  package name, keeping the project visible, independently editable, and free
-  of duplicate starter templates.
+- The `velodom` tarball owns the templates and shared scaffolder. A tiny
+  `create-velodom` package is now necessary because npm resolves
+  `npm create velodom` by package name, not by a bin alias in `velodom`.
+- `vd create`, `vd init`, `velodom`, the in-package `create-velodom` binary,
+  and the dedicated npm-create wrapper are thin interfaces to one engine.
+  Removing duplicate implementations is more important than keeping every
+  historical invocation as the primary documented path.
+- Starter selection and optional features are separate dimensions. The three
+  starter overlays stay small; feature installers generate manifests and
+  config only for selected capabilities. This avoids a JS/TS/Tailwind/testing
+  template matrix and keeps the generated project understandable.
 - Dependency advisory review is now complete for the published V1 workspace.
   The approved npm audit found and fixed three transitive high-severity issues;
   future lockfile changes must rerun `npm audit`, `npm ci --dry-run`, and the

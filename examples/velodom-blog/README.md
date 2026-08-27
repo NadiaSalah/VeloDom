@@ -6,11 +6,13 @@ package. It is deliberately a real consumer: the framework lives in
 request policy remain here.
 
 It is intentionally richer than the beginner project emitted by
-`create-velodom`. Use `packages/velodom/velodomProj` (or
-`npx velodom@latest <name>`) for the
-smallest generated starting point; the explicit `create-velodom` form remains
-available for scripts. Use this blog when you need a complete documentation site with multiple routes,
-layouts, requests, and content.
+`create-velodom`. Use `npm create velodom@latest` after the matching create
+package is published, or the explicit
+`npx --yes --package velodom create-velodom <name>` form, for a generated
+Minimal/Blog/Empty starting point. `templates/default` is only an internal
+shared layer, not a standalone application. Use this blog when you need a
+complete documentation site with multiple routes, layouts, requests, and
+content.
 
 ## What the example demonstrates
 

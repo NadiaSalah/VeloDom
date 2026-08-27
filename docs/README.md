@@ -10,14 +10,17 @@ JavaScript or TypeScript independently for every page and component.
 
 Source repository: [github.com/NadiaSalah/VeloDom](https://github.com/NadiaSalah/VeloDom).
 
-> Project status: VeloDom V1 `1.0.0` is published on npm. The package lives at
-> `packages/velodom`; public API names are protected by package-boundary tests,
-> and the registry package is available at
-> [npmjs.com/package/velodom](https://www.npmjs.com/package/velodom).
+> Project status: the VeloDom package source is version `1.0.0` and lives at
+> `packages/velodom`; public API names are protected by package-boundary tests.
+> Registry publication is a separate owner-authorized action. Verify the
+> current [npm package page](https://www.npmjs.com/package/velodom) immediately
+> before giving registry-dependent release instructions.
 
 ## Contents
 
-- [AI Context](AI_CONTEXT.md)
+- [Package AI Context](../packages/velodom/AI_CONTEXT.md)
+- [Canonical Syntax Reference](../packages/velodom/docs/SYNTAX_REFERENCE.md)
+- [Feature Inventory](../packages/velodom/docs/FEATURE_INVENTORY.md)
 - [What Works Today](#what-works-today)
 - [Five-Minute Start](#five-minute-start)
 - [V1 Feature Matrix](#v1-feature-matrix)
@@ -64,10 +67,12 @@ Source repository: [github.com/NadiaSalah/VeloDom](https://github.com/NadiaSalah
 - [Roadmap and Handoff](#roadmap-and-handoff)
 - [Documentation and Maintenance](#documentation-and-maintenance)
 
-AI assistants generating VeloDom applications should begin with
-[AI_CONTEXT.md](AI_CONTEXT.md). It condenses the framework identity, ownership
-boundaries, supported syntax, generation workflow, and verification rules;
-this guide remains the complete source-verified reference.
+AI assistants generating VeloDom applications should begin with the published
+[AI_CONTEXT.md](../packages/velodom/AI_CONTEXT.md), then confirm exact syntax in
+the [syntax reference](../packages/velodom/docs/SYNTAX_REFERENCE.md) and status
+in the [feature inventory](../packages/velodom/docs/FEATURE_INVENTORY.md). This
+guide remains the complete repository handbook; the package files are the
+portable consumer contract and are not duplicated in the root `docs` folder.
 
 ## What Works Today
 
@@ -200,6 +205,8 @@ marketing list.
 | `velodom/vite` | `createViteAdapter`, `createViteApp`, `mountVeloDom` |
 | `velodom/vite-plugin` | `createTemplateModule`, `velodom` |
 | `velodom/testing` | `mountTestPage`, `mountTestComponent` |
+| `velodom/cli` | `runVeloDomCli` (Node only) |
+| `velodom/scaffolder` | `createVeloDomProject`, `detectPackageManager` (Node only) |
 
 The preferred template vocabulary is grouped by purpose below. Attribute
 compatibility forms such as `data-vd-text` remain accepted, but new code should
@@ -463,7 +470,9 @@ vd benchmark
 vd build-report --json
 vd docs
 vd types
-vd init my-site
+vd version
+vd create my-site --recommended
+vd init my-site --recommended
 vd create page blog/posts/[id] --ts
 vd create page counter --demo counter
 vd create component shared/post-card --single-file
@@ -472,26 +481,24 @@ vd create api posts
 vd create demo features/demo
 vd create middleware
 vd create plugin analytics
-npx velodom@latest my-site
-npx --yes --package velodom create-velodom my-site
+npm create velodom@latest
+npx --yes --package velodom create-velodom my-site --no-install
 ```
 
 Inside this repository, run `npm run package:build` first, then use
 `node packages/velodom/bin/vd.js ...` because the wrappers load the generated
 `packages/velodom/lib/cli.js`.
-After installation from npm, the `vd`, `velodom`, and `create-velodom` binaries
-are available directly through the package manager. The shortest command is
-`npx velodom@latest my-site`; it delegates to `vd init`. The explicit
-`create-velodom` command remains available for scripts. Both commands copy the
-published default starter preset; it is a Vite application with a shared
-layout/navbar, supplied SVG brand and favicon, `/about` single-file lesson,
-`/guide` component lesson, and an npm-safe `jsconfig.json`. Install its
-dependencies and run it immediately with `npm run dev`.
-The `velodom` alias is included in the current patch release; both
-`npx velodom@latest <name>` and `create-velodom <name>` are supported.
-The npm tarball also carries an editable copy at
-`node_modules/velodom/velodomProj`; copy that folder when you want to learn by
-modifying a complete small project instead of starting from an empty folder.
+Every creation entry point calls one Node-only scaffolder. The dedicated
+`create-velodom` package enables npm's conventional `npm create velodom`
+resolution after it is published. The existing `velodom` package binaries and
+`vd create` remain compatible interfaces to the same engine.
+
+The flow selects Minimal, Blog, or Empty, then Recommended or Customize.
+Optional feature installers compose JavaScript/TypeScript, CSS/Tailwind,
+ESLint, Prettier, route examples, English/Arabic localization, unit/E2E tests,
+Git, dependency installation, and server startup. The package stores shared
+safe files in `templates/default` and starter-specific application files in
+`templates/starters`; it does not maintain a copy for every combination.
 
 The CLI is intentionally static and local. `vd inspect` and `vd stats` read
 folders, `.vd` files, API route registrations, middleware files, template
@@ -547,18 +554,20 @@ The blog template additionally creates a page script, `articles/post-card`
 component, application-owned API source, and a small Node test placeholder.
 It never edits a central route registry or overwrites existing files.
 
-### Beginner project shortcut
+### Project scaffolder
 
-`vd init <name>` is the readable CLI form of the project generator:
+`vd create` is the readable CLI form of the project generator; `vd init`
+remains a compatible alias:
 
 ```bash
-vd init my-site
+vd create my-site
 ```
 
-It creates the same complete starter as `create-velodom`, including the shared
-layout/navbar, `.vd` lesson, component lesson, supplied SVG favicon, and
-TypeScript-compatible `jsconfig.json`. Use `npx velodom@latest my-site` when
-the package is not installed locally.
+Recommended mode selects TypeScript, plain CSS, ESLint, Prettier, Git, and
+dependency installation without adding route examples, i18n, tests, or an
+auto-started server. Customize exposes each layer. Scriptable flags include
+`--template`, `--javascript`/`--typescript`, `--css`/`--tailwind`, paired
+`--feature`/`--no-feature` switches, test modes, and `--package-manager`.
 
 ### Focused Page Demos
 
@@ -632,6 +641,7 @@ props, slots, module hooks, style, and manifest overrides.
 
 ```text
 packages/
+  create-velodom/             npm-create wrapper using velodom/cli
   velodom/                    publishable npm package named "velodom"
     package.json              public exports, peers, binaries, publish guard
     scripts/                  private package build helpers
@@ -640,19 +650,22 @@ packages/
     tsconfig.types.json       package declaration build configuration
     bin/                      vd, velodom, and create-velodom CLI wrappers
     src/                      framework-owned TypeScript
-    adapters/                 build-tool resource discovery
-    cli/                      static analysis, reporters, scaffolds, contracts
-    compiler/                 HTML compiler and optimizer contracts
-    directives/features/      lazy directive runtime modules
-    errors/                   structured error reporting
-    expression/               safe expression tokenizer/parser/evaluator
-    requests/                 HTTP, auth, middleware, request runtime
-    shared/                   generic validation and path helpers
-    vite-plugin/              template compilation and static SEO rendering
+      adapters/               build-tool resource discovery
+      cli/                    static analysis, reporters, resource scaffolds
+      scaffolder/             project prompts, validation, and feature layers
+      compiler/               HTML compiler and optimizer contracts
+      directives/features/    lazy directive runtime modules
+      errors/                 structured error reporting
+      expression/             safe expression tokenizer/parser/evaluator
+      requests/               HTTP, auth, middleware, request runtime
+      shared/                 generic validation and path helpers
+      vite-plugin/            template compilation and static SEO rendering
+    templates/default/        shared generator files
+    templates/starters/       minimal, blog, and empty layers
   velodom-vscode/             optional VS Code extension package
 
 examples/
-  blog/                       independent VeloDom consumer application
+  velodom-blog/               independent VeloDom consumer application
     src/
       pages/                  application-owned pages
       layouts/                optional application-owned page shells
@@ -4492,23 +4505,27 @@ cookies, and ICU parsing remain application or adapter concerns.
 - `mountTestComponent`
 - page/component testing utility types
 
+### `velodom/cli` and `velodom/scaffolder`
+
+- `runVeloDomCli` is the Node-only dispatcher used by package binaries.
+- `createVeloDomProject` is the shared Node-only project creation pipeline.
+- Scaffolder plan/result types support wrappers without duplicating logic.
+- These entry points must never be imported by browser application code.
+
 Modules such as `page-router.ts`, `mount.ts`, `directives.ts`, and
 `request-router.ts` are internal. Application code should not import them.
 The internal router filenames `page-router.ts` and
 `requests/request-router.ts` are still intentionally frozen because VeloDom's
 runtime, directive features, tests, and diagnostics refer to them by name.
 
-VeloDom uses the MIT License. Package publishing remains intentionally blocked
-by `private: true` in `packages/velodom/package.json` until a human approves
-the exact npm account, access level, 2FA setup, and package reservation. Public API names are tracked by
-package-boundary tests and should change only through an intentional
-architecture decision plus documentation update.
+VeloDom uses the MIT License. The manifest is public, while every new version
+and the separate `create-velodom` package still require an explicit human
+publish decision. Public API names are tracked by package-boundary tests and
+should change only through an intentional architecture decision plus docs.
 
 The release approval process is documented in [RELEASING.md](RELEASING.md).
 It is intentionally a human approval checklist, not an automated publish flow.
-The package name `velodom` returned 404 from the npm registry on 2026-07-09,
-so it appears available, but final ownership still requires npm login and
-explicit publication approval.
+Repository checks verify local artifacts, not current registry dist-tags.
 
 ## Showcase Routes
 

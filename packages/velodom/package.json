@@ -37,10 +37,12 @@
     "velodom": "./bin/velodom.js"
   },
   "files": [
+    "AI_CONTEXT.md",
     "bin",
+    "docs",
     "lib",
+    "templates",
     "types",
-    "velodomProj",
     "README.md",
     "LICENSE"
   ],
@@ -110,6 +112,16 @@
       "types": "./types/testing.d.ts",
       "import": "./lib/testing.js",
       "default": "./lib/testing.js"
+    },
+    "./cli": {
+      "types": "./types/cli.d.ts",
+      "import": "./lib/cli.js",
+      "default": "./lib/cli.js"
+    },
+    "./scaffolder": {
+      "types": "./types/scaffolder/index.d.ts",
+      "import": "./lib/scaffolder/index.js",
+      "default": "./lib/scaffolder/index.js"
     },
     "./package.json": "./package.json"
   },

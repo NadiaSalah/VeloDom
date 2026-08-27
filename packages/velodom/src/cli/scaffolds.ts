@@ -10,12 +10,9 @@
  */
 
 import {
-  cp,
   mkdir,
-  readFile,
   writeFile
 } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
 import {
   dirname,
   join,
@@ -27,6 +24,7 @@ import {
   toRoutePath
 } from "./analyzer.ts";
 import type { CliContext } from "./types.ts";
+import { createVeloDomProject } from "../scaffolder/index.ts";
 
 /** Creates one supported VeloDom resource from parsed CLI values and flags. */
 export async function createResource(
@@ -65,10 +63,10 @@ export async function createResource(
       await createPlugin(context, requireName(rawName, "plugin"));
       break;
     case "project":
-      await createProject(context, requireName(rawName, "project"));
+      await createProject(context, rawName, flags, options);
       break;
     case "init":
-      await createProject(context, requireName(rawName, "project"));
+      await createProject(context, rawName, flags, options);
       break;
     default:
       throw new Error(
@@ -253,49 +251,18 @@ async function createPlugin(context: CliContext, name: string) {
   context.stdout(`Created plugin ${relativePath(context.cwd, file)}`);
 }
 
-async function createProject(context: CliContext, name: string) {
-  const folder = join(context.cwd, safeName(name));
-
-  await cp(packageStarterDirectory(), folder, {
-    recursive: true,
-    force: false,
-    errorOnExist: true
+async function createProject(
+  context: CliContext,
+  name: string | undefined,
+  flags: Set<string>,
+  options: Record<string, string>
+) {
+  await createVeloDomProject({
+    context,
+    flags,
+    options,
+    projectName: name
   });
-  await writeStarterManifest(folder, name);
-  context.stdout(`Created VeloDom project ${relativePath(context.cwd, folder)}`);
-}
-
-/** Resolves the shipped starter beside both source and compiled CLI modules. */
-function packageStarterDirectory() {
-  return fileURLToPath(new URL("../../velodomProj/", import.meta.url));
-}
-
-/** Personalizes only the package name while preserving the starter source. */
-async function writeStarterManifest(folder: string, name: string) {
-  const projectName = safeName(name).replaceAll("/", "-");
-  const file = join(folder, "package.json");
-  const manifest = JSON.parse(await readFile(file, "utf8")) as Record<string, unknown>;
-
-  manifest.name = projectName;
-  await writeFile(file, `${JSON.stringify(manifest, null, 2)}\n`);
-
-  // Keep `npm ci` valid after the copied project receives its requested name.
-  const lockfile = join(folder, "package-lock.json");
-  const source = await readFile(lockfile, "utf8").catch(error => {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
-    throw error;
-  });
-
-  if (!source) return;
-
-  const lock = JSON.parse(source) as {
-    name?: string;
-    packages?: Record<string, { name?: string }>;
-  };
-
-  lock.name = projectName;
-  if (lock.packages?.[""]) lock.packages[""].name = projectName;
-  await writeFile(lockfile, `${JSON.stringify(lock, null, 2)}\n`);
 }
 
 async function writeNewFile(file: string, source: string) {

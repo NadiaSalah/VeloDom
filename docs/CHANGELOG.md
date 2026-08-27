@@ -5,6 +5,58 @@ both development milestones and published package verification.
 
 ## Unreleased
 
+- Added a unified production project scaffolder used by `vd create`, `vd init`,
+  `velodom`, and both `create-velodom` binaries. It supports interactive
+  Recommended/Customize flows and complete scriptable flags without duplicate
+  generation logic.
+- Added composable Minimal, Blog, and Empty starters with real JavaScript and
+  TypeScript output plus optional Tailwind, ESLint, Prettier, route examples,
+  English/Arabic localization, unit/E2E testing, Git initialization,
+  package-manager installation, and development-server startup.
+- Added path/package-name validation, non-empty destination protection,
+  conflicting-option diagnostics, safe child processes, dotfile handling,
+  package-manager detection, cancellation handling, and precise next steps.
+- Rejected `--start --no-install` and route-free Blog/localization combinations
+  instead of silently overriding a user's explicit choice; interactive custom
+  setup now skips route questions when the selected feature requires routes.
+- Added the dedicated Node-only `packages/create-velodom` wrapper required for
+  `npm create velodom`; it imports the public `velodom/cli` entry and ships no
+  browser runtime or templates of its own.
+- Split template input into common safe files under `templates/default` and
+  small starter overlays under `templates/starters`, replacing the former
+  one-size learning app and avoiding a feature-combination template matrix.
+- Removed overwritten HTML, bootstrap, CSS, and empty legacy directories from
+  the common layer. It now contains only dotfile guidance, AI instructions,
+  and the shared favicon; application source is generated or starter-owned.
+- Kept `examples/velodom-blog` as the full academic showcase while creating a
+  smaller Blog starter intended for immediate application customization.
+- Added package-local `AI_CONTEXT.md`, quick start, canonical syntax reference,
+  feature inventory, and deeper AI guide; added them and the starter to the npm
+  allowlist while keeping repository audits/history out of the tarball.
+- Removed the duplicated root AI context. Root guidance now points to the same
+  package-owned files shipped to generated projects and installed consumers.
+- Generated package metadata now contains only selected scripts/dependencies,
+  uses the generator's VeloDom version, and creates no stale template lockfile.
+- Verified 269 tests plus documentation, TypeScript, ESLint, installed-package,
+  representative generated-build, and packed-wrapper gates. The dry-run
+  artifacts contain 266 files / 454,211 bytes compressed (1,945,782 unpacked)
+  for `velodom` and four files / 1,680 bytes compressed (2,865 unpacked) for
+  `create-velodom`.
+- Ran an installed Recommended starter through ESLint, Prettier, TypeScript,
+  and a production build; generated configuration and application files now
+  pass their own format check without requiring a first rewrite.
+- Fixed Windows npm process startup by launching npm's CLI through the active
+  Node executable, while keeping other validated package managers behind a
+  constant-argument `ComSpec` invocation.
+- Corrected the performance-budget classifier so the new Node-only scaffolder
+  is excluded from browser runtime totals, with a regression fixture that adds
+  a deliberately large scaffolder module without weakening runtime limits.
+- Extended the installed-package consumer gate to verify packaged AI docs,
+  run the installed `create-velodom` binary, scan generated projects for
+  workspace/private imports, and build Minimal/Blog/Empty plus the combined
+  Blog + TypeScript + Tailwind + localization + Unit/E2E case in isolation.
+- Corrected current documentation so repository state no longer claims that a
+  local manifest proves npm registry availability or dist-tags.
 - Completed a full router-guard audit and maintenance pass. Page `beforeEnter`
   and global `beforeEach` configuration now reject non-functions instead of
   silently disabling protection, and guard redirects accept only safe

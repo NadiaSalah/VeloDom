@@ -1,0 +1,40 @@
+{
+  "name": "create-velodom",
+  "version": "1.0.0",
+  "description": "Interactive project scaffolder for VeloDom applications.",
+  "keywords": [
+    "velodom",
+    "create-velodom",
+    "frontend",
+    "scaffolder",
+    "vite"
+  ],
+  "author": {
+    "name": "Nadia Salah",
+    "url": "https://github.com/NadiaSalah"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NadiaSalah/velodom.git",
+    "directory": "packages/create-velodom"
+  },
+  "type": "module",
+  "bin": {
+    "create-velodom": "./bin/create-velodom.js"
+  },
+  "files": [
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "velodom": "^1.0.0"
+  }
+}

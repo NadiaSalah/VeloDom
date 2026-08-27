@@ -377,6 +377,13 @@ test("CLI create scaffolds convention-first project resources", async () => {
       "create",
       "project",
       "starter",
+      "--template",
+      "minimal",
+      "--javascript",
+      "--no-eslint",
+      "--no-prettier",
+      "--no-git",
+      "--no-install",
       "--root",
       root
     ], options), 0);
@@ -398,16 +405,9 @@ test("CLI create scaffolds convention-first project resources", async () => {
     await assertFile(join(root, "starter/public/velodom-favicon.svg"));
     await assertFile(join(root, "starter/src/pages/home/index.html"));
     await assertFile(join(root, "starter/src/pages/home/script.js"));
-    await assertFile(join(root, "starter/src/components/brand-mark/index.html"));
-    await assertFile(join(root, "starter/src/layouts/default.vd"));
-    await assertFile(join(root, "starter/src/components/site-nav/index.html"));
-    await assertFile(join(root, "starter/src/components/site-nav/script.js"));
-    await assertFile(join(root, "starter/src/components/site-nav/style.css"));
-    await assertFile(join(root, "starter/src/components/feature-card/index.html"));
-    await assertFile(join(root, "starter/src/components/feature-card/script.js"));
-    await assertFile(join(root, "starter/src/pages/about.vd"));
-    await assertFile(join(root, "starter/src/pages/guide/index.html"));
-    await assertFile(join(root, "starter/src/pages/guide/config.js"));
+    await assertFile(join(root, "starter/src/components/starter-card/index.html"));
+    await assertFile(join(root, "starter/AGENTS.md"));
+    await assertFile(join(root, "starter/README.md"));
     await assertFile(join(root, "starter/src/style.css"));
     await assertFile(join(root, "starter/vite.config.js"));
     await assertFile(join(root, "starter/jsconfig.json"));
@@ -424,36 +424,12 @@ test("CLI create scaffolds convention-first project resources", async () => {
       join(root, "starter/src/pages/home/index.html"),
       "utf8"
     );
-    const starterHomeConfig = await readFile(
-      join(root, "starter/src/pages/home/config.js"),
-      "utf8"
-    );
-    const starterBrand = await readFile(
-      join(root, "starter/src/components/brand-mark/index.html"),
-      "utf8"
-    );
     const starterShell = await readFile(
       join(root, "starter/index.html"),
       "utf8"
     );
     const starterFavicon = await readFile(
       join(root, "starter/public/velodom-favicon.svg"),
-      "utf8"
-    );
-    const starterAbout = await readFile(
-      join(root, "starter/src/pages/about.vd"),
-      "utf8"
-    );
-    const starterNavScript = await readFile(
-      join(root, "starter/src/components/site-nav/script.js"),
-      "utf8"
-    );
-    const starterNav = await readFile(
-      join(root, "starter/src/components/site-nav/index.html"),
-      "utf8"
-    );
-    const starterLayout = await readFile(
-      join(root, "starter/src/layouts/default.vd"),
       "utf8"
     );
     const starterViteConfig = await readFile(
@@ -464,78 +440,39 @@ test("CLI create scaffolds convention-first project resources", async () => {
       join(root, "starter/package.json"),
       "utf8"
     ));
-    const starterLockfile = JSON.parse(await readFile(
-      join(root, "starter/package-lock.json"),
-      "utf8"
-    ));
 
     assert.match(config, /path: "\/blog\/posts\/:id"/);
     assert.match(config, /satisfies PageConfig/);
     assert.match(starterMain, /await mountVeloDom\(\)/);
     assert.match(starterMain, /import "\.\/style\.css"/);
     assert.doesNotMatch(starterMain, /createViteAdapter/);
-    assert.match(starterHome, /vd-component name="brand-mark"/);
-    assert.match(starterHome, /class="hero-art"/);
-    assert.match(starterHome, /Build with a visible mark/);
-    assert.match(starterNav, /vd-on:click="toggleTheme\(\)"/);
-    assert.match(starterNav, /<span>VeloDom<\/span>/);
-    assert.match(starterNav, /href="\/about" vd-nav/);
-    assert.match(starterHome, /href="\/#principles" vd-nav/);
-    assert.match(starterHome, /href="https:\/\/github\.com\/NadiaSalah\/VeloDom"/);
-    assert.match(starterHome, /target="_blank" rel="noreferrer"/);
-    assert.match(starterHomeConfig, /layout: "default"/);
-    assert.match(starterBrand, /viewBox="0 0 850\.39 850\.39"/);
-    assert.doesNotMatch(starterBrand, /<img\b/);
+    assert.match(starterHome, /vd-on:click="count\+\+"/);
+    assert.match(starterHome, /vd-component name="starter-card"/);
     assert.match(starterShell, /<!doctype html>/i);
     assert.match(starterShell, /name="description"/);
     assert.match(starterShell, /rel="icon" type="image\/svg\+xml" href="\/velodom-favicon\.svg"/);
     assert.match(starterFavicon, /viewBox="0 0 850\.39 850\.39"/);
     assert.match(starterFavicon, /id="Layer_1"/);
-    assert.match(starterAbout, /<template>/);
-    assert.match(starterAbout, /<style>/);
-    assert.match(starterAbout, /<config>/);
-    assert.match(starterAbout, /layout: "default"/);
-    assert.match(starterNavScript, /aria-current/);
-    assert.match(starterNavScript, /localStorage/);
-    assert.match(starterLayout, /<vd-component name="site-nav"><\/vd-component>/);
-    assert.match(starterLayout, /<vd-page><\/vd-page>/);
     assert.match(starterViteConfig, /from "velodom\/vite-plugin"/);
     assert.match(await readFile(join(root, "starter/jsconfig.json"), "utf8"), /"ignoreDeprecations": "6\.0"/);
     assert.match(starterViteConfig, /"@": fileURLToPath/);
     assert.equal(starterManifest.name, "starter");
     assert.equal(starterManifest.imports["#app/*"], "./src/*");
-    assert.equal(starterLockfile.name, "starter");
-    assert.equal(starterLockfile.packages[""].name, "starter");
+    assert.deepEqual(Object.keys(starterManifest.devDependencies), ["vite"]);
 
     for (const file of [
-      "index.html",
-      "jsconfig.json",
-      "vite.config.js",
-      "public/velodom-favicon.svg",
-      "src/main.js",
-      "src/style.css",
-      "src/components/brand-mark/index.html",
-      "src/components/site-nav/index.html",
-      "src/components/site-nav/script.js",
-      "src/components/site-nav/style.css",
-      "src/components/feature-card/index.html",
-      "src/components/feature-card/script.js",
-      "src/components/feature-card/style.css",
-      "src/layouts/default.vd",
-      "src/pages/about.vd",
-      "src/pages/guide/config.js",
-      "src/pages/guide/index.html",
       "src/pages/home/config.js",
       "src/pages/home/index.html",
-      "src/pages/home/script.js"
+      "src/pages/home/script.js",
+      "src/components/starter-card/index.html"
     ]) {
       const generated = await readFile(join(root, "starter", file), "utf8");
       const shipped = await readFile(
-        new URL(`../../../packages/velodom/velodomProj/${file}`, import.meta.url),
+        new URL(`../../../packages/velodom/templates/starters/minimal/${file}`, import.meta.url),
         "utf8"
       );
 
-      assert.equal(generated, shipped, `Starter drifted from velodomProj/${file}`);
+      assert.equal(generated, shipped, `Starter drifted from templates/starters/minimal/${file}`);
     }
   } finally {
     await removeFixture(root);
@@ -550,6 +487,13 @@ test("CLI init is the concise project starter alias", async () => {
     assert.equal(await runVeloDomCli([
       "init",
       "starter",
+      "--template",
+      "minimal",
+      "--javascript",
+      "--no-eslint",
+      "--no-prettier",
+      "--no-git",
+      "--no-install",
       "--root",
       root
     ], {
@@ -557,13 +501,214 @@ test("CLI init is the concise project starter alias", async () => {
       stderr: message => output.push(message)
     }), 0);
 
-    assert.match(output.join("\n"), /Created VeloDom project starter/);
-    await assertFile(join(root, "starter", "src/pages/about.vd"));
-    await assertFile(join(root, "starter", "src/layouts/default.vd"));
+    assert.match(output.join("\n"), /Created VeloDom project in starter/);
+    assert.match(output.join("\n"), /npm install/);
+    assert.match(output.join("\n"), /npm run dev/);
+    await assertFile(join(root, "starter", "src/pages/home/index.html"));
+    await assertFile(join(root, "starter", "src/components/starter-card/index.html"));
     await assertFile(join(root, "starter", "public/velodom-favicon.svg"));
   } finally {
     await removeFixture(root);
   }
+});
+
+test("CLI project creation refuses a non-empty destination", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-cli-project-safety-"));
+  const output = [];
+
+  try {
+    await writeFixtureFile(root, "starter/keep.txt", "user-owned\n");
+
+    assert.equal(await runVeloDomCli([
+      "init",
+      "starter",
+      "--no-install",
+      "--no-git",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    }), 1);
+
+    assert.match(output.join("\n"), /non-empty folder/);
+    assert.equal(
+      await readFile(join(root, "starter/keep.txt"), "utf8"),
+      "user-owned\n"
+    );
+  } finally {
+    await removeFixture(root);
+  }
+});
+
+test("CLI composes Blog, TypeScript, Tailwind, localization, and tests", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-cli-blog-"));
+  const output = [];
+
+  try {
+    const code = await runVeloDomCli([
+      "create",
+      "my-blog",
+      "--template",
+      "blog",
+      "--typescript",
+      "--tailwind",
+      "--i18n",
+      "--test-all",
+      "--no-eslint",
+      "--no-prettier",
+      "--no-git",
+      "--no-install",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+
+    assert.equal(code, 0);
+    await assertFile(join(root, "my-blog/src/main.ts"));
+    await assertFile(join(root, "my-blog/src/pages/posts/script.ts"));
+    await assertFile(join(root, "my-blog/src/pages/localization/script.ts"));
+    await assertFile(join(root, "my-blog/src/components/site-nav/index.html"));
+    await assertFile(join(root, "my-blog/tests/unit/project.test.js"));
+    await assertFile(join(root, "my-blog/tests/e2e/home.spec.ts"));
+    const manifest = JSON.parse(await readFile(join(root, "my-blog/package.json"), "utf8"));
+    const viteConfig = await readFile(join(root, "my-blog/vite.config.ts"), "utf8");
+
+    assert.equal(manifest.devDependencies.tailwindcss, "^4.3.0");
+    assert.equal(manifest.devDependencies["@playwright/test"], "^1.61.1");
+    assert.equal(manifest.devDependencies.eslint, undefined);
+    assert.match(viteConfig, /tailwindcss\(\)/);
+    assert.match(viteConfig, /localizationOptions/);
+    assert.match(output.join("\n"), /Tailwind CSS configured/);
+  } finally {
+    await removeFixture(root);
+  }
+});
+
+test("CLI creates a genuinely small Empty JavaScript project", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-cli-empty-"));
+  const output = [];
+
+  try {
+    const code = await runVeloDomCli([
+      "create",
+      "empty app",
+      "--template",
+      "empty",
+      "--javascript",
+      "--no-eslint",
+      "--no-prettier",
+      "--no-git",
+      "--no-install",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+
+    assert.equal(code, 0);
+    await assertFile(join(root, "empty app/src/main.js"));
+    await assertFile(join(root, "empty app/src/pages/home/index.html"));
+    const manifest = JSON.parse(await readFile(join(root, "empty app/package.json"), "utf8"));
+
+    assert.equal(manifest.name, "empty-app");
+    assert.deepEqual(Object.keys(manifest.devDependencies), ["vite"]);
+    await assert.rejects(access(join(root, "empty app/eslint.config.js")));
+    await assert.rejects(access(join(root, "empty app/tsconfig.json")));
+  } finally {
+    await removeFixture(root);
+  }
+});
+
+test("CLI reports project option conflicts without stack traces", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-cli-invalid-"));
+  const output = [];
+  const io = {
+    stdout: message => output.push(message),
+    stderr: message => output.push(message)
+  };
+
+  try {
+    assert.equal(await runVeloDomCli([
+      "create",
+      "broken",
+      "--javascript",
+      "--typescript",
+      "--no-install",
+      "--root",
+      root
+    ], io), 1);
+    assert.match(output.join("\n"), /Cannot use --javascript and --typescript together/);
+
+    output.length = 0;
+    assert.equal(await runVeloDomCli([
+      "create",
+      "broken",
+      "--template",
+      "unknown",
+      "--no-install",
+      "--root",
+      root
+    ], io), 1);
+    assert.match(output.join("\n"), /Available templates: minimal, blog, empty/);
+
+    output.length = 0;
+    assert.equal(await runVeloDomCli([
+      "create",
+      "broken",
+      "--unknown-feature",
+      "--no-install",
+      "--root",
+      root
+    ], io), 1);
+    assert.match(output.join("\n"), /Unknown project option "--unknown-feature"/);
+
+    output.length = 0;
+    assert.equal(await runVeloDomCli([
+      "create",
+      "broken-start",
+      "--start",
+      "--no-install",
+      "--root",
+      root
+    ], io), 1);
+    assert.match(output.join("\n"), /Cannot use --start without dependency installation/);
+
+    output.length = 0;
+    assert.equal(await runVeloDomCli([
+      "create",
+      "broken-blog",
+      "--template",
+      "blog",
+      "--no-router",
+      "--no-install",
+      "--root",
+      root
+    ], io), 1);
+    assert.match(output.join("\n"), /Blog starter.*requires route examples/);
+  } finally {
+    await removeFixture(root);
+  }
+});
+
+test("CLI exposes help and version without starting project prompts", async () => {
+  const output = [];
+  const io = {
+    stdout: message => output.push(message),
+    stderr: message => output.push(message)
+  };
+
+  assert.equal(await runVeloDomCli(["create", "--help"], io), 0);
+  assert.match(output.join("\n"), /--template minimal\|blog\|empty/);
+  output.length = 0;
+  assert.equal(await runVeloDomCli(["--version"], io), 0);
+  assert.match(output.join("\n"), /^1\.0\.0$/);
+  output.length = 0;
+  assert.equal(await runVeloDomCli(["-v"], io), 0);
+  assert.match(output.join("\n"), /^1\.0\.0$/);
 });
 
 test("CLI types generates optional project declarations from conventions", async () => {

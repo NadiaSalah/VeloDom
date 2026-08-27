@@ -15,6 +15,7 @@ import {
 } from "node:child_process";
 import {
   mkdir,
+  readFile,
   stat,
   writeFile
 } from "node:fs/promises";
@@ -131,7 +132,8 @@ Usage:
   vd build-report [--json] [--root <dir>]
   vd docs [--json] [--root <dir>]
   vd types [--out <file>] [--root <dir>]
-  vd init <project-name>
+  vd create [project-name] [project options]
+  vd init [project-name] [project options]
   vd create page <name> [--ts] [--single-file] [--demo <kind>] [--root <dir>]
   vd create component <name> [--ts] [--single-file] [--root <dir>]
   vd create api <name> [--root <dir>]
@@ -139,7 +141,22 @@ Usage:
   vd create feature <name> [--blog] [--root <dir>]
   vd create middleware [--root <dir>]
   vd create plugin <name> [--root <dir>]
-  create-velodom <project-name>
+  create-velodom [project-name] [project options]
+
+Project options:
+  --template minimal|blog|empty
+  --recommended | --custom | --yes
+  --javascript | --typescript
+  --css | --tailwind
+  --eslint | --no-eslint
+  --prettier | --no-prettier
+  --router | --no-router
+  --i18n | --no-i18n
+  --testing | --test-unit | --test-e2e | --test-all | --no-testing
+  --git | --no-git
+  --install | --no-install
+  --start | --no-start
+  --package-manager npm|pnpm|yarn|bun
 
 Examples:
   vd inspect
@@ -148,9 +165,21 @@ Examples:
   vd create page counter --demo counter
   vd create component shared/post-card --single-file
   vd create feature articles --blog
-  vd init my-site
-  npx velodom@latest my-site
+  vd create my-site --recommended
+  npx create-velodom@latest my-site --template minimal --typescript
 `;
+
+const RESOURCE_TYPES = new Set([
+  "page",
+  "component",
+  "api",
+  "demo",
+  "feature",
+  "middleware",
+  "plugin",
+  "project",
+  "init"
+]);
 
 /** Runs the VeloDom command-line interface and returns a process exit code. */
 export async function runVeloDomCli(
@@ -167,12 +196,25 @@ export async function runVeloDomCli(
   const [command, ...values] = parsed.values;
 
   try {
+    if (
+      command === undefined
+      && (parsed.flags.has("version") || parsed.flags.has("v"))
+    ) {
+      context.stdout(await readCliVersion());
+      return 0;
+    }
+
     switch (command) {
       case undefined:
       case "help":
       case "--help":
       case "-h":
         context.stdout(HELP.trimEnd());
+        return 0;
+      case "version":
+      case "--version":
+      case "-v":
+        context.stdout(await readCliVersion());
         return 0;
       case "inspect":
         await printInspection(context, parsed.flags.has("json"));
@@ -210,7 +252,16 @@ export async function runVeloDomCli(
         );
         return 0;
       case "create":
-        await createResource(context, values, parsed.flags, parsed.options);
+        if (parsed.flags.has("help")) {
+          context.stdout(HELP.trimEnd());
+          return 0;
+        }
+        await createResource(
+          context,
+          RESOURCE_TYPES.has(values[0] || "") ? values : ["project", values[0] || ""],
+          parsed.flags,
+          parsed.options
+        );
         return 0;
       default:
         context.stderr(`Unknown VeloDom command "${command}".`);
@@ -2319,6 +2370,8 @@ function parseArgs(args: string[]): ParsedArgs {
     "demo",
     "min-score",
     "out",
+    "package-manager",
+    "template",
     "root"
   ]);
 
@@ -2352,6 +2405,15 @@ function parseArgs(args: string[]): ParsedArgs {
     options,
     values
   };
+}
+
+async function readCliVersion() {
+  const manifest = JSON.parse(await readFile(
+    new URL("../package.json", import.meta.url),
+    "utf8"
+  )) as { version?: string };
+
+  return manifest.version || "unknown";
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] || "").href) {

@@ -5,6 +5,7 @@
   "description": "Development workspace for the VeloDom framework package and its example applications.",
   "type": "module",
   "workspaces": [
+    "packages/create-velodom",
     "packages/velodom",
     "packages/velodom-vscode",
     "examples/velodom-blog"
@@ -19,7 +20,8 @@
     "package:build": "npm run package:build --workspace velodom",
     "package:consumer": "npm run package:build && node tools/scripts/check-package-consumer.mjs",
     "package:check": "npm run package:build && node tools/scripts/check-package.mjs && node tools/scripts/check-package-consumer.mjs",
-    "pack:check": "npm run package:check && node tools/scripts/check-pack-dry-run.mjs",
+    "create-package:check": "npm run package:build && node tools/scripts/check-create-package.mjs",
+    "pack:check": "npm run package:check && node tools/scripts/check-create-package.mjs && node tools/scripts/check-pack-dry-run.mjs",
     "benchmark:rendering": "node tools/scripts/benchmark-rendering.mjs",
     "performance:check": "node tools/scripts/check-performance-budgets.mjs",
     "test:browser": "npm run build && node tools/scripts/check-browser-e2e.mjs",

@@ -20,7 +20,16 @@ const packageManifest = JSON.parse(await readWorkspaceFile(
   "packages/velodom/package.json"
 ));
 const releaseGuide = await readWorkspaceFile("docs/RELEASING.md");
-const canonicalGuide = await readWorkspaceFile("docs/README.md");
+const repositoryGuide = await readWorkspaceFile("docs/README.md");
+const syntaxReference = await readWorkspaceFile(
+  "packages/velodom/docs/SYNTAX_REFERENCE.md"
+);
+const featureInventory = await readWorkspaceFile(
+  "packages/velodom/docs/FEATURE_INVENTORY.md"
+);
+const packageAiContext = await readWorkspaceFile(
+  "packages/velodom/AI_CONTEXT.md"
+);
 const cliSource = await readWorkspaceFile("packages/velodom/src/cli.ts");
 const directiveSource = await readWorkspaceFile(
   "packages/velodom/src/shared/directives.ts"
@@ -43,8 +52,13 @@ const currentGuides = await Promise.all([
   "docs/TODO.md",
   "docs/NOTES.md",
   "docs/RELEASING.md",
-  "docs/AI_CONTEXT.md",
   "packages/velodom/README.md",
+  "packages/velodom/AI_CONTEXT.md",
+  "packages/velodom/docs/QUICK_START.md",
+  "packages/velodom/docs/SYNTAX_REFERENCE.md",
+  "packages/velodom/docs/FEATURE_INVENTORY.md",
+  "packages/velodom/docs/AI_GUIDE.md",
+  "packages/velodom/templates/default/AGENTS.md",
   "examples/velodom-blog/README.md"
 ].map(async path => ({ path, source: await readWorkspaceFile(path) })));
 const violations = [];
@@ -80,7 +94,8 @@ const cliCommands = new Set(
     .map(match => match[1])
     .filter(command => !command.startsWith("-"))
 );
-const documentedCanonicalCommands = collectDocumentedCliCommands(canonicalGuide);
+const documentedCanonicalCommands = collectDocumentedCliCommands(repositoryGuide);
+const completePublicGuide = `${repositoryGuide}\n${syntaxReference}\n${featureInventory}`;
 const publicApiNames = new Set(
   publicApiSources.flatMap(collectPublicValueExports)
 );
@@ -93,12 +108,12 @@ if (packageManifest.private === true) {
     );
   }
 } else {
-  if (!releaseGuide.includes("published and verified in the npm registry")) {
+  if (!releaseGuide.includes("publishConfig.access = public")) {
     violations.push(
-      "docs/RELEASING.md must describe the published package state"
+      "docs/RELEASING.md must describe the public package publication intent"
     );
   }
-  if (!canonicalGuide.includes("npmjs.com/package/velodom")) {
+  if (!repositoryGuide.includes("npmjs.com/package/velodom")) {
     violations.push(
       "docs/README.md must link to the published npm package"
     );
@@ -114,7 +129,7 @@ for (const publicImport of publicImports) {
 }
 
 for (const publicApiName of publicApiNames) {
-  if (!new RegExp(`\\b${publicApiName}\\b`).test(canonicalGuide)) {
+  if (!new RegExp(`\\b${publicApiName}\\b`).test(completePublicGuide)) {
     violations.push(
       `docs/README.md must document public API "${publicApiName}"`
     );
@@ -122,7 +137,7 @@ for (const publicApiName of publicApiNames) {
 }
 
 for (const directive of preferredDirectives) {
-  if (!canonicalGuide.includes(`vd-${directive}`)) {
+  if (!syntaxReference.includes(`vd-${directive}`)) {
     violations.push(
       `docs/README.md must document preferred directive "vd-${directive}"`
     );
@@ -132,6 +147,24 @@ for (const directive of preferredDirectives) {
 for (const command of cliCommands) {
   if (!documentedCanonicalCommands.has(command)) {
     violations.push(`docs/README.md must document CLI command "vd ${command}"`);
+  }
+}
+
+for (const required of [
+  "docs/SYNTAX_REFERENCE.md",
+  "docs/FEATURE_INVENTORY.md",
+  "docs/AI_GUIDE.md"
+]) {
+  if (!packageAiContext.includes(required)) {
+    violations.push(
+      `packages/velodom/AI_CONTEXT.md must route agents to "${required}"`
+    );
+  }
+}
+
+for (const requiredFile of ["AI_CONTEXT.md", "docs", "templates"]) {
+  if (!packageManifest.files?.includes(requiredFile)) {
+    violations.push(`published package files must include "${requiredFile}"`);
   }
 }
 

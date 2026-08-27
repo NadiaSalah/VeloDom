@@ -1,42 +1,27 @@
-# VeloDom package AI guidance
+# VeloDom package contributor guidance
 
-This file applies to work inside `packages/velodom`. The `src/` directory is
-framework Core; `velodomProj/` is the explicitly packaged beginner template.
-Read the package `README.md` and
-the repository [AI context](../../docs/AI_CONTEXT.md) before changing code or
-generating an example.
+This directory is the self-contained source of the published `velodom` npm
+package. Framework behavior lives under `src/`; shared starter files live under
+`templates/default`, while Minimal, Blog, and Empty layers live under
+`templates/starters`.
 
-## Core boundary
+Read [AI_CONTEXT.md](AI_CONTEXT.md),
+[docs/SYNTAX_REFERENCE.md](docs/SYNTAX_REFERENCE.md), and
+[docs/FEATURE_INVENTORY.md](docs/FEATURE_INVENTORY.md) before changing public
+behavior or examples.
 
-- Keep compiler, parser, evaluator, adapters, runtime, and public contracts
-  framework-agnostic.
-- Keep branding, business data, Tailwind classes, page copy, and application
-  policy out of framework `src/`. Only generic starter teaching content may
-  live in the allowlisted `velodomProj/` template.
-- Do not solve a consumer problem by importing `examples/velodom-blog` or by exposing
-  an internal file as a new public subpath.
-- Preserve VeloDom's HTML-first, compiler-first, folder-first,
-  convention-over-configuration, runtime-light, and vanilla-friendly identity.
+Rules:
 
-## Generating a VeloDom application
+- Keep Core framework-agnostic and application behavior outside `src`.
+- Preserve HTML-first, compiler-first, folder-first, runtime-light design.
+- JavaScript and TypeScript must both remain optional authoring choices.
+- Do not add private source imports to the starter or consumer documentation.
+- Keep starter differences in `templates/starters`; language and optional
+  tooling belong in composable `src/scaffolder` feature installers.
+- Consumer docs belong in `docs`; repository audits and release history belong
+  in the root `docs` directory and are not published.
+- Update package tests, docs, types, and the root changelog when public behavior
+  changes.
 
-Use the public package entry points and visible conventions:
-
-```bash
-npx velodom@latest my-site
-# Until the next patch is published:
-npx --yes --package velodom create-velodom my-site
-```
-
-Application authors may choose JavaScript or TypeScript. Generate ordinary
-HTML in `src/pages` and `src/components`, optional `.vd` files for compact
-features, and route policy in `config.js` or `config.ts`. Use documented
-`vd-*` directives only; never invent a directive because a similar framework
-uses one. Keep API handlers and middleware under `src/api`.
-
-## Quality gate
-
-Before proposing a Core change, check the public exports, generated
-declarations, package allowlist, CLI contract, and consumer tests. Update the
-package README and the consolidated documentation whenever a public contract
-changes. Prefer a small tested extension over a new runtime abstraction.
+Verify with the workspace package checks and `npm pack --dry-run` before
+publishing.

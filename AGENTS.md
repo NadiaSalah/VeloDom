@@ -1,9 +1,9 @@
 # VeloDom AI and contributor guidance
 
-Read [docs/AI_CONTEXT.md](docs/AI_CONTEXT.md) before designing, generating, or
-refactoring a VeloDom application. It is the compact, machine-oriented contract
-for the framework; [docs/README.md](docs/README.md) remains the complete human
-guide and source-verified API reference.
+Read [packages/velodom/AI_CONTEXT.md](packages/velodom/AI_CONTEXT.md) before
+designing, generating, or refactoring a VeloDom application. It is the compact,
+machine-oriented package contract; [docs/README.md](docs/README.md) remains the
+complete repository handbook.
 
 ## Non-negotiable identity
 
@@ -21,7 +21,8 @@ guide and source-verified API reference.
 
 ## Before changing or generating code
 
-1. Read `docs/AI_CONTEXT.md` and the relevant section of `docs/README.md`.
+1. Read `packages/velodom/AI_CONTEXT.md`, the package syntax/inventory, and the
+   relevant section of `docs/README.md`.
 2. Inspect the existing application structure before adding files.
 3. Keep new feature logic application-owned unless it is generic, reusable,
    and explicitly requested as a framework capability.

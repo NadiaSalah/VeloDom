@@ -5,6 +5,7 @@
  *
  * Responsibilities:
  * - Verify optional CSS build-budget behavior.
+ * - Exclude Node-only scaffolder code from browser runtime budgets.
  * - Keep the default design-system-neutral path unblocked.
  * ----------------------------------------
  */
@@ -35,6 +36,7 @@ test("performance budgets keep CSS unconstrained until an app opts in", async ()
     const defaultResult = await runBudgetCheck(root);
 
     assert.match(defaultResult.stdout, /dist total CSS: not enforced/);
+    assert.match(defaultResult.stdout, /ok package runtime JavaScript/);
 
     await assert.rejects(
       runBudgetCheck(root, { VELODOM_CSS_BUDGET_KB: "1" }),
@@ -58,12 +60,18 @@ test("performance budgets keep CSS unconstrained until an app opts in", async ()
 async function createBuildFixture(root) {
   const assets = join(root, "examples", "velodom-blog", "dist", "assets");
   const packageLib = join(root, "packages", "velodom", "lib");
+  const scaffolderLib = join(packageLib, "scaffolder");
 
   await mkdir(assets, { recursive: true });
   await mkdir(packageLib, { recursive: true });
+  await mkdir(scaffolderLib, { recursive: true });
   await writeFile(join(assets, "app.js"), "export {};\n");
   await writeFile(join(assets, "app.css"), "a".repeat(2 * 1024));
   await writeFile(join(packageLib, "index.js"), "export {};\n");
+  await writeFile(
+    join(scaffolderLib, "index.js"),
+    `// Node-only fixture\n${"a".repeat(500 * 1024)}`
+  );
 }
 
 async function runBudgetCheck(cwd, environment = {}) {

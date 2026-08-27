@@ -16,6 +16,7 @@ import {
   readFile,
   readdir,
   rm,
+  symlink,
   writeFile
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -174,8 +175,120 @@ try {
     );
   }
 
+  const installedPackageRoot = join(
+    consumerRoot,
+    "node_modules",
+    "velodom"
+  );
+
+  for (const file of [
+    "AI_CONTEXT.md",
+    "docs/QUICK_START.md",
+    "docs/SYNTAX_REFERENCE.md",
+    "docs/FEATURE_INVENTORY.md",
+    "docs/AI_GUIDE.md",
+    "templates/default/AGENTS.md"
+  ]) {
+    await access(join(installedPackageRoot, file));
+  }
+
+  const starterCases = [
+    {
+      args: ["--template", "minimal", "--typescript", "--tailwind"],
+      name: "minimal-typescript-tailwind",
+      typecheck: true
+    },
+    {
+      args: ["--template", "blog", "--javascript", "--test-unit"],
+      name: "blog-javascript",
+      testUnit: true
+    },
+    {
+      args: ["--template", "empty", "--typescript"],
+      name: "empty-typescript",
+      typecheck: true
+    },
+    {
+      args: [
+        "--template", "blog", "--typescript", "--tailwind", "--i18n",
+        "--test-all"
+      ],
+      expectedFiles: [
+        "src/i18n.ts",
+        "src/pages/localization/index.html",
+        "tests/e2e/home.spec.ts",
+        "tests/unit/project.test.js",
+        "playwright.config.js"
+      ],
+      name: "blog-typescript-full",
+      testUnit: true,
+      typecheck: true
+    }
+  ];
+
+  for (const starterCase of starterCases) {
+    const starterRoot = join(temporaryRoot, starterCase.name);
+
+    await run(process.execPath, [
+      join(installedPackageRoot, "bin", "create-velodom.js"),
+      starterCase.name,
+      ...starterCase.args,
+      "--no-eslint",
+      "--no-prettier",
+      "--no-install",
+      "--no-git"
+    ], {
+      cwd: temporaryRoot
+    });
+
+    const starterSource = await readProjectText(starterRoot);
+
+    for (const forbidden of [
+      "workspace:",
+      "../../packages/velodom",
+      "packages/velodom/src",
+      "velodom/lib/"
+    ]) {
+      if (starterSource.includes(forbidden)) {
+        throw new Error(
+          `${starterCase.name} contains forbidden reference: ${forbidden}`
+        );
+      }
+    }
+
+    for (const file of starterCase.expectedFiles || []) {
+      await access(join(starterRoot, file));
+    }
+
+    await linkStarterDependencies(starterRoot, installedPackageRoot);
+
+    if (starterCase.typecheck) {
+      await run(process.execPath, [
+        join(workspaceRoot, "node_modules", "typescript", "bin", "tsc"),
+        "--noEmit",
+        "--project",
+        join(starterRoot, "tsconfig.json")
+      ], { cwd: starterRoot });
+    }
+
+    if (starterCase.testUnit) {
+      await run(process.execPath, [
+        "--test",
+        join(starterRoot, "tests", "unit", "project.test.js")
+      ], { cwd: starterRoot });
+    }
+
+    await run(process.execPath, [
+      join(workspaceRoot, "node_modules", "vite", "bin", "vite.js"),
+      "build"
+    ], {
+      cwd: starterRoot
+    });
+    await access(join(starterRoot, "dist", "index.html"));
+  }
+
   console.log(
-    "Installed VeloDom package consumer check passed."
+    "Installed package and generated starter consumer checks passed."
   );
 } finally {
   if (process.env.VELODOM_KEEP_CONSUMER !== "1") {
@@ -189,6 +302,36 @@ try {
   }
 }
 
+async function linkStarterDependencies(starterRoot, installedPackageRoot) {
+  const starterModules = join(starterRoot, "node_modules");
+  const linkType = process.platform === "win32" ? "junction" : "dir";
+
+  await mkdir(starterModules, { recursive: true });
+  for (const name of ["velodom", "vite", "typescript", "tailwindcss"]) {
+    const source = name === "velodom"
+      ? installedPackageRoot
+      : join(workspaceRoot, "node_modules", name);
+
+    try {
+      await access(source);
+      if (name === "velodom") {
+        await cp(source, join(starterModules, name), { recursive: true });
+      } else {
+        await symlink(source, join(starterModules, name), linkType);
+      }
+    } catch (error) {
+      if (error?.code !== "ENOENT") throw error;
+    }
+  }
+
+  for (const scope of ["@playwright", "@tailwindcss", "@types"]) {
+    const source = join(workspaceRoot, "node_modules", scope);
+
+    await access(source);
+    await symlink(source, join(starterModules, scope), linkType);
+  }
+}
+
 async function readJavaScriptAssets(directory) {
   const entries = await readdir(directory, {
     withFileTypes: true
@@ -198,6 +341,25 @@ async function readJavaScriptAssets(directory) {
       .filter(entry => entry.isFile() && entry.name.endsWith(".js"))
       .map(entry => readFile(join(directory, entry.name), "utf8"))
   );
+
+  return sources.join("\n");
+}
+
+async function readProjectText(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const sources = await Promise.all(entries.map(async entry => {
+    const path = join(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      return entry.name === "node_modules" ? "" : readProjectText(path);
+    }
+
+    if (!entry.isFile() || !/\.(?:html|js|json|md|ts|vd|css)$/.test(entry.name)) {
+      return "";
+    }
+
+    return readFile(path, "utf8");
+  }));
 
   return sources.join("\n");
 }

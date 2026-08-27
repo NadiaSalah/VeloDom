@@ -10,14 +10,17 @@ VeloDom follows Semantic Versioning for the public package entry points:
 - `velodom/localization`
 - `velodom/node`
 - `velodom/testing`
+- `velodom/cli`
+- `velodom/scaffolder`
 - `velodom/vite`
 - `velodom/vite-plugin`
 
 ## Version Rules
 
-Current repository package identity: published `1.0.0`. The package is
-available at [npmjs.com/package/velodom](https://www.npmjs.com/package/velodom)
-with the `latest` dist-tag.
+Current repository package identity: `1.0.0`. The manifest declares
+`publishConfig.access = public`, but repository state does not prove registry
+availability. Verify the [npm package page](https://www.npmjs.com/package/velodom)
+and dist-tags immediately before and after any approved publication.
 
 While VeloDom is below `1.0.0`:
 
@@ -35,9 +38,11 @@ After `1.0.0`:
 Internal files that are not reachable through
 `packages/velodom/package.json#exports` are not
 public API. Tests, source configuration, and showcase assets must never be
-included in the npm tarball. The source-controlled `velodomProj/` beginner
-starter is the only intentional application-source exception and must remain
-explicitly allowlisted and package-tested.
+included in the npm tarball. The source-controlled `templates/default/` common
+files and `templates/starters/` overlays are intentional application-source
+exceptions and must remain explicitly allowlisted and package-tested. Consumer-facing AI
+references under `docs/` and `AI_CONTEXT.md` are also intentional package
+content; repository audits and release history remain excluded.
 
 ## Release Checklist
 
@@ -75,6 +80,7 @@ Run these commands from a clean working tree:
 npm test
 npm run check
 npm run package:check
+npm run create-package:check
 npm run build
 npm run pack:check
 npm run test:browser
@@ -109,19 +115,22 @@ The checks must confirm:
   - `velodom/assets`
   - `velodom/compiler`
   - `velodom/content`
+  - `velodom/cli`
   - `velodom/devtools`
   - `velodom/localization`
   - `velodom/node`
+  - `velodom/scaffolder`
   - `velodom/testing`
   - `velodom/vite`
   - `velodom/vite-plugin`
   - `velodom/package.json`
 - Confirm workspace applications, tests, source config, and local build
   scaffolding are not included in the npm tarball; only the explicit
-  `velodomProj/` starter exception may contain application files.
+  composable `templates/` inputs may contain application files.
 - Confirm the package tarball contains its focused `README.md`, `LICENSE`,
-  `bin`, `lib`, `types`, and verified `velodomProj`, but excludes workspace
-  examples and framework TypeScript source.
+  `AI_CONTEXT.md`, consumer `docs`, `bin`, `lib`, `types`, and verified
+  `templates/default` plus `templates/starters`, but excludes workspace examples, internal audits, and
+  framework TypeScript source.
 - Record the final dry-run tarball file count and compressed/unpacked sizes so
   unexpected growth is visible during release review.
 - Confirm public API freeze tests pass before changing any export names.
@@ -159,10 +168,10 @@ VeloDom does not ship browser polyfills by default.
 
 ## Current Release Decision
 
-VeloDom `1.0.0` is published and verified in the npm registry. The package
-manifest, public exports, CLI binaries, tarball allowlist, consumer fixture,
-production build, and GitHub Actions browser matrix were checked before and
-after publication.
+VeloDom source is prepared as `1.0.0`. The package manifest, public exports,
+CLI binaries, tarball allowlist, consumer fixture, generated starter,
+production build, and GitHub Actions browser matrix are release gates. Passing
+them prepares a release; it does not prove or perform registry publication.
 
 ### Publication Policy
 
@@ -173,5 +182,9 @@ after publication.
 
 ## Current Publication Blockers
 
-- None for V1 `1.0.0`. Additional starter variants and future capabilities
-  remain roadmap work; the default starter is maintained by `create-velodom`.
+- Complete the final package/tarball/browser gates for the exact release
+  commit and verify registry name/version availability.
+- Obtain explicit owner approval for the exact publish/tag command.
+- Publish and verify `velodom` before `create-velodom`, because the wrapper's
+  dependency must already resolve. Then smoke-test `npm create velodom@latest`
+  from a clean directory. Never infer success from workspace linking.

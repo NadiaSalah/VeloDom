@@ -14,21 +14,21 @@ product generations.
 | Authoring and application conventions | V1 — Implemented | Folder mode, optional `.vd`, JS/TS parity, layouts, CLI scaffolding |
 | Production features | V1 — Implemented | Routing, requests, forms, SEO, content, localization, package subpaths |
 | Developer intelligence | V1 — Implemented | `vd` inspection commands, compiler language helpers, testing utilities |
-| Public package | V1 — Implemented | Published `velodom@1.0.0`, exports and consumer checks pass |
+| Public package source | V1 — Implemented | `velodom@1.0.0` manifest, exports, package docs, starter, and consumer checks |
 | Browser release gate | V1 — Implemented | GitHub Actions Run #27 passed Chromium, Firefox, WebKit, and Mobile WebKit |
-| npm publication | V1 — Implemented | `velodom@1.0.0` published with public access and `latest` dist-tag |
+| npm registry state | External verification | Verify package/version/dist-tags immediately before any release claim or action |
 | Hybrid rendering and islands | V1 — Planned / Experimental | Design must preserve static-first authoring and optional runtime cost |
 | AI, migration, CMS, and Edge integrations | V1 — Research / Deferred | External, optional, and never required by Core |
 
 ### Progress counter
 
-**V1 implementation: complete. Release readiness: complete.**
+**V1 implementation: complete. Local scaffolder/package gates: complete.**
 
 `[####################] 100%`
 
-The npm account is authenticated and protected by write-level 2FA. The
-`velodom@1.0.0` package is published with the `latest` dist-tag. Future work
-is optional post-publication development.
+Registry authentication, package availability, and dist-tags are external
+state and must be checked at release time. Repository tests never publish or
+prove registry state. Future framework work remains optional development.
 
 ### Status vocabulary
 
@@ -78,7 +78,7 @@ is optional post-publication development.
   declarations, aliases, route listing, and package-consumer setup.
 - [x] Beginner-safe HTML examples that do not require JSX, TSX, render
   functions, or a global store.
-- [x] Added root AI/contributor guidance plus `docs/AI_CONTEXT.md`, a concise
+- [x] Added root AI/contributor guidance plus `packages/velodom/AI_CONTEXT.md`, a concise
   generation contract that explains Core/application ownership, supported
   syntax, boundaries, and verification.
 - [x] Added `examples/velodom-blog/README.md` so the showcase is an explicit consumer
@@ -121,8 +121,15 @@ application browser runtime weight:
 - [x] `vd docs` for generated route/component/API/state/event/ref documentation.
 - [x] `vd types` for readable application-owned route/component declarations.
 - [x] `vd init`, `vd create`, and `create-velodom` for convention-first project,
-  page, component, API, middleware, plugin, and focused demo scaffolding. The
-  package also exposes `npx velodom@latest <name>` as the shortest starter flow.
+  page, component, API, middleware, plugin, and focused demo scaffolding.
+- [x] Unified feature-based project creation with Minimal, Blog, and Empty;
+  Recommended/Customize; JS/TS; CSS/Tailwind; optional ESLint, Prettier,
+  route examples, i18n, tests, Git, install, server start, and scriptable flags.
+- [x] Added a separate Node-only `create-velodom` npm-create wrapper while
+  keeping `vd create`, `vd init`, and package binaries on one scaffolder core.
+- [x] Verified a real Recommended dependency install and its ESLint, Prettier,
+  TypeScript, and production-build commands; added isolated package cases for
+  all three starters and the combined TS/Tailwind/i18n/Unit/E2E configuration.
 - [x] Compiler-backed editor analysis/completion and the optional private
   `packages/velodom-vscode` workspace consumer.
 - [x] `velodom/testing`, devtools bridge/inspector, and real-browser Playwright
@@ -188,6 +195,8 @@ velodom/devtools
 velodom/vite
 velodom/vite-plugin
 velodom/testing
+velodom/cli
+velodom/scaffolder
 velodom/package.json
 ```
 
@@ -202,25 +211,25 @@ Current release work is governance rather than a new framework feature:
   currently published, the package is public-scoped in `publishConfig`, and
   the `1.0.0` tarball dry run passes. npm does not reserve an unregistered
   name; publication itself is the ownership event.
-- [x] Remove `private: true` after explicit approval and publish `velodom@1.0.0`
-  with public access and the `latest` dist-tag. Registry verification confirms
-  the published version and both CLI binaries.
+- [x] Remove `private: true` after explicit approval and configure the package
+  for public publication. Historical publication events remain in the
+  changelog; current registry availability must be verified externally.
 - [x] Review registry dependency advisories after owner approval. `npm audit`
   now reports 0 vulnerabilities; the lockfile updates `brace-expansion` to
   5.0.9, `nanoid` to 3.3.18, and `postcss` to 8.5.26 and passes `npm ci
   --dry-run` under the npm 10.9.2 toolchain used by GitHub Actions. Optional
   `@emnapi/core` and `@emnapi/runtime` entries are retained for npm 10's clean
   install resolution.
-- [x] Add the published default starter preset through
-  `npx --yes --package velodom create-velodom <name>`. It generates a Vite
-  application with `mountVeloDom()`, the supplied SVG brand/favicon, a shared
-  layout/navbar, `/about` single-file lesson, `/guide` component lesson,
-  `ignoreDeprecations: "6.0"`, and public package dependencies.
-  The package tarball also includes the source-controlled editable
-  `velodomProj/` default example. Additional opinionated presets remain
-  optional research.
-- [x] Publish the starter-page and CLI-alias refinement as patch release
-  `velodom@1.0.1` after explicit owner approval.
+- [x] Replace the published default copier with a composable starter engine.
+  Common files, three focused starter overlays, and optional feature installers
+  now generate only selected dependencies/configuration while keeping the full
+  documentation blog outside the tarball.
+- [ ] Publish `create-velodom` only after the matching `velodom` artifact is
+  owner-approved and available, then registry-smoke-test
+  `npm create velodom@latest` from a clean directory.
+- [x] Consolidate the refreshed official starter, package-local AI docs, and
+  installed-consumer validation under the `1.0.0` source contract. Publication
+  or tag changes remain separate owner-authorized actions.
 
 ## V1 Advanced Capabilities — Planned / Experimental
 

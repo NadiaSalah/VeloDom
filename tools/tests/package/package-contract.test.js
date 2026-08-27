@@ -23,6 +23,16 @@ const editorManifest = JSON.parse(
     "utf8"
   )
 );
+const createManifest = JSON.parse(
+  await readFile(
+    new URL("../../../packages/create-velodom/package.json", import.meta.url),
+    "utf8"
+  )
+);
+const createBinary = await readFile(
+  new URL("../../../packages/create-velodom/bin/create-velodom.js", import.meta.url),
+  "utf8"
+);
 const blogViteConfig = await readFile(
   new URL("../../../examples/velodom-blog/vite.config.js", import.meta.url),
   "utf8"
@@ -34,7 +44,9 @@ test("published package boundaries use built allowlisted artifacts", () => {
     "./assets",
     "./compiler",
     "./content",
+    "./cli",
     "./devtools",
+    "./scaffolder",
     "./testing",
     "./vite",
     "./vite-plugin"
@@ -61,10 +73,12 @@ test("published package boundaries use built allowlisted artifacts", () => {
     "velodom": "./bin/velodom.js"
   });
   assert.deepEqual(manifest.files, [
+    "AI_CONTEXT.md",
     "bin",
+    "docs",
     "lib",
+    "templates",
     "types",
-    "velodomProj",
     "README.md",
     "LICENSE"
   ]);
@@ -80,8 +94,20 @@ test("published package boundaries use built allowlisted artifacts", () => {
   });
 });
 
+test("npm-create wrapper delegates to the shared Node-only CLI", () => {
+  assert.equal(createManifest.name, "create-velodom");
+  assert.equal(createManifest.private ?? false, false);
+  assert.deepEqual(createManifest.bin, {
+    "create-velodom": "./bin/create-velodom.js"
+  });
+  assert.equal(createManifest.dependencies.velodom, `^${manifest.version}`);
+  assert.match(createBinary, /from "velodom\/cli"/);
+  assert.doesNotMatch(createBinary, /copy|template|node:fs|node:child_process/i);
+});
+
 test("workspace keeps consumers behind public package imports", () => {
   assert.deepEqual(workspaceManifest.workspaces, [
+    "packages/create-velodom",
     "packages/velodom",
     "packages/velodom-vscode",
     "examples/velodom-blog"

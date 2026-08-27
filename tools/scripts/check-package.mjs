@@ -68,6 +68,14 @@ const expectedExports = {
   "./testing": [
     "./lib/testing.js",
     "./types/testing.d.ts"
+  ],
+  "./cli": [
+    "./lib/cli.js",
+    "./types/cli.d.ts"
+  ],
+  "./scaffolder": [
+    "./lib/scaffolder/index.js",
+    "./types/scaffolder/index.d.ts"
   ]
 };
 const expectedExportNames = new Set([
@@ -75,12 +83,14 @@ const expectedExportNames = new Set([
   "./package.json"
 ]);
 const allowedPackageFiles = new Set([
+  "AI_CONTEXT.md",
   "LICENSE",
   "README.md",
   "bin",
+  "docs",
   "lib",
-  "types",
-  "velodomProj"
+  "templates",
+  "types"
 ]);
 const requiredKeywords = new Set([
   "frontend-framework",
@@ -174,23 +184,38 @@ for (const required of allowedPackageFiles) {
 }
 
 const requiredExampleFiles = [
-  "package.json",
-  "README.md",
-  "index.html",
-  "jsconfig.json",
-  "vite.config.js",
-  "public/velodom-favicon.svg",
-  "src/main.js",
-  "src/layouts/default.vd",
-  "src/pages/about.vd",
-  "src/pages/guide/index.html"
+  "AGENTS.md",
+  "_gitignore",
+  "public/velodom-favicon.svg"
 ];
 
 for (const file of requiredExampleFiles) {
   try {
-    await access(join(packageRoot, "velodomProj", file));
+    await access(join(packageRoot, "templates", "default", file));
   } catch {
-    violations.push(`editable package example is missing "velodomProj/${file}"`);
+    violations.push(`default starter is missing "templates/default/${file}"`);
+  }
+}
+
+for (const starter of ["minimal", "blog", "empty"]) {
+  try {
+    await access(join(packageRoot, "templates", "starters", starter, "src", "pages", "home", "index.html"));
+  } catch {
+    violations.push(`composable starter is missing "templates/starters/${starter}"`);
+  }
+}
+
+for (const file of [
+  "AI_CONTEXT.md",
+  "docs/QUICK_START.md",
+  "docs/SYNTAX_REFERENCE.md",
+  "docs/FEATURE_INVENTORY.md",
+  "docs/AI_GUIDE.md"
+]) {
+  try {
+    await access(join(packageRoot, file));
+  } catch {
+    violations.push(`consumer documentation is missing "${file}"`);
   }
 }
 

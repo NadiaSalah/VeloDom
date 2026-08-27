@@ -3,9 +3,8 @@ import { runVeloDomCli } from "../lib/cli.js";
 
 const args = process.argv.slice(2);
 
-if (args.length === 0) {
-  process.stderr.write("Usage: npx velodom@latest <project-name>\n");
-  process.exitCode = 1;
+if (args[0] === "--version" || args[0] === "-v") {
+  process.exitCode = await runVeloDomCli(["--version"]);
 } else if (args[0] === "--help" || args[0] === "-h") {
   process.exitCode = await runVeloDomCli(["help"]);
 } else {

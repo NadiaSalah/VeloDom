@@ -1,0 +1,269 @@
+/**
+ * ----------------------------------------
+ * Module: Project Creation Pipeline
+ * ----------------------------------------
+ *
+ * Copies one starter, composes optional feature installers, generates package
+ * metadata, and optionally runs Git, dependency installation, and Vite.
+ * ----------------------------------------
+ */
+
+import { spawn } from "node:child_process";
+import {
+  cp,
+  mkdir,
+  readdir,
+  readFile,
+  rename,
+  rm,
+  writeFile
+} from "node:fs/promises";
+import { dirname, join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
+import { installApplicationFeatures } from "./features/application-files.ts";
+import { writeProjectConfiguration } from "./features/package-files.ts";
+import {
+  formatPackageScript,
+  installDependencies,
+  startDevelopmentServer
+} from "./package-manager.ts";
+import { resolveScaffoldPlan } from "./options.ts";
+import type {
+  ScaffoldPlan,
+  ScaffoldRequest,
+  ScaffoldResult
+} from "./types.ts";
+
+/** Creates a standalone VeloDom application from one resolved CLI request. */
+export async function createVeloDomProject(
+  request: ScaffoldRequest
+): Promise<ScaffoldResult> {
+  const plan = await resolveScaffoldPlan(request);
+  const destinationState = await inspectDestination(plan.destination);
+  let generated = false;
+
+  try {
+    if (!destinationState.exists) {
+      await mkdir(plan.destination, { recursive: true });
+      generated = true;
+    }
+
+    await copyStarter(plan);
+    await normalizeTemplateDotfiles(plan.destination);
+    await removeGeneratedMetadata(plan.destination);
+    const version = await readFrameworkVersion();
+    await installApplicationFeatures(plan);
+    await writeProjectConfiguration(plan, version);
+    await writeProjectReadme(plan);
+
+    if (plan.git) {
+      const initialized = await initializeGit(plan.destination);
+      if (!initialized) {
+        request.context.stdout("! Git was not available; project creation continued.");
+      }
+    }
+  } catch (error) {
+    if (generated) {
+      await rm(plan.destination, { recursive: true, force: true });
+    }
+    throw error;
+  }
+
+  request.context.stdout(`✓ Created VeloDom project in ${displayPath(request.context.cwd, plan.destination)}`);
+  let dependenciesInstalled = false;
+
+  if (plan.install) {
+    try {
+      await installDependencies(plan.destination, plan.packageManager);
+      dependenciesInstalled = true;
+      request.context.stdout("✓ Dependencies installed");
+    } catch (error) {
+      request.context.stderr(
+        `Dependency installation failed; the generated project was kept. ${errorMessage(error)}`
+      );
+      printNextSteps(request, plan, false);
+      throw error;
+    }
+  }
+
+  printEnabledFeatures(request, plan);
+
+  if (plan.start && dependenciesInstalled) {
+    request.context.stdout("Starting the VeloDom development server…");
+    await startDevelopmentServer(plan.destination, plan.packageManager);
+    return {
+      createdDirectory: plan.destination,
+      dependenciesInstalled,
+      devServerStarted: true,
+      plan
+    };
+  }
+
+  printNextSteps(request, plan, dependenciesInstalled);
+  return {
+    createdDirectory: plan.destination,
+    dependenciesInstalled,
+    devServerStarted: false,
+    plan
+  };
+}
+
+async function copyStarter(plan: ScaffoldPlan) {
+  await cp(templateDirectory("default"), plan.destination, {
+    recursive: true,
+    force: true
+  });
+  await cp(templateDirectory(`starters/${plan.starter}`), plan.destination, {
+    recursive: true,
+    force: true
+  });
+}
+
+async function inspectDestination(destination: string) {
+  const entries = await readdir(destination).catch(error => {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw error;
+  });
+
+  if (entries?.length) {
+    throw new Error(`Refusing to create a project in non-empty folder "${destination}".`);
+  }
+
+  return { exists: entries !== null };
+}
+
+async function normalizeTemplateDotfiles(destination: string) {
+  const source = join(destination, "_gitignore");
+  const target = join(destination, ".gitignore");
+  const exists = await readFile(source, "utf8").catch(error => {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw error;
+  });
+
+  if (exists !== null) await rename(source, target);
+}
+
+async function removeGeneratedMetadata(destination: string) {
+  await Promise.all([
+    "package-lock.json",
+    "package.json",
+    "jsconfig.json",
+    "tsconfig.json",
+    "vite.config.js",
+    "vite.config.ts"
+  ].map(file => rm(join(destination, file), { force: true })));
+}
+
+async function readFrameworkVersion() {
+  const manifest = JSON.parse(await readFile(
+    fileURLToPath(new URL("../../package.json", import.meta.url)),
+    "utf8"
+  )) as { version?: string };
+
+  if (!manifest.version) throw new Error("VeloDom package version is missing.");
+  return manifest.version;
+}
+
+async function initializeGit(cwd: string) {
+  return new Promise<boolean>(resolvePromise => {
+    const child = spawn("git", ["init"], {
+      cwd,
+      shell: false,
+      stdio: "ignore"
+    });
+
+    child.once("error", () => resolvePromise(false));
+    child.once("exit", code => resolvePromise(code === 0));
+  });
+}
+
+async function writeProjectReadme(plan: ScaffoldPlan) {
+  const extension = plan.language === "typescript" ? "ts" : "js";
+  const enabled = [
+    plan.tailwind ? "Tailwind CSS" : "Plain CSS",
+    plan.eslint ? "ESLint" : null,
+    plan.prettier ? "Prettier" : null,
+    plan.router ? "route examples" : null,
+    plan.i18n ? "English/Arabic localization" : null,
+    plan.testing !== "none" ? `${plan.testing} testing` : null
+  ].filter(Boolean).join(", ");
+
+  await writeText(join(plan.destination, "README.md"), `# ${plan.projectName}
+
+Generated with VeloDom's **${plan.starter}** starter using ${plan.language}.
+
+## Run
+
+\`\`\`bash
+${plan.packageManager} install
+${formatPackageScript(plan.packageManager, "dev")}
+\`\`\`
+
+## Included
+
+${enabled || "Only the minimum VeloDom application files."}
+
+## Start editing
+
+- Bootstrap: \`src/main.${extension}\`
+- Pages: \`src/pages/\`
+- Components: \`src/components/\` when the starter needs them
+- Global styles: \`src/style.css\`
+
+VeloDom discovers pages and components from folders. Keep application logic here
+and import framework capabilities only from public \`velodom/*\` entry points.
+
+Package-local AI guidance is available after installation at
+\`node_modules/velodom/AI_CONTEXT.md\`.
+`);
+}
+
+function printEnabledFeatures(request: ScaffoldRequest, plan: ScaffoldPlan) {
+  const features = [
+    plan.eslint ? "ESLint configured" : null,
+    plan.prettier ? "Prettier configured" : null,
+    plan.tailwind ? "Tailwind CSS configured" : null,
+    plan.router ? "VeloDom route examples configured" : null,
+    plan.i18n ? "English/Arabic localization configured" : null,
+    plan.testing !== "none" ? `${plan.testing} testing configured` : null,
+    plan.git ? "Git initialized" : null
+  ].filter((feature): feature is string => feature !== null);
+
+  features.forEach(feature => request.context.stdout(`✓ ${feature}`));
+}
+
+function printNextSteps(
+  request: ScaffoldRequest,
+  plan: ScaffoldPlan,
+  installed: boolean
+) {
+  const relativeDirectory = displayPath(request.context.cwd, plan.destination);
+  const steps = [
+    `  cd ${quotePath(relativeDirectory)}`,
+    ...(!installed ? [`  ${plan.packageManager} install`] : []),
+    `  ${formatPackageScript(plan.packageManager, "dev")}`
+  ];
+
+  request.context.stdout(`\nNext steps:\n\n${steps.join("\n")}\n\nHappy building with VeloDom ⚡`);
+}
+
+function templateDirectory(name: string) {
+  return fileURLToPath(new URL(`../../templates/${name}/`, import.meta.url));
+}
+
+function displayPath(cwd: string, destination: string) {
+  return relative(cwd, destination).replaceAll("\\", "/") || ".";
+}
+
+function quotePath(path: string) {
+  return /\s/.test(path) ? JSON.stringify(path) : path;
+}
+
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
+}
+
+async function writeText(file: string, source: string) {
+  await mkdir(dirname(file), { recursive: true });
+  await writeFile(file, source);
+}

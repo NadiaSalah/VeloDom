@@ -169,7 +169,8 @@ function largestGzipBytes(stats) {
 
 function isPackageToolingModule(file) {
   return /[/\\]testing\.js$/.test(file)
-    || /[/\\]cli(?:\.js|[/\\])/.test(file);
+    || /[/\\]cli(?:\.js|[/\\])/.test(file)
+    || /[/\\]scaffolder[/\\]/.test(file);
 }
 
 function printChecks() {

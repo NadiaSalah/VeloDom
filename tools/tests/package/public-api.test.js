@@ -297,12 +297,14 @@ test("package subpath exports are frozen", () => {
   assert.deepEqual(Object.keys(manifest.exports).sort(), [
     ".",
     "./assets",
+    "./cli",
     "./compiler",
     "./content",
     "./devtools",
     "./localization",
     "./node",
     "./package.json",
+    "./scaffolder",
     "./testing",
     "./vite",
     "./vite-plugin"
