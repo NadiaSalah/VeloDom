@@ -149,6 +149,9 @@ release commit is verified, approved, tagged, and published deliberately.
   dated workflow runs, and a nonexistent publishable-package `private` guard.
 - Added a documentation consistency rule that rejects known stale pre-release
   publication claims in maintained current-state guides.
+- Audited Markdown references after the showcase rename and standardized the
+  consumer path as `examples/velodom-blog`; the documentation audit now rejects
+  the obsolete pre-rename path.
 - Replaced the one-size starter copier with a shared, feature-based scaffolder
   used by `create-velodom`, `velodom`, `vd init`, and `vd create`.
 - Added Minimal, Blog, and Empty starter layers without creating a template

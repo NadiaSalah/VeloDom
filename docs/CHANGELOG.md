@@ -74,6 +74,9 @@ or claim that a matching package is available from a registry.
 - Documented the HTML-first authoring model, folder and `.vd` conventions,
   public imports, routing, requests, middleware, auth, SEO, localization, RTL,
   testing, scaffolding, and explicit non-goals.
+- Standardized the showcase documentation path as `examples/velodom-blog` and
+  added an audit that rejects the obsolete pre-rename path in maintained
+  current-state guides.
 
 ### Tooling
 

@@ -345,7 +345,8 @@ visible in `init()`.
 ## First Page Walkthrough
 
 For this repository workspace, these commands build the local `velodom`
-package and run the independent blog example:
+package and run the independent VeloDom documentation application at
+`examples/velodom-blog`:
 
 ```bash
 npm install
@@ -690,8 +691,9 @@ Ownership rule:
   `packages/velodom/src` and is packaged only as built `lib` plus `types`.
 - Business pages, components, route handlers, and custom middleware stay in
   the consuming application's `src/pages`, `src/components`, and `src/api`.
-- The blog is a real workspace consumer under `examples/velodom-blog`; it does not
-  import framework source or carry a private copy of Core.
+- The documentation application is a real workspace consumer under
+  `examples/velodom-blog`; it does not import framework source or carry a
+  private copy of Core.
 - `tools/test-fixtures/package-consumer` verifies the packed npm artifact; it is not
   an application example or an artifact file.
 - `packages/velodom-vscode` is an optional editor integration with its own
@@ -731,7 +733,7 @@ Inside application code, imports can use whichever style is clearest:
 // Portable relative import; needs no alias configuration.
 import { listArticles } from "../../api/posts.js";
 
-// Short Vite/editor alias configured by the starter and blog example.
+// Short Vite/editor alias configured by the starter and documentation application.
 import { listArticles } from "@/api/posts.js";
 
 // Standards-based package import alias declared in package.json#imports.
@@ -4825,8 +4827,8 @@ or universal SSR runtime.
 When continuing development:
 
 1. Keep generic framework logic under `packages/velodom/src`.
-2. Keep the blog example under `examples/velodom-blog/src`; client projects own their
-   own `src/pages`, `src/components`, and `src/api`.
+2. Keep the documentation application under `examples/velodom-blog/src`; client
+   projects own their own `src/pages`, `src/components`, and `src/api`.
 3. Update README, TODO, CHANGELOG, and NOTES after significant work.
 4. Add a regression test for every Core bug or behavior change.
 5. Run `npm test` and `npm run build` before committing important changes.
