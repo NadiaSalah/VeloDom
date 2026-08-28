@@ -12,6 +12,33 @@
 import { VD_DEVTOOLS } from "./constants.ts";
 import type { DevtoolsBridge } from "./types.ts";
 
+/** Full optional local Lab interface. */
+export {
+  mountVeloDomLab
+} from "./devtools/lab.ts";
+
+/** Current version of the internal development-tools message contract. */
+export {
+  VELODOM_DEVTOOLS_PROTOCOL_VERSION
+} from "./devtools/protocol.ts";
+
+/** Public types used by optional Lab hosts and future adapters. */
+export type {
+  DevtoolsBindingSnapshot,
+  DevtoolsCompilerRecord,
+  DevtoolsEventRecord,
+  DevtoolsEventType,
+  DevtoolsRouteSnapshot,
+  DevtoolsScopeSnapshot,
+  DevtoolsSerializedValue
+} from "./devtools/protocol.ts";
+
+/** Public options and handle for mounting the full Lab interface. */
+export type {
+  VeloDomLabHandle,
+  VeloDomLabOptions
+} from "./devtools/lab.ts";
+
 /** Options for mounting the standalone, opt-in browser inspector. */
 export interface DevtoolsInspectorOptions {
   /** Bridge global configured through createDevtoolsPlugin(). */

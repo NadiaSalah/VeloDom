@@ -201,7 +201,7 @@ marketing list.
 | `velodom/localization` | `defineLocaleDictionary`, `createLocalization`, `generateLocaleKeyDeclaration`, `createLocaleFormatter`, `inspectLocalization` |
 | `velodom/assets` | `inspectImageAsset`, `inspectImageDirectory`, `createResponsiveImageAttributes` |
 | `velodom/node` | `createNodeRequestAdapter` |
-| `velodom/devtools` | `mountDevtoolsInspector` |
+| `velodom/devtools` | `mountDevtoolsInspector`, `mountVeloDomLab`, `VELODOM_DEVTOOLS_PROTOCOL_VERSION` |
 | `velodom/vite` | `createViteAdapter`, `createViteApp`, `mountVeloDom` |
 | `velodom/vite-plugin` | `createTemplateModule`, `velodom` |
 | `velodom/testing` | `mountTestPage`, `mountTestComponent` |
@@ -461,8 +461,10 @@ VeloDom includes package binaries for local, static developer tooling:
 
 ```bash
 vd help
+vd lab --check
 vd inspect
 vd doctor
+vd explain routing
 vd stats
 vd routes
 vd graph --mermaid
@@ -506,6 +508,11 @@ folders, `.vd` files, API route registrations, middleware files, template
 directives, CSS files, refs, events, state keys, exposed names, compiler
 feature manifests, SEO configs, and test-file signals without adding any
 browser runtime behavior.
+`vd inspect routes|components|config|build` narrows that same source-derived
+report without introducing parallel analyzers. `vd explain <file|topic>` uses
+the compiler and maintained framework facts to explain a template, state,
+routing, requests, components, compiler behavior, or Lab locally; it does not
+require AI, a network request, or an API key.
 `vd doctor` adds actionable checks for compiler diagnostics, missing component
 references, broken request references, broken `$refs` usage, duplicate
 declarative `vd-state` names, unknown event handlers, unsafe dynamic
@@ -535,6 +542,12 @@ projects do nothing, while TypeScript projects may import the generated
 `VeloDomComponentPropsFor` without a runtime dependency.
 `vd benchmark` delegates to the project's `benchmark:rendering` script so
 performance checks stay repeatable and outside the browser runtime.
+
+`vd lab` starts the project's existing Vite `dev` script with the optional
+local inspector enabled. Run `vd lab --check` to validate setup without
+starting a server. The command respects the declared package manager or lock
+file, and `vd doctor` reports a configured Lab script whose Vite/dev setup is
+incomplete.
 
 ### Feature Scaffolding
 
@@ -568,7 +581,9 @@ Recommended mode selects TypeScript, plain CSS, ESLint, Prettier, Git, and
 dependency installation without adding route examples, i18n, tests, or an
 auto-started server. Customize exposes each layer. Scriptable flags include
 `--template`, `--javascript`/`--typescript`, `--css`/`--tailwind`, paired
-`--feature`/`--no-feature` switches, test modes, and `--package-manager`.
+`--feature`/`--no-feature` switches, `--lab`/`--no-lab`, test modes, and
+`--package-manager`. Selecting Lab adds only a `lab` script; selecting No adds
+no dependency, configuration, or production code.
 
 ### Focused Page Demos
 
@@ -4237,21 +4252,50 @@ original file. Completions use preferred `vd-*` names. The optional workspace
 VS Code package consumes this API, but is excluded from the browser package and
 is not required by applications.
 
-### Development inspection
+### VeloDom Lab and development inspection
 
-`createDevtoolsPlugin()` installs a read-only bridge only when explicitly
-registered. `mountDevtoolsInspector` is a separate development import and
-throws when the bridge is absent. The initial snapshot is intentionally small:
+VeloDom Lab is an experimental, optional V1 development surface built on the
+existing Vite workflow. It is not a browser extension, hosted service, AI
+requirement, or production dependency. The beginner path is:
 
-```ts
-type VeloDomDevtoolsSnapshot = {
-  sharedStateNames: string[];
-};
+```bash
+vd lab --check
+vd lab
 ```
 
-The bridge does not expose mutable internals, retain page DOM, or collect
-secrets. Future panels, route summaries, and request details remain optional
-extensions rather than a mandatory in-app panel.
+When enabled, the Vite plugin injects a development-only bootstrap and a
+local, read-only compiler-metadata endpoint. `mountVeloDom()` then installs
+the same explicit bridge produced by `createDevtoolsPlugin()`. The isolated
+panel shows the active route, mounted page/component tree, bounded safe state
+snapshots, directive/DOM bindings, route/request/event/update timeline, and
+compiler diagnostics. It supports search, element highlighting, light/dark/
+system themes, keyboard focus with <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>K</kbd>,
+responsive sizing, and compiler refresh after Vite hot updates.
+
+```ts
+import {
+  mountVeloDomLab,
+  VELODOM_DEVTOOLS_PROTOCOL_VERSION
+} from "velodom/devtools";
+
+console.log(VELODOM_DEVTOOLS_PROTOCOL_VERSION);
+const lab = mountVeloDomLab({ open: true });
+// lab.close(); lab.open(); await lab.refresh(); lab.destroy();
+```
+
+Ordinary applications do not need this manual import: `vd lab` performs the
+development bootstrap. `mountDevtoolsInspector()` remains the smaller manual
+read-only view for custom hosts. The underlying protocol is versioned; event
+history is bounded; serialization limits depth, entries, and string size;
+getters are never invoked; request bodies, credentials, and response payloads
+are not collected. Only retained scope roots/bindings can be highlighted, and
+the bridge exposes no state mutation API.
+
+Production safety is enforced twice: the Vite plugin never injects Lab during
+build, and `npm run performance:check` scans emitted JavaScript for Lab
+bootstrap markers. Full visual code editing, a browser extension, source
+writing, performance flame charts, and migration UI remain deferred until
+they have bounded, tested designs.
 
 ### Static rendering and server boundary
 
@@ -4372,7 +4416,7 @@ SEO contracts, application options, and HTTP options.
 | `velodom/content` | Markdown collections and external content normalization |
 | `velodom/assets` | Node image inspection and responsive attributes |
 | `velodom/node` | explicit Node HTTP-to-Fetch request bridge |
-| `velodom/devtools` | opt-in development inspector |
+| `velodom/devtools` | opt-in inspector, Lab host, and versioned protocol constant |
 | `velodom/testing` | browser-like page/component test mounting |
 
 These paths are intentionally explicit. Files such as `page-router.ts`,
@@ -4489,6 +4533,8 @@ cookies, and ICU parsing remain application or adapter concerns.
 ### `velodom/devtools`
 
 - `mountDevtoolsInspector`
+- `mountVeloDomLab`
+- `VELODOM_DEVTOOLS_PROTOCOL_VERSION`
 
 ### `velodom/vite-plugin`
 
@@ -4799,8 +4845,8 @@ These features are not implemented and should not be described as available:
 - broader keyboard/focus UX beyond the current integration coverage
 - advanced shared-state patterns beyond the optional `createSharedState()`
   helper
-- a full browser extension/devtools panel beyond the optional bridge and
-  standalone inspector prototype
+- a browser extension, hosted/remote Lab, source-writing editor, or mutable
+  state inspector beyond the optional local read-only VeloDom Lab
 - general-purpose full-page SSG/SSR with reconciliation or hydration
 - automatic full-content API/CMS pre-rendering beyond explicit app-owned
   build-time SEO/content hooks

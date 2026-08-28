@@ -250,8 +250,10 @@ test("Node request adapter remains an explicit server-only subpath", () => {
 });
 
 test("optional devtools inspector remains an explicit subpath", () => {
-  assert.deepEqual(Object.keys(devtoolsApi), [
-    "mountDevtoolsInspector"
+  assert.deepEqual(Object.keys(devtoolsApi).sort(), [
+    "VELODOM_DEVTOOLS_PROTOCOL_VERSION",
+    "mountDevtoolsInspector",
+    "mountVeloDomLab"
   ]);
   assert.deepEqual(readInterfaceExportNames(devtoolsEntrySource), [
     "DevtoolsInspectorHandle",
@@ -274,6 +276,7 @@ test("vite adapter and plugin public exports are frozen", () => {
   ]);
   assert.deepEqual(readInterfaceExportNames(vitePluginEntrySource), [
     "TemplateModuleOptions",
+    "VeloDomLabBuildOptions",
     "VeloDomLocalizationBuildOptions",
     "VeloDomSeoBuildOptions",
     "VeloDomVitePluginOptions"

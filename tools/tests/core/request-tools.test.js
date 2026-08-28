@@ -129,11 +129,13 @@ test("devtools bridge installs only through its plugin", async () => {
 
   await manager.setup();
 
-  assert.deepEqual(window.__VD_TEST_DEVTOOLS__.inspect(), {
-    sharedStateNames: [
-      "ui"
-    ]
-  });
+  const snapshot = window.__VD_TEST_DEVTOOLS__.inspect();
+
+  assert.deepEqual(snapshot.sharedStateNames, ["ui"]);
+  assert.equal(snapshot.protocolVersion, 1);
+  assert.equal(snapshot.scopes[0].kind, "shared");
+  assert.equal(snapshot.scopes[0].name, "ui");
+  assert.equal(window.__VD_TEST_DEVTOOLS__.protocolVersion, 1);
   assert.equal(window.__VD_TEST_DEVTOOLS__.app, app);
 
   await manager.destroy();

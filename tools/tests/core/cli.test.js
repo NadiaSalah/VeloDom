@@ -308,6 +308,74 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
 
     assert.equal(benchmarkCode, 1);
     assert.match(output.join("\n"), /benchmark:rendering/);
+
+    output.length = 0;
+
+    const focusedInspectCode = await runVeloDomCli([
+      "inspect",
+      "routes",
+      "--json",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+    const focusedRoutes = JSON.parse(output.join("\n"));
+
+    assert.equal(focusedInspectCode, 0);
+    assert.deepEqual(focusedRoutes.map(route => route.path), [
+      "/about-us",
+      "/"
+    ]);
+
+    output.length = 0;
+
+    const explainCode = await runVeloDomCli([
+      "explain",
+      "src/pages/home/index.html",
+      "--json",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+    const explanation = JSON.parse(output.join("\n"));
+
+    assert.equal(explainCode, 0);
+    assert.equal(explanation.subject, "src/pages/home/index.html");
+    assert.ok(explanation.details.some(detail => detail.includes("vd-text")));
+
+    output.length = 0;
+
+    const topicCode = await runVeloDomCli([
+      "explain",
+      "routing",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+
+    assert.equal(topicCode, 0);
+    assert.match(output.join("\n"), /Same-route hashes/);
+
+    output.length = 0;
+
+    const labCheckCode = await runVeloDomCli([
+      "lab",
+      "--check",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+
+    assert.equal(labCheckCode, 0);
+    assert.match(output.join("\n"), /Lab readiness/);
   } finally {
     await removeFixture(root);
   }
@@ -380,6 +448,7 @@ test("CLI create scaffolds convention-first project resources", async () => {
       "--template",
       "minimal",
       "--javascript",
+      "--lab",
       "--no-eslint",
       "--no-prettier",
       "--no-git",
@@ -464,6 +533,7 @@ test("CLI create scaffolds convention-first project resources", async () => {
     assert.match(await readFile(join(root, "starter/jsconfig.json"), "utf8"), /"ignoreDeprecations": "6\.0"/);
     assert.match(starterViteConfig, /"@": fileURLToPath/);
     assert.equal(starterManifest.name, "starter");
+    assert.equal(starterManifest.scripts.lab, "vd lab");
     assert.equal(starterManifest.imports["#app/*"], "./src/*");
     assert.deepEqual(Object.keys(starterManifest.devDependencies), ["vite"]);
 
@@ -561,6 +631,7 @@ test("CLI composes Blog, TypeScript, Tailwind, localization, and tests", async (
       "--typescript",
       "--tailwind",
       "--i18n",
+      "--lab",
       "--test-all",
       "--no-eslint",
       "--no-prettier",
@@ -586,8 +657,11 @@ test("CLI composes Blog, TypeScript, Tailwind, localization, and tests", async (
     assert.equal(manifest.devDependencies.tailwindcss, "^4.3.0");
     assert.equal(manifest.devDependencies["@playwright/test"], "^1.61.1");
     assert.equal(manifest.devDependencies.eslint, undefined);
+    assert.equal(manifest.scripts.lab, "vd lab");
     assert.match(viteConfig, /tailwindcss\(\)/);
     assert.match(viteConfig, /localizationOptions/);
+    assert.match(await readFile(join(root, "my-blog/README.md"), "utf8"), /npm run lab/);
+    assert.match(output.join("\n"), /VeloDom Lab command configured/);
     assert.match(output.join("\n"), /Tailwind CSS configured/);
   } finally {
     await removeFixture(root);
@@ -653,6 +727,18 @@ test("CLI reports project option conflicts without stack traces", async () => {
     output.length = 0;
     assert.equal(await runVeloDomCli([
       "create",
+      "broken-lab",
+      "--lab",
+      "--no-lab",
+      "--no-install",
+      "--root",
+      root
+    ], io), 1);
+    assert.match(output.join("\n"), /Cannot use --lab and --no-lab together/);
+
+    output.length = 0;
+    assert.equal(await runVeloDomCli([
+      "create",
       "broken",
       "--template",
       "unknown",
@@ -710,6 +796,7 @@ test("CLI exposes help and version without starting project prompts", async () =
 
   assert.equal(await runVeloDomCli(["create", "--help"], io), 0);
   assert.match(output.join("\n"), /--template minimal\|blog\|empty/);
+  assert.match(output.join("\n"), /--lab \| --no-lab/);
   output.length = 0;
   assert.equal(await runVeloDomCli(["--version"], io), 0);
   assert.match(output.join("\n"), /^1\.0\.0$/);
@@ -808,6 +895,37 @@ test("CLI doctor reports static project problems", async () => {
   }
 });
 
+test("CLI doctor reports an explicitly configured but incomplete Lab setup", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-cli-lab-doctor-"));
+  const output = [];
+
+  try {
+    await writeFixtureFile(root, "package.json", JSON.stringify({
+      scripts: {
+        lab: "vd lab"
+      }
+    }));
+
+    const code = await runVeloDomCli([
+      "doctor",
+      "--json",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+    const report = JSON.parse(output.join("\n"));
+    const messages = report.issues.map(issue => issue.message).join("\n");
+
+    assert.equal(code, 1);
+    assert.match(messages, /requires a dev script/);
+    assert.match(messages, /requires a Vite config/);
+  } finally {
+    await removeFixture(root);
+  }
+});
+
 test("CLI page demos generate only the files their focused examples need", async () => {
   const root = await mkdtemp(join(tmpdir(), "velodom-cli-"));
   const output = [];
@@ -886,6 +1004,19 @@ test("CLI discovers file API routes and named middleware without registries", as
 
 async function createFixture() {
   const root = await mkdtemp(join(tmpdir(), "velodom-cli-"));
+
+  await writeFixtureFile(
+    root,
+    "package.json",
+    JSON.stringify({
+      scripts: { dev: "vite" }
+    })
+  );
+  await writeFixtureFile(
+    root,
+    "vite.config.js",
+    'import { velodom } from "velodom/vite-plugin"; export default { plugins: [velodom()] };'
+  );
 
   await writeFixtureFile(
     root,

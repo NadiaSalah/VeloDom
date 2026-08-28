@@ -5,10 +5,10 @@
  */
 
 export const homeMetrics = [
-  { label: "Public values", value: "61" },
+  { label: "Public values", value: "63" },
   { label: "Directives", value: "43" },
   { label: "Package exports", value: "13" },
-  { label: "CLI commands", value: "14" }
+  { label: "CLI commands", value: "16" }
 ];
 
 export const frameworkPrinciples = [
@@ -41,6 +41,7 @@ export const learningPath = [
   { level: "Performance", duration: "9 min", title: "Assets and lazy loading", description: "Use native image loading hints, explicit responsive variants, and compiler-selected runtime features.", href: "/features#assets" },
   { level: "Production", duration: "14 min", title: "SEO and content", description: "Generate route metadata, static content, sitemaps, content records, and locale-aware URLs.", href: "/features#production" },
   { level: "Tooling", duration: "12 min", title: "CLI and verification", description: "Inspect projects, generate types, test components, and keep package boundaries explicit.", href: "/features#tooling" },
+  { level: "Lab", duration: "10 min", title: "Optional visual inspection", description: "Inspect mounted routes, components, state, bindings, events, requests, and compiler metadata locally.", href: "/features#lab" },
   { level: "Quality", duration: "12 min", title: "Data, recovery, and safety", description: "Load public route data, create recoverable boundaries, prefetch deliberately, and act on compiler diagnostics.", href: "/features#quality" },
   { level: "Reference", duration: "20 min", title: "Complete public API", description: "See every supported package subpath, runtime value, compiler helper, and build-time integration.", href: "/reference" }
 ];

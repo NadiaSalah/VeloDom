@@ -67,6 +67,8 @@ const packageRuntimeStats = packageStats.filter(item => (
   !isPackageToolingModule(item.file)
 ));
 
+await assertDevelopmentToolsAbsent(distFiles);
+
 checkBudget(
   "dist total JavaScript",
   sumBytes(distStats),
@@ -170,7 +172,30 @@ function largestGzipBytes(stats) {
 function isPackageToolingModule(file) {
   return /[/\\]testing\.js$/.test(file)
     || /[/\\]cli(?:\.js|[/\\])/.test(file)
+    || /[/\\]devtools(?:\.js|[/\\])/.test(file)
     || /[/\\]scaffolder[/\\]/.test(file);
+}
+
+/** Fails production verification when the local Lab bootstrap was bundled. */
+async function assertDevelopmentToolsAbsent(files) {
+  const markers = [
+    "__VELODOM_LAB__",
+    "/__velodom_lab__/metadata",
+    "data-velodom-lab",
+    "velodom:lab:theme",
+    "vd-lab-toggle"
+  ];
+
+  for (const file of files) {
+    const source = await readFile(file, "utf8");
+    const marker = markers.find(value => source.includes(value));
+
+    if (marker) {
+      fail(
+        `Development-only VeloDom Lab marker ${JSON.stringify(marker)} leaked into ${path.relative(workspaceRoot, file)}.`
+      );
+    }
+  }
 }
 
 function printChecks() {

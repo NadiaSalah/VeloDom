@@ -53,6 +53,8 @@ function createManifest(plan: ScaffoldPlan, velodomVersion: string) {
     vite: "^8.1.3"
   };
 
+  if (plan.lab) scripts.lab = "vd lab";
+
   if (plan.language === "typescript") {
     scripts.typecheck = "tsc --noEmit";
     devDependencies["@types/node"] = "^26.1.0";

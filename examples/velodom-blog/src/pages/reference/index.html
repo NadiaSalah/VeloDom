@@ -23,10 +23,10 @@
         source tree.
       </p>
       <div class="mt-7 flex flex-wrap gap-2">
-        <span class="badge badge-primary badge-outline">61 public values</span>
+        <span class="badge badge-primary badge-outline">63 public values</span>
         <span class="badge badge-primary badge-outline">13 package exports</span>
         <span class="badge badge-primary badge-outline">43 preferred directives</span>
-        <span class="badge badge-primary badge-outline">14 CLI commands</span>
+        <span class="badge badge-primary badge-outline">16 CLI commands</span>
       </div>
     </header>
 
@@ -47,7 +47,7 @@
             <tr><td class="p-4"><code>velodom/node</code></td><td class="p-4">Fetch-style application response bridge</td><td class="p-4">Server only</td></tr>
             <tr><td class="p-4"><code>velodom/testing</code></td><td class="p-4">Page and component mount helpers</td><td class="p-4">Tests only</td></tr>
             <tr><td class="p-4"><code>velodom/vite-plugin</code></td><td class="p-4">Compiler integration and runtime manifests</td><td class="p-4">Build only</td></tr>
-            <tr><td class="p-4"><code>velodom/devtools</code></td><td class="p-4">Optional read-only development inspector</td><td class="p-4">Development only</td></tr>
+            <tr><td class="p-4"><code>velodom/devtools</code></td><td class="p-4">Optional read-only inspector and Lab UI</td><td class="p-4">Development only</td></tr>
             <tr><td class="p-4"><code>velodom/cli</code></td><td class="p-4">Project intelligence command runner</td><td class="p-4">Node/tooling</td></tr>
             <tr><td class="p-4"><code>velodom/scaffolder</code></td><td class="p-4">Starter and feature scaffolding API</td><td class="p-4">Node/tooling</td></tr>
             <tr><td class="p-4"><code>velodom/package.json</code></td><td class="p-4">Package metadata for compatible tooling</td><td class="p-4">Metadata only</td></tr>
@@ -228,7 +228,10 @@ export default {
       <div class="code-window">
         <div class="code-toolbar"><span>tests and boundaries</span><span>public optional subpaths</span></div>
         <pre class="code-example" vd-pre><code>import { createNodeRequestAdapter } from "velodom/node";
-import { mountDevtoolsInspector } from "velodom/devtools";
+import {
+  mountDevtoolsInspector, mountVeloDomLab,
+  VELODOM_DEVTOOLS_PROTOCOL_VERSION
+} from "velodom/devtools";
 import { mountTestComponent, mountTestPage } from "velodom/testing";
 
 const mounted = await mountTestPage(pageResource);
@@ -255,8 +258,10 @@ await mounted.destroy();</code></pre>
       <div class="code-window">
         <div class="code-toolbar"><span>terminal</span><span>vd CLI</span></div>
         <pre class="code-example" vd-pre><code>vd help
+vd lab --check
 vd inspect
 vd doctor
+vd explain src/pages/home/index.html
 vd stats
 vd routes
 vd graph --mermaid

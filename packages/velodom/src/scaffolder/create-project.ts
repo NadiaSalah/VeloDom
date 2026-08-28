@@ -192,6 +192,7 @@ async function writeProjectReadme(plan: ScaffoldPlan) {
     plan.prettier ? "Prettier" : null,
     plan.router ? "route examples" : null,
     plan.i18n ? "English/Arabic localization" : null,
+    plan.lab ? "the optional local VeloDom Lab command" : null,
     plan.testing !== "none" ? `${plan.testing} testing` : null
   ].filter(Boolean).join(", ");
 
@@ -204,6 +205,7 @@ Generated with VeloDom's **${plan.starter}** starter using ${plan.language}.
 \`\`\`bash
 ${plan.packageManager} install
 ${formatPackageScript(plan.packageManager, "dev")}
+${plan.lab ? `# Optional local inspector\n${formatPackageScript(plan.packageManager, "lab")}\n` : ""}
 \`\`\`
 
 ## Included
@@ -233,6 +235,7 @@ function printEnabledFeatures(request: ScaffoldRequest, plan: ScaffoldPlan) {
     plan.tailwind ? "Tailwind CSS configured" : null,
     plan.router ? "VeloDom route examples configured" : null,
     plan.i18n ? "English/Arabic localization configured" : null,
+    plan.lab ? "VeloDom Lab command configured" : null,
     plan.testing !== "none" ? `${plan.testing} testing configured` : null,
     plan.git ? "Git initialized" : null
   ].filter((feature): feature is string => feature !== null);

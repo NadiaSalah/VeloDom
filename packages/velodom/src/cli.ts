@@ -28,6 +28,9 @@ import {
 import { pathToFileURL } from "node:url";
 import { VD_DIRECTIVE_RUNTIME_FEATURES } from "./constants.ts";
 import { compileTemplate } from "./compiler/index.ts";
+import type {
+  CompilerDiagnostic
+} from "./compiler/types.ts";
 import { PREFERRED_DIRECTIVES } from "./shared/directives.ts";
 import {
   discoverFiles,
@@ -53,6 +56,12 @@ import type {
   FileSizeReport,
   ParsedArgs
 } from "./cli/types.ts";
+import {
+  runPackageScript
+} from "./scaffolder/package-manager.ts";
+import type {
+  ScaffoldPackageManager
+} from "./scaffolder/types.ts";
 
 interface CliOptions {
   cwd?: string;
@@ -106,6 +115,13 @@ interface DoctorIssue {
   message: string;
 }
 
+interface CliExplanation {
+  details: string[];
+  diagnostics?: CompilerDiagnostic[];
+  subject: string;
+  summary: string;
+}
+
 interface ProjectGraph {
   edges: Array<{
     from: string;
@@ -122,8 +138,11 @@ interface ProjectGraph {
 const HELP = `VeloDom CLI
 
 Usage:
+  vd lab [--check] [--debug] [--root <dir>]
   vd inspect [--json] [--root <dir>]
+  vd inspect routes|components|config|build [--json] [--root <dir>]
   vd doctor [--json] [--root <dir>]
+  vd explain <file|topic> [--json] [--root <dir>]
   vd stats [--json] [--root <dir>]
   vd routes [--json] [--root <dir>]
   vd graph [--json] [--mermaid] [--root <dir>]
@@ -152,6 +171,7 @@ Project options:
   --prettier | --no-prettier
   --router | --no-router
   --i18n | --no-i18n
+  --lab | --no-lab
   --testing | --test-unit | --test-e2e | --test-all | --no-testing
   --git | --no-git
   --install | --no-install
@@ -159,6 +179,9 @@ Project options:
   --package-manager npm|pnpm|yarn|bun
 
 Examples:
+  vd lab
+  vd explain src/pages/home/index.html
+  vd explain routing
   vd inspect
   vd stats --json
   vd create page blog/posts/[id] --ts
@@ -217,10 +240,27 @@ export async function runVeloDomCli(
         context.stdout(await readCliVersion());
         return 0;
       case "inspect":
-        await printInspection(context, parsed.flags.has("json"));
+        if (values[0] === "build") {
+          await printBuildReport(context, parsed.flags.has("json"));
+        } else {
+          await printInspection(
+            context,
+            parsed.flags.has("json"),
+            values[0]
+          );
+        }
         return 0;
+      case "lab":
+        return runLabCommand(context, parsed.flags);
       case "doctor":
         return printDoctor(context, parsed.flags.has("json"));
+      case "explain":
+        await printExplanation(
+          context,
+          values.join(" "),
+          parsed.flags.has("json")
+        );
+        return 0;
       case "stats":
         await printStats(context, parsed.flags.has("json"));
         return 0;
@@ -275,11 +315,21 @@ export async function runVeloDomCli(
 }
 
 /** Prints the inspection. */
-async function printInspection(context: CliContext, json: boolean) {
+async function printInspection(
+  context: CliContext,
+  json: boolean,
+  section = ""
+) {
   const inspection = await inspectProject(context.cwd);
+  const selected = selectInspectionSection(inspection, section);
 
   if (json) {
-    context.stdout(JSON.stringify(inspection, null, 2));
+    context.stdout(JSON.stringify(selected, null, 2));
+    return;
+  }
+
+  if (section) {
+    printSelectedInspection(context, section, selected);
     return;
   }
 
@@ -304,6 +354,360 @@ async function printInspection(context: CliContext, json: boolean) {
   printList(context, "Exposes", inspection.exposes.map(expose => (
     `${expose.owner}.${expose.name}`
   )));
+}
+
+/** Runs the existing project dev script with the optional Lab environment. */
+async function runLabCommand(
+  context: CliContext,
+  flags: Set<string>
+) {
+  const manifestSource = await readOptionalText(join(context.cwd, "package.json"));
+
+  if (!manifestSource) {
+    context.stderr("vd lab requires a package.json in the project root.");
+    return 1;
+  }
+
+  let manifest: {
+    packageManager?: string;
+    scripts?: Record<string, string>;
+  };
+
+  try {
+    manifest = JSON.parse(manifestSource);
+  } catch {
+    context.stderr("vd lab could not parse the project package.json.");
+    return 1;
+  }
+
+  const devScript = String(manifest.scripts?.dev || "").trim();
+
+  if (!devScript) {
+    context.stderr("vd lab requires a package.json dev script that starts Vite.");
+    return 1;
+  }
+
+  if (/\bvd\s+lab\b/.test(devScript)) {
+    context.stderr("The project dev script cannot call vd lab recursively.");
+    return 1;
+  }
+
+  const viteConfig = await findViteConfig(context.cwd);
+
+  if (!viteConfig) {
+    context.stderr(
+      "vd lab requires a Vite config using the VeloDom Vite plugin."
+    );
+    return 1;
+  }
+
+  if (flags.has("check")) {
+    context.stdout("VeloDom Lab readiness");
+    context.stdout("======================");
+    context.stdout("  ✓ package.json dev script found");
+    context.stdout(`  ✓ Vite config found: ${relative(context.cwd, viteConfig).replaceAll("\\", "/")}`);
+    context.stdout("  ✓ Lab remains opt-in and development-only");
+    return 0;
+  }
+
+  const packageManager = await resolveLabPackageManager(
+    context.cwd,
+    manifest.packageManager
+  );
+
+  context.stdout(
+    `Starting VeloDom Lab through ${packageManager}'s Vite dev server…`
+  );
+  await runPackageScript(context.cwd, packageManager, "dev", {
+      ...process.env,
+      VELODOM_LAB: "1",
+      VELODOM_LAB_DEBUG: flags.has("debug") ? "1" : "0"
+  });
+  return 0;
+}
+
+/** Resolves the local package manager without introducing a global preference. */
+async function resolveLabPackageManager(
+  root: string,
+  declared: string | undefined
+): Promise<ScaffoldPackageManager> {
+  const requested = declared?.split("@")[0]?.toLowerCase();
+  const supported: ScaffoldPackageManager[] = ["npm", "pnpm", "yarn", "bun"];
+
+  if (supported.includes(requested as ScaffoldPackageManager)) {
+    return requested as ScaffoldPackageManager;
+  }
+
+  const locks: Array<[string, ScaffoldPackageManager]> = [
+    ["pnpm-lock.yaml", "pnpm"],
+    ["yarn.lock", "yarn"],
+    ["bun.lock", "bun"],
+    ["bun.lockb", "bun"],
+    ["package-lock.json", "npm"]
+  ];
+
+  for (const [file, packageManager] of locks) {
+    try {
+      if ((await stat(join(root, file))).isFile()) return packageManager;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+  }
+
+  return "npm";
+}
+
+/** Prints a deterministic framework or source explanation without external AI. */
+async function printExplanation(
+  context: CliContext,
+  requested: string,
+  json: boolean
+) {
+  const subject = requested.trim();
+
+  if (!subject) {
+    throw new Error(
+      "vd explain requires a VeloDom file or topic such as state, routing, requests, components, compiler, or lab."
+    );
+  }
+
+  const file = await resolveExplanationFile(context.cwd, subject);
+  const explanation = file
+    ? await explainTemplateFile(context.cwd, file)
+    : explainFrameworkTopic(subject);
+
+  if (!explanation) {
+    throw new Error(
+      `No deterministic VeloDom explanation is available for "${subject}".`
+    );
+  }
+
+  if (json) {
+    context.stdout(JSON.stringify(explanation, null, 2));
+    return;
+  }
+
+  context.stdout(`VeloDom explanation: ${explanation.subject}`);
+  context.stdout("=".repeat(21 + explanation.subject.length));
+  context.stdout(explanation.summary);
+  explanation.details.forEach(detail => context.stdout(`  - ${detail}`));
+  if (explanation.diagnostics?.length) {
+    context.stdout("Diagnostics:");
+    explanation.diagnostics.forEach(diagnostic => {
+      context.stdout(
+        `  - ${diagnostic.severity.toUpperCase()} ${diagnostic.code}: ${diagnostic.message}`
+      );
+    });
+  }
+}
+
+/** Selects a supported `vd inspect` view from the shared inspection result. */
+function selectInspectionSection(
+  inspection: ProjectInspection,
+  section: string
+): unknown {
+  switch (section) {
+    case "":
+      return inspection;
+    case "routes":
+      return inspection.pages.map(page => ({
+        kind: page.kind,
+        name: page.name,
+        path: page.route || toRoutePath(page.name),
+        source: page.source
+      }));
+    case "components":
+      return inspection.components;
+    case "config":
+      return {
+        apiFiles: inspection.apis,
+        middleware: inspection.middleware,
+        requestRoutes: inspection.requestRoutes,
+        seo: inspection.seo,
+        seoConfigs: inspection.seoConfigs
+      };
+    default:
+      throw new Error(
+        `Unknown inspection section "${section}". Use routes, components, config, or build.`
+      );
+  }
+}
+
+/** Prints one focused inspection view. */
+function printSelectedInspection(
+  context: CliContext,
+  section: string,
+  selected: unknown
+) {
+  context.stdout(`VeloDom ${section} inspection`);
+  context.stdout("=".repeat(18 + section.length));
+
+  if (section === "routes") {
+    (selected as Array<Record<string, unknown>>).forEach(route => {
+      context.stdout(`  - ${route.path} (${route.name}) -> ${route.source}`);
+    });
+    return;
+  }
+
+  if (section === "components") {
+    printModuleGroup(context, "Components", selected as DiscoveredModule[]);
+    return;
+  }
+
+  const config = selected as Record<string, unknown>;
+
+  Object.entries(config).forEach(([name, value]) => {
+    context.stdout(`  - ${name}: ${JSON.stringify(value)}`);
+  });
+}
+
+/** Finds a Vite configuration at the project root. */
+async function findViteConfig(root: string) {
+  const names = [
+    "vite.config.ts",
+    "vite.config.js",
+    "vite.config.mts",
+    "vite.config.mjs"
+  ];
+
+  for (const name of names) {
+    const file = join(root, name);
+
+    try {
+      if (!(await stat(file)).isFile()) continue;
+
+      const source = await readFile(file, "utf8");
+
+      if (
+        source.includes("velodom/vite-plugin")
+        && /\bvelodom\s*\(/.test(source)
+      ) {
+        return file;
+      }
+    } catch {
+      // Continue through supported Vite config names.
+    }
+  }
+
+  return null;
+}
+
+/** Resolves a supported explanation file inside the project root. */
+async function resolveExplanationFile(root: string, requested: string) {
+  const file = resolve(root, requested);
+  const relativePath = relative(root, file);
+
+  if (relativePath.startsWith("..") || relativePath === "") return null;
+
+  try {
+    const info = await stat(file);
+
+    if (info.isFile() && (file.endsWith(".html") || file.endsWith(".vd"))) {
+      return file;
+    }
+    if (info.isDirectory()) {
+      const html = join(file, "index.html");
+      if ((await stat(html)).isFile()) return html;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+/** Explains one actual template through compiler diagnostics and metadata. */
+async function explainTemplateFile(
+  root: string,
+  file: string
+): Promise<CliExplanation> {
+  const source = await readFile(file, "utf8");
+  const template = file.endsWith(".vd")
+    ? source.match(/<template\b[^>]*>([\s\S]*?)<\/template>/i)?.[1] || ""
+    : source;
+  const subject = relative(root, file).replaceAll("\\", "/");
+  const result = compileTemplate(template, {
+    filename: subject,
+    mode: "development"
+  });
+
+  return {
+    details: [
+      `Runtime features: ${result.manifest.features.join(", ") || "none"}`,
+      `Directives and interpolations: ${result.metadata.length}`,
+      `Compiler diagnostics: ${result.diagnostics.length}`,
+      ...result.metadata.slice(0, 20).map(metadata => (
+        `${metadata.name}: ${metadata.expression || "structural marker"}`
+      ))
+    ],
+    diagnostics: result.diagnostics,
+    subject,
+    summary: "This explanation is generated offline from VeloDom's real compiler metadata."
+  };
+}
+
+/** Returns a small offline explanation for one canonical framework topic. */
+function explainFrameworkTopic(subject: string): CliExplanation | null {
+  const topic = subject.toLowerCase();
+  const topics: Record<string, {
+    details: string[];
+    summary: string;
+  }> = {
+    state: {
+      summary: "VeloDom uses shallow local reactive state and updates subscribed directives directly.",
+      details: [
+        "Export a small state object for defaults.",
+        "Put methods, async work, and cleanup in init({ state, ctx }).",
+        "Use shared state only for genuine cross-page data."
+      ]
+    },
+    routing: {
+      summary: "Folders create routes; config can override paths, guards, metadata, and SEO.",
+      details: [
+        "Use vd-nav with app-relative paths.",
+        "Dynamic folders use [param].",
+        "Same-route hashes scroll without remounting."
+      ]
+    },
+    requests: {
+      summary: "Application-owned API routes are connected to HTML through declarative request directives.",
+      details: [
+        "Use vd-request and vd-params for the route and input.",
+        "Use vd-target and vd-auto-state for result/loading/error state.",
+        "Authentication and authorization policy remain application/server owned."
+      ]
+    },
+    components: {
+      summary: "Components are ordinary folders or optional .vd files discovered by convention.",
+      details: [
+        "Use <vd-component name=\"path/name\">.",
+        "Use vd-prop-* for literal strings and vd-props for expressions.",
+        "Prefer explicit expose members for parent access."
+      ]
+    },
+    compiler: {
+      summary: "The compiler validates preferred vd-* syntax and emits normalized HTML plus a runtime feature manifest.",
+      details: [
+        "Development builds can retain source metadata.",
+        "Production builds omit development metadata by default.",
+        "Only directive feature modules requested by a template are loaded."
+      ]
+    },
+    lab: {
+      summary: "VeloDom Lab is an experimental, local, opt-in development inspector layered on Vite.",
+      details: [
+        "Run vd lab to enable it for the existing dev command.",
+        "It records a bounded event history and redacts unsafe values.",
+        "Normal production builds do not inject the Lab UI or metadata endpoint."
+      ]
+    }
+  };
+  const entry = topics[topic];
+
+  return entry ? {
+    ...entry,
+    subject: topic
+  } : null;
 }
 
 /** Prints the doctor. */
@@ -666,11 +1070,65 @@ async function runDoctor(root: string) {
   issues.push(...await findUnusedProjectWarnings(root, inspection));
   issues.push(...await findComponentCycleWarnings(root, inspection));
   issues.push(...await findLargeModuleWarnings(root, templates));
+  issues.push(...await findLabSetupIssues(root));
 
   return issues.sort((left, right) => (
     `${left.level}:${left.file}:${left.message}`
       .localeCompare(`${right.level}:${right.file}:${right.message}`)
   ));
+}
+
+/** Diagnoses only projects that explicitly expose a VeloDom Lab script. */
+async function findLabSetupIssues(root: string): Promise<DoctorIssue[]> {
+  const source = await readOptionalText(join(root, "package.json"));
+
+  if (!source) return [];
+
+  let manifest: {
+    scripts?: Record<string, string>;
+  };
+
+  try {
+    manifest = JSON.parse(source);
+  } catch {
+    return [{
+      file: "package.json",
+      level: "error",
+      message: "package.json is invalid JSON, so VeloDom Lab setup cannot be verified."
+    }];
+  }
+
+  const labScript = String(manifest.scripts?.lab || "").trim();
+
+  if (!labScript) return [];
+
+  const issues: DoctorIssue[] = [];
+
+  if (!/\bvd\s+lab\b/.test(labScript)) {
+    issues.push({
+      file: "package.json",
+      level: "warning",
+      message: "The lab script should call `vd lab` so development-only setup remains consistent."
+    });
+  }
+
+  if (!String(manifest.scripts?.dev || "").trim()) {
+    issues.push({
+      file: "package.json",
+      level: "error",
+      message: "The Lab command requires a dev script that starts Vite."
+    });
+  }
+
+  if (!(await findViteConfig(root))) {
+    issues.push({
+      file: "vite.config",
+      level: "error",
+      message: "The Lab command requires a Vite config using velodom/vite-plugin."
+    });
+  }
+
+  return issues;
 }
 
 /** Inspects the project. */

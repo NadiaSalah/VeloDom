@@ -101,11 +101,7 @@ const bareHashNavigation = /<a\b(?=[^>]*\bvd-nav\b)(?=[^>]*\bhref=["']#)[^>]*>/i
 const obsoleteShowcasePath = /examples[\\/]+blog(?:[\\/"'`]|$)/i;
 const staleReleaseClaim =
   /(?:currently published\s+`?velodom|uses published version|is now public with the|private:\s*true\s+in the publishable)/i;
-const cliCommands = new Set(
-  [...cliSource.matchAll(/case "([a-z-]+)":/g)]
-    .map(match => match[1])
-    .filter(command => !command.startsWith("-"))
-);
+const cliCommands = collectImplementedCliCommands(cliSource);
 const documentedCanonicalCommands = collectDocumentedCliCommands(repositoryGuide);
 const completePublicGuide = `${repositoryGuide}\n${syntaxReference}\n${featureInventory}`;
 const publicApiNames = new Set(
@@ -328,6 +324,25 @@ function collectDocumentedCliCommands(source) {
   }
 
   return commands;
+}
+
+/**
+ * Reads only the primary command dispatcher so nested view names do not become
+ * fictional top-level CLI commands in documentation metrics.
+ *
+ * @param {string} source CLI TypeScript source.
+ * @returns {Set<string>} Implemented top-level command names.
+ */
+function collectImplementedCliCommands(source) {
+  const dispatcher = source.match(
+    /switch \(command\) \{([\s\S]*?)\n    \}\n  \} catch/
+  )?.[1] || "";
+
+  return new Set(
+    [...dispatcher.matchAll(/case "([a-z-]+)":/g)]
+      .map(match => match[1])
+      .filter(command => !command.startsWith("-"))
+  );
 }
 
 /**

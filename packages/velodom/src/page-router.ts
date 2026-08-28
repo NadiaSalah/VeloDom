@@ -44,6 +44,10 @@ import {
   loadClientPageData
 } from "./page-data.ts";
 import {
+  DEVTOOLS_CONTEXT,
+  getDevtoolsRuntimeSession
+} from "./devtools/hook.ts";
+import {
   isAppRelativePath,
   normalizeFolderPath
 } from "./shared/path.ts";
@@ -124,6 +128,10 @@ export function createPageRouter(
     redirectDepth = 0,
     navigationId = ++latestNavigationId
   ): Promise<boolean | void> {
+    // Plugins are installed after router construction and before init(). Read
+    // the session lazily so an opt-in devtools plugin can observe first mount.
+    const devtools = getDevtoolsRuntimeSession(appContext);
+    const navigationStartedAt = readPerformanceTime();
     const previousScrollKey = getCurrentScrollKey();
     const targetUrl = createRouterUrl(path);
     const route = pagePath
@@ -134,6 +142,13 @@ export function createPageRouter(
       : notFoundPage;
 
     const app = document.getElementById("app");
+    let pageScopeCleanup: (() => void) | null = null;
+
+    devtools?.emit("route:navigate:start", {
+      from: currentRoute?.path || null,
+      path: route.path,
+      requestedPath: path
+    });
 
     try {
       if (
@@ -149,10 +164,17 @@ export function createPageRouter(
         saveScrollPosition(scrollPositions, previousScrollKey);
         applyHistoryMode(historyMode, path);
         currentRoute.hash = route.hash;
+        devtools?.setRoute(currentRoute);
         activeLocationPath = getCurrentLocationPath();
         restoreScrollPosition(currentRoute, scrollPositions, historyMode);
         moveFocusAfterNavigation(currentRoute, historyMode);
         dispatchRouterHashChange(previousUrl);
+        devtools?.emit("route:navigate:end", {
+          durationMs: readPerformanceTime() - navigationStartedAt,
+          hashOnly: true,
+          page: currentRoute.page,
+          path: currentRoute.path
+        });
         return true;
       }
 
@@ -268,6 +290,13 @@ export function createPageRouter(
       const state = getOrCreatePageState(page, runtime);
       state.__vdPageName = page;
       state.components = {};
+      pageScopeCleanup = devtools?.registerScope({
+        kind: "page",
+        name: page,
+        root: app,
+        source: `src/pages/${page}`,
+        state
+      }) || null;
       const data = initialPageData.found
         ? initialPageData.data
         : await loadClientPageData(pageData[page], {
@@ -290,7 +319,8 @@ export function createPageRouter(
           events,
           runtime,
           route,
-          targetPath => load(targetPath, "", VD_ROUTER.HISTORY_PUSH)
+          targetPath => load(targetPath, "", VD_ROUTER.HISTORY_PUSH),
+          devtools
         )
       );
       const ctx = lifecycle.context;
@@ -345,6 +375,8 @@ export function createPageRouter(
         await componentsCleanup?.();
         directivesCleanup?.();
         directionCleanup?.();
+        pageScopeCleanup?.();
+        pageScopeCleanup = null;
         await runModuleHook(pageModule?.destroy, hookArgs);
         await lifecycle.dispose();
         events.clear();
@@ -352,13 +384,27 @@ export function createPageRouter(
 
       await runModuleHook(pageModule?.mounted, hookArgs);
       currentRoute = route;
+      devtools?.setRoute(route);
       activeLocationPath = getCurrentLocationPath();
       restoreScrollPosition(route, scrollPositions, historyMode);
       moveFocusAfterNavigation(route, historyMode);
+      devtools?.emit("route:navigate:end", {
+        durationMs: readPerformanceTime() - navigationStartedAt,
+        hashOnly: false,
+        page: route.page,
+        path: route.path
+      });
 
       return true;
 
     } catch (err) {
+      pageScopeCleanup?.();
+      pageScopeCleanup = null;
+      devtools?.emit("route:navigate:error", {
+        message: err instanceof Error ? err.message : String(err),
+        page,
+        path: route.path
+      });
       if (err?.code !== VD_INTERNAL.PAGE_NOT_FOUND_CODE) {
         const recovered = typeof errorBoundary === "function"
           ? await renderRecoverableErrorBoundary(err, {
@@ -421,6 +467,7 @@ export function createPageRouter(
         page: notFoundPage,
         matched: false
       };
+      devtools?.setRoute(currentRoute);
       activeLocationPath = getCurrentLocationPath();
       restoreScrollPosition(currentRoute, scrollPositions, historyMode);
       moveFocusAfterNavigation(currentRoute, historyMode);
@@ -734,8 +781,16 @@ function attachDirectionToPageState(
 }
 
 /** Creates the page context. */
-function createPageContext(state, events, runtime, route, navigate) {
+function createPageContext(
+  state,
+  events,
+  runtime,
+  route,
+  navigate,
+  devtools
+) {
   return {
+    [DEVTOOLS_CONTEXT]: devtools,
     page: state.__vdPageName || "",
     route,
     params: route.params || {},
@@ -757,6 +812,11 @@ function createPageContext(state, events, runtime, route, navigate) {
     once: events.once,
     emit: events.emit
   };
+}
+
+/** Reads the highest-resolution development timing source available. */
+function readPerformanceTime() {
+  return globalThis.performance?.now?.() ?? Date.now();
 }
 
 /** Normalizes the guards. */

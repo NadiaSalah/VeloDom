@@ -60,6 +60,8 @@ before use.
 | Hydration | Server | Partial | explicit static-content policy | client takeover | SEO renderer | Boundary tested |
 | Asset inspection | Build | Supported | `velodom/assets` | ordinary Vite assets | public helpers | Yes |
 | Devtools inspector | DX | Supported | `velodom/devtools` | CLI inspection | public helper | Yes |
+| VeloDom Lab | DX | Experimental | `vd lab`, optional `--lab` starter choice | manual `mountVeloDomLab` host | `velodom/devtools`, Vite plugin | Yes |
+| Deterministic explain | DX | Supported | `vd explain <file|topic>` | compiler analysis | package binary | Yes |
 | Testing mounts | Testing | Stable | `velodom/testing` | browser E2E | public helpers | Yes |
 | Compiler API | Compiler | Stable | `velodom/compiler` | Vite plugin | public compiler | Yes |
 | Language analysis | Editor | Supported | compiler analysis APIs | VS Code package | public APIs | Yes |

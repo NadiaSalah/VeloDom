@@ -13,6 +13,7 @@
     <a class="docs-sidebar-link" href="/features#assets" vd-nav>Assets and lazy loading</a>
     <a class="docs-sidebar-link" href="/features#production" vd-nav>SEO and production</a>
     <a class="docs-sidebar-link" href="/features#tooling" vd-nav>Tooling and testing</a>
+    <a class="docs-sidebar-link" href="/features#lab" vd-nav>VeloDom Lab</a>
     <a class="docs-sidebar-link" href="/features#quality" vd-nav>Quality and recovery</a>
     <a class="docs-sidebar-link" href="/features#architecture" vd-nav>Architecture</a>
   </aside>
@@ -512,6 +513,7 @@ const posts = await loadContentCollection({
         <div class="code-toolbar"><span>terminal</span><span>local project intelligence</span></div>
         <pre class="code-example" vd-pre><code>vd inspect              # pages, components, APIs, refs, state
 vd doctor               # broken refs, invalid config, maintainability hints
+vd explain routing      # deterministic local explanation
 vd graph --mermaid      # static project relationships
 vd health               # advisory quality score
 vd build-report         # chunk and optimization signals
@@ -532,8 +534,41 @@ vd create page guide --demo seo</code></pre>
       </div>
     </section>
 
+    <section id="lab" class="doc-section">
+      <p class="eyebrow">14 · optional visual inspection</p>
+      <h2>VeloDom Lab explains a running app without becoming part of it.</h2>
+      <p class="mt-3">
+        Lab is an experimental, read-only Vite development layer. It displays
+        the current route, mounted page and component scopes, safe state
+        snapshots, directive bindings, runtime events and requests, plus
+        compiler diagnostics. No AI account, telemetry service, or hosted
+        backend is involved.
+      </p>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <div class="code-window">
+          <div class="code-toolbar"><span>terminal</span><span>recommended</span></div>
+          <pre class="code-example" vd-pre><code>vd lab --check
+vd lab
+
+# Generated projects that selected --lab
+npm run lab</code></pre>
+        </div>
+        <div class="code-window">
+          <div class="code-toolbar"><span>custom host</span><span>velodom/devtools</span></div>
+          <pre class="code-example" vd-pre><code>import {
+  mountVeloDomLab,
+  VELODOM_DEVTOOLS_PROTOCOL_VERSION
+} from "velodom/devtools";
+
+const lab = mountVeloDomLab({ open: true });
+await lab.refresh();</code></pre>
+        </div>
+      </div>
+      <div class="callout"><strong>Production boundary:</strong> normal builds inject neither the Lab bootstrap nor its local metadata endpoint. The event buffer is bounded, getters are not evaluated, and request bodies, credentials, response payloads, and mutable state controls are intentionally absent.</div>
+    </section>
+
     <section id="quality" class="doc-section">
-      <p class="eyebrow">14 · reliability</p>
+      <p class="eyebrow">15 · reliability</p>
       <h2>Data, recovery, and browser safety stay explicit.</h2>
       <p class="mt-3">
         A page data module owns initial public data before a page initializes.
@@ -595,7 +630,7 @@ export const cache = {
     </section>
 
     <section id="architecture" class="doc-section">
-      <p class="eyebrow">15 · architecture</p>
+      <p class="eyebrow">16 · architecture</p>
       <h2>A small runtime is an architectural decision.</h2>
       <p class="mt-3">
         VeloDom Core receives resources from adapters. It does not discover your

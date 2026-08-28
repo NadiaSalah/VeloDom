@@ -13,6 +13,7 @@ their surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 | Authoring and application conventions | V1 — Implemented | Folder mode, optional `.vd`, JS/TS parity, layouts, CLI scaffolding |
 | Production features | V1 — Implemented | Routing, requests, forms, SEO, content, localization, package subpaths |
 | Developer intelligence | V1 — Implemented | `vd` inspection commands, compiler language helpers, testing utilities |
+| VeloDom Lab | V1 — Experimental / Implemented slice | Optional Vite UI, safe protocol, runtime/compiler inspectors, production-leak test |
 | Public package source | V1 — Implemented | Local `1.0.0` manifests, exports, package docs, starters, and consumer checks |
 | Browser release gate | V1 — Current | Strict CI workflow exists; rerun it on the exact initial-release commit |
 | npm registry state | External verification | No official release is represented; verify name/version state before first publication |
@@ -134,6 +135,12 @@ application browser runtime weight:
   `packages/velodom-vscode` workspace consumer.
 - [x] `velodom/testing`, devtools bridge/inspector, and real-browser Playwright
   smoke coverage.
+- [x] Experimental opt-in VeloDom Lab with route, mounted scope/component,
+  state, binding, timeline, request/event, and compiler views over a versioned,
+  bounded, read-only protocol.
+- [x] `vd lab`, `vd explain`, focused `vd inspect` views, Lab setup diagnostics,
+  optional scaffolder selection, package-manager-aware startup, HMR compiler
+  refresh, and a production-artifact leakage gate.
 - [x] Documentation checks for public exports, documented CLI commands, private
   imports, legacy roadmap labels, and removed-guide links.
 - [x] Named-function JSDoc across all Core TypeScript modules, enforced by an
@@ -234,8 +241,9 @@ optional and pass a compiler-first/runtime-budget design review:
 - [ ] Evaluate route rendering modes that preserve static output as the default.
 - [ ] Evaluate compiler-generated islands or partial hydration only if they can
   avoid a mandatory virtual DOM and keep ordinary HTML authoring intact.
-- [ ] Evaluate richer standalone DevTools panels without mutable runtime
-  internals or secret collection.
+- [ ] Evaluate a full editable Lab playground/export flow, performance flame
+  charts, source navigation/maps, and browser-extension host without mutable
+  runtime internals, source writes by default, or secret collection.
 - [ ] Evaluate streaming and Edge adapters as separate contracts, not as hidden
   behavior in the browser package.
 - [ ] Harden framework typing module-by-module until `strict` mode can replace

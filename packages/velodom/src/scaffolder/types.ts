@@ -29,6 +29,7 @@ export interface ScaffoldPlan {
   git: boolean;
   i18n: boolean;
   install: boolean;
+  lab: boolean;
   language: ScaffoldLanguage;
   packageManager: ScaffoldPackageManager;
   prettier: boolean;

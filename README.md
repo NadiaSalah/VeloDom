@@ -99,6 +99,8 @@ Choose Minimal, Blog, or Empty, then use Recommended defaults or customize
 JavaScript/TypeScript, CSS/Tailwind, ESLint, Prettier, route examples, i18n,
 testing, Git, installation, and server startup. Every entry point delegates to
 one Node-only scaffolder; no creation code enters the browser runtime.
+Customize mode can also add the optional local VeloDom Lab command without
+adding a separate dependency or changing production output.
 
 ## Repository Structure
 
@@ -128,8 +130,8 @@ docs/
 ## Current Status
 
 The package source is version `1.0.0`. Its public contract exposes 13 package
-entry points, 61 browser/build public values, 43 preferred directive names,
-and 14 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
+entry points, 63 browser/build public values, 43 preferred directive names,
+and 16 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
 the automated test suite, production builds, package boundaries, an installed
 tarball consumer, the generated starter, and browser targets.
 
@@ -142,6 +144,20 @@ release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
+- Added experimental, opt-in VeloDom Lab on top of the existing Vite workflow:
+  route/component/state/binding/compiler inspection, a bounded event timeline,
+  safe serialization, DOM highlighting, search, themes, responsive UI, and HMR
+  metadata refresh through a versioned read-only protocol.
+- Added `vd lab`, focused `vd inspect` views, deterministic `vd explain`, Lab
+  setup checks in `vd doctor`, and an optional `--lab` project choice shared by
+  JavaScript/TypeScript and every starter.
+- Split the production-side inspection hook from the full Lab session/UI and
+  added an emitted-bundle scan proving Lab bootstrap code is absent from normal
+  production builds.
+- Verified the Lab against the running Blog in the in-app browser and fixed two
+  integration defects found there: Vite now resolves the injected devtools
+  entry explicitly, and the router reads plugin-installed inspection sessions
+  lazily so the first page mount is captured.
 - Rescanned package exports, public values, preferred directives, CLI commands,
   authoring conventions, and optional integrations against implementation and
   tests before changing teaching content.
@@ -154,7 +170,7 @@ release commit is verified, approved, tagged, and published deliberately.
 - Added concise JSDoc to every named Core function and an AST-backed regression
   gate, while stripping comments only from compiled JavaScript to preserve the
   lightweight runtime budget.
-- Verified 269 tests, documentation/type/lint gates, production/package builds,
+- Verified 275 tests, documentation/type/lint gates, production/package builds,
   installed consumers, dry-run tarballs, project doctor/health, and live
   desktop/compact navigation. Chromium, WebKit, and Mobile WebKit pass locally;
   this machine's known Firefox SWGL compositor launch failure remains delegated
@@ -215,6 +231,9 @@ release work should stay limited to:
   approval, then verify `npm create velodom@latest` from the registry;
 - keep advanced SSR, islands, migrations, and optional AI providers behind
   separate architecture and runtime-budget reviews.
+- keep the experimental Lab read-only; evaluate a full playground, flame
+  charts, browser extension, or source-writing tools only as separate bounded
+  follow-up work.
 
 ## Handoff Notes
 

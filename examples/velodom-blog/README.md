@@ -80,10 +80,15 @@ From the repository root:
 
 ```bash
 npm run dev
+npm run lab
 npm run build
 vd doctor --root examples/velodom-blog
 vd health --root examples/velodom-blog
 ```
+
+`npm run lab` opens the optional local read-only VeloDom Lab overlay while the
+same application runs through Vite. The normal `dev` and production `build`
+paths remain free of Lab bootstrap code.
 
 When adding a lesson, update the page/lesson map, keep the example source
 literal-safe with `vd-pre`, and add or update browser coverage for direct route

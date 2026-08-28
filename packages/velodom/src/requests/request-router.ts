@@ -30,6 +30,9 @@ import {
   resolveRequestBinding,
   validateRequestBindingAccess
 } from "./request-bindings.ts";
+import {
+  getDevtoolsSessionForState
+} from "../devtools/hook.ts";
 import type {
   ErrorReportOptions
 } from "../errors/error-reporter.ts";
@@ -389,6 +392,14 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
   })) return;
 
   const activeRequest = beginRequest(el, targetBinding, routeName);
+  const devtools = getDevtoolsSessionForState(state);
+  const devtoolsStartedAt = readPerformanceTime();
+  let devtoolsStatus = "cancelled";
+
+  devtools?.emit("request:start", {
+    route: routeName,
+    target: targetBinding.path || null
+  });
 
   if (errorBinding.path) {
     writeValue(errorBinding.path, errorBinding.state, "");
@@ -483,10 +494,14 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
       element: el
     });
     await runAfterRequestHook(successPayload);
+    devtoolsStatus = "success";
   } catch (err) {
     if (!isLatestRequest(el, activeRequest) || err?.name === "AbortError") {
+      devtoolsStatus = "aborted";
       return;
     }
+
+    devtoolsStatus = "error";
 
     const message = err?.message || "Request failed";
 
@@ -502,6 +517,13 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
       line: 177,
       el,
       hint: err?.__vdHint || "Verify the route config, auth mode, application middleware, and request params."
+    });
+
+    devtools?.emit("request:error", {
+      durationMs: readPerformanceTime() - devtoolsStartedAt,
+      message,
+      route: routeName,
+      stage: err?.__vdStage || VD_REQUEST.STAGES.REQUEST
     });
 
     state.emit?.(VD_REQUEST.EVENTS.ERROR, {
@@ -534,7 +556,17 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
     }
 
     finishRequest(el, activeRequest);
+    devtools?.emit("request:end", {
+      durationMs: readPerformanceTime() - devtoolsStartedAt,
+      route: routeName,
+      status: devtoolsStatus
+    });
   }
+}
+
+/** Reads the highest-resolution request timing source available. */
+function readPerformanceTime() {
+  return globalThis.performance?.now?.() ?? Date.now();
 }
 
 /** Returns the request params. */

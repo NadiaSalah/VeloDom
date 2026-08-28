@@ -32,7 +32,8 @@ Do not infer registry availability from this repository. In a source checkout,
 build the package and run
 `node packages/velodom/bin/create-velodom.js my-app --no-install`. Project
 creation offers Minimal, Blog, and Empty with optional JS/TS, Tailwind, quality
-tools, routing examples, localization, tests, Git, install, and server start.
+tools, routing examples, localization, tests, local Lab, Git, install, and
+server start.
 
 The generated project is user-owned. Never edit `node_modules/velodom`.
 
@@ -182,6 +183,8 @@ visibility are never server authorization.
 - Page SEO belongs in `config.js`/`config.ts` or the `.vd` `<config>` block.
 - Static SEO, content, localization, RTL, validation, progressive forms,
   plugins, devtools, and Node integration are optional public capabilities.
+- `vd lab` is an optional local Vite inspector. It is read-only,
+  development-only, and never required to run or build an application.
 - Use only capabilities marked implemented in `docs/FEATURE_INVENTORY.md`.
 
 ## Mandatory AI Rules

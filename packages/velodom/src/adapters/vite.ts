@@ -35,8 +35,12 @@ import type {
 } from "../types.ts";
 import {
   VD_ADAPTER,
+  VD_DEVTOOLS,
   VD_RESOURCE_ADAPTER
 } from "../constants.ts";
+import {
+  VELODOM_LAB_CONFIG_NAME
+} from "../devtools/protocol.ts";
 
 /** Beginner-friendly Vite options; resource discovery is supplied by VeloDom. */
 export type ViteAppOptions = Omit<VeloDomAppOptions, "adapter">;
@@ -435,8 +439,39 @@ export function mountVeloDom(
 async function mountViteApp(
   options: ViteAppOptions
 ): Promise<VeloDomApp> {
-  const app = createViteApp(options);
+  const app = createViteApp(await addLabPluginWhenRequested(options));
 
   await app.mount();
   return app;
+}
+
+/** Adds the development bridge only when the Vite Lab bootstrap requested it. */
+async function addLabPluginWhenRequested(
+  options: ViteAppOptions
+): Promise<ViteAppOptions> {
+  // Vite statically replaces the direct DEV access. Optional chaining leaves
+  // the expression untouched in browsers and would silently disable the Lab.
+  if (!import.meta.env.DEV) return options;
+  if (typeof window === "undefined") return options;
+
+  const config = (
+    window as unknown as Record<string, unknown>
+  )[VELODOM_LAB_CONFIG_NAME];
+
+  if (!config || typeof config !== "object") return options;
+
+  const globalName = String(
+    (config as Record<string, unknown>).globalName || VD_DEVTOOLS.GLOBAL_NAME
+  );
+  const {
+    createDevtoolsPlugin
+  } = await import("../request-tools.ts");
+
+  return {
+    ...options,
+    plugins: [
+      createDevtoolsPlugin({ globalName }),
+      ...(options.plugins || [])
+    ]
+  };
 }

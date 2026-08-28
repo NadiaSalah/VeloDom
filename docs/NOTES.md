@@ -677,8 +677,10 @@
   and secret-like Vite variable names, while server authorization, CSRF, and
   actual secret classification remain application/deployment responsibilities.
 - Vite owns hot-module replacement. VeloDom supplies original file/offset
-  diagnostics to Vite's standard development overlay instead of introducing a
-  second HMR error UI or runtime protocol.
+  diagnostics to Vite's standard development overlay. When optional Lab is
+  active, one custom Vite event only tells the read-only compiler panel to
+  refresh its local metadata; it does not replace Vite HMR or ship to
+  production.
 - Derived-state helpers intentionally subscribe to the supplied shallow state
   as a whole. This is predictable and easy to clean up, while fine-grained
   dependency tracking remains outside VeloDom's lightweight runtime goal.
@@ -688,9 +690,29 @@
   route-config overrides need a future editor-project index rather than router
   imports. Marketplace publication additionally needs a verified publisher and
   is not implied by workspace stability.
-- The standalone `velodom/devtools` inspector is an explicit subpath. It
-  requires an existing bridge and is not part of createApp or production builds
-  unless an application imports it.
+- The standalone `velodom/devtools` inspector and experimental Lab UI are an
+  explicit subpath. `vd lab` enables the bridge only for the current Vite
+  development process. A tiny hook connects optional sessions to runtime
+  lifecycle points; the serializer, recorder, compiler endpoint, and UI stay
+  in development-only modules. The protocol is versioned and read-only,
+  retained events are bounded, getters are not executed, and request bodies,
+  credentials, and response payloads are never recorded.
+- VeloDom Lab remains in the existing `velodom/devtools` package subpath for
+  V1 instead of creating a second package with synchronized version pressure.
+  The scaffolder's `--lab` choice adds only `"lab": "vd lab"`; no-Lab
+  projects gain no dependency or production configuration. A separate package
+  may be reconsidered only if independent releases or a standalone host become
+  real requirements.
+- Lab integration must be verified through a real Vite browser session, not
+  only unit fixtures. Vite transforms direct `import.meta.env.DEV` access but
+  does not guarantee transformation of optional-chained variants, and plugins
+  attach the inspection session after router construction but before its first
+  navigation. The adapter therefore uses the direct development constant and
+  the router resolves the session lazily inside navigation.
+- `vd explain` is deterministic local tooling, not an AI feature. Migration
+  infrastructure is intentionally deferred because V1 has no real framework
+  migration to perform; exposing a placeholder command would violate the
+  no-fake-features rule.
 
 ## Handoff Guidance
 

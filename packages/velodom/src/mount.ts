@@ -33,6 +33,12 @@ import { createLifecycleScope } from "./lifecycle.ts";
 import { evaluateExpression } from "./expression/index.ts";
 import { isPlainObject } from "./shared/object.ts";
 import { normalizeFolderPath } from "./shared/path.ts";
+import {
+  DEVTOOLS_CONTEXT
+} from "./devtools/hook.ts";
+import type {
+  DevtoolsRuntimeSession
+} from "./devtools/protocol.ts";
 import type { RuntimeFeatureManifest } from "./compiler/types.ts";
 import type {
   ReactiveStateMethods
@@ -58,6 +64,7 @@ type ComponentElement = HTMLElement & {
 };
 
 interface ComponentPageContext {
+  [DEVTOOLS_CONTEXT]?: DevtoolsRuntimeSession | null;
   page?: string;
   route?: RouteLocation | null;
   params?: Record<string, string>;
@@ -131,6 +138,7 @@ export async function mount(
       let componentModule = null;
       let lifecycle = null;
       let hookArgs = null;
+      let devtoolsCleanup = null;
 
       try {
 
@@ -162,6 +170,14 @@ export async function mount(
         state = parentState
           ? createChildState(parentState, props)
           : createState(props);
+        devtoolsCleanup = pageCtx?.[DEVTOOLS_CONTEXT]?.registerScope({
+          kind: "component",
+          name: folder,
+          parentState,
+          root: el,
+          source: `src/components/${folder}`,
+          state
+        }) || null;
         const loadModule = resources.modules?.[folder];
         lifecycle = createLifecycleScope(
           createComponentContext(el, pageCtx, state)
@@ -221,6 +237,8 @@ export async function mount(
           await childrenCleanup?.();
           unregisterInstance?.();
           directivesCleanup?.();
+          devtoolsCleanup?.();
+          devtoolsCleanup = null;
           await runModuleHook(componentModule?.destroy, hookArgs);
           await lifecycle?.dispose();
           state?._dispose?.();
@@ -237,6 +255,8 @@ export async function mount(
       } catch (err) {
         await cleanup?.();
         unregisterInstance?.();
+        devtoolsCleanup?.();
+        devtoolsCleanup = null;
         await lifecycle?.dispose();
         state?._dispose?.();
         loaded.delete(el);
@@ -802,6 +822,7 @@ function createComponentContext(el, pageCtx, state) {
   const key = getComponentKey(el);
 
   return {
+    [DEVTOOLS_CONTEXT]: pageCtx?.[DEVTOOLS_CONTEXT] || null,
     ref,
     key,
     state,

@@ -15,6 +15,7 @@ const DOM_GLOBALS = [
   "MouseEvent",
   "KeyboardEvent",
   "CustomEvent",
+  "MutationObserver",
   "FormData",
   "getComputedStyle"
 ];

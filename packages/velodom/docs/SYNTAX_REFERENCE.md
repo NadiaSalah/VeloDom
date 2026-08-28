@@ -365,6 +365,12 @@ Additional public functionality is separated into the documented package
 subpaths. See `FEATURE_INVENTORY.md` for exact capability status and
 `README.md` for the supported import map.
 
+Development tooling does not add template syntax. `vd explain` analyzes files
+or maintained topics locally, while the optional `vd lab` command opens a
+read-only Vite inspector. Manual Lab hosts may import `mountVeloDomLab` and
+`VELODOM_DEVTOOLS_PROTOCOL_VERSION` from `velodom/devtools`; normal
+applications do not need either import.
+
 ## Legacy and Compatibility Syntax
 
 - `data-vd-*` is accepted for compatibility; author `vd-*` in new templates.

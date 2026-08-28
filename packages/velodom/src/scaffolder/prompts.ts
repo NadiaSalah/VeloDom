@@ -24,6 +24,7 @@ export interface InteractiveScaffoldAnswers {
   git?: boolean;
   i18n?: boolean;
   install?: boolean;
+  lab?: boolean;
   language?: ScaffoldLanguage;
   mode?: "recommended" | "custom";
   prettier?: boolean;
@@ -96,6 +97,12 @@ export async function promptForScaffold(
       }
       answers.eslint ??= await askConfirm(prompt, "Enable ESLint", true, controller.signal);
       answers.prettier ??= await askConfirm(prompt, "Enable Prettier", true, controller.signal);
+      answers.lab ??= await askConfirm(
+        prompt,
+        "Add the optional local VeloDom Lab command",
+        false,
+        controller.signal
+      );
       answers.i18n ??= await askConfirm(prompt, "Add English/Arabic i18n", false, controller.signal);
       if (answers.starter === "blog" || answers.i18n) {
         answers.router = true;

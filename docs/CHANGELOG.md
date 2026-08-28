@@ -31,6 +31,12 @@ or claim that a matching package is available from a registry.
   scaffolding without adding unused capabilities to the browser runtime.
 - Local project intelligence through `vd inspect`, `doctor`, `stats`, `routes`,
   `graph`, `health`, `benchmark`, `build-report`, `docs`, and `types`.
+- Experimental optional VeloDom Lab with a versioned read-only protocol,
+  bounded safe serialization, mounted route/component/state/binding views,
+  request/event timeline, compiler metadata, highlighting, search, themes,
+  responsive UI, and Vite hot-update refresh.
+- `vd lab`, deterministic `vd explain`, focused `vd inspect` views, Lab setup
+  diagnostics, and an optional Lab choice in the shared project scaffolder.
 - A shared project scaffolder used by `vd create`, `vd init`, package binaries,
   and the separate `create-velodom` wrapper. It composes Minimal, Blog, and
   Empty starters with optional JavaScript/TypeScript, CSS/Tailwind, ESLint,
@@ -51,6 +57,8 @@ or claim that a matching package is available from a registry.
   typed.
 - Kept static rendering, Node integration, editor intelligence, devtools, and
   project analysis optional and outside the default browser runtime.
+- Split the tiny production inspection hook from the full development session
+  and Lab UI so normal builds can remove all Lab bootstrap code.
 
 ### Fixed
 
@@ -70,11 +78,16 @@ or claim that a matching package is available from a registry.
   or contradictory flags, and Windows-reserved names.
 - Made Windows package-manager execution reliable and ensured generated
   Prettier projects pass their format check immediately.
+- Added a production output scan that rejects Lab globals, endpoints, or UI
+  bootstrap imports in emitted application JavaScript.
+- Made the development-only Lab bootstrap use a Vite-resolvable module URL and
+  made the router discover plugin-installed inspection sessions at navigation
+  time, so the initial route, page, components, state, and events are visible.
 
 ### Documentation
 
 - Synchronized the academic showcase with the source-derived V1 contract: 13
-  package exports, 61 public values, 43 preferred directives, and 14 CLI
+  package exports, 63 public values, 43 preferred directives, and 16 CLI
   commands, including every supported package entry point.
 - Added named-function JSDoc coverage across all framework TypeScript modules
   and made the documentation gate reject undocumented function declarations.

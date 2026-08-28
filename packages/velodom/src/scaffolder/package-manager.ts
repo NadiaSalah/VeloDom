@@ -48,23 +48,36 @@ export function startDevelopmentServer(
   cwd: string,
   packageManager: ScaffoldPackageManager
 ) {
+  return runPackageScript(cwd, packageManager, "dev");
+}
+
+/** Runs one named project script with the selected package manager. */
+export function runPackageScript(
+  cwd: string,
+  packageManager: ScaffoldPackageManager,
+  script: string,
+  env: NodeJS.ProcessEnv = process.env
+) {
   const args = packageManager === "yarn" || packageManager === "pnpm"
-    ? ["dev"]
-    : ["run", "dev"];
-  return runPackageManager(cwd, packageManager, args);
+    ? [script]
+    : ["run", script];
+
+  return runPackageManager(cwd, packageManager, args, env);
 }
 
 /** Runs the package manager. */
 function runPackageManager(
   cwd: string,
   packageManager: ScaffoldPackageManager,
-  args: string[]
+  args: string[],
+  env: NodeJS.ProcessEnv = process.env
 ) {
   const invocation = createInvocation(packageManager, args);
 
   return new Promise<void>((resolve, reject) => {
     const child = spawn(invocation.command, invocation.args, {
       cwd,
+      env,
       shell: false,
       stdio: "inherit"
     });

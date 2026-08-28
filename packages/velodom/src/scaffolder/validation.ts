@@ -22,7 +22,7 @@ const SCAFFOLD_FLAGS = new Set([
   "tailwind", "eslint", "no-eslint", "prettier", "no-prettier", "router",
   "no-router", "i18n", "no-i18n", "testing", "test-unit", "test-e2e",
   "test-all", "no-testing", "git", "no-git", "install", "no-install",
-  "start", "no-start"
+  "lab", "no-lab", "start", "no-start"
 ]);
 
 /** Validates and resolves a project directory below the current directory. */
@@ -130,6 +130,7 @@ export function validateScaffoldFlags(flags: Set<string>) {
     ["prettier", "no-prettier"],
     ["router", "no-router"],
     ["i18n", "no-i18n"],
+    ["lab", "no-lab"],
     ["git", "no-git"],
     ["install", "no-install"],
     ["start", "no-start"],

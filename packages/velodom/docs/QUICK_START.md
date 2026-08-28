@@ -25,6 +25,8 @@ npm run dev
 The generator refuses non-empty destinations and composes Minimal, Blog, or
 Empty with optional JavaScript/TypeScript, Tailwind, ESLint, Prettier, route
 examples, English/Arabic localization, testing, Git, install, and startup.
+Customize mode can also add the optional local VeloDom Lab command; selecting
+No leaves the project unchanged.
 
 Scriptable example:
 
@@ -116,7 +118,12 @@ Use it from a page:
 npm run build
 npx vd doctor
 npx vd routes
+npx vd lab --check
 ```
+
+If the project selected Lab, use `npm run lab`. Otherwise `npx vd lab` can
+temporarily enable it through the existing Vite development command without
+changing production output.
 
 The starter uses only public imports:
 

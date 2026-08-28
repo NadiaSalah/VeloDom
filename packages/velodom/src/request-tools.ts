@@ -26,6 +26,12 @@ import type {
   UnknownRecord,
   VeloDomPlugin
 } from "./types.ts";
+import {
+  createDevtoolsRuntimeSession
+} from "./devtools/runtime.ts";
+import {
+  VELODOM_DEVTOOLS_PROTOCOL_VERSION
+} from "./devtools/protocol.ts";
 import type {
   JsonRequestOptions
 } from "./requests/http-client.ts";
@@ -156,8 +162,12 @@ export function createDevtoolsPlugin(
     setup(context) {
       if (!enabled || typeof window === "undefined") return undefined;
 
-      const bridge = createDevtoolsBridge(context);
       const globals = window as unknown as Record<string, unknown>;
+      const existing = globals[globalName];
+
+      if (isDevtoolsBridge(existing)) return undefined;
+
+      const bridge = createDevtoolsBridge(context, options);
 
       globals[globalName] = bridge;
 
@@ -165,6 +175,7 @@ export function createDevtoolsPlugin(
         if (globals[globalName] === bridge) {
           Reflect.deleteProperty(globals, globalName);
         }
+        bridge.destroy();
       };
     }
   };
@@ -174,18 +185,34 @@ export function createDevtoolsPlugin(
 function createDevtoolsBridge({
   app,
   navigate
-}: PluginContext): DevtoolsBridge {
-  return Object.freeze({
+}: PluginContext, options: DevtoolsPluginOptions) {
+  const session = createDevtoolsRuntimeSession(app, {
+    eventLimit: options.eventLimit
+  });
+  const bridge = {
     get app() {
       return app;
     },
-    inspect(): DevtoolsSnapshot {
-      return {
-        sharedStateNames: Object.keys(app.shared || {})
-      };
-    },
-    navigate
-  });
+    protocolVersion: VELODOM_DEVTOOLS_PROTOCOL_VERSION,
+    clearEvents: () => session.clearEvents(),
+    destroy: () => session.destroy(),
+    highlight: (id: string) => session.highlight(id),
+    inspect: (): DevtoolsSnapshot => session.inspect(),
+    navigate,
+    subscribe: (callback: Parameters<DevtoolsBridge["subscribe"]>[0]) => (
+      session.subscribe(callback)
+    )
+  };
+
+  return Object.freeze(bridge);
+}
+
+/** Returns whether a global value already implements the public bridge. */
+function isDevtoolsBridge(value: unknown): value is DevtoolsBridge {
+  return Boolean(value)
+    && typeof value === "object"
+    && typeof (value as DevtoolsBridge).inspect === "function"
+    && typeof (value as DevtoolsBridge).subscribe === "function";
 }
 
 /** Creates the default cache key. */

@@ -49,8 +49,9 @@ create-velodom my-blog --template blog --typescript --tailwind --i18n --no-insta
 ```
 
 Optional layers include ESLint, Prettier, official route examples, localization,
-unit/E2E testing, Git, dependency installation, and dev-server startup. The
-generator refuses non-empty destinations and never edits `node_modules`.
+unit/E2E testing, the local VeloDom Lab command, Git, dependency installation,
+and dev-server startup. The generator refuses non-empty destinations and never
+edits `node_modules`.
 
 ## Smallest Authoring Example
 
@@ -131,7 +132,7 @@ are intentionally not included in the npm tarball.
 | `velodom/localization` | Optional typed localization helpers |
 | `velodom/node` | Optional Node request adapter |
 | `velodom/assets` | Build-time image inspection helpers |
-| `velodom/devtools` | Optional development inspector |
+| `velodom/devtools` | Optional local inspector and VeloDom Lab UI |
 | `velodom/testing` | DOM-oriented page/component test mounts |
 | `velodom/cli` | Node-only CLI dispatcher used by package binaries |
 | `velodom/scaffolder` | Node-only reusable project creation engine |
@@ -147,8 +148,10 @@ The `vd` binary provides project scaffolding and static project intelligence:
 vd create [project-name] [--template minimal|blog|empty]
 vd init [project-name]
 vd create page|component|api|demo|feature|middleware|plugin <name>
+vd lab [--check]
 vd doctor
 vd inspect
+vd explain <file|topic>
 vd routes
 vd graph
 vd health
@@ -162,6 +165,12 @@ vd version
 
 Use `vd help` for the current options. CLI analysis is local and static; it does
 not add browser runtime weight.
+
+Choose `--lab` during scripted project creation or select it in Customize mode
+to add `npm run lab`. The command starts the existing Vite server with an
+experimental read-only panel for routes, mounted components, state, bindings,
+events/requests, and compiler diagnostics. Lab is development-only and absent
+from normal production output; `--no-lab` adds nothing.
 
 ## Requirements
 

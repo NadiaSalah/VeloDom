@@ -77,6 +77,12 @@ Use `vd doctor` for static project diagnostics. Use `vd inspect`, `vd routes`,
 or `vd graph` when structure is unclear. These commands analyze local project
 files and do not add runtime features.
 
+Use `vd explain <file|topic>` for deterministic local explanations. Use
+`vd lab --check` before `vd lab` when a visual, read-only view of mounted
+routes, components, state, bindings, events, requests, or compiler metadata
+would help. Lab is optional; do not add it to production code or assume it can
+mutate application state.
+
 ## Use Public Package Exports
 
 Allowed imports are documented in the package README. Common forms:

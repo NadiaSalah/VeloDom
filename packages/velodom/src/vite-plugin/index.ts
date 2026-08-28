@@ -12,7 +12,8 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import type {
   Plugin,
-  ResolvedConfig
+  ResolvedConfig,
+  ViteDevServer
 } from "vite";
 import { compileTemplate } from "../compiler/index.ts";
 import {
@@ -32,13 +33,25 @@ import {
   parseVeloDomSingleFile,
   stripBuildOnlySeoEntries
 } from "./single-file.ts";
-import { VD_SINGLE_FILE } from "../constants.ts";
+import {
+  VD_DEVTOOLS,
+  VD_SINGLE_FILE
+} from "../constants.ts";
 import { inspectLocalization } from "../localization.ts";
 import type { LocalizationOptions } from "../localization.ts";
 import type {
   CompilerMode,
-  CompilerOptions
+  CompilerOptions,
+  TemplateCompileResult
 } from "../compiler/types.ts";
+import type {
+  DevtoolsCompilerRecord
+} from "../devtools/protocol.ts";
+import {
+  VELODOM_DEVTOOLS_PROTOCOL_VERSION,
+  VELODOM_LAB_CONFIG_NAME,
+  VELODOM_LAB_METADATA_PATH
+} from "../devtools/protocol.ts";
 import type {
   SeoEntriesHook,
   SeoStaticRenderHook
@@ -49,8 +62,15 @@ export interface VeloDomVitePluginOptions {
   compiler?: Omit<CompilerOptions, "filename" | "mode">;
   emitManifest?: boolean;
   emitMetadata?: boolean | "development";
+  lab?: boolean | VeloDomLabBuildOptions;
   localization?: false | VeloDomLocalizationBuildOptions;
   seo?: false | VeloDomSeoBuildOptions;
+}
+
+/** Optional, development-only VeloDom Lab integration. */
+export interface VeloDomLabBuildOptions {
+  enabled?: boolean;
+  metadataPath?: string;
 }
 
 /** Optional build diagnostics for application-owned locale dictionaries. */
@@ -89,7 +109,30 @@ interface ViteWarningContext {
 export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
   let mode: CompilerMode = "development";
   let resolvedConfig: ResolvedConfig | undefined;
+  let developmentServer: ViteDevServer | undefined;
   let shouldGenerateSeo = false;
+  const compilerRecords = new Map<string, DevtoolsCompilerRecord>();
+  const labEnabled = isLabEnabled(options.lab);
+  const labMetadataPath = normalizeLabMetadataPath(options.lab);
+  const recordLabCompilerResult = (
+    result: TemplateCompileResult,
+    filename: string
+  ) => {
+    const file = recordCompilerResult(
+      compilerRecords,
+      result,
+      filename,
+      resolvedConfig?.root
+    );
+
+    if (labEnabled && mode !== "production") {
+      developmentServer?.ws?.send({
+        type: "custom",
+        event: "velodom:lab:compiler-update",
+        data: { file }
+      });
+    }
+  };
 
   return {
     name: "velodom",
@@ -105,6 +148,18 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
       mode = config.mode === "production"
         ? "production"
         : "development";
+    },
+
+    configureServer(server) {
+      if (!labEnabled) return;
+
+      developmentServer = server;
+
+      installLabMetadataEndpoint(
+        server,
+        labMetadataPath,
+        compilerRecords
+      );
     },
 
     buildStart() {
@@ -133,7 +188,9 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
         context.filename || "index.html"
       );
 
-      return html;
+      if (!labEnabled || mode === "production") return html;
+
+      return createLabHtmlTags(labMetadataPath);
     },
 
     transform(code, id) {
@@ -151,6 +208,7 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
           mode
         });
         const result = module.result;
+        recordLabCompilerResult(result, id);
         const errors = result.diagnostics.filter(diagnostic => (
           diagnostic.severity === "error"
         ));
@@ -202,6 +260,11 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
             mode
           });
 
+          recordLabCompilerResult(
+            module.result,
+            `${filename}<template>`
+          );
+
           return {
             code: module.code,
             map: null
@@ -241,6 +304,7 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
         mode
       });
       const result = module.result;
+      recordLabCompilerResult(result, filename);
       const errors = result.diagnostics.filter(diagnostic => (
         diagnostic.severity === "error"
       ));
@@ -286,6 +350,142 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
       });
     }
   };
+}
+
+/** Returns whether Lab was enabled explicitly or by the `vd lab` process. */
+function isLabEnabled(setting: VeloDomVitePluginOptions["lab"]) {
+  if (setting === false) return false;
+  if (setting === true) return true;
+  if (setting && setting.enabled !== false) return true;
+
+  return typeof process !== "undefined"
+    && process.env.VELODOM_LAB === "1";
+}
+
+/** Normalizes the local metadata endpoint while rejecting ambiguous paths. */
+function normalizeLabMetadataPath(
+  setting: VeloDomVitePluginOptions["lab"]
+) {
+  const requested = typeof setting === "object"
+    ? setting.metadataPath
+    : undefined;
+  const path = String(requested || VELODOM_LAB_METADATA_PATH).trim();
+
+  if (!path.startsWith("/") || path.startsWith("//") || path.includes("..")) {
+    throw new TypeError(
+      "VeloDom Lab metadataPath must be an absolute local path without '..'"
+    );
+  }
+
+  return path;
+}
+
+/** Installs the read-only, local Vite metadata endpoint. */
+function installLabMetadataEndpoint(
+  server: ViteDevServer,
+  path: string,
+  records: Map<string, DevtoolsCompilerRecord>
+) {
+  server.middlewares.use((request, response, next) => {
+    const requestPath = String(request.url || "").split("?", 1)[0];
+
+    if (requestPath !== path) {
+      next();
+      return;
+    }
+
+    if (request.method !== "GET" && request.method !== "HEAD") {
+      response.statusCode = 405;
+      response.setHeader("allow", "GET, HEAD");
+      response.end();
+      return;
+    }
+
+    const payload = JSON.stringify({
+      protocolVersion: VELODOM_DEVTOOLS_PROTOCOL_VERSION,
+      records: [...records.values()].sort((left, right) => (
+        left.file.localeCompare(right.file)
+      ))
+    });
+
+    response.statusCode = 200;
+    response.setHeader("cache-control", "no-store");
+    response.setHeader("content-type", "application/json; charset=utf-8");
+    response.end(request.method === "HEAD" ? undefined : payload);
+  });
+}
+
+/** Creates the two small development-only HTML bootstrap tags. */
+function createLabHtmlTags(metadataPath: string) {
+  const config = JSON.stringify({
+    globalName: VD_DEVTOOLS.GLOBAL_NAME,
+    metadataUrl: metadataPath
+  }).replaceAll("<", "\\u003c");
+
+  return [
+    {
+      tag: "script",
+      children: `globalThis.${VELODOM_LAB_CONFIG_NAME}=${config};`,
+      injectTo: "head-prepend" as const
+    },
+    {
+      tag: "script",
+      attrs: { type: "module" },
+      children: [
+        `import { mountVeloDomLab } from "/@id/velodom/devtools";`,
+        `mountVeloDomLab(globalThis.${VELODOM_LAB_CONFIG_NAME});`
+      ].join("\n"),
+      injectTo: "body" as const
+    }
+  ];
+}
+
+/** Records compact compiler facts without retaining template source text. */
+function recordCompilerResult(
+  records: Map<string, DevtoolsCompilerRecord>,
+  result: TemplateCompileResult,
+  filename: string,
+  root = ""
+) {
+  const file = normalizeCompilerRecordPath(filename, root);
+
+  records.set(file, {
+    diagnostics: result.diagnostics.map(diagnostic => ({
+      code: diagnostic.code,
+      column: diagnostic.location.column,
+      line: diagnostic.location.line,
+      message: diagnostic.message,
+      severity: diagnostic.severity
+    })),
+    directives: result.metadata.map(metadata => ({
+      argument: metadata.argument,
+      column: metadata.location?.column,
+      expression: metadata.expression,
+      line: metadata.location?.line,
+      name: metadata.name,
+      type: metadata.type
+    })),
+    features: [...result.manifest.features],
+    file
+  });
+
+  return file;
+}
+
+/** Removes private machine paths from compiler records. */
+function normalizeCompilerRecordPath(filename: string, root: string) {
+  const normalized = filename.replaceAll("\\", "/");
+  const normalizedRoot = root.replaceAll("\\", "/").replace(/\/$/, "");
+
+  if (normalizedRoot && normalized.startsWith(`${normalizedRoot}/`)) {
+    return normalized.slice(normalizedRoot.length + 1);
+  }
+
+  const sourceIndex = normalized.lastIndexOf("/src/");
+
+  return sourceIndex === -1
+    ? normalized.replace(/^\/+/, "")
+    : normalized.slice(sourceIndex + 1);
 }
 
 /** Generates one JavaScript template module without depending on Vite hooks. */

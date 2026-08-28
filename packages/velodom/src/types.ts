@@ -11,6 +11,11 @@
 import type {
   RuntimeFeatureManifest
 } from "./compiler/types.ts";
+import type {
+  DevtoolsEventRecord,
+  DevtoolsRouteSnapshot,
+  DevtoolsScopeSnapshot
+} from "./devtools/protocol.ts";
 import { VD_ADAPTER } from "./constants.ts";
 
 /** Read-only value derived from an explicitly supplied reactive state source. */
@@ -496,18 +501,27 @@ export interface RequestRetryOptions {
 export interface DevtoolsPluginOptions {
   globalName?: string;
   enabled?: boolean;
+  eventLimit?: number;
 }
 
 /** Read-only summary exposed through the optional development bridge. */
 export interface DevtoolsSnapshot {
+  events: DevtoolsEventRecord[];
+  protocolVersion: number;
+  route: DevtoolsRouteSnapshot | null;
+  scopes: DevtoolsScopeSnapshot[];
   sharedStateNames: string[];
 }
 
 /** Optional development bridge installed only by createDevtoolsPlugin(). */
 export interface DevtoolsBridge {
   readonly app: VeloDomApp;
+  readonly protocolVersion: number;
+  clearEvents(): void;
+  highlight(id: string): boolean;
   inspect(): DevtoolsSnapshot;
   navigate: VeloDomApp["navigate"];
+  subscribe(callback: (event: DevtoolsEventRecord) => void): () => void;
 }
 
 /** Options for the optional native-form validation plugin. */
