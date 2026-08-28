@@ -170,6 +170,7 @@ export function createDevtoolsPlugin(
   };
 }
 
+/** Creates the devtools bridge. */
 function createDevtoolsBridge({
   app,
   navigate
@@ -187,6 +188,7 @@ function createDevtoolsBridge({
   });
 }
 
+/** Creates the default cache key. */
 function createDefaultCacheKey(
   url: RequestInfo | URL,
   options: UnknownRecord = {}
@@ -198,6 +200,7 @@ function createDefaultCacheKey(
   return `${method} ${String(url)}`;
 }
 
+/** Evaluates the `isCacheableRequest()` condition for the supplied input. */
 function isCacheableRequest(options: JsonRequestOptions) {
   const method = String(
     options.method || VD_OPTIONAL_TOOLS.GET_METHOD
@@ -206,6 +209,7 @@ function isCacheableRequest(options: JsonRequestOptions) {
   return method === VD_OPTIONAL_TOOLS.GET_METHOD && options.body === undefined;
 }
 
+/** Normalizes the retry count. */
 function normalizeRetryCount(value: unknown) {
   const retries = Number.isInteger(value)
     ? Number(value)
@@ -218,6 +222,7 @@ function normalizeRetryCount(value: unknown) {
   return retries;
 }
 
+/** Normalizes the non negative number. */
 function normalizeNonNegativeNumber(
   value: unknown,
   fallback: number
@@ -233,6 +238,7 @@ function normalizeNonNegativeNumber(
   return normalized;
 }
 
+/** Normalizes the global name. */
 function normalizeGlobalName(value: unknown) {
   const normalized = String(
     value || VD_OPTIONAL_TOOLS.DEFAULT_DEVTOOLS_GLOBAL
@@ -245,6 +251,7 @@ function normalizeGlobalName(value: unknown) {
   return normalized;
 }
 
+/** Performs the internal `delay()` operation. */
 function delay(ms: number) {
   return new Promise(resolve => {
     setTimeout(resolve, ms);

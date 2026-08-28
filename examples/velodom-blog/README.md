@@ -31,6 +31,11 @@ The feature and reference pages use literal `<pre><code>` windows guarded by
 live on `/playground`, keeping the long-form guide below the project-health
 size threshold. They are teaching material, not additional Core APIs.
 
+The reference counts and command/import lists are derived from the package
+manifest and public source by `npm run docs:check`. This prevents the teaching
+site from drifting when a public subpath, runtime value, directive, or CLI
+command changes.
+
 ## Application conventions
 
 ```text

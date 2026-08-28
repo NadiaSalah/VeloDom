@@ -325,6 +325,7 @@ export function createTemplateModule(
   };
 }
 
+/** Evaluates the `shouldEmitMetadata()` condition for the supplied input. */
 function shouldEmitMetadata(
   setting: VeloDomVitePluginOptions["emitMetadata"],
   mode: CompilerMode
@@ -335,18 +336,21 @@ function shouldEmitMetadata(
   return mode === "development";
 }
 
+/** Evaluates the `isPageConfigFile()` condition for the supplied input. */
 function isPageConfigFile(filename: string) {
   return /\/src\/pages\/.*\/(?:page\.)?config\.[jt]s$/.test(
     filename.replace(/\\/g, "/")
   );
 }
 
+/** Evaluates the `isSingleFileModule()` condition for the supplied input. */
 function isSingleFileModule(filename: string) {
   return filename
     .split("?", 1)[0]
     .endsWith(VD_SINGLE_FILE.EXTENSION);
 }
 
+/** Evaluates the `isVeloDomStyleFile()` condition for the supplied input. */
 function isVeloDomStyleFile(filename: string) {
   const normalized = filename
     .split("?", 1)[0]
@@ -358,6 +362,7 @@ function isVeloDomStyleFile(filename: string) {
   );
 }
 
+/** Reports the RTL CSS diagnostics. */
 function warnRtlCssDiagnostics(
   context: ViteWarningContext,
   source: string,
@@ -377,6 +382,7 @@ function warnRtlCssDiagnostics(
   });
 }
 
+/** Reports the HTML shell diagnostics. */
 function warnHtmlShellDiagnostics(
   context: ViteWarningContext,
   source: string,

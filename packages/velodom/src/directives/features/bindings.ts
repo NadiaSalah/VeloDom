@@ -41,6 +41,7 @@ export function applyBindings(runtime: DirectiveFeatureRuntime) {
   applyAttrBinding(runtime);
 }
 
+/** Applies the attribute binding. */
 function applyAttributeBinding(
   root,
   state: DirectiveState,
@@ -73,6 +74,7 @@ function applyAttributeBinding(
   });
 }
 
+/** Applies the value binding. */
 function applyValueBinding({
   root,
   state,
@@ -104,6 +106,7 @@ function applyValueBinding({
   });
 }
 
+/** Applies the boolean binding. */
 function applyBooleanBinding(
   runtime: DirectiveFeatureRuntime,
   directive: string,
@@ -146,6 +149,7 @@ function applyBooleanBinding(
   });
 }
 
+/** Applies the class binding. */
 function applyClassBinding(runtime: DirectiveFeatureRuntime) {
   const {
     root,
@@ -186,6 +190,7 @@ function applyClassBinding(runtime: DirectiveFeatureRuntime) {
   });
 }
 
+/** Applies the style binding. */
 function applyStyleBinding(runtime: DirectiveFeatureRuntime) {
   const {
     root,
@@ -248,6 +253,7 @@ function applyStyleBinding(runtime: DirectiveFeatureRuntime) {
   });
 }
 
+/** Applies the attr binding. */
 function applyAttrBinding(runtime: DirectiveFeatureRuntime) {
   const {
     root,
@@ -294,6 +300,7 @@ function applyAttrBinding(runtime: DirectiveFeatureRuntime) {
   });
 }
 
+/** Normalizes the class value. */
 function normalizeClassValue(value: unknown) {
   const classes = new Set<string>();
 
@@ -322,6 +329,7 @@ function normalizeClassValue(value: unknown) {
   return classes;
 }
 
+/** Adds the class names. */
 function addClassNames(classes: Set<string>, value: string) {
   value
     .split(/\s+/)
@@ -329,6 +337,7 @@ function addClassNames(classes: Set<string>, value: string) {
     .forEach(name => classes.add(name));
 }
 
+/** Sets the attribute value. */
 function setAttributeValue(el: Element, key: string, value: unknown) {
   if (value === null || value === undefined || value === false) {
     removeAttributeIfPresent(el, key);
@@ -343,10 +352,12 @@ function setAttributeValue(el: Element, key: string, value: unknown) {
   setAttributeIfChanged(el, key, String(value));
 }
 
+/** Performs the internal `toCssProperty()` operation. */
 function toCssProperty(key: string) {
   return key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
 }
 
+/** Sets the attribute if changed. */
 function setAttributeIfChanged(
   el: Element,
   name: string,
@@ -357,12 +368,14 @@ function setAttributeIfChanged(
   }
 }
 
+/** Removes the attribute if present. */
 function removeAttributeIfPresent(el: Element, name: string) {
   if (el.hasAttribute(name)) {
     el.removeAttribute(name);
   }
 }
 
+/** Sets the style property if changed. */
 function setStylePropertyIfChanged(
   style: CSSStyleDeclaration,
   key: string,
@@ -375,6 +388,7 @@ function setStylePropertyIfChanged(
   }
 }
 
+/** Removes the style property. */
 function removeStyleProperty(style: CSSStyleDeclaration, key: string) {
   const property = toCssProperty(key);
 

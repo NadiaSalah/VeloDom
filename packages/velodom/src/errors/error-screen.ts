@@ -98,6 +98,7 @@ export function renderFatalFrameworkError(
   document.body.replaceChildren(card);
 }
 
+/** Sanitizes the error message. */
 function sanitizeErrorMessage(error: unknown) {
   const record = asErrorRecord(error);
   const value =
@@ -109,6 +110,7 @@ function sanitizeErrorMessage(error: unknown) {
   return String(value).slice(0, 800);
 }
 
+/** Performs the internal `asErrorRecord()` operation. */
 function asErrorRecord(
   value: unknown
 ): Record<string, unknown> | null {

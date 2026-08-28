@@ -43,6 +43,7 @@ export function analyzeHtmlShell(
   ];
 }
 
+/** Finds the charset. */
 function findCharset(source: string) {
   const pattern = /<meta\b[^>]*\bcharset\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+))[^>]*>/gi;
   const match = pattern.exec(source);
@@ -58,6 +59,7 @@ function findCharset(source: string) {
   };
 }
 
+/** Performs the internal `offsetToLocation()` operation. */
 function offsetToLocation(source: string, offset: number) {
   const before = source.slice(0, offset);
   const lines = before.split(/\r?\n/);

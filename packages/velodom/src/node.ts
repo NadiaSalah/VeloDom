@@ -91,6 +91,7 @@ export function createNodeRequestAdapter(
   };
 }
 
+/** Creates the fetch request. */
 async function createFetchRequest(request: IncomingMessage, origin: string) {
   const method = String(request.method || "GET").toUpperCase();
   const body = method === "GET" || method === "HEAD"
@@ -104,6 +105,7 @@ async function createFetchRequest(request: IncomingMessage, origin: string) {
   });
 }
 
+/** Reads the node body. */
 async function readNodeBody(request: IncomingMessage) {
   const chunks: Uint8Array[] = [];
 
@@ -114,6 +116,7 @@ async function readNodeBody(request: IncomingMessage) {
   return Buffer.concat(chunks);
 }
 
+/** Writes the node response. */
 async function writeNodeResponse(response: ServerResponse, result: Response) {
   response.statusCode = result.status;
   response.statusMessage = result.statusText || response.statusMessage;
@@ -128,6 +131,7 @@ async function writeNodeResponse(response: ServerResponse, result: Response) {
   response.end(Buffer.from(await result.arrayBuffer()));
 }
 
+/** Validates the response. */
 async function assertResponse(value: MaybePromise<Response>) {
   const response = await value;
 
@@ -138,6 +142,7 @@ async function assertResponse(value: MaybePromise<Response>) {
   return response;
 }
 
+/** Normalizes the origin. */
 function normalizeOrigin(value: string | undefined) {
   const origin = String(value || "http://localhost").trim();
 

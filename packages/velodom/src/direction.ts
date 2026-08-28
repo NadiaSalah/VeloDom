@@ -108,6 +108,7 @@ export function createRtlFlipStyles(
   ].join("\n");
 }
 
+/** Normalizes the CSS token. */
 function normalizeCssToken(
   value: string | undefined,
   fallback: string,
@@ -126,6 +127,7 @@ function normalizeCssToken(
   return normalized;
 }
 
+/** Creates the direction controller. */
 function createDirectionController(
   locales: Record<string, DirectionLocaleDefinition>,
   initialLocale: string
@@ -191,6 +193,7 @@ function createDirectionController(
   return controller;
 }
 
+/** Normalizes the locales. */
 function normalizeLocales(
   value: DirectionPluginOptions["locales"]
 ): Record<string, DirectionLocaleDefinition> {
@@ -249,6 +252,7 @@ function normalizeLocales(
   return Object.fromEntries(entries);
 }
 
+/** Normalizes the default locale. */
 function normalizeDefaultLocale(
   value: string | undefined,
   locales: Record<string, DirectionLocaleDefinition>
@@ -266,6 +270,7 @@ function normalizeDefaultLocale(
   return locale;
 }
 
+/** Normalizes the direction. */
 function normalizeDirection(
   value: unknown,
   label: string
@@ -283,6 +288,7 @@ function normalizeDirection(
   return direction;
 }
 
+/** Applies the document direction. */
 function applyDocumentDirection(state: DirectionState) {
   if (typeof document === "undefined") return;
 
@@ -292,6 +298,7 @@ function applyDocumentDirection(state: DirectionState) {
   root.dir = state.direction;
 }
 
+/** Reads the document direction. */
 function readDocumentDirection() {
   if (typeof document === "undefined") {
     return {
@@ -306,6 +313,7 @@ function readDocumentDirection() {
   };
 }
 
+/** Restores the document direction. */
 function restoreDocumentDirection(previous: { lang: string; dir: string }) {
   if (typeof document === "undefined") return;
 
@@ -313,6 +321,7 @@ function restoreDocumentDirection(previous: { lang: string; dir: string }) {
   restoreAttribute(document.documentElement, "dir", previous.dir);
 }
 
+/** Restores the attribute. */
 function restoreAttribute(
   element: HTMLElement,
   name: string,

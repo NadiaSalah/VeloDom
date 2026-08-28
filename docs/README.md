@@ -442,7 +442,7 @@ What the main checks do:
 | Command | Purpose |
 | --- | --- |
 | `npm test` | Runs compiler, core, request, package, and DOM integration tests. |
-| `npm run docs:check` | Enforces headers and exported JSDoc under `packages/velodom/src`. |
+| `npm run docs:check` | Enforces module headers, exported API JSDoc, named-function JSDoc, and source-derived documentation consistency. |
 | `npm run check` | Runs documentation, TypeScript, and ESLint checks. |
 | `npm run package:check` | Builds ESM/types and tests an installed local tarball consumer. |
 | `npm run pack:check` | Runs package checks and inspects the npm tarball dry-run contents. |
@@ -4307,8 +4307,11 @@ boundary correctness. Application assets stay under `src/assets` and should not
 be duplicated at the repository root without a deployment reason.
 
 Every framework TypeScript source file begins with an English responsibility
-header. Every exported framework API has adjacent JSDoc, and comments explain
-architectural reasons rather than obvious operations. New features are first
+header. Every exported framework API and named function declaration has
+adjacent JSDoc; callbacks remain uncluttered, while complex comments explain
+architectural reasons rather than obvious operations. JavaScript builds remove
+comments to protect runtime size, while source and generated declarations keep
+their documentation. New features are first
 classified as V1 — Implemented, Current, Planned, Research, Deferred /
 Experimental, or Rejected; features that imitate
 other frameworks, require JSX, mandate global state, or add runtime cost for a

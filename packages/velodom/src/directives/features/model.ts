@@ -71,6 +71,7 @@ export const applyModel: DirectiveFeature = ({
   });
 };
 
+/** Returns the input value. */
 function getInputValue(el: HTMLInputElement) {
   if (el.type === "checkbox") {
     return el.checked;
@@ -79,6 +80,7 @@ function getInputValue(el: HTMLInputElement) {
   return el.value;
 }
 
+/** Sets the input value. */
 function setInputValue(el: HTMLInputElement, value: unknown) {
   if (el.type === "checkbox") {
     el.checked = Boolean(value);

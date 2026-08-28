@@ -110,6 +110,7 @@ export function assertResourceAdapterConformance(
   validateResourceAdapter(adapter);
 }
 
+/** Validates the adapter version. */
 function validateAdapterVersion(value: unknown) {
   if (value === undefined) return VD_ADAPTER.VERSION;
 
@@ -123,6 +124,7 @@ function validateAdapterVersion(value: unknown) {
   return value;
 }
 
+/** Validates the adapter capabilities. */
 function validateAdapterCapabilities(
   value: unknown
 ): ResourceAdapterCapability[] {
@@ -150,6 +152,7 @@ function validateAdapterCapabilities(
   return capabilities as ResourceAdapterCapability[];
 }
 
+/** Validates the resource group. */
 function validateResourceGroup(
   value: unknown,
   label: string,
@@ -205,6 +208,7 @@ function validateResourceGroup(
   };
 }
 
+/** Validates the loader map. */
 function validateLoaderMap<T>(
   value: unknown,
   label: string
@@ -242,6 +246,7 @@ function validateLoaderMap<T>(
   );
 }
 
+/** Validates the config map. */
 function validateConfigMap(
   value: unknown,
   label: string
@@ -270,6 +275,7 @@ function validateConfigMap(
   );
 }
 
+/** Normalizes the page config. */
 function normalizePageConfig(
   config: UnknownRecord,
   label: string,
@@ -303,6 +309,7 @@ function normalizePageConfig(
   }
 }
 
+/** Normalizes the page navigation guard. */
 function normalizePageNavigationGuard(
   value: unknown,
   label: string,
@@ -321,6 +328,7 @@ function normalizePageNavigationGuard(
   return value as NavigationGuard;
 }
 
+/** Normalizes the layout name. */
 function normalizeLayoutName(
   value: unknown,
   label: string,
@@ -352,6 +360,7 @@ function normalizeLayoutName(
   return layout;
 }
 
+/** Creates the source aware loader. */
 function createSourceAwareLoader<T>(
   loader: ResourceLoader<T>,
   file: string,
@@ -366,6 +375,7 @@ function createSourceAwareLoader<T>(
   };
 }
 
+/** Attaches the source to error. */
 function attachSourceToError(
   error: unknown,
   file: string,
@@ -381,6 +391,7 @@ function attachSourceToError(
   return annotated;
 }
 
+/** Returns the resource source file. */
 function getResourceSourceFile(label: string, name: string) {
   const [group, type] = label.split(".");
   const root = getResourceRoot(group);
@@ -404,6 +415,7 @@ function getResourceSourceFile(label: string, name: string) {
   }
 }
 
+/** Returns the resource root. */
 function getResourceRoot(group: string) {
   if (group === VD_RESOURCE_ADAPTER.GROUPS.COMPONENTS) {
     return VD_RESOURCE_ADAPTER.ROOTS.COMPONENTS;
@@ -416,6 +428,7 @@ function getResourceRoot(group: string) {
   return VD_RESOURCE_ADAPTER.ROOTS.PAGES;
 }
 
+/** Creates the adapter error. */
 function createAdapterError(
   message: string,
   hint: string,

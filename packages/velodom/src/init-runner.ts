@@ -71,6 +71,7 @@ export async function runModuleHook(hook, args) {
   );
 }
 
+/** Performs the internal `prefersObjectArgument()` operation. */
 function prefersObjectArgument(hook) {
   const source = Function.prototype.toString.call(hook).trim();
 

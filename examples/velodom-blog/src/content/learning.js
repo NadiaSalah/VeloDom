@@ -5,10 +5,10 @@
  */
 
 export const homeMetrics = [
-  { label: "Authoring", value: "HTML" },
-  { label: "Compiler", value: "Safe" },
-  { label: "Runtime", value: "Modular" },
-  { label: "Application", value: "Folders" }
+  { label: "Public values", value: "61" },
+  { label: "Directives", value: "43" },
+  { label: "Package exports", value: "13" },
+  { label: "CLI commands", value: "14" }
 ];
 
 export const frameworkPrinciples = [

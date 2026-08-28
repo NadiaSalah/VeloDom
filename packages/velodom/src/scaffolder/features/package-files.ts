@@ -39,6 +39,7 @@ export async function writeProjectConfiguration(
   }
 }
 
+/** Creates the manifest. */
 function createManifest(plan: ScaffoldPlan, velodomVersion: string) {
   const scripts: Record<string, string> = {
     dev: "vite",
@@ -109,6 +110,7 @@ function createManifest(plan: ScaffoldPlan, velodomVersion: string) {
   };
 }
 
+/** Creates the vite config. */
 function createViteConfig(plan: ScaffoldPlan) {
   const extension = plan.language === "typescript" ? "ts" : "js";
   const imports = [
@@ -135,6 +137,7 @@ function createViteConfig(plan: ScaffoldPlan) {
 `;
 }
 
+/** Creates the language config source. */
 function createLanguageConfigSource(plan: ScaffoldPlan) {
   if (plan.language === "javascript") {
     return `{
@@ -181,6 +184,7 @@ function createLanguageConfigSource(plan: ScaffoldPlan) {
 `;
 }
 
+/** Creates the eslint config. */
 function createEslintConfig(plan: ScaffoldPlan) {
   const typeImports = plan.language === "typescript"
     ? 'import tseslint from "typescript-eslint";\n'
@@ -209,6 +213,7 @@ ${configurations}
 `;
 }
 
+/** Creates the HTML application shell. */
 function createHtmlShell(plan: ScaffoldPlan) {
   const extension = plan.language === "typescript" ? "ts" : "js";
   const title = plan.starter === "blog" ? "VeloDom Blog" : "VeloDom Starter";
@@ -233,6 +238,7 @@ function createHtmlShell(plan: ScaffoldPlan) {
 `;
 }
 
+/** Creates the playwright config. */
 function createPlaywrightConfig(plan: ScaffoldPlan) {
   const devCommand = plan.packageManager === "pnpm" || plan.packageManager === "yarn"
     ? `${plan.packageManager} dev`
@@ -252,14 +258,17 @@ export default defineConfig({
 `;
 }
 
+/** Performs the internal `viteConfigName()` operation. */
 function viteConfigName(plan: ScaffoldPlan) {
   return plan.language === "typescript" ? "vite.config.ts" : "vite.config.js";
 }
 
+/** Writes deterministic JSON output. */
 async function writeJson(file: string, value: unknown) {
   await writeText(file, `${JSON.stringify(value, null, 2)}\n`);
 }
 
+/** Writes the text. */
 async function writeText(file: string, source: string) {
   await mkdir(dirname(file), { recursive: true });
   await writeFile(file, source);

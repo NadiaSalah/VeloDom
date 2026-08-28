@@ -234,6 +234,7 @@ export function renderSeoDocument(
   );
 }
 
+/** Discovers the static SEO pages. */
 async function discoverStaticSeoPages(
   pagesRoot: string,
   options: DiscoverStaticSeoOptions
@@ -311,6 +312,7 @@ async function discoverStaticSeoPages(
   return groups.flat();
 }
 
+/** Resolves the prerender pages. */
 async function resolvePrerenderPages(
   template: StaticSeoSource,
   prerender: PagePrerenderConfig,
@@ -373,6 +375,7 @@ async function resolvePrerenderPages(
   });
 }
 
+/** Resolves the build SEO entries. */
 async function resolveBuildSeoEntries(
   rawSeo: PageConfig["seo"],
   baseSeo: SeoConfig,
@@ -393,6 +396,7 @@ async function resolveBuildSeoEntries(
   }, `SEO entries for page "${context.page}"`)?.entries as SeoRouteEntry[] || [];
 }
 
+/** Collects the raw SEO entries. */
 async function collectRawSeoEntries(
   rawSeo: PageConfig["seo"],
   context: SeoEntriesContext,
@@ -420,6 +424,7 @@ async function collectRawSeoEntries(
   return entries;
 }
 
+/** Runs the SEO entries hook. */
 async function runSeoEntriesHook(
   hook: SeoEntriesHook,
   context: SeoEntriesContext
@@ -437,6 +442,7 @@ async function runSeoEntriesHook(
   return result;
 }
 
+/** Finds the page templates. */
 async function findPageTemplates(directory: string): Promise<StaticSeoSource[]> {
   const discovered = await findPageTemplateCandidates(directory, directory);
   const byFolder = new Map<string, StaticSeoSource>();
@@ -452,6 +458,7 @@ async function findPageTemplates(directory: string): Promise<StaticSeoSource[]> 
   return [...byFolder.values()];
 }
 
+/** Finds the page template candidates. */
 async function findPageTemplateCandidates(
   root: string,
   directory: string
@@ -516,6 +523,7 @@ async function findPageTemplateCandidates(
   return nested.flat();
 }
 
+/** Loads the page config. */
 async function loadPageConfig(
   source: StaticSeoSource
 ): Promise<PageConfig | undefined> {
@@ -551,6 +559,7 @@ async function loadPageConfig(
   return undefined;
 }
 
+/** Loads the type script page config. */
 async function loadTypeScriptPageConfig(path: string) {
   const source = await readFile(path, "utf8");
   let typescript: typeof import("typescript");
@@ -599,6 +608,7 @@ async function loadTypeScriptPageConfig(path: string) {
   }
 }
 
+/** Imports the versioned module. */
 async function importVersionedModule(path: string, version: number) {
   const url = pathToFileURL(path);
 
@@ -606,6 +616,7 @@ async function importVersionedModule(path: string, version: number) {
   return import(url.href);
 }
 
+/** Loads the single file page config. */
 async function loadSingleFilePageConfig(
   path: string
 ): Promise<PageConfig | undefined> {
@@ -621,6 +632,7 @@ async function loadSingleFilePageConfig(
   return module.default as PageConfig | undefined;
 }
 
+/** Deduplicates the pages. */
 function dedupePages(pages: StaticSeoPage[]) {
   const byRoute = new Map<string, StaticSeoPage>();
 
@@ -637,6 +649,7 @@ function dedupePages(pages: StaticSeoPage[]) {
   return [...byRoute.values()];
 }
 
+/** Resolves the static content. */
 async function resolveStaticContent(
   page: StaticSeoPage,
   options: {
@@ -696,6 +709,7 @@ async function resolveStaticContent(
   };
 }
 
+/** Normalizes the static route. */
 function normalizeStaticRoute(value: string) {
   const route = String(value || "").trim();
 
@@ -712,10 +726,12 @@ function normalizeStaticRoute(value: string) {
   return route.replace(/\/{2,}/g, "/").replace(/\/+$/, "");
 }
 
+/** Performs the internal `folderToRoute()` operation. */
 function folderToRoute(folder: string) {
   return folder === "home" ? "/" : `/${folder}`;
 }
 
+/** Resolves the route output. */
 function resolveRouteOutput(outDir: string, route: string) {
   if (route === "/") return join(outDir, "index.html");
 
@@ -726,6 +742,7 @@ function resolveRouteOutput(outDir: string, route: string) {
   );
 }
 
+/** Preserves the document defaults. */
 function preserveDocumentDefaults(
   source: string,
   title: string,
@@ -751,6 +768,7 @@ function preserveDocumentDefaults(
   });
 }
 
+/** Replaces the document lang. */
 function replaceDocumentLang(source: string, lang: string | undefined) {
   if (!lang) return source;
 
@@ -764,6 +782,7 @@ function replaceDocumentLang(source: string, lang: string | undefined) {
   });
 }
 
+/** Replaces the document title. */
 function replaceDocumentTitle(source: string, title: string) {
   const value = `<title>${escapeText(title)}</title>`;
 
@@ -777,6 +796,7 @@ function replaceDocumentTitle(source: string, title: string) {
   return source.replace(/<\/head>/i, `${value}\n</head>`);
 }
 
+/** Renders the head metadata. */
 function renderHeadMetadata(
   seo: SeoMetadata,
   canonical: string
@@ -842,6 +862,7 @@ function renderHeadMetadata(
   return tags.filter(Boolean).join("\n");
 }
 
+/** Renders the meta. */
 function renderMeta(
   attribute: "name" | "property",
   key: string,
@@ -852,6 +873,7 @@ function renderMeta(
   return `<meta ${attribute}="${escapeAttribute(key)}" content="${escapeAttribute(content)}" ${VD_SEO.MANAGED_ATTRIBUTE}>`;
 }
 
+/** Renders the alternate links. */
 function renderAlternateLinks(
   alternates: Record<string, string> | undefined,
   canonical: string
@@ -865,6 +887,7 @@ function renderAlternateLinks(
   });
 }
 
+/** Resolves the alternate href. */
 function resolveAlternateHref(href: string, canonical: string) {
   if (!canonical) return href;
 
@@ -875,6 +898,7 @@ function resolveAlternateHref(href: string, canonical: string) {
   }
 }
 
+/** Renders the summary. */
 function renderSummary(heading: string, text: string) {
   return [
     `<section ${VD_SEO.FALLBACK_ATTRIBUTE} aria-label="Page summary">`,
@@ -884,6 +908,7 @@ function renderSummary(heading: string, text: string) {
   ].join("\n");
 }
 
+/** Renders the app static content. */
 function renderAppStaticContent(
   staticContent: SeoStaticContent | undefined,
   heading: string,
@@ -913,6 +938,7 @@ function renderAppStaticContent(
   return `${staticHtml}${dataTransfer}`;
 }
 
+/** Renders the static content. */
 function renderStaticContent(staticContent: SeoStaticContent) {
   const hydration = staticContent.hydration === false
     ? ""
@@ -925,6 +951,7 @@ function renderStaticContent(staticContent: SeoStaticContent) {
   ].join("\n");
 }
 
+/** Validates the safe static content. */
 function assertSafeStaticContent(html: string, route: string) {
   if (/<\/?script\b/i.test(html)) {
     throw new Error(
@@ -933,6 +960,7 @@ function assertSafeStaticContent(html: string, route: string) {
   }
 }
 
+/** Resolves the canonical. */
 function resolveCanonical(
   value: string | undefined,
   siteUrl: string | undefined
@@ -950,6 +978,7 @@ function resolveCanonical(
   }
 }
 
+/** Normalizes the site URL. */
 function normalizeSiteUrl(value: string | undefined) {
   if (!value) return "";
 
@@ -964,6 +993,7 @@ function normalizeSiteUrl(value: string | undefined) {
   }
 }
 
+/** Creates the sitemap. */
 function createSitemap(siteUrl: string, routes: string[]) {
   const urls = routes
     .map(route => (
@@ -980,6 +1010,7 @@ function createSitemap(siteUrl: string, routes: string[]) {
   ].join("\n");
 }
 
+/** Creates the robots. */
 function createRobots(siteUrl: string, includeSitemap: boolean) {
   const lines = [
     "User-agent: *",
@@ -993,22 +1024,26 @@ function createRobots(siteUrl: string, includeSitemap: boolean) {
   return `${lines.join("\n")}\n`;
 }
 
+/** Evaluates the `isIndexable()` condition for the supplied input. */
 function isIndexable(seo: SeoMetadata) {
   return !seo.robots?.toLowerCase().includes("noindex");
 }
 
+/** Reads the document title. */
 function readDocumentTitle(source: string) {
   return source.match(
     /<title\b[^>]*>([\s\S]*?)<\/title>/i
   )?.[1].trim() || "";
 }
 
+/** Reads the document lang. */
 function readDocumentLang(source: string) {
   return source.match(
     /<html\b[^>]*\slang=(["'])(.*?)\1/i
   )?.[2] || "";
 }
 
+/** Escapes the text. */
 function escapeText(value: string) {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -1016,12 +1051,14 @@ function escapeText(value: string) {
     .replace(/>/g, "&gt;");
 }
 
+/** Escapes the attribute. */
 function escapeAttribute(value: string) {
   return escapeText(value)
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
 
+/** Validates the inside root. */
 function assertInsideRoot(
   target: string,
   root: string,

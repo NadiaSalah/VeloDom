@@ -236,6 +236,7 @@ export function inspectLocalization(options: LocalizationOptions): LocalizationD
   return inspectLocaleDictionaries(normalized);
 }
 
+/** Normalizes the options. */
 function normalizeOptions(options: LocalizationOptions): Required<LocalizationOptions> {
   if (!options || typeof options !== "object") {
     throw new TypeError("VeloDom localization options must be an object");
@@ -275,6 +276,7 @@ function normalizeOptions(options: LocalizationOptions): Required<LocalizationOp
   };
 }
 
+/** Inspects the locale dictionaries. */
 function inspectLocaleDictionaries(
   options: Required<LocalizationOptions>
 ): LocalizationDiagnostic[] {
@@ -315,6 +317,7 @@ function inspectLocaleDictionaries(
   ));
 }
 
+/** Resolves the message. */
 function resolveMessage(
   options: Required<LocalizationOptions>,
   locale: string,
@@ -338,6 +341,7 @@ function resolveMessage(
   return value;
 }
 
+/** Localizes the path. */
 function localizePath(
   options: Required<LocalizationOptions>,
   locale: string,
@@ -359,6 +363,7 @@ function localizePath(
   return `/${locale}${basePath}${suffix}`;
 }
 
+/** Switches the locale path. */
 function switchLocalePath(
   options: Required<LocalizationOptions>,
   locale: string,
@@ -382,6 +387,7 @@ function switchLocalePath(
   return localizePath(options, locale, `${sourcePath}${suffix}`);
 }
 
+/** Creates the localized SEO entries. */
 function createLocalizedSeoEntries(
   options: Required<LocalizationOptions>,
   sources: readonly LocalizedSeoSource[]
@@ -421,6 +427,7 @@ function createLocalizedSeoEntries(
   }));
 }
 
+/** Splits the path suffix. */
 function splitPathSuffix(path: string) {
   const value = String(path || "").trim();
   const hashIndex = value.indexOf("#");
@@ -434,6 +441,7 @@ function splitPathSuffix(path: string) {
   };
 }
 
+/** Requires the locale. */
 function requireLocale(value: string) {
   const locale = String(value || "").trim();
 
@@ -450,6 +458,7 @@ function requireLocale(value: string) {
   return locale;
 }
 
+/** Normalizes the date. */
 function normalizeDate(value: Date | number | string) {
   const date = value instanceof Date ? value : new Date(value);
 
@@ -460,6 +469,7 @@ function normalizeDate(value: Date | number | string) {
   return date;
 }
 
+/** Requires the finite number. */
 function requireFiniteNumber(value: number, label: string) {
   if (!Number.isFinite(value)) {
     throw new TypeError(`VeloDom ${label} must be a finite number`);
@@ -468,6 +478,7 @@ function requireFiniteNumber(value: number, label: string) {
   return value;
 }
 
+/** Validates the dictionary. */
 function validateDictionary(value: unknown, label: string) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new TypeError(`VeloDom ${label} must be a nested object`);
@@ -483,6 +494,7 @@ function validateDictionary(value: unknown, label: string) {
   }
 }
 
+/** Flattens the dictionary. */
 function flattenDictionary(
   dictionary: LocaleDictionary,
   prefix = "",
@@ -501,6 +513,7 @@ function flattenDictionary(
   return result;
 }
 
+/** Formats the localization diagnostics. */
 function formatLocalizationDiagnostics(diagnostics: LocalizationDiagnostic[]) {
   return [
     "VeloDom localization is incomplete:",

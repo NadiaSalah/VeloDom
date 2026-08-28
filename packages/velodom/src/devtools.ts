@@ -73,6 +73,7 @@ export function mountDevtoolsInspector(
   };
 }
 
+/** Returns the bridge. */
 function getBridge(globalName: string): DevtoolsBridge {
   const value = (window as unknown as Record<string, unknown>)[globalName];
 
@@ -86,6 +87,7 @@ function getBridge(globalName: string): DevtoolsBridge {
   return value;
 }
 
+/** Evaluates the `isDevtoolsBridge()` condition for the supplied input. */
 function isDevtoolsBridge(value: unknown): value is DevtoolsBridge {
   return Boolean(value)
     && typeof value === "object"

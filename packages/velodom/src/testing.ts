@@ -164,6 +164,7 @@ export async function mountTestComponent<
   );
 }
 
+/** Creates the test result. */
 function createTestResult<TState extends StateRecord>(
   root: HTMLElement,
   state: TState,
@@ -179,6 +180,7 @@ function createTestResult<TState extends StateRecord>(
   };
 }
 
+/** Escapes the attribute. */
 function escapeAttribute(value: string) {
   return value.replaceAll("&", "&amp;").replaceAll("\"", "&quot;");
 }

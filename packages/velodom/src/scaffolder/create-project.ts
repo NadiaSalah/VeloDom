@@ -108,6 +108,7 @@ export async function createVeloDomProject(
   };
 }
 
+/** Copies the starter. */
 async function copyStarter(plan: ScaffoldPlan) {
   await cp(templateDirectory("default"), plan.destination, {
     recursive: true,
@@ -119,6 +120,7 @@ async function copyStarter(plan: ScaffoldPlan) {
   });
 }
 
+/** Inspects the destination. */
 async function inspectDestination(destination: string) {
   const entries = await readdir(destination).catch(error => {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
@@ -132,6 +134,7 @@ async function inspectDestination(destination: string) {
   return { exists: entries !== null };
 }
 
+/** Normalizes the template dotfiles. */
 async function normalizeTemplateDotfiles(destination: string) {
   const source = join(destination, "_gitignore");
   const target = join(destination, ".gitignore");
@@ -143,6 +146,7 @@ async function normalizeTemplateDotfiles(destination: string) {
   if (exists !== null) await rename(source, target);
 }
 
+/** Removes the generated metadata. */
 async function removeGeneratedMetadata(destination: string) {
   await Promise.all([
     "package-lock.json",
@@ -154,6 +158,7 @@ async function removeGeneratedMetadata(destination: string) {
   ].map(file => rm(join(destination, file), { force: true })));
 }
 
+/** Reads the framework version. */
 async function readFrameworkVersion() {
   const manifest = JSON.parse(await readFile(
     fileURLToPath(new URL("../../package.json", import.meta.url)),
@@ -164,6 +169,7 @@ async function readFrameworkVersion() {
   return manifest.version;
 }
 
+/** Initializes the git. */
 async function initializeGit(cwd: string) {
   return new Promise<boolean>(resolvePromise => {
     const child = spawn("git", ["init"], {
@@ -177,6 +183,7 @@ async function initializeGit(cwd: string) {
   });
 }
 
+/** Writes the project readme. */
 async function writeProjectReadme(plan: ScaffoldPlan) {
   const extension = plan.language === "typescript" ? "ts" : "js";
   const enabled = [
@@ -218,6 +225,7 @@ Package-local AI guidance is available after installation at
 `);
 }
 
+/** Prints the enabled features. */
 function printEnabledFeatures(request: ScaffoldRequest, plan: ScaffoldPlan) {
   const features = [
     plan.eslint ? "ESLint configured" : null,
@@ -232,6 +240,7 @@ function printEnabledFeatures(request: ScaffoldRequest, plan: ScaffoldPlan) {
   features.forEach(feature => request.context.stdout(`✓ ${feature}`));
 }
 
+/** Prints the next steps. */
 function printNextSteps(
   request: ScaffoldRequest,
   plan: ScaffoldPlan,
@@ -247,22 +256,27 @@ function printNextSteps(
   request.context.stdout(`\nNext steps:\n\n${steps.join("\n")}\n\nHappy building with VeloDom ⚡`);
 }
 
+/** Performs the internal `templateDirectory()` operation. */
 function templateDirectory(name: string) {
   return fileURLToPath(new URL(`../../templates/${name}/`, import.meta.url));
 }
 
+/** Performs the internal `displayPath()` operation. */
 function displayPath(cwd: string, destination: string) {
   return relative(cwd, destination).replaceAll("\\", "/") || ".";
 }
 
+/** Performs the internal `quotePath()` operation. */
 function quotePath(path: string) {
   return /\s/.test(path) ? JSON.stringify(path) : path;
 }
 
+/** Performs the internal `errorMessage()` operation. */
 function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
 }
 
+/** Writes the text. */
 async function writeText(file: string, source: string) {
   await mkdir(dirname(file), { recursive: true });
   await writeFile(file, source);

@@ -79,6 +79,7 @@ export function assertPluginConformance(plugin: VeloDomPlugin): void {
   normalizePlugin(plugin, 0);
 }
 
+/** Normalizes the plugin. */
 function normalizePlugin(
   plugin: unknown,
   index: number

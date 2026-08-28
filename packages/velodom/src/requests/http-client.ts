@@ -157,6 +157,7 @@ export async function requestJson(
   return payload;
 }
 
+/** Returns the normalized request URL. */
 function getRequestUrl(url: RequestInfo | URL) {
   if (typeof url === "string") return url;
   if (url instanceof URL) return url.href;
@@ -164,6 +165,7 @@ function getRequestUrl(url: RequestInfo | URL) {
   return url.url;
 }
 
+/** Returns the error property. */
 function getErrorProperty(error: unknown, key: string) {
   if (!error || typeof error !== "object") {
     return undefined;

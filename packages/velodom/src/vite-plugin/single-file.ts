@@ -156,6 +156,7 @@ export function stripBuildOnlySeoEntries(source: string) {
   return removeSourceRanges(source, ranges);
 }
 
+/** Finds the single file blocks. */
 function findSingleFileBlocks(source: string) {
   const blocks: BlockMatch[] = [];
   const pattern = /<([A-Za-z][\w-]*)(?:\s[^>]*)?>/g;
@@ -190,16 +191,19 @@ function findSingleFileBlocks(source: string) {
   return blocks;
 }
 
+/** Evaluates the `isSupportedBlock()` condition for the supplied input. */
 function isSupportedBlock(name: string) {
   return (Object.values(VD_SINGLE_FILE.TAGS) as string[]).includes(name);
 }
 
+/** Performs the internal `previousMeaningfulCharacter()` operation. */
 function previousMeaningfulCharacter(source: string, index: number) {
   const previousIndex = previousMeaningfulCharacterIndex(source, index);
 
   return previousIndex === -1 ? "" : source[previousIndex];
 }
 
+/** Performs the internal `previousMeaningfulCharacterIndex()` operation. */
 function previousMeaningfulCharacterIndex(source: string, index: number) {
   for (let i = index - 1; i >= 0; i -= 1) {
     if (!/\s/.test(source[i])) return i;
@@ -208,6 +212,7 @@ function previousMeaningfulCharacterIndex(source: string, index: number) {
   return -1;
 }
 
+/** Finds the property value end. */
 function findPropertyValueEnd(source: string, start: number) {
   let depth = 0;
   let quote = "";
@@ -264,6 +269,7 @@ function findPropertyValueEnd(source: string, start: number) {
   return -1;
 }
 
+/** Removes the source ranges. */
 function removeSourceRanges(
   source: string,
   ranges: Array<{
@@ -286,10 +292,12 @@ function removeSourceRanges(
   return chunks.join("");
 }
 
+/** Escapes a value for safe use inside a regular expression. */
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/** Rewrites the default export. */
 function rewriteDefaultExport(source: string, exportName: string) {
   const defaultExportPattern = /\bexport\s+default\b/;
 

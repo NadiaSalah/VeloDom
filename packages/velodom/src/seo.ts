@@ -124,6 +124,7 @@ export function applyPageSeo(
   appendJsonLd(doc, seo.jsonLd);
 }
 
+/** Normalizes the SEO metadata. */
 function normalizeSeoMetadata(
   value: UnknownRecord,
   label: string
@@ -189,6 +190,7 @@ function normalizeSeoMetadata(
   return normalized;
 }
 
+/** Normalizes the SEO entry. */
 function normalizeSeoEntry(
   value: unknown,
   label: string
@@ -203,6 +205,7 @@ function normalizeSeoEntry(
   };
 }
 
+/** Normalizes the summary. */
 function normalizeSummary(
   value: unknown,
   label: string
@@ -217,6 +220,7 @@ function normalizeSummary(
   };
 }
 
+/** Normalizes the alternates. */
 function normalizeAlternates(value: unknown, label: string) {
   if (!isPlainObject(value)) {
     throw new TypeError(`${label}.alternates must be a plain object`);
@@ -238,6 +242,7 @@ function normalizeAlternates(value: unknown, label: string) {
   }));
 }
 
+/** Normalizes the text record. */
 function normalizeTextRecord(
   value: unknown,
   label: string
@@ -254,6 +259,7 @@ function normalizeTextRecord(
   );
 }
 
+/** Normalizes the twitter card. */
 function normalizeTwitterCard(
   value: unknown,
   label: string
@@ -278,6 +284,7 @@ function normalizeTwitterCard(
   return normalized;
 }
 
+/** Normalizes the JSON-LD value. */
 function normalizeJsonLd(
   value: unknown,
   label: string
@@ -297,6 +304,7 @@ function normalizeJsonLd(
   return value;
 }
 
+/** Requires the text. */
 function requireText(value: unknown, label: string) {
   if (typeof value !== "string" || !value.trim()) {
     throw new TypeError(`${label} must be a non-empty string`);
@@ -305,6 +313,7 @@ function requireText(value: unknown, label: string) {
   return value.trim();
 }
 
+/** Requires the route path. */
 function requireRoutePath(value: unknown, label: string) {
   const path = requireText(value, label);
 
@@ -320,6 +329,7 @@ function requireRoutePath(value: unknown, label: string) {
   return normalizeRoutePath(path);
 }
 
+/** Performs the internal `assignOptionalText()` operation. */
 function assignOptionalText(
   target: SeoMetadata,
   key: "canonical" | "robots" | "lang",
@@ -331,6 +341,7 @@ function assignOptionalText(
   target[key] = requireText(value, `${label}.${key}`);
 }
 
+/** Normalizes the route path. */
 function normalizeRoutePath(path: string) {
   const normalized = String(path || "/")
     .trim()
@@ -342,6 +353,7 @@ function normalizeRoutePath(path: string) {
   return normalized.replace(/\/+$/g, "");
 }
 
+/** Preserves the document defaults. */
 function preserveDocumentDefaults(doc: Document) {
   const root = doc.documentElement;
 
@@ -360,12 +372,14 @@ function preserveDocumentDefaults(doc: Document) {
   }
 }
 
+/** Removes the managed SEO nodes. */
 function removeManagedSeoNodes(doc: Document) {
   doc.head.querySelectorAll(
     `[${VD_SEO.MANAGED_ATTRIBUTE}]`
   ).forEach(node => node.remove());
 }
 
+/** Sets the document lang. */
 function setDocumentLang(doc: Document, lang: string) {
   if (lang) {
     doc.documentElement.lang = lang;
@@ -375,6 +389,7 @@ function setDocumentLang(doc: Document, lang: string) {
   doc.documentElement.removeAttribute("lang");
 }
 
+/** Appends the meta. */
 function appendMeta(
   doc: Document,
   attribute: "name" | "property",
@@ -390,6 +405,7 @@ function appendMeta(
   doc.head.append(meta);
 }
 
+/** Appends the link. */
 function appendLink(doc: Document, rel: string, href: string) {
   const link = doc.createElement("link");
   link.setAttribute("rel", rel);
@@ -398,6 +414,7 @@ function appendLink(doc: Document, rel: string, href: string) {
   doc.head.append(link);
 }
 
+/** Applies the alternate links. */
 function applyAlternateLinks(
   doc: Document,
   alternates: Record<string, string> | undefined
@@ -418,6 +435,7 @@ function applyAlternateLinks(
   }
 }
 
+/** Applies the open graph. */
 function applyOpenGraph(
   doc: Document,
   seo: SeoMetadata,
@@ -453,6 +471,7 @@ function applyOpenGraph(
   );
 }
 
+/** Applies the twitter card. */
 function applyTwitterCard(doc: Document, seo: SeoMetadata) {
   const card = seo.twitter;
 
@@ -480,6 +499,7 @@ function applyTwitterCard(doc: Document, seo: SeoMetadata) {
   );
 }
 
+/** Appends the JSON-LD script. */
 function appendJsonLd(
   doc: Document,
   value: UnknownRecord | UnknownRecord[] | undefined
@@ -493,6 +513,7 @@ function appendJsonLd(
   doc.head.append(script);
 }
 
+/** Resolves the canonical URL. */
 function resolveCanonicalUrl(
   value: string | undefined,
   baseUrl: string

@@ -69,6 +69,7 @@ export function createSharedState<
   });
 }
 
+/** Normalizes the shared state name. */
 function normalizeSharedStateName(name: unknown) {
   const normalized = String(name || VD_SHARED_STATE.DEFAULT_NAME).trim();
 
@@ -79,6 +80,7 @@ function normalizeSharedStateName(name: unknown) {
   return normalized;
 }
 
+/** Returns the or create shared registry. */
 function getOrCreateSharedRegistry(app: VeloDomApp) {
   if (!app.shared) {
     Object.defineProperty(app, VD_SHARED_STATE.APP_PROPERTY, {

@@ -236,6 +236,7 @@ export function mapFileMiddleware<T>(
   return mapNestedFileHandlers(files, prefix, "middleware", 1);
 }
 
+/** Maps the nested file handlers. */
 function mapNestedFileHandlers<T>(
   files: Record<string, unknown>,
   prefix: string,

@@ -128,8 +128,8 @@ docs/
 ## Current Status
 
 The package source is version `1.0.0`. Its public contract exposes 13 package
-entry points, 61 browser/build public values, 43 preferred directive names, and 14 CLI
-commands. Release checks cover TypeScript, ESLint, documentation consistency,
+entry points, 61 browser/build public values, 43 preferred directive names,
+and 14 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
 the automated test suite, production builds, package boundaries, an installed
 tarball consumer, the generated starter, and browser targets.
 
@@ -142,6 +142,23 @@ release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
+- Rescanned package exports, public values, preferred directives, CLI commands,
+  authoring conventions, and optional integrations against implementation and
+  tests before changing teaching content.
+- Corrected stale Blog starter and generated feature props so dynamic values use
+  `vd-props`, then added explicit loop and empty states.
+- Corrected the showcase's routing, hash, form, localization, package-map, CLI,
+  and source-derived metric examples; removed unused presentation CSS.
+- Expanded the documentation audit to verify the live showcase against the
+  package manifest/source and reject known obsolete signatures.
+- Added concise JSDoc to every named Core function and an AST-backed regression
+  gate, while stripping comments only from compiled JavaScript to preserve the
+  lightweight runtime budget.
+- Verified 269 tests, documentation/type/lint gates, production/package builds,
+  installed consumers, dry-run tarballs, project doctor/health, and live
+  desktop/compact navigation. Chromium, WebKit, and Mobile WebKit pass locally;
+  this machine's known Firefox SWGL compositor launch failure remains delegated
+  to the required strict Linux workflow.
 - Normalized release history around one planned first official `1.0.0` release;
   discarded private repository and registry experiments are now represented by
   one concise pre-public note instead of false version chronology.
@@ -181,11 +198,9 @@ release commit is verified, approved, tagged, and published deliberately.
 - Fixed Windows package-manager execution by invoking npm through its Node CLI,
   and made every Prettier-enabled generated file formatted at creation time.
 
-Primary changed paths are `docs/CHANGELOG.md`, the maintained release/status
-guides, `tools/scripts/check-doc-consistency.mjs`,
-`packages/velodom/src/scaffolder/`, `packages/velodom/templates/`,
-`packages/create-velodom/`, the VeloDom CLI, and package/consumer checks under
-`tools/`.
+Primary changed paths are `packages/velodom/src`, the Blog/feature starter
+templates, `examples/velodom-blog`, package-local AI references, repository
+guides, and documentation/test checks under `tools/`.
 Official starter input now lives only in the composable `templates/default`
 and `templates/starters` sources inside the VeloDom package.
 

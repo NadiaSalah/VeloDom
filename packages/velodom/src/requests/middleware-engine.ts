@@ -159,6 +159,7 @@ export async function executeRequestMiddleware({
 
   let effectiveParams = { ...params };
 
+  /** Dispatches the requested value. */
   async function dispatch(
     index: number,
     currentParams: StateRecord
@@ -245,6 +246,7 @@ export async function executeRequestMiddleware({
   };
 }
 
+/** Normalizes the middleware registry. */
 function normalizeMiddlewareRegistry(
   registry: unknown
 ): MiddlewareRegistryResolution {
@@ -267,6 +269,7 @@ function normalizeMiddlewareRegistry(
   };
 }
 
+/** Normalizes the middleware name. */
 function normalizeMiddlewareName(value) {
   const reference = value.trim();
   const separatorIndex = reference.indexOf(":");
@@ -284,12 +287,14 @@ function normalizeMiddlewareName(value) {
   return reference.slice(separatorIndex + 1).trim();
 }
 
+/** Lists the middleware names. */
 function listMiddlewareNames(
   registry: Record<string, RequestMiddleware>
 ) {
   return Object.keys(registry).sort();
 }
 
+/** Creates the middleware descriptor. */
 function createMiddlewareDescriptor(
   name: string,
   handler: RequestMiddleware
@@ -306,6 +311,7 @@ function createMiddlewareDescriptor(
   };
 }
 
+/** Normalizes the middleware descriptor. */
 function normalizeMiddlewareDescriptor(
   entry: unknown,
   index: number
@@ -334,6 +340,7 @@ function normalizeMiddlewareDescriptor(
   );
 }
 
+/** Calls the middleware. */
 async function callMiddleware<TResult>(
   descriptor: MiddlewareDescriptor,
   callback: () => MaybePromise<TResult>
@@ -354,6 +361,7 @@ async function callMiddleware<TResult>(
   }
 }
 
+/** Creates the middleware error. */
 function createMiddlewareError(message) {
   const error = new Error(message);
   error.__vdStage = VD_REQUEST.STAGES.MIDDLEWARE;

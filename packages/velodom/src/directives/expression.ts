@@ -178,6 +178,7 @@ export function isIterable(value: unknown): value is Iterable<unknown> {
   );
 }
 
+/** Resolves the path keys. */
 function resolvePathKeys(
   path: unknown,
   state: ExpressionState

@@ -75,6 +75,7 @@ export async function createResource(
   }
 }
 
+/** Creates the page. */
 async function createPage(
   context: CliContext,
   name: string,
@@ -113,6 +114,7 @@ async function createPage(
   context.stdout(`Created page ${relativePath(context.cwd, folder)}`);
 }
 
+/** Creates the page demo. */
 async function createPageDemo(
   context: CliContext,
   name: string,
@@ -159,6 +161,7 @@ async function createPageDemo(
   );
 }
 
+/** Creates the component. */
 async function createComponent(
   context: CliContext,
   name: string,
@@ -181,6 +184,7 @@ async function createComponent(
   context.stdout(`Created component ${relativePath(context.cwd, folder)}`);
 }
 
+/** Creates an application-owned API route. */
 async function createApi(context: CliContext, name: string) {
   const file = join(context.cwd, "src", "api", `${safeName(name)}.js`);
 
@@ -188,6 +192,7 @@ async function createApi(context: CliContext, name: string) {
   context.stdout(`Created API file ${relativePath(context.cwd, file)}`);
 }
 
+/** Creates the demo. */
 async function createDemo(context: CliContext, name: string) {
   const folder = join(context.cwd, "src", "pages", safeName(name));
 
@@ -198,6 +203,7 @@ async function createDemo(context: CliContext, name: string) {
   context.stdout(`Created demo page ${relativePath(context.cwd, folder)}`);
 }
 
+/** Creates the feature. */
 async function createFeature(
   context: CliContext,
   name: string,
@@ -237,6 +243,7 @@ async function createFeature(
   );
 }
 
+/** Creates the middleware. */
 async function createMiddleware(context: CliContext) {
   const file = join(context.cwd, "src", "api", "middleware.js");
 
@@ -244,6 +251,7 @@ async function createMiddleware(context: CliContext) {
   context.stdout(`Created middleware file ${relativePath(context.cwd, file)}`);
 }
 
+/** Creates the plugin. */
 async function createPlugin(context: CliContext, name: string) {
   const file = join(context.cwd, "src", "plugins", `${safeName(name)}.js`);
 
@@ -251,6 +259,7 @@ async function createPlugin(context: CliContext, name: string) {
   context.stdout(`Created plugin ${relativePath(context.cwd, file)}`);
 }
 
+/** Creates the project. */
 async function createProject(
   context: CliContext,
   name: string | undefined,
@@ -265,6 +274,7 @@ async function createProject(
   });
 }
 
+/** Writes the new file. */
 async function writeNewFile(file: string, source: string) {
   await mkdir(dirname(file), {
     recursive: true
@@ -274,6 +284,7 @@ async function writeNewFile(file: string, source: string) {
   });
 }
 
+/** Performs the internal `safeName()` operation. */
 function safeName(name: string) {
   const normalized = normalizeModuleName(name);
 
@@ -287,6 +298,7 @@ function safeName(name: string) {
   return normalized;
 }
 
+/** Requires the name. */
 function requireName(value: string | undefined, label: string) {
   if (!value) {
     throw new Error(`Missing ${label} name.`);
@@ -295,6 +307,7 @@ function requireName(value: string | undefined, label: string) {
   return value;
 }
 
+/** Creates the page HTML template. */
 function createPageHtmlTemplate() {
   return `<main class="vd-page">
   <p class="eyebrow">VeloDom page</p>
@@ -304,6 +317,7 @@ function createPageHtmlTemplate() {
 `;
 }
 
+/** Creates the page script template. */
 function createPageScriptTemplate(name: string) {
   const title = titleFromName(name);
 
@@ -316,6 +330,7 @@ function createPageScriptTemplate(name: string) {
   ].join("\n");
 }
 
+/** Creates the page config template. */
 function createPageConfigTemplate(
   name: string,
   route: string = toRoutePath(normalizeModuleName(name)),
@@ -337,6 +352,7 @@ function createPageConfigTemplate(
 `;
 }
 
+/** Creates the page demo HTML template. */
 function createPageDemoHtmlTemplate(name: string, kind: string) {
   const title = titleFromName(name);
 
@@ -391,6 +407,7 @@ function createPageDemoHtmlTemplate(name: string, kind: string) {
   }
 }
 
+/** Creates the page demo script template. */
 function createPageDemoScriptTemplate(name: string, kind: string) {
   const title = titleFromName(name);
 
@@ -423,6 +440,7 @@ function createPageDemoScriptTemplate(name: string, kind: string) {
   }
 }
 
+/** Creates the page demo config template. */
 function createPageDemoConfigTemplate(
   name: string,
   kind: string,
@@ -449,6 +467,7 @@ function createPageDemoConfigTemplate(
 `;
 }
 
+/** Creates the page demo request handler. */
 function createPageDemoRequestHandler(name: string) {
   const title = titleFromName(name);
 
@@ -460,6 +479,7 @@ function createPageDemoRequestHandler(name: string) {
 `;
 }
 
+/** Creates the single file page template. */
 function createSingleFilePageTemplate(name: string) {
   return `<template>
 ${indent(createPageHtmlTemplate().trimEnd(), 2)}
@@ -479,6 +499,7 @@ ${createPageConfigTemplate(name).trimEnd()}
 `;
 }
 
+/** Creates the component HTML template. */
 function createComponentHtmlTemplate() {
   return `<article class="vd-card">
   <h2>{{ title }}</h2>
@@ -487,6 +508,7 @@ function createComponentHtmlTemplate() {
 `;
 }
 
+/** Creates the component script template. */
 function createComponentScriptTemplate(name: string) {
   const title = titleFromName(name);
 
@@ -498,6 +520,7 @@ function createComponentScriptTemplate(name: string) {
   ].join("\n");
 }
 
+/** Creates the single file component template. */
 function createSingleFileComponentTemplate(name: string) {
   return `<template>
 ${indent(createComponentHtmlTemplate().trimEnd(), 2)}
@@ -513,6 +536,7 @@ ${createStyleTemplate().trimEnd()}
 `;
 }
 
+/** Creates the demo HTML template. */
 function createDemoHtmlTemplate() {
   return `<main class="vd-page">
   <p class="eyebrow">VeloDom demo</p>
@@ -531,6 +555,7 @@ function createDemoHtmlTemplate() {
 `;
 }
 
+/** Creates the demo script template. */
 function createDemoScriptTemplate(name: string) {
   const title = titleFromName(name);
 
@@ -547,17 +572,20 @@ function createDemoScriptTemplate(name: string) {
   ].join("\n");
 }
 
+/** Creates the feature page template. */
 function createFeaturePageTemplate(name: string, blog = false) {
   const title = titleFromName(name);
 
   if (blog) {
     return `<main class="vd-page">
   <h1 vd-text="title"></h1>
-  <vd-component
-    name="${safeName(name)}/post-card"
-    vd-prop-title="posts[0].title"
-    vd-prop-excerpt="posts[0].excerpt"
-  ></vd-component>
+  <p vd-if="posts.length === 0">No posts yet.</p>
+  <div vd-else vd-for="post in posts" vd-key="post.id">
+    <vd-component
+      name="${safeName(name)}/post-card"
+      vd-props="{ title: post.title, excerpt: post.excerpt }"
+    ></vd-component>
+  </div>
 </main>
 `;
   }
@@ -569,6 +597,7 @@ function createFeaturePageTemplate(name: string, blog = false) {
 `;
 }
 
+/** Creates the feature blog script template. */
 function createFeatureBlogScriptTemplate(name: string) {
   const title = titleFromName(name);
   const component = `${safeName(name)}/post-card`;
@@ -587,6 +616,7 @@ function createFeatureBlogScriptTemplate(name: string) {
 `;
 }
 
+/** Creates the feature card template. */
 function createFeatureCardTemplate() {
   return `<article class="vd-card">
   <h2 vd-text="props.title"></h2>
@@ -595,6 +625,7 @@ function createFeatureCardTemplate() {
 `;
 }
 
+/** Creates the feature API template. */
 function createFeatureApiTemplate(name: string) {
   const title = titleFromName(name);
 
@@ -605,6 +636,7 @@ export async function list() {
 `;
 }
 
+/** Creates the feature test template. */
 function createFeatureTestTemplate(name: string) {
   const title = titleFromName(name);
 
@@ -617,6 +649,7 @@ test("${title} feature is ready for application tests", () => {
 `;
 }
 
+/** Creates the API route template. */
 function createApiTemplate(name: string) {
   const routeName = normalizeModuleName(name).split("/").at(-1) || "handler";
 
@@ -632,6 +665,7 @@ function createApiTemplate(name: string) {
   ].join("\n");
 }
 
+/** Creates the middleware template. */
 function createMiddlewareTemplate() {
   return [
     "export function trimStringFields(params = {}) {",
@@ -650,6 +684,7 @@ function createMiddlewareTemplate() {
   ].join("\n");
 }
 
+/** Creates the plugin template. */
 function createPluginTemplate(name: string) {
   const pluginName = normalizeModuleName(name).replaceAll("/", "-");
 
@@ -664,6 +699,7 @@ function createPluginTemplate(name: string) {
   ].join("\n");
 }
 
+/** Creates the style template. */
 function createStyleTemplate() {
   return `.vd-page,
 .vd-card {
@@ -672,6 +708,7 @@ function createStyleTemplate() {
 `;
 }
 
+/** Performs the internal `titleFromName()` operation. */
 function titleFromName(name: string) {
   return normalizeModuleName(name)
     .split("/")
@@ -682,6 +719,7 @@ function titleFromName(name: string) {
     || "VeloDom";
 }
 
+/** Performs the internal `toIdentifier()` operation. */
 function toIdentifier(name: string) {
   const normalized = name
     .replace(/^[^A-Za-z_$]+/, "")
@@ -692,6 +730,7 @@ function toIdentifier(name: string) {
   return normalized || "handler";
 }
 
+/** Performs the internal `indent()` operation. */
 function indent(source: string, spaces: number) {
   const padding = " ".repeat(spaces);
 
@@ -701,6 +740,7 @@ function indent(source: string, spaces: number) {
     .join("\n");
 }
 
+/** Performs the internal `relativePath()` operation. */
 function relativePath(root: string, file: string) {
   return toPosix(relative(root, file));
 }

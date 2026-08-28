@@ -95,6 +95,7 @@ export function createProgressiveFormsPlugin(
   };
 }
 
+/** Submits the form. */
 async function submitForm(
   form: HTMLFormElement,
   controller: AbortController,
@@ -152,6 +153,7 @@ async function submitForm(
   }
 }
 
+/** Returns the progressive form. */
 function getProgressiveForm(target: EventTarget | null, selector: string) {
   if (target instanceof HTMLFormElement && target.matches(selector)) {
     return target;
@@ -166,16 +168,19 @@ function getProgressiveForm(target: EventTarget | null, selector: string) {
   return null;
 }
 
+/** Evaluates the `isSupportedMethod()` condition for the supplied input. */
 function isSupportedMethod(form: HTMLFormElement) {
   const method = (form.getAttribute("method") || "get").toUpperCase();
 
   return method === "GET" || method === "POST";
 }
 
+/** Evaluates the `isFormValid()` condition for the supplied input. */
 function isFormValid(form: HTMLFormElement) {
   return typeof form.checkValidity !== "function" || form.checkValidity();
 }
 
+/** Creates the request context. */
 function createRequestContext(form: HTMLFormElement): ProgressiveFormRequestContext {
   const method = (form.getAttribute("method") || "get").toUpperCase() as "GET" | "POST";
   const action = new URL(
@@ -191,6 +196,7 @@ function createRequestContext(form: HTMLFormElement): ProgressiveFormRequestCont
   };
 }
 
+/** Performs the internal `requestUrl()` operation. */
 function requestUrl(context: ProgressiveFormRequestContext) {
   const url = new URL(context.action);
 
@@ -203,6 +209,7 @@ function requestUrl(context: ProgressiveFormRequestContext) {
   return url;
 }
 
+/** Creates the fetch options. */
 function createFetchOptions(
   context: ProgressiveFormRequestContext,
   controller: AbortController,
@@ -224,6 +231,7 @@ function createFetchOptions(
   };
 }
 
+/** Creates the form body. */
 function createFormBody(form: HTMLFormElement, formData: FormData) {
   const enctype = (form.getAttribute("enctype") || "application/x-www-form-urlencoded")
     .toLowerCase()
@@ -235,6 +243,7 @@ function createFormBody(form: HTMLFormElement, formData: FormData) {
     : toUrlSearchParams(formData);
 }
 
+/** Performs the internal `toUrlSearchParams()` operation. */
 function toUrlSearchParams(formData: FormData) {
   const params = new URLSearchParams();
 
@@ -245,6 +254,7 @@ function toUrlSearchParams(formData: FormData) {
   return params;
 }
 
+/** Reads the response data. */
 async function readResponseData(response: Response) {
   const contentType = response.headers.get("content-type") || "";
 
@@ -255,6 +265,7 @@ async function readResponseData(response: Response) {
   return response.text();
 }
 
+/** Creates the response error. */
 function createResponseError(response: Response, data: unknown): FormResponseError {
   const error = new Error(
     getErrorMessage(null, data) || `Form submission failed (${response.status})`
@@ -264,6 +275,7 @@ function createResponseError(response: Response, data: unknown): FormResponseErr
   return error;
 }
 
+/** Resolves the redirect. */
 function resolveRedirect(response: Response, data: unknown) {
   if (response.redirected && response.url) {
     return new URL(response.url, window.location.href);
@@ -276,6 +288,7 @@ function resolveRedirect(response: Response, data: unknown) {
   return null;
 }
 
+/** Follows the redirect. */
 async function followRedirect(
   url: URL,
   context: ProgressiveFormResponseContext,
@@ -295,6 +308,7 @@ async function followRedirect(
   window.location.assign(url.toString());
 }
 
+/** Sets the form state. */
 function setFormState(form: HTMLFormElement, state: FormState, message: string) {
   form.setAttribute(VD_FORMS.STATE_ATTRIBUTE, state);
   form.toggleAttribute(VD_FORMS.LOADING_ATTRIBUTE, state === "loading");
@@ -304,10 +318,12 @@ function setFormState(form: HTMLFormElement, state: FormState, message: string) 
   });
 }
 
+/** Finds the status elements. */
 function findStatusElements(form: HTMLFormElement) {
   return Array.from(form.querySelectorAll(VD_FORMS.STATUS_SELECTOR));
 }
 
+/** Clears the field errors. */
 function clearFieldErrors(form: HTMLFormElement) {
   form.querySelectorAll(`[${VD_FORMS.ERROR_ATTRIBUTE}]`).forEach(element => {
     element.textContent = "";
@@ -318,6 +334,7 @@ function clearFieldErrors(form: HTMLFormElement) {
   });
 }
 
+/** Marks the invalid fields. */
 function markInvalidFields(form: HTMLFormElement, errors: Record<string, string>) {
   const controls = getNamedControls(form);
   const invalidNames = new Set(Object.keys(errors));
@@ -349,18 +366,21 @@ function markInvalidFields(form: HTMLFormElement, errors: Record<string, string>
   }
 }
 
+/** Returns the named controls. */
 function getNamedControls(form: HTMLFormElement) {
   return Array.from(form.elements).filter((control): control is HTMLElement => (
     control instanceof HTMLElement && control.hasAttribute("name")
   ));
 }
 
+/** Evaluates the `isControlValid()` condition for the supplied input. */
 function isControlValid(control: HTMLElement) {
   const candidate = control as HTMLInputElement;
 
   return typeof candidate.checkValidity !== "function" || candidate.checkValidity();
 }
 
+/** Returns the field errors. */
 function getFieldErrors(data: unknown) {
   if (!isRecord(data) || !isRecord(data.errors)) {
     return {};
@@ -371,12 +391,14 @@ function getFieldErrors(data: unknown) {
     .filter(([, message]) => Boolean(message)));
 }
 
+/** Returns the success message. */
 function getSuccessMessage(data: unknown) {
   return isRecord(data) && typeof data.message === "string"
     ? data.message
     : "Submitted successfully.";
 }
 
+/** Returns the error message. */
 function getErrorMessage(error: unknown, data: unknown) {
   if (isRecord(data)) {
     if (typeof data.message === "string") return data.message;
@@ -386,6 +408,7 @@ function getErrorMessage(error: unknown, data: unknown) {
   return error instanceof Error ? error.message : "Unable to submit the form.";
 }
 
+/** Returns the text value. */
 function getTextValue(value: unknown) {
   if (typeof value === "string") return value;
   if (Array.isArray(value) && typeof value[0] === "string") return value[0];
@@ -393,6 +416,7 @@ function getTextValue(value: unknown) {
   return "";
 }
 
+/** Evaluates the `isRecord()` condition for the supplied input. */
 function isRecord(value: unknown): value is UnknownRecord {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }

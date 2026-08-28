@@ -47,6 +47,7 @@ export async function applyDirectives(
   );
 }
 
+/** Applies the loaded directives. */
 function applyLoadedDirectives(
   root: DirectiveRoot,
   state: DirectiveState,
@@ -92,6 +93,7 @@ function applyLoadedDirectives(
   };
 }
 
+/** Selects the directive features. */
 function selectDirectiveFeatures(features?: string[]) {
   if (!features) {
     return [...VD_DIRECTIVE_RUNTIME_FEATURES];
@@ -104,6 +106,7 @@ function selectDirectiveFeatures(features?: string[]) {
   ));
 }
 
+/** Loads the directive feature. */
 async function loadDirectiveFeature(
   feature: string
 ): Promise<DirectiveFeature> {
@@ -117,6 +120,7 @@ async function loadDirectiveFeature(
   return loaded;
 }
 
+/** Imports the directive feature. */
 async function importDirectiveFeature(
   feature: string
 ): Promise<DirectiveFeature> {

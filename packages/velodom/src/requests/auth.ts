@@ -345,6 +345,7 @@ export function getDefaultAuthSessionUrl() {
   return VD_AUTH.SESSION_URL;
 }
 
+/** Normalizes the server options. */
 function normalizeServerOptions(value: unknown): ServerAuthOptions {
   if (!isPlainObject(value)) {
     throw new TypeError("Server auth provider options must be a plain object");
@@ -371,6 +372,7 @@ function normalizeServerOptions(value: unknown): ServerAuthOptions {
   };
 }
 
+/** Creates the auth error. */
 function createAuthError(
   message: string,
   hint: string,

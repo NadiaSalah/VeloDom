@@ -96,6 +96,7 @@ export function resolveRouteLocation(input, routeTable) {
   };
 }
 
+/** Normalizes the hash. */
 function normalizeHash(hash) {
   return String(hash || "").replace(/^#/, "");
 }
@@ -149,6 +150,7 @@ export async function runNavigationGuards(
   };
 }
 
+/** Performs the internal `folderToRoutePattern()` operation. */
 function folderToRoutePattern(page) {
   if (page === "home") return "/";
 
@@ -165,6 +167,7 @@ function folderToRoutePattern(page) {
     .join("/")}`;
 }
 
+/** Normalizes the route pattern. */
 function normalizeRoutePattern(path) {
   const normalized = normalizePathname(path);
 
@@ -175,6 +178,7 @@ function normalizeRoutePattern(path) {
   return normalized;
 }
 
+/** Normalizes the pathname. */
 function normalizePathname(path) {
   const value = String(path || "/")
     .trim()
@@ -188,18 +192,21 @@ function normalizePathname(path) {
   return withLeadingSlash.replace(/\/+$/g, "");
 }
 
+/** Splits the path. */
 function splitPath(path) {
   return String(path || "")
     .split("/")
     .filter(Boolean);
 }
 
+/** Calculates the route score. */
 function calculateRouteScore(segments) {
   return segments.reduce((score, segment) => (
     score + (segment.startsWith(":") ? 2 : 3)
   ), 0) + segments.length;
 }
 
+/** Performs the internal `matchSegments()` operation. */
 function matchSegments(routeSegments, pathSegments) {
   if (routeSegments.length !== pathSegments.length) {
     return null;
@@ -224,6 +231,7 @@ function matchSegments(routeSegments, pathSegments) {
   return params;
 }
 
+/** Parses the query. */
 function parseQuery(searchParams: URLSearchParams) {
   const query: Record<string, string | string[]> = {};
 
@@ -237,6 +245,7 @@ function parseQuery(searchParams: URLSearchParams) {
   return query;
 }
 
+/** Decodes the path value. */
 function decodePathValue(value) {
   try {
     return decodeURIComponent(value);

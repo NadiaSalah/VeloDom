@@ -155,6 +155,7 @@ export function validateScaffoldFlags(flags: Set<string>) {
   parseTesting(flags);
 }
 
+/** Performs the internal `separator()` operation. */
 function separator() {
   return process.platform === "win32" ? "\\" : "/";
 }

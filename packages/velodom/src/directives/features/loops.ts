@@ -142,6 +142,7 @@ export const applyLoops: DirectiveFeature = ({
   });
 };
 
+/** Clears the rendered loop. */
 function clearRenderedLoop(rendered: RenderedLoopItem[]) {
   rendered.forEach(item => {
     item.cleanup();
@@ -151,6 +152,7 @@ function clearRenderedLoop(rendered: RenderedLoopItem[]) {
   rendered.length = 0;
 }
 
+/** Evaluates the `isSameLoopStructure()` condition for the supplied input. */
 function isSameLoopStructure(
   snapshot: LoopSnapshot,
   source: unknown,
@@ -167,6 +169,7 @@ function isSameLoopStructure(
   return items.every((item, index) => Object.is(item, snapshot.items[index]));
 }
 
+/** Parses the for. */
 function parseFor(expression: string) {
   const match = expression.match(
     /^\s*(?:\(\s*([\w$]+)\s*,\s*([\w$]+)\s*\)|([\w$]+))\s+in\s+(.+)\s*$/

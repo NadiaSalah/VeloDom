@@ -157,6 +157,7 @@ export function createResponsiveImageAttributes(
   };
 }
 
+/** Discovers the image files. */
 async function discoverImageFiles(root: string): Promise<string[]> {
   const entries = await readdir(root, {
     withFileTypes: true
@@ -175,6 +176,7 @@ async function discoverImageFiles(root: string): Promise<string[]> {
   return nested.flat().sort((left, right) => left.localeCompare(right));
 }
 
+/** Detects the image format. */
 function detectImageFormat(source: Uint8Array, extension: string): ImageFormat {
   if (source.subarray(0, 8).every((value, index) => value === [137, 80, 78, 71, 13, 10, 26, 10][index])) {
     return "png";
@@ -190,6 +192,7 @@ function detectImageFormat(source: Uint8Array, extension: string): ImageFormat {
   return "unknown";
 }
 
+/** Reads the image dimensions. */
 function readImageDimensions(source: Uint8Array, format: ImageFormat) {
   switch (format) {
     case "png":
@@ -211,6 +214,7 @@ function readImageDimensions(source: Uint8Array, format: ImageFormat) {
   }
 }
 
+/** Reads the jpeg dimensions. */
 function readJpegDimensions(source: Uint8Array) {
   let offset = 2;
 
@@ -238,6 +242,7 @@ function readJpegDimensions(source: Uint8Array) {
   return {};
 }
 
+/** Reads the webp dimensions. */
 function readWebpDimensions(source: Uint8Array) {
   const chunk = new TextDecoder().decode(source.subarray(12, 16));
 
@@ -266,6 +271,7 @@ function readWebpDimensions(source: Uint8Array) {
   return {};
 }
 
+/** Reads the svg dimensions. */
 function readSvgDimensions(source: string) {
   const viewBox = source.match(/\bviewBox\s*=\s*["']\s*[-+\d.eE]+\s+[-+\d.eE]+\s+([-+\d.eE]+)\s+([-+\d.eE]+)\s*["']/i);
   const width = readSvgLength(source, "width");
@@ -277,11 +283,13 @@ function readSvgDimensions(source: string) {
   };
 }
 
+/** Reads the svg length. */
 function readSvgLength(source: string, name: string) {
   const value = source.match(new RegExp(`\\b${name}\\s*=\\s*["']([0-9]+(?:\\.[0-9]+)?)(?:px)?["']`, "i"));
   return value ? Number(value[1]) : undefined;
 }
 
+/** Normalizes the variants. */
 function normalizeVariants(variants: ResponsiveImageVariant[]) {
   const seenWidths = new Set<number>();
 
@@ -298,6 +306,7 @@ function normalizeVariants(variants: ResponsiveImageVariant[]) {
   }).sort((left, right) => left.width - right.width);
 }
 
+/** Requires the non empty string. */
 function requireNonEmptyString(value: string, label: string) {
   const normalized = value.trim();
 
@@ -305,6 +314,7 @@ function requireNonEmptyString(value: string, label: string) {
   return normalized;
 }
 
+/** Normalizes the dimension. */
 function normalizeDimension(value: number | undefined, label: string) {
   if (value === undefined) return undefined;
   if (!Number.isFinite(value) || value <= 0 || !Number.isInteger(value)) {
@@ -313,18 +323,22 @@ function normalizeDimension(value: number | undefined, label: string) {
   return value;
 }
 
+/** Reads the uint16 be. */
 function readUInt16Be(source: Uint8Array, offset: number) {
   return (source[offset] << 8) | source[offset + 1];
 }
 
+/** Reads the uint16 le. */
 function readUInt16Le(source: Uint8Array, offset: number) {
   return source[offset] | (source[offset + 1] << 8);
 }
 
+/** Reads the uint24 le. */
 function readUInt24Le(source: Uint8Array, offset: number) {
   return source[offset] | (source[offset + 1] << 8) | (source[offset + 2] << 16);
 }
 
+/** Reads the uint32 be. */
 function readUInt32Be(source: Uint8Array, offset: number) {
   return ((source[offset] * 0x1000000) + (source[offset + 1] << 16) + (source[offset + 2] << 8) + source[offset + 3]) >>> 0;
 }

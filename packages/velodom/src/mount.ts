@@ -289,6 +289,7 @@ export async function mount(
   };
 }
 
+/** Evaluates the `shouldMountChildren()` condition for the supplied input. */
 function shouldMountChildren(
   manifest: RuntimeFeatureManifest | null | undefined
 ) {
@@ -297,6 +298,7 @@ function shouldMountChildren(
   );
 }
 
+/** Returns the props. */
 function getProps(el, parentState) {
 
   const props = parsePropsObject(
@@ -368,6 +370,7 @@ function getProps(el, parentState) {
   return props;
 }
 
+/** Parses the props object. */
 function parsePropsObject(expression, state) {
   if (!expression) return {};
 
@@ -395,6 +398,7 @@ function parsePropsObject(expression, state) {
   }
 }
 
+/** Finds the components. */
 function findComponents(root) {
   const selector = VD.selector(VD.COMPONENT);
   const components = [];
@@ -408,6 +412,7 @@ function findComponents(root) {
   return components;
 }
 
+/** Returns the component name. */
 function getComponentName(el) {
   return (
     el.getAttribute(VD.COMPONENT)
@@ -416,6 +421,7 @@ function getComponentName(el) {
   );
 }
 
+/** Resolves the component folder. */
 function resolveComponentFolder(el, name) {
   const componentName = (name || "").trim();
 
@@ -430,6 +436,7 @@ function resolveComponentFolder(el, name) {
     : componentName;
 }
 
+/** Collects the slots. */
 function collectSlots(el) {
   normalizeSlotSyntax(el);
 
@@ -450,6 +457,7 @@ function collectSlots(el) {
   return slots;
 }
 
+/** Applies the slots. */
 function applySlots(el, slots) {
   const outlets = findSlotOutlets(el);
 
@@ -467,6 +475,7 @@ function applySlots(el, slots) {
   });
 }
 
+/** Finds the slot outlets. */
 function findSlotOutlets(root) {
   const selector = VD.selector(VD.GET_CHILD);
   const outlets = [];
@@ -480,10 +489,12 @@ function findSlotOutlets(root) {
   return outlets;
 }
 
+/** Normalizes the slot name. */
 function normalizeSlotName(name) {
   return (name || "").trim();
 }
 
+/** Extracts the slot fragment. */
 function extractSlotFragment(node) {
   const fragment = document.createDocumentFragment();
 
@@ -506,11 +517,13 @@ function extractSlotFragment(node) {
   return fragment;
 }
 
+/** Normalizes the template syntax. */
 function normalizeTemplateSyntax(root) {
   normalizeComponentTags(root);
   normalizeSlotSyntax(root);
 }
 
+/** Normalizes the component tags. */
 function normalizeComponentTags(root) {
   const candidates = [
     ...root.querySelectorAll(VD.COMPONENT_TAG_SELECTOR)
@@ -536,6 +549,7 @@ function normalizeComponentTags(root) {
   });
 }
 
+/** Normalizes the slot syntax. */
 function normalizeSlotSyntax(root) {
   const candidates = [
     ...root.querySelectorAll(VD.SLOT_TAG_SELECTOR)
@@ -551,10 +565,12 @@ function normalizeSlotSyntax(root) {
   });
 }
 
+/** Evaluates the `shouldUnwrapComponent()` condition for the supplied input. */
 function shouldUnwrapComponent(el) {
   return el.getAttribute(VD.HOSTLESS) === "true";
 }
 
+/** Unwraps the component. */
 function unwrapComponent(el) {
   const scopeId = el.getAttribute(VD.SCOPE);
   const fragment = document.createDocumentFragment();
@@ -583,6 +599,7 @@ function unwrapComponent(el) {
   el.replaceWith(fragment);
 }
 
+/** Evaluates the `isCustomSlotTag()` condition for the supplied input. */
 function isCustomSlotTag(node) {
   return ["VD-CHILD", "CHILD", "CHILED"]
     .includes(node.tagName);
@@ -610,6 +627,7 @@ export async function disposeTree(root: ComponentRoot | null) {
   }
 }
 
+/** Performs the internal `once()` operation. */
 function once<TResult>(fn: () => TResult) {
   let called = false;
 
@@ -621,6 +639,7 @@ function once<TResult>(fn: () => TResult) {
   };
 }
 
+/** Registers the component instance. */
 function registerComponentInstance(el, parentState, state, expose) {
   const refName = (el.getAttribute(VD.REF) || "").trim();
 
@@ -645,6 +664,7 @@ function registerComponentInstance(el, parentState, state, expose) {
   };
 }
 
+/** Ensures the component registry. */
 function ensureComponentRegistry(state) {
   if (!state || typeof state !== "object") return null;
 
@@ -655,6 +675,7 @@ function ensureComponentRegistry(state) {
   return state.components;
 }
 
+/** Creates the public component instance API. */
 function createPublicInstanceApi(state, expose) {
   const api = {
     state
@@ -675,6 +696,7 @@ function createPublicInstanceApi(state, expose) {
   return api;
 }
 
+/** Ensures the component group. */
 function ensureComponentGroup(registry, refName) {
   const existing = registry[refName];
 
@@ -724,6 +746,7 @@ function ensureComponentGroup(registry, refName) {
   return groupApi;
 }
 
+/** Registers the requested value. */
 function register(instance, key) {
   this.all.push(instance);
 
@@ -744,6 +767,7 @@ function register(instance, key) {
   };
 }
 
+/** Collects the state functions. */
 function collectStateFunctions(state) {
   return Object.keys(state)
     .filter(key => typeof state[key] === "function")
@@ -753,6 +777,7 @@ function collectStateFunctions(state) {
     }, {});
 }
 
+/** Returns the component key. */
 function getComponentKey(el) {
   const raw = el.getAttribute(VD.KEY);
 
@@ -761,14 +786,17 @@ function getComponentKey(el) {
   return String(raw).trim();
 }
 
+/** Clones the child nodes. */
 function cloneChildNodes(el) {
   return [...el.childNodes].map(node => node.cloneNode(true));
 }
 
+/** Resets the component host. */
 function resetComponentHost(el, children) {
   el.replaceChildren(...children.map(node => node.cloneNode(true)));
 }
 
+/** Creates the component context. */
 function createComponentContext(el, pageCtx, state) {
   const ref = (el.getAttribute(VD.REF) || "").trim();
   const key = getComponentKey(el);

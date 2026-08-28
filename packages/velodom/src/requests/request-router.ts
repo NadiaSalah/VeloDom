@@ -162,6 +162,7 @@ export function applyRequests(
     });
 }
 
+/** Schedules the request directive. */
 function scheduleRequestDirective(el, state, context, event, evaluate, writeValue) {
   const routeName = (el.getAttribute(VD.REQUEST) || "").trim();
 
@@ -251,6 +252,7 @@ function scheduleRequestDirective(el, state, context, event, evaluate, writeValu
   pendingRequestTimers.set(el, pending);
 }
 
+/** Runs the request directive. */
 async function runRequestDirective(el, state, context, event, evaluate, writeValue) {
   const routeName = (el.getAttribute(VD.REQUEST) || "").trim();
 
@@ -535,6 +537,7 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
   }
 }
 
+/** Returns the request params. */
 function getRequestParams(el, state, context, paramsInput, event, evaluate) {
   const form = getRequestForm(el);
   const formParams = form
@@ -561,6 +564,7 @@ function getRequestParams(el, state, context, paramsInput, event, evaluate) {
   };
 }
 
+/** Returns the request config. */
 function getRequestConfig(el, state, context, event, evaluate, routeName) {
   const expression = (el.getAttribute(VD.REQUEST_CONFIG) || "").trim();
 
@@ -715,6 +719,7 @@ function getRequestConfig(el, state, context, event, evaluate, routeName) {
   return evaluated;
 }
 
+/** Normalizes the request hooks. */
 function normalizeRequestHooks(value) {
   if (value === undefined || value === null) return {};
 
@@ -741,6 +746,7 @@ function normalizeRequestHooks(value) {
   return hooks;
 }
 
+/** Creates the request lifecycle payload. */
 function createRequestLifecyclePayload(
   routeName,
   params,
@@ -760,6 +766,7 @@ function createRequestLifecyclePayload(
   };
 }
 
+/** Runs the before request hook. */
 function runBeforeRequestHook(payload) {
   if (typeof requestHooks.beforeRequest !== "function") return true;
 
@@ -772,18 +779,21 @@ function runBeforeRequestHook(payload) {
   return result !== false;
 }
 
+/** Runs the after request hook. */
 async function runAfterRequestHook(payload) {
   if (typeof requestHooks.afterRequest !== "function") return;
 
   await requestHooks.afterRequest(payload);
 }
 
+/** Runs the request success callback. */
 async function runRequestSuccessCallback(requestConfig, payload) {
   if (typeof requestConfig?.onSuccess !== "function") return;
 
   await requestConfig.onSuccess(payload);
 }
 
+/** Executes the request with retry. */
 async function executeRequestWithRetry({
   routeConfig,
   params,
@@ -822,6 +832,7 @@ async function executeRequestWithRetry({
   }
 }
 
+/** Returns the request retry options. */
 function getRequestRetryOptions(
   requestConfig
 ): RequestRetryRuntimeOptions {
@@ -842,6 +853,7 @@ function getRequestRetryOptions(
   };
 }
 
+/** Returns the auth redirect target. */
 function getAuthRedirectTarget(requestConfig, routeConfig) {
   const requestKey = VD_REQUEST.AUTH_REDIRECT_KEYS.find(name => (
     requestConfig?.[name] !== undefined
@@ -854,6 +866,7 @@ function getAuthRedirectTarget(requestConfig, routeConfig) {
   return routeConfig.authRedirect || "";
 }
 
+/** Normalizes the auth redirect path. */
 function normalizeAuthRedirectPath(value) {
   if (value === undefined || value === null || value === "") return "";
 
@@ -866,6 +879,7 @@ function normalizeAuthRedirectPath(value) {
   return path;
 }
 
+/** Evaluates the `shouldRedirectAuthFailure()` condition for the supplied input. */
 function shouldRedirectAuthFailure(err, target, context) {
   return (
     err?.__vdStage === VD_REQUEST.STAGES.AUTH
@@ -874,6 +888,7 @@ function shouldRedirectAuthFailure(err, target, context) {
   );
 }
 
+/** Returns the request throttle ms. */
 function getRequestThrottleMs(
   el,
   requestConfig,
@@ -921,6 +936,7 @@ function getRequestThrottleMs(
   });
 }
 
+/** Returns the request debounce ms. */
 function getRequestDebounceMs(
   el,
   requestConfig,
@@ -968,6 +984,7 @@ function getRequestDebounceMs(
   });
 }
 
+/** Normalizes the request delay. */
 function normalizeRequestDelay(value, options) {
   if (isValidRequestDelay(value)) {
     return Number(value);
@@ -989,6 +1006,7 @@ function normalizeRequestDelay(value, options) {
   return VD_INTERNAL.REQUEST_ABORT;
 }
 
+/** Evaluates the `isValidRequestDelay()` condition for the supplied input. */
 function isValidRequestDelay(value) {
   return (
     typeof value === "number"
@@ -997,6 +1015,7 @@ function isValidRequestDelay(value) {
   );
 }
 
+/** Evaluates the `isValidRequestRetryCount()` condition for the supplied input. */
 function isValidRequestRetryCount(value) {
   return (
     typeof value === "boolean"
@@ -1007,6 +1026,7 @@ function isValidRequestRetryCount(value) {
   );
 }
 
+/** Normalizes the request retry count. */
 function normalizeRequestRetryCount(value) {
   if (value === true) return 1;
   if (value === false || value === undefined) return 0;
@@ -1014,6 +1034,7 @@ function normalizeRequestRetryCount(value) {
   return Number(value);
 }
 
+/** Waits for the for retry delay. */
 function waitForRetryDelay(ms, signal) {
   if (!signal) {
     return new Promise(resolve => {
@@ -1026,6 +1047,7 @@ function waitForRetryDelay(ms, signal) {
   }
 
   return new Promise((resolve, reject) => {
+    /** Aborts the active operation. */
     function abort() {
       clearTimeout(timer);
       signal.removeEventListener("abort", abort);
@@ -1042,6 +1064,7 @@ function waitForRetryDelay(ms, signal) {
   });
 }
 
+/** Creates the request abort error. */
 function createRequestAbortError() {
   const error = new Error("Request aborted");
 
@@ -1049,6 +1072,7 @@ function createRequestAbortError() {
   return error;
 }
 
+/** Returns the request params input. */
 function getRequestParamsInput(el, requestConfig) {
   if (el.hasAttribute(VD.PARAMS)) {
     return (el.getAttribute(VD.PARAMS) || "").trim();
@@ -1057,6 +1081,7 @@ function getRequestParamsInput(el, requestConfig) {
   return requestConfig?.params;
 }
 
+/** Evaluates the `hasRequestStateAutomation()` condition for the supplied input. */
 function hasRequestStateAutomation(el, requestConfig) {
   return el.hasAttribute(VD.REQUEST_STATE)
     || el.hasAttribute(VD.AUTO_STATE)
@@ -1064,6 +1089,7 @@ function hasRequestStateAutomation(el, requestConfig) {
     || requestConfig?.requestState === true;
 }
 
+/** Returns the request config text. */
 function getRequestConfigText(el, requestConfig, key, attributeName) {
   if (el.hasAttribute(attributeName)) {
     return (el.getAttribute(attributeName) || "").trim();
@@ -1082,6 +1108,7 @@ function getRequestConfigText(el, requestConfig, key, attributeName) {
   return "";
 }
 
+/** Reads the form values. */
 function readFormValues(form) {
   const formData = new FormData(form);
   const values = {};
@@ -1103,6 +1130,7 @@ function readFormValues(form) {
   return values;
 }
 
+/** Returns the request form. */
 function getRequestForm(el) {
   if (el.tagName === "FORM") {
     return el;
@@ -1115,6 +1143,7 @@ function getRequestForm(el) {
   return el.closest("form");
 }
 
+/** Begins the request. */
 function beginRequest(el, targetBinding, routeName) {
   const previousElementRequest = activeRequests.get(el);
   previousElementRequest?.controller.abort();
@@ -1143,6 +1172,7 @@ function beginRequest(el, targetBinding, routeName) {
   return request;
 }
 
+/** Cancels the element request. */
 function cancelElementRequest(el) {
   const request = activeRequests.get(el);
 
@@ -1152,6 +1182,7 @@ function cancelElementRequest(el) {
   finishRequest(el, request);
 }
 
+/** Cancels the pending request. */
 function cancelPendingRequest(el) {
   const pending = pendingRequestTimers.get(el);
 
@@ -1161,6 +1192,7 @@ function cancelPendingRequest(el) {
   pendingRequestTimers.delete(el);
 }
 
+/** Consumes the request throttle. */
 function consumeRequestThrottle(el, throttleMs) {
   if (throttleMs <= 0) return true;
 
@@ -1175,10 +1207,12 @@ function consumeRequestThrottle(el, throttleMs) {
   return true;
 }
 
+/** Clears the request throttle. */
 function clearRequestThrottle(el) {
   requestThrottleWindows.delete(el);
 }
 
+/** Finishes the request. */
 function finishRequest(el, request) {
   if (activeRequests.get(el) === request) {
     activeRequests.delete(el);
@@ -1193,6 +1227,7 @@ function finishRequest(el, request) {
   }
 }
 
+/** Evaluates the `isLatestRequest()` condition for the supplied input. */
 function isLatestRequest(el, request) {
   if (activeRequests.get(el) !== request) {
     return false;
@@ -1207,6 +1242,7 @@ function isLatestRequest(el, request) {
     ?.get(request.targetPath) === request;
 }
 
+/** Returns the target request map. */
 function getTargetRequestMap(state) {
   let requests = activeTargetRequests.get(state);
 
@@ -1218,6 +1254,7 @@ function getTargetRequestMap(state) {
   return requests;
 }
 
+/** Resolves the route config. */
 function resolveRouteConfig(routeName, state, el) {
   const raw = apiRoutes?.[routeName];
 
@@ -1276,6 +1313,7 @@ function resolveRouteConfig(routeName, state, el) {
   };
 }
 
+/** Normalizes the route auth redirect. */
 function normalizeRouteAuthRedirect(raw, routeName, state, el) {
   const key = VD_REQUEST.AUTH_REDIRECT_KEYS.find(name => (
     raw[name] !== undefined
@@ -1298,6 +1336,7 @@ function normalizeRouteAuthRedirect(raw, routeName, state, el) {
   return null;
 }
 
+/** Normalizes the route auth. */
 function normalizeRouteAuth(value, routeName, state, el) {
   const auth = normalizeRequestAuthConfig(value, authRuntime);
 
@@ -1316,6 +1355,7 @@ function normalizeRouteAuth(value, routeName, state, el) {
   return null;
 }
 
+/** Normalizes the route roles. */
 function normalizeRouteRoles(value, routeName, state, el) {
   if (value === undefined) {
     return [];
@@ -1350,6 +1390,7 @@ function normalizeRouteRoles(value, routeName, state, el) {
   return roles;
 }
 
+/** Normalizes the route middleware. */
 function normalizeRouteMiddleware(value, routeName, state, el) {
   if (value === undefined) {
     return [];
@@ -1376,6 +1417,7 @@ function normalizeRouteMiddleware(value, routeName, state, el) {
   return null;
 }
 
+/** Authorizes the route request. */
 async function authorizeRouteRequest(routeConfig, context) {
   if (!routeConfig.auth.enabled) {
     return null;
@@ -1412,6 +1454,7 @@ async function authorizeRouteRequest(routeConfig, context) {
   return session;
 }
 
+/** Reports the request directive problem. */
 function reportRequestDirectiveProblem(
   state,
   el,
@@ -1450,6 +1493,7 @@ function reportRequestDirectiveProblem(
   return null;
 }
 
+/** Creates the stage error. */
 function createStageError(stage, message, hint = "") {
   const error = new Error(message);
 
@@ -1459,6 +1503,7 @@ function createStageError(stage, message, hint = "") {
   return error;
 }
 
+/** Returns the request error title. */
 function getRequestErrorTitle(error) {
   if (error?.__vdStage === VD_REQUEST.STAGES.AUTH) {
     return "Request Authorization Failed";
@@ -1471,14 +1516,17 @@ function getRequestErrorTitle(error) {
   return "API Request Failed";
 }
 
+/** Evaluates the `hasApiRoute()` condition for the supplied input. */
 function hasApiRoute(name) {
   return Object.hasOwn(apiRoutes, name);
 }
 
+/** Lists the registered API routes. */
 function listApiRoutes() {
   return Object.keys(apiRoutes || {});
 }
 
+/** Calls the selected API route. */
 function callApiRoute(
   routeConfig,
   params = {},

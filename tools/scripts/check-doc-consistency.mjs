@@ -27,6 +27,15 @@ const syntaxReference = await readWorkspaceFile(
 const featureInventory = await readWorkspaceFile(
   "packages/velodom/docs/FEATURE_INVENTORY.md"
 );
+const showcaseReference = await readWorkspaceFile(
+  "examples/velodom-blog/src/pages/reference/index.html"
+);
+const showcaseFeatures = await readWorkspaceFile(
+  "examples/velodom-blog/src/pages/features/index.html"
+);
+const showcaseLearning = await readWorkspaceFile(
+  "examples/velodom-blog/src/content/learning.js"
+);
 const packageAiContext = await readWorkspaceFile(
   "packages/velodom/AI_CONTEXT.md"
 );
@@ -150,6 +159,61 @@ for (const directive of preferredDirectives) {
 for (const command of cliCommands) {
   if (!documentedCanonicalCommands.has(command)) {
     violations.push(`docs/README.md must document CLI command "vd ${command}"`);
+  }
+}
+
+for (const publicImport of publicImports) {
+  if (!showcaseReference.includes(`<code>${publicImport}</code>`)) {
+    violations.push(
+      `the showcase reference must list package export "${publicImport}"`
+    );
+  }
+}
+
+for (const command of cliCommands) {
+  if (!new RegExp(`\\bvd ${command}\\b`).test(showcaseReference)) {
+    violations.push(
+      `the showcase reference must document CLI command "vd ${command}"`
+    );
+  }
+}
+
+for (const [label, count] of [
+  ["public values", publicApiNames.size],
+  ["package exports", publicImports.length],
+  ["preferred directives", preferredDirectives.size],
+  ["CLI commands", cliCommands.size]
+]) {
+  if (!showcaseReference.includes(`${count} ${label}`)) {
+    violations.push(
+      `the showcase reference must report "${count} ${label}"`
+    );
+  }
+}
+
+for (const [label, count] of [
+  ["Public values", publicApiNames.size],
+  ["Directives", preferredDirectives.size],
+  ["Package exports", publicImports.length],
+  ["CLI commands", cliCommands.size]
+]) {
+  if (!showcaseLearning.includes(
+    `{ label: "${label}", value: "${count}" }`
+  )) {
+    violations.push(
+      `the showcase home must report ${label.toLowerCase()} as ${count}`
+    );
+  }
+}
+
+for (const [pattern, message] of [
+  [/vd-progressive-form/, "uses removed vd-progressive-form syntax"],
+  [/createLocaleFormatter\s*\(\s*{/, "uses the old locale formatter signature"],
+  [/src\/pages\/index\.html/, "uses an obsolete root-page convention"],
+  [/href=&quot;\/#|href="\/#/, "uses a cross-page hash as a root-page hash"]
+]) {
+  if (pattern.test(showcaseFeatures)) {
+    violations.push(`the showcase features page ${message}`);
   }
 }
 

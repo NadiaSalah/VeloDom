@@ -135,6 +135,7 @@ are intentionally not included in the npm tarball.
 | `velodom/testing` | DOM-oriented page/component test mounts |
 | `velodom/cli` | Node-only CLI dispatcher used by package binaries |
 | `velodom/scaffolder` | Node-only reusable project creation engine |
+| `velodom/package.json` | Package metadata for compatible tooling |
 
 Do not import from `velodom/lib/*` or repository source paths.
 

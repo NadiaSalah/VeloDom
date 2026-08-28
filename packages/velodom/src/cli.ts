@@ -274,6 +274,7 @@ export async function runVeloDomCli(
   }
 }
 
+/** Prints the inspection. */
 async function printInspection(context: CliContext, json: boolean) {
   const inspection = await inspectProject(context.cwd);
 
@@ -305,6 +306,7 @@ async function printInspection(context: CliContext, json: boolean) {
   )));
 }
 
+/** Prints the doctor. */
 async function printDoctor(context: CliContext, json: boolean) {
   const issues = await runDoctor(context.cwd);
   const hasErrors = issues.some(issue => issue.level === "error");
@@ -334,6 +336,7 @@ async function printDoctor(context: CliContext, json: boolean) {
   return hasErrors ? 1 : 0;
 }
 
+/** Prints the stats. */
 async function printStats(context: CliContext, json: boolean) {
   const inspection = await inspectProject(context.cwd);
   const stats = {
@@ -385,6 +388,7 @@ async function printStats(context: CliContext, json: boolean) {
     });
 }
 
+/** Prints the routes. */
 async function printRoutes(context: CliContext, json: boolean) {
   const inspection = await inspectProject(context.cwd);
   const routes = inspection.pages.map(page => ({
@@ -408,6 +412,7 @@ async function printRoutes(context: CliContext, json: boolean) {
   });
 }
 
+/** Prints the build report. */
 async function printBuildReport(context: CliContext, json: boolean) {
   const report = await createBuildReport(context.cwd);
 
@@ -434,6 +439,7 @@ async function printBuildReport(context: CliContext, json: boolean) {
   printList(context, "Suggestions", report.suggestions);
 }
 
+/** Writes the application declarations. */
 async function writeApplicationDeclarations(
   context: CliContext,
   requestedOutput: string | undefined
@@ -460,6 +466,7 @@ async function writeApplicationDeclarations(
   context.stdout(`Generated ${outputRelative.replaceAll("\\", "/")}`);
 }
 
+/** Prints the graph. */
 async function printGraph(context: CliContext, flags: Set<string>) {
   const graph = await createProjectGraph(context.cwd);
 
@@ -482,6 +489,7 @@ async function printGraph(context: CliContext, flags: Set<string>) {
   });
 }
 
+/** Prints the health. */
 async function printHealth(context: CliContext, parsed: ParsedArgs) {
   const health = await createHealthReport(
     context.cwd,
@@ -514,6 +522,7 @@ async function printHealth(context: CliContext, parsed: ParsedArgs) {
   return health.ok ? 0 : 1;
 }
 
+/** Runs the benchmark command. */
 async function runBenchmarkCommand(context: CliContext) {
   const manifestSource = await readOptionalText(join(context.cwd, "package.json"));
 
@@ -535,6 +544,7 @@ async function runBenchmarkCommand(context: CliContext) {
   });
 }
 
+/** Prints the generated docs. */
 async function printGeneratedDocs(context: CliContext, json: boolean) {
   const docs = await createDocumentationReport(context.cwd);
 
@@ -546,6 +556,7 @@ async function printGeneratedDocs(context: CliContext, json: boolean) {
   context.stdout(toMarkdownDocs(docs));
 }
 
+/** Runs the doctor. */
 async function runDoctor(root: string) {
   const inspection = await inspectProject(root);
   const issues: DoctorIssue[] = [];
@@ -662,6 +673,7 @@ async function runDoctor(root: string) {
   ));
 }
 
+/** Inspects the project. */
 async function inspectProject(root: string): Promise<ProjectInspection> {
   const pages = await discoverModules(root, "src/pages", true);
   const components = await discoverModules(root, "src/components", false);
@@ -696,6 +708,7 @@ async function inspectProject(root: string): Promise<ProjectInspection> {
   };
 }
 
+/** Creates the build report. */
 async function createBuildReport(root: string) {
   const inspection = await inspectProject(root);
   const usedFeatures = new Set(inspection.compilerFeatures);
@@ -743,6 +756,7 @@ async function createBuildReport(root: string) {
   };
 }
 
+/** Creates the health report. */
 async function createHealthReport(
   root: string,
   rawThreshold: string | undefined
@@ -792,6 +806,7 @@ async function createHealthReport(
   };
 }
 
+/** Creates the documentation report. */
 async function createDocumentationReport(root: string) {
   const inspection = await inspectProject(root);
   const plugins = await discoverFiles(root, "src/plugins", [".js", ".ts"]);
@@ -852,6 +867,7 @@ async function createDocumentationReport(root: string) {
   };
 }
 
+/** Creates the project graph. */
 async function createProjectGraph(root: string): Promise<ProjectGraph> {
   const inspection = await inspectProject(root);
   const nodes = new Map<string, ProjectGraph["nodes"][number]>();
@@ -990,6 +1006,7 @@ async function createProjectGraph(root: string): Promise<ProjectGraph> {
   };
 }
 
+/** Reads the module sizes. */
 async function readModuleSizes(
   root: string,
   modules: DiscoveredModule[]
@@ -1003,6 +1020,7 @@ async function readModuleSizes(
   return topSizes(sizes);
 }
 
+/** Reads the asset sizes. */
 async function readAssetSizes(root: string, extension: string) {
   const files = await discoverFiles(root, "dist/assets", [extension]);
   const sizes = await Promise.all(files.map(async file => ({
@@ -1014,6 +1032,7 @@ async function readAssetSizes(root: string, extension: string) {
   return sizes.sort((left, right) => right.bytes - left.bytes);
 }
 
+/** Reads the file size. */
 async function readFileSize(file: string) {
   try {
     return (await stat(file)).size;
@@ -1022,16 +1041,19 @@ async function readFileSize(file: string) {
   }
 }
 
+/** Performs the internal `sumSizeReports()` operation. */
 function sumSizeReports(files: FileSizeReport[]) {
   return files.reduce((total, file) => total + file.bytes, 0);
 }
 
+/** Performs the internal `topSizes()` operation. */
 function topSizes(files: FileSizeReport[], count = 5) {
   return [...files]
     .sort((left, right) => right.bytes - left.bytes)
     .slice(0, count);
 }
 
+/** Finds the unused directives. */
 function findUnusedDirectives(usage: Record<string, number>) {
   const used = new Set(
     Object.keys(usage).map(normalizeDirectiveAttribute)
@@ -1046,6 +1068,7 @@ function findUnusedDirectives(usage: Record<string, number>) {
   });
 }
 
+/** Finds the repeated heavy dependency signals. */
 async function findRepeatedHeavyDependencySignals(
   root: string,
   assets: FileSizeReport[]
@@ -1094,6 +1117,7 @@ async function findRepeatedHeavyDependencySignals(
     .slice(0, 10);
 }
 
+/** Creates the build suggestions. */
 function createBuildSuggestions(input: {
   largestComponents: FileSizeReport[];
   largestJsChunks: FileSizeReport[];
@@ -1127,12 +1151,14 @@ function createBuildSuggestions(input: {
   return suggestions;
 }
 
+/** Normalizes the directive attribute. */
 function normalizeDirectiveAttribute(attribute: string) {
   return attribute
     .replace(/^data-vd-/, "")
     .replace(/^vd-/, "");
 }
 
+/** Normalizes the dependency name. */
 function normalizeDependencyName(name: string) {
   const clean = name.replaceAll("\\", "/").replace(/^\.pnpm\//, "");
 
@@ -1144,10 +1170,12 @@ function normalizeDependencyName(name: string) {
   return clean.split("/")[0];
 }
 
+/** Escapes a value for safe use inside a regular expression. */
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/** Counts the directives. */
 async function countDirectives(
   root: string,
   files: string[]
@@ -1171,6 +1199,7 @@ async function countDirectives(
   return usage;
 }
 
+/** Discovers the template refs. */
 async function discoverTemplateRefs(
   root: string,
   modules: DiscoveredModule[]
@@ -1192,6 +1221,7 @@ async function discoverTemplateRefs(
   return refs.sort(compareInspectionItem);
 }
 
+/** Discovers the template events. */
 async function discoverTemplateEvents(
   root: string,
   modules: DiscoveredModule[]
@@ -1213,6 +1243,7 @@ async function discoverTemplateEvents(
   return events.sort(compareInspectionItem);
 }
 
+/** Discovers the template state. */
 async function discoverTemplateState(
   root: string,
   modules: DiscoveredModule[]
@@ -1234,6 +1265,7 @@ async function discoverTemplateState(
   return state.sort(compareInspectionItem);
 }
 
+/** Discovers the template exposes. */
 async function discoverTemplateExposes(
   root: string,
   modules: DiscoveredModule[]
@@ -1255,6 +1287,7 @@ async function discoverTemplateExposes(
   return exposes.sort(compareInspectionItem);
 }
 
+/** Discovers the SEO config files. */
 async function discoverSeoConfigFiles(
   root: string,
   pages: DiscoveredModule[]
@@ -1285,6 +1318,7 @@ async function discoverSeoConfigFiles(
   return files.sort();
 }
 
+/** Discovers the compiler features. */
 async function discoverCompilerFeatures(
   root: string,
   files: string[]
@@ -1310,6 +1344,7 @@ async function discoverCompilerFeatures(
   return [...features].sort();
 }
 
+/** Discovers the request routes. */
 async function discoverRequestRoutes(root: string, apiFiles: string[]) {
   const routeFiles = [
     "src/api/routes.js",
@@ -1343,6 +1378,7 @@ async function discoverRequestRoutes(root: string, apiFiles: string[]) {
   return [...routes].sort();
 }
 
+/** Discovers the middleware files. */
 function discoverMiddlewareFiles(apiFiles: string[]) {
   const registry = apiFiles.filter(file => (
     /^src\/api\/middleware\.(?:js|ts)$/.test(file)
@@ -1355,6 +1391,7 @@ function discoverMiddlewareFiles(apiFiles: string[]) {
   ));
 }
 
+/** Performs the internal `toFileConventionName()` operation. */
 function toFileConventionName(file: string, prefix: string) {
   if (!file.startsWith(prefix) || !/\.(?:js|ts)$/.test(file)) {
     return undefined;
@@ -1369,6 +1406,7 @@ function toFileConventionName(file: string, prefix: string) {
   return segments.length >= 2 ? segments.join(".") : undefined;
 }
 
+/** Discovers the component props. */
 async function discoverComponentProps(
   root: string,
   inspection: ProjectInspection
@@ -1398,6 +1436,7 @@ async function discoverComponentProps(
   return props;
 }
 
+/** Discovers the SEO coverage. */
 async function discoverSeoCoverage(
   root: string,
   pages: DiscoveredModule[]
@@ -1419,6 +1458,7 @@ async function discoverSeoCoverage(
   };
 }
 
+/** Finds the component references. */
 function findComponentReferences(source: string) {
   const names = new Set<string>();
 
@@ -1433,6 +1473,7 @@ function findComponentReferences(source: string) {
   return [...names].filter(Boolean).sort();
 }
 
+/** Finds the component prop references. */
 function findComponentPropReferences(source: string) {
   const references: Array<{
     component: string;
@@ -1456,6 +1497,7 @@ function findComponentPropReferences(source: string) {
   return references;
 }
 
+/** Finds the request references. */
 function findRequestReferences(source: string) {
   return [...source.matchAll(/\b(?:data-)?vd-request=["']([^"'{]+)["']/gi)]
     .map(match => match[1].trim())
@@ -1463,6 +1505,7 @@ function findRequestReferences(source: string) {
     .sort();
 }
 
+/** Finds the directive expressions. */
 function findDirectiveExpressions(source: string) {
   const expressions: Array<{
     directive: string;
@@ -1479,6 +1522,7 @@ function findDirectiveExpressions(source: string) {
   return expressions;
 }
 
+/** Finds the unsafe directive expressions. */
 function findUnsafeDirectiveExpressions(source: string) {
   return findDirectiveExpressions(source)
     .filter(item => /\b(?:eval|Function)\s*\(/.test(item.expression)
@@ -1487,6 +1531,7 @@ function findUnsafeDirectiveExpressions(source: string) {
     .sort();
 }
 
+/** Finds the ref references. */
 function findRefReferences(source: string) {
   return [...source.matchAll(/\b(?:data-)?vd-ref=["']([^"']+)["']/gi)]
     .map(match => match[1].trim())
@@ -1494,6 +1539,7 @@ function findRefReferences(source: string) {
     .sort();
 }
 
+/** Finds the missing ref usages. */
 function findMissingRefUsages(source: string) {
   const refs = new Set<string>();
 
@@ -1508,12 +1554,14 @@ function findMissingRefUsages(source: string) {
   return [...refs].filter(Boolean).sort();
 }
 
+/** Finds the event references. */
 function findEventReferences(source: string) {
   return findEventBindings(source).map(binding => (
     `${binding.event} -> ${binding.expression}`
   ));
 }
 
+/** Finds the event bindings. */
 function findEventBindings(source: string) {
   const events = new Map<string, {
     event: string;
@@ -1546,6 +1594,7 @@ function findEventBindings(source: string) {
   ));
 }
 
+/** Finds the slot references. */
 function findSlotReferences(source: string) {
   const slots = new Set<string>();
 
@@ -1556,10 +1605,12 @@ function findSlotReferences(source: string) {
   return [...slots].sort();
 }
 
+/** Finds the handler name. */
 function findHandlerName(expression: string) {
   return expression.match(/^([A-Za-z_$][\w$]*)\s*(?:\(|$)/)?.[1];
 }
 
+/** Finds the state assignments. */
 function findStateAssignments(source: string) {
   const names = new Set(findExportedStateKeys(source));
 
@@ -1570,6 +1621,7 @@ function findStateAssignments(source: string) {
   return [...names].sort();
 }
 
+/** Finds the exported state keys. */
 function findExportedStateKeys(source: string) {
   const declaration = /\bexport\s+const\s+state(?:\s*:[^=]+)?\s*=\s*\{/g
     .exec(source);
@@ -1654,6 +1706,7 @@ function readTopLevelObjectKeys(source: string, objectStart: number) {
   return [...keys].sort();
 }
 
+/** Adds the top level object key. */
 function addTopLevelObjectKey(keys: Set<string>, segment: string) {
   const value = segment.replace(
     /^(?:\s|\/\/[^\r\n]*(?:\r?\n|$)|\/\*[\s\S]*?\*\/)*/,
@@ -1669,6 +1722,7 @@ function addTopLevelObjectKey(keys: Set<string>, segment: string) {
   if (key) keys.add(key);
 }
 
+/** Finds the state declaration references. */
 function findStateDeclarationReferences(source: string) {
   return [...source.matchAll(/\b(?:data-)?vd-state=["']([^"']+)["']/gi)]
     .map(match => match[1].trim())
@@ -1676,6 +1730,7 @@ function findStateDeclarationReferences(source: string) {
     .sort();
 }
 
+/** Finds the expose names. */
 function findExposeNames(source: string) {
   const names = new Set<string>();
   const arraySource = source.match(/\bexpose\s*[:=]\s*\[([^\]]*)\]/)?.[1] || "";
@@ -1699,6 +1754,7 @@ function findExposeNames(source: string) {
   return [...names].filter(Boolean).sort();
 }
 
+/** Evaluates the `hasScriptSymbol()` condition for the supplied input. */
 function hasScriptSymbol(source: string, name: string) {
   if (!source.trim()) return false;
 
@@ -1714,6 +1770,7 @@ function hasScriptSymbol(source: string, name: string) {
   return patterns.some(pattern => pattern.test(source));
 }
 
+/** Finds the duplicate values. */
 function findDuplicateValues(values: string[]) {
   const seen = new Set<string>();
   const duplicates = new Set<string>();
@@ -1730,6 +1787,7 @@ function findDuplicateValues(values: string[]) {
   return [...duplicates].sort();
 }
 
+/** Performs the internal `toMarkdownDocs()` operation. */
 function toMarkdownDocs(docs: Awaited<ReturnType<typeof createDocumentationReport>>) {
   const lines = [
     "# VeloDom Project Documentation",
@@ -1785,6 +1843,7 @@ function toMarkdownDocs(docs: Awaited<ReturnType<typeof createDocumentationRepor
   return lines.join("\n");
 }
 
+/** Creates the application declarations. */
 function createApplicationDeclarations(
   inspection: ProjectInspection,
   componentProps: Map<string, Set<string>>
@@ -1853,6 +1912,7 @@ function createApplicationDeclarations(
   return lines.join("\n");
 }
 
+/** Returns the route parameter names. */
 function getRouteParameterNames(route: string) {
   const names = new Set<string>();
 
@@ -1863,10 +1923,12 @@ function getRouteParameterNames(route: string) {
   return [...names].sort();
 }
 
+/** Performs the internal `quoteTypeKey()` operation. */
 function quoteTypeKey(value: string) {
   return JSON.stringify(value);
 }
 
+/** Performs the internal `pushNestedList()` operation. */
 function pushNestedList(
   lines: string[],
   label: string,
@@ -1877,6 +1939,7 @@ function pushNestedList(
   lines.push(`  - ${label}: ${values.map(value => `\`${value}\``).join(", ")}`);
 }
 
+/** Reads the template source. */
 async function readTemplateSource(root: string, file: string) {
   const source = await readOptionalText(join(root, file));
   const template = file.endsWith(".vd")
@@ -1900,6 +1963,7 @@ function maskPreservedTemplateContent(source: string) {
   );
 }
 
+/** Reads the module script. */
 async function readModuleScript(root: string, file: string) {
   if (file.endsWith(".vd")) {
     const source = await readOptionalText(join(root, file));
@@ -1917,6 +1981,7 @@ async function readModuleScript(root: string, file: string) {
     || await readOptionalText(join(root, folder, "component.js"));
 }
 
+/** Compares the inspection item. */
 function compareInspectionItem(
   left: {
     name?: string;
@@ -1933,6 +1998,7 @@ function compareInspectionItem(
     .localeCompare(`${right.owner}:${right.name || ""}:${right.source}`);
 }
 
+/** Discovers the request middleware edges. */
 async function discoverRequestMiddlewareEdges(root: string) {
   const files = [
     "src/api/routes.js",
@@ -1962,6 +2028,7 @@ async function discoverRequestMiddlewareEdges(root: string) {
   return edges;
 }
 
+/** Finds the unused project warnings. */
 async function findUnusedProjectWarnings(
   root: string,
   inspection: ProjectInspection
@@ -2043,6 +2110,7 @@ async function findUnusedProjectWarnings(
   return issues;
 }
 
+/** Discovers the middleware names. */
 async function discoverMiddlewareNames(
   root: string,
   files: string[]
@@ -2081,6 +2149,7 @@ async function discoverMiddlewareNames(
   return names;
 }
 
+/** Finds the component cycle warnings. */
 async function findComponentCycleWarnings(
   root: string,
   inspection: ProjectInspection
@@ -2115,6 +2184,7 @@ async function findComponentCycleWarnings(
   return issues;
 }
 
+/** Finds the large module warnings. */
 async function findLargeModuleWarnings(
   root: string,
   modules: DiscoveredModule[]
@@ -2137,12 +2207,14 @@ async function findLargeModuleWarnings(
   return issues;
 }
 
+/** Finds the cycles. */
 function findCycles(graph: Map<string, string[]>) {
   const cycles: string[][] = [];
   const visited = new Set<string>();
   const stack = new Set<string>();
   const path: string[] = [];
 
+  /** Visits the requested value. */
   function visit(node: string) {
     if (stack.has(node)) {
       const start = path.indexOf(node);
@@ -2170,6 +2242,7 @@ function findCycles(graph: Map<string, string[]>) {
   return dedupeCycles(cycles);
 }
 
+/** Deduplicates the cycles. */
 function dedupeCycles(cycles: string[][]) {
   const seen = new Set<string>();
 
@@ -2183,6 +2256,7 @@ function dedupeCycles(cycles: string[][]) {
   });
 }
 
+/** Adds the graph node. */
 function addGraphNode(
   nodes: Map<string, ProjectGraph["nodes"][number]>,
   id: string,
@@ -2198,6 +2272,7 @@ function addGraphNode(
   });
 }
 
+/** Deduplicates the graph edges. */
 function dedupeGraphEdges(edges: ProjectGraph["edges"]) {
   const seen = new Set<string>();
 
@@ -2214,6 +2289,7 @@ function dedupeGraphEdges(edges: ProjectGraph["edges"]) {
   ));
 }
 
+/** Performs the internal `toMermaidGraph()` operation. */
 function toMermaidGraph(graph: ProjectGraph) {
   const lines = [
     "flowchart TD"
@@ -2231,14 +2307,17 @@ function toMermaidGraph(graph: ProjectGraph) {
   return lines.join("\n");
 }
 
+/** Performs the internal `toMermaidId()` operation. */
 function toMermaidId(value: string) {
   return value.replace(/[^A-Za-z0-9_]/g, "_");
 }
 
+/** Escapes the mermaid label. */
 function escapeMermaidLabel(value: string) {
   return value.replaceAll("\"", "&quot;");
 }
 
+/** Runs the child. */
 function runChild(
   command: string,
   args: string[],
@@ -2255,6 +2334,7 @@ function runChild(
   });
 }
 
+/** Runs the security scan. */
 async function runSecurityScan(root: string) {
   const inspection = await inspectProject(root);
   const issues: DoctorIssue[] = [];
@@ -2289,6 +2369,7 @@ async function runSecurityScan(root: string) {
   return issues;
 }
 
+/** Resolves the health threshold. */
 async function resolveHealthThreshold(
   root: string,
   rawThreshold: string | undefined
@@ -2314,6 +2395,7 @@ async function resolveHealthThreshold(
   }
 }
 
+/** Normalizes the health threshold. */
 function normalizeHealthThreshold(value: unknown, label: string) {
   const score = Number(value);
 
@@ -2324,6 +2406,7 @@ function normalizeHealthThreshold(value: unknown, label: string) {
   return score;
 }
 
+/** Validates the page config text. */
 async function validatePageConfigText(
   root: string,
   page: DiscoveredModule
@@ -2357,11 +2440,13 @@ async function validatePageConfigText(
   return issues;
 }
 
+/** Finds the config file. */
 async function findConfigFile(root: string, folder: string) {
   return (await readPageConfigSource(root, folder))?.file
     || pageConfigPaths(folder)[0];
 }
 
+/** Parses the args. */
 function parseArgs(args: string[]): ParsedArgs {
   const flags = new Set<string>();
   const options: Record<string, string> = {};
@@ -2407,6 +2492,7 @@ function parseArgs(args: string[]): ParsedArgs {
   };
 }
 
+/** Reads the cli version. */
 async function readCliVersion() {
   const manifest = JSON.parse(await readFile(
     new URL("../package.json", import.meta.url),

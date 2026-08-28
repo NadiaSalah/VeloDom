@@ -147,6 +147,7 @@ export async function promptForScaffold(
   }
 }
 
+/** Performs the internal `askText()` operation. */
 async function askText(
   prompt: ReturnType<typeof createInterface>,
   label: string,
@@ -157,6 +158,7 @@ async function askText(
   return answer.trim() || defaultValue;
 }
 
+/** Performs the internal `askConfirm()` operation. */
 async function askConfirm(
   prompt: ReturnType<typeof createInterface>,
   label: string,
@@ -174,6 +176,7 @@ async function askConfirm(
   throw new Error(`Answer "${label}" with yes or no.`);
 }
 
+/** Performs the internal `askSelect()` operation. */
 async function askSelect(
   prompt: ReturnType<typeof createInterface>,
   label: string,
@@ -200,6 +203,7 @@ async function askSelect(
   return byIndex || byValue || defaultValue;
 }
 
+/** Evaluates the `isAbortError()` condition for the supplied input. */
 function isAbortError(error: unknown) {
   return error instanceof Error && error.name === "AbortError";
 }

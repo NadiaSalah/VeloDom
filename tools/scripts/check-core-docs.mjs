@@ -14,9 +14,10 @@ import {
   readFile
 } from "node:fs/promises";
 import { join } from "node:path";
+import ts from "typescript";
 
 const CORE_DIRECTORY = "packages/velodom/src";
-const EXPORT_PATTERN = /^\s*export\s+(?:(?:default|declare|async)\s+)*(?:function|class|interface|type|const|let|var|\{)/;
+const EXPORT_PATTERN = /^\s*export\s+(?:(?:default|declare|async)\s+)*(?:class|interface|type|const|let|var|\{)/;
 
 const files = await collectTypeScriptFiles(CORE_DIRECTORY);
 const violations = [];
@@ -31,6 +32,27 @@ for (const file of files) {
 
   findAdjacentDuplicateJsDocs(source).forEach(offset => {
     violations.push(`${file}:${offset}: duplicate adjacent JSDoc block`);
+  });
+
+  const sourceFile = ts.createSourceFile(
+    file,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS
+  );
+
+  visitDocumentedFunctions(sourceFile, functionDeclaration => {
+    const line = sourceFile.getLineAndCharacterOfPosition(
+      functionDeclaration.getStart(sourceFile)
+    ).line;
+    const blockStart = findAdjacentJsDocStart(lines, line);
+
+    if (blockStart === -1 || blockStart === 0) {
+      violations.push(
+        `${file}:${line + 1}: named or exported function declaration requires its own JSDoc`
+      );
+    }
   });
 
   lines.forEach((line, index) => {
@@ -131,4 +153,26 @@ function findAdjacentDuplicateJsDocs(source) {
   }
 
   return duplicates;
+}
+
+/**
+ * Visits each real named or exported function declaration in a TypeScript module.
+ * Function-shaped text inside template strings and anonymous callbacks are
+ * intentionally excluded so the rule documents maintainable module units.
+ */
+function visitDocumentedFunctions(sourceFile, visitor) {
+  const visit = node => {
+    const exported = node.modifiers?.some(modifier => (
+      modifier.kind === ts.SyntaxKind.ExportKeyword
+      || modifier.kind === ts.SyntaxKind.DefaultKeyword
+    ));
+
+    if (ts.isFunctionDeclaration(node) && (node.name || exported)) {
+      visitor(node);
+    }
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
 }

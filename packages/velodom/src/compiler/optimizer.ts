@@ -171,6 +171,7 @@ export function createRuntimeFeatureManifest(
   };
 }
 
+/** Validates the optimizer. */
 function validateOptimizer(optimizer: TemplateOptimizer, index: number) {
   if (
     !optimizer
@@ -185,6 +186,7 @@ function validateOptimizer(optimizer: TemplateOptimizer, index: number) {
   }
 }
 
+/** Validates the optimizer result. */
 function validateOptimizerResult(
   optimizerName: string,
   patch: TemplateOptimizerResult
@@ -204,6 +206,7 @@ function validateOptimizerResult(
   });
 }
 
+/** Validates the compile result. */
 function validateCompileResult(
   optimizerName: string,
   result: TemplateCompileResult
@@ -225,6 +228,7 @@ function validateCompileResult(
   }
 }
 
+/** Reports the invalid result. */
 function throwInvalidResult(
   optimizerName: string,
   key: string,
@@ -235,6 +239,7 @@ function throwInvalidResult(
   );
 }
 
+/** Resolves the runtime feature. */
 function resolveRuntimeFeature(directive: string) {
   if (directive.startsWith("data-vd-on")) {
     return VD_COMPILER_FEATURES.EVENTS;

@@ -85,6 +85,7 @@ export function getVeloDomDirectiveCompletions(): VeloDomDirectiveCompletion[] {
   }));
 }
 
+/** Maps the diagnostic. */
 function mapDiagnostic(
   diagnostic: CompilerDiagnostic,
   source: string,
@@ -99,6 +100,7 @@ function mapDiagnostic(
   };
 }
 
+/** Maps the metadata. */
 function mapMetadata(
   metadata: DirectiveMetadata,
   source: string,
@@ -115,6 +117,7 @@ function mapMetadata(
   };
 }
 
+/** Performs the internal `toLocation()` operation. */
 function toLocation(source: string, offset: number) {
   const lines = source.slice(0, offset).split("\n");
 

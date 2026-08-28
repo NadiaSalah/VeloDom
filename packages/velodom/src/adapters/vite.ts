@@ -431,6 +431,7 @@ export function mountVeloDom(
   return mountViteApp(options);
 }
 
+/** Mounts the vite app. */
 async function mountViteApp(
   options: ViteAppOptions
 ): Promise<VeloDomApp> {

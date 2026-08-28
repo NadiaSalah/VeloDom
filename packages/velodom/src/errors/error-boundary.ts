@@ -86,6 +86,7 @@ export async function renderRecoverableErrorBoundary(
   }
 }
 
+/** Renders the fallback. */
 function renderFallback(
   target: HTMLElement,
   fallback: ErrorBoundaryFallback

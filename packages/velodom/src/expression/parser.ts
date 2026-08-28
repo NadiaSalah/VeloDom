@@ -602,6 +602,7 @@ class Parser {
   }
 }
 
+/** Reads the identifier. */
 function readIdentifier(source, start) {
   let end = start + 1;
 
@@ -617,6 +618,7 @@ function readIdentifier(source, start) {
   };
 }
 
+/** Reads the number. */
 function readNumber(source, start) {
   const match = source.slice(start).match(/^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?/);
 
@@ -635,6 +637,7 @@ function readNumber(source, start) {
   };
 }
 
+/** Reads the string. */
 function readString(source, start) {
   const quote = source[start];
   let value = "";
@@ -682,6 +685,7 @@ function readString(source, start) {
   throw new ExpressionSyntaxError("Unterminated string", start);
 }
 
+/** Reads the template. */
 function readTemplate(source, start) {
   const quasis = [];
   const expressions = [];
@@ -739,6 +743,7 @@ function readTemplate(source, start) {
   throw new ExpressionSyntaxError("Unterminated template literal", start);
 }
 
+/** Reads the template expression. */
 function readTemplateExpression(source, start) {
   let depth = 1;
   let index = start;
@@ -798,6 +803,7 @@ function readTemplateExpression(source, start) {
   );
 }
 
+/** Creates the identifier. */
 function createIdentifier(token) {
   if (VD_EXPRESSION.BLOCKED_IDENTIFIERS.includes(token.value)) {
     throw new ExpressionSyntaxError(
@@ -815,6 +821,7 @@ function createIdentifier(token) {
   };
 }
 
+/** Creates the literal. */
 function createLiteral(value, token) {
   return {
     type: "Literal",
@@ -825,6 +832,7 @@ function createLiteral(value, token) {
   };
 }
 
+/** Creates the member expression. */
 function createMemberExpression(object, property, computed, optional) {
   if (!computed || property.type === "Literal") {
     const name = computed
@@ -845,6 +853,7 @@ function createMemberExpression(object, property, computed, optional) {
   };
 }
 
+/** Validates the safe static member. */
 function assertSafeStaticMember(name, offset) {
   if (
     String(name).startsWith("__vd")

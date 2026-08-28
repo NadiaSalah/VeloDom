@@ -164,6 +164,7 @@ export function consumePageDataTransfer(
   }
 }
 
+/** Serializes the page data. */
 function serializePageData(data: unknown, route: string) {
   try {
     return JSON.stringify(data)
@@ -182,6 +183,7 @@ function serializePageData(data: unknown, route: string) {
   }
 }
 
+/** Runs the page data loader. */
 async function runPageDataLoader(
   module: PageDataModule,
   context: Omit<PageDataContext, "mode">
@@ -194,6 +196,7 @@ async function runPageDataLoader(
   });
 }
 
+/** Refreshes the page data. */
 async function refreshPageData(
   entries: Map<string, CachedPageData>,
   key: string,
@@ -211,6 +214,7 @@ async function refreshPageData(
   return data;
 }
 
+/** Resolves the cache policy. */
 function resolveCachePolicy(
   module: PageDataModule,
   page: string
@@ -240,10 +244,12 @@ function resolveCachePolicy(
   };
 }
 
+/** Creates the cache key. */
 function createCacheKey(context: Omit<PageDataContext, "mode">) {
   return `${VD_PAGE_DATA.CACHE_KEY_PREFIX}${context.page}:${context.route.path}:${stableJson(context.query)}`;
 }
 
+/** Performs the internal `stableJson()` operation. */
 function stableJson(value: Record<string, unknown>) {
   return JSON.stringify(
     Object.keys(value)
@@ -252,6 +258,7 @@ function stableJson(value: Record<string, unknown>) {
   );
 }
 
+/** Escapes the attribute. */
 function escapeAttribute(value: string) {
   return value.replace(/[&"'<>]/g, character => ({
     "&": "&amp;",

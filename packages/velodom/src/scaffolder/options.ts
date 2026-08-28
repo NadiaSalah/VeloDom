@@ -92,6 +92,7 @@ export async function resolveScaffoldPlan(request: ScaffoldRequest): Promise<Sca
   return plan;
 }
 
+/** Performs the internal `initialAnswers()` operation. */
 function initialAnswers(request: ScaffoldRequest): InteractiveScaffoldAnswers {
   const flags = request.flags;
   const testing = parseTesting(flags);
@@ -119,10 +120,12 @@ function initialAnswers(request: ScaffoldRequest): InteractiveScaffoldAnswers {
   };
 }
 
+/** Performs the internal `enabled()` operation. */
 function enabled(flags: Set<string>, name: string, fallback: boolean) {
   return explicitBoolean(flags, name) ?? fallback;
 }
 
+/** Performs the internal `explicitBoolean()` operation. */
 function explicitBoolean(flags: Set<string>, name: string) {
   if (flags.has(name)) return true;
   if (flags.has(`no-${name}`)) return false;

@@ -131,6 +131,7 @@ export function clearExpressionCache() {
   expressionCache.clear();
 }
 
+/** Evaluates the unary. */
 function evaluateUnary(ast, scope) {
   if (ast.operator === "typeof" && ast.argument.type === "Identifier") {
     const reference = resolveIdentifier(ast.argument.name, scope, true);
@@ -153,6 +154,7 @@ function evaluateUnary(ast, scope) {
   }
 }
 
+/** Evaluates the binary. */
 function evaluateBinary(operator, left, right) {
   switch (operator) {
     case "+":
@@ -186,6 +188,7 @@ function evaluateBinary(operator, left, right) {
   }
 }
 
+/** Evaluates the update. */
 function evaluateUpdate(ast, scope) {
   const reference = resolveWritableStateReference(ast.argument, scope);
   const previous = reference.receiver[reference.key];
@@ -198,6 +201,7 @@ function evaluateUpdate(ast, scope) {
   return ast.prefix ? next : previous;
 }
 
+/** Evaluates the logical. */
 function evaluateLogical(ast, scope) {
   const left = evaluateAst(ast.left, scope);
 
@@ -218,6 +222,7 @@ function evaluateLogical(ast, scope) {
   throw new TypeError(`Unsupported logical operator "${ast.operator}"`);
 }
 
+/** Evaluates the call. */
 function evaluateCall(ast, scope) {
   const reference = ast.callee.type === "MemberExpression"
     ? resolveMember(ast.callee, scope)
@@ -248,6 +253,7 @@ function evaluateCall(ast, scope) {
   );
 }
 
+/** Resolves the member. */
 function resolveMember(ast, scope) {
   const object = evaluateAst(ast.object, scope);
 
@@ -277,6 +283,7 @@ function resolveMember(ast, scope) {
   };
 }
 
+/** Resolves the identifier. */
 function resolveIdentifier(name, scope, allowMissing = false) {
   if (VD_EXPRESSION.BLOCKED_IDENTIFIERS.includes(name)) {
     throw new TypeError(`Expression identifier "${name}" is not allowed`);
@@ -320,6 +327,7 @@ function resolveIdentifier(name, scope, allowMissing = false) {
   throw new ReferenceError(`${name} is not defined`);
 }
 
+/** Resolves the writable state reference. */
 function resolveWritableStateReference(ast, scope) {
   if (!isStateExpression(ast, scope)) {
     throw new TypeError(
@@ -356,6 +364,7 @@ function resolveWritableStateReference(ast, scope) {
   };
 }
 
+/** Evaluates the `isStateExpression()` condition for the supplied input. */
 function isStateExpression(ast, scope) {
   let root = ast;
 
@@ -374,6 +383,7 @@ function isStateExpression(ast, scope) {
   );
 }
 
+/** Validates the safe member. */
 function assertSafeMember(name) {
   if (
     String(name).startsWith("__vd")

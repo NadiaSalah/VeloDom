@@ -54,6 +54,11 @@ or claim that a matching package is available from a registry.
 
 ### Fixed
 
+- Corrected the Blog starter and `vd create feature --blog` output to pass
+  expression-derived component values through `vd-props` instead of the
+  static-string `vd-prop-*` family, and added empty/list rendering states.
+- Corrected stale showcase examples for the root page convention, full-path
+  hash navigation, progressive `vd-form`, and the localization formatter API.
 - Hardened navigation guards against invalid handlers and unsafe redirects,
   prevented stale asynchronous navigation from winning races, and restored
   the active URL when history navigation is blocked.
@@ -68,6 +73,11 @@ or claim that a matching package is available from a registry.
 
 ### Documentation
 
+- Synchronized the academic showcase with the source-derived V1 contract: 13
+  package exports, 61 public values, 43 preferred directives, and 14 CLI
+  commands, including every supported package entry point.
+- Added named-function JSDoc coverage across all framework TypeScript modules
+  and made the documentation gate reject undocumented function declarations.
 - Consolidated the repository handbook, roadmap, engineering decisions, and
   release policy under `docs/` while keeping consumer and AI references beside
   the publishable package.
@@ -80,6 +90,10 @@ or claim that a matching package is available from a registry.
 
 ### Tooling
 
+- Made the documentation consistency audit validate the live showcase counts,
+  package map, CLI list, and known obsolete syntax patterns.
+- Removed comments from compiled JavaScript while preserving documented source
+  and declaration output, keeping documentation quality out of runtime weight.
 - Added package-boundary, installed-tarball, generated-starter, documentation,
   TypeScript, ESLint, production-build, performance-budget, and real-browser
   verification gates.

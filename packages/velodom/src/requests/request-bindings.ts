@@ -294,6 +294,7 @@ export function validateRequestBindingAccess(
   return true;
 }
 
+/** Resolves the request page name. */
 function resolveRequestPageName(
   targetAttr: unknown,
   pathAttr: unknown,
@@ -328,6 +329,7 @@ function resolveRequestPageName(
   return "";
 }
 
+/** Joins the request page path. */
 function joinRequestPagePath(path: string, page: string) {
   const pageName = normalizeFolderPath(page);
 
@@ -337,6 +339,7 @@ function joinRequestPagePath(path: string, page: string) {
   return `${path}/${pageName}`;
 }
 
+/** Resolves the absolute binding. */
 function resolveAbsoluteBinding(
   binding: string,
   currentState: RequestBindingState,
@@ -382,6 +385,7 @@ function resolveAbsoluteBinding(
   };
 }
 
+/** Returns the target page state. */
 function getTargetPageState(
   pageName: string,
   currentState: RequestBindingState,
@@ -396,6 +400,7 @@ function getTargetPageState(
   return context.getPageState?.(normalized) || currentState;
 }
 
+/** Derives the request status path. */
 function deriveRequestStatusPath(
   targetPath: string,
   kind: "loading" | "error"
@@ -420,6 +425,7 @@ function deriveRequestStatusPath(
   return segments.join(".");
 }
 
+/** Reports the requested value. */
 function report(
   meta: RequestBindingMeta,
   error: unknown,

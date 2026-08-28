@@ -136,8 +136,14 @@ application browser runtime weight:
   smoke coverage.
 - [x] Documentation checks for public exports, documented CLI commands, private
   imports, legacy roadmap labels, and removed-guide links.
+- [x] Named-function JSDoc across all Core TypeScript modules, enforced by an
+  AST-based documentation gate while emitted runtime JavaScript stays free of
+  comment weight.
 - [x] Source-derived documentation coverage for all public runtime/build values,
   preferred directive names, and CLI commands in the canonical one-file guide.
+- [x] Source-derived showcase coverage for package entry points, public-value /
+  directive / CLI totals, and obsolete syntax signatures that previously
+  allowed teaching examples to drift from Core.
 - [x] Project-intelligence literal-region handling so code shown inside
   `vd-pre` is compiled as documentation but excluded from static usage,
   reference, and event-handler reports.

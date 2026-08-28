@@ -141,6 +141,7 @@ export function toPosix(value: string): string {
   return value.replaceAll("\\", "/");
 }
 
+/** Reads the route override. */
 async function readRouteOverride(
   root: string,
   folder: string,
@@ -151,6 +152,7 @@ async function readRouteOverride(
   return readStaticPath(config?.source || "") || toRoutePath(name);
 }
 
+/** Reads the single file route override. */
 async function readSingleFileRouteOverride(
   root: string,
   file: string,
@@ -163,6 +165,7 @@ async function readSingleFileRouteOverride(
   return readStaticPath(config) || toRoutePath(name);
 }
 
+/** Collects the files. */
 async function collectFiles(
   directory: string,
   extensions: string[]

@@ -72,6 +72,7 @@ export const applyConditionals: DirectiveFeature = ({
   });
 };
 
+/** Finds the conditional elements. */
 function findConditionalElements(root) {
   const nodes: Element[] = [];
   const selector = [
@@ -89,6 +90,7 @@ function findConditionalElements(root) {
   return nodes;
 }
 
+/** Returns the conditional chain. */
 function getConditionalChain(start: Element) {
   const chain = [start];
   let current = start.nextElementSibling;
@@ -106,6 +108,7 @@ function getConditionalChain(start: Element) {
   return chain;
 }
 
+/** Evaluates the `isConditionalFollowup()` condition for the supplied input. */
 function isConditionalFollowup(el: Element) {
   return (
     el.hasAttribute(VD.ELSEIF)
@@ -113,6 +116,7 @@ function isConditionalFollowup(el: Element) {
   );
 }
 
+/** Evaluates the `shouldShowConditionalNode()` condition for the supplied input. */
 function shouldShowConditionalNode(
   node: Element,
   state,
@@ -142,6 +146,7 @@ function shouldShowConditionalNode(
   return value;
 }
 
+/** Reports the invalid conditional placement. */
 function reportInvalidConditionalPlacement(el: Element) {
   if (invalidPlacementReported.has(el)) return;
 
@@ -172,6 +177,7 @@ function reportInvalidConditionalPlacement(el: Element) {
   );
 }
 
+/** Reports the invalid conditional type. */
 function reportInvalidConditionalType(
   el: Element,
   expression,

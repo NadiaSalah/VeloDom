@@ -59,6 +59,7 @@ export function scopeCss(css, scopeSelector, sourceFile = "") {
   return scopeCssBlock(css, scopeSelector, sourceFile);
 }
 
+/** Scopes the CSS block to one resource. */
 function scopeCssBlock(content, scopeSelector, sourceFile) {
   let index = 0;
   let output = "";
@@ -104,6 +105,7 @@ function scopeCssBlock(content, scopeSelector, sourceFile) {
   return output;
 }
 
+/** Finds the matching brace. */
 function findMatchingBrace(text, openIndex) {
   let depth = 0;
 
@@ -119,10 +121,12 @@ function findMatchingBrace(text, openIndex) {
   return -1;
 }
 
+/** Evaluates the `isNestedAtRule()` condition for the supplied input. */
 function isNestedAtRule(selector) {
   return /@media|@supports|@container|@layer/i.test(selector);
 }
 
+/** Scopes the selector list. */
 function scopeSelectorList(selectorList, scopeSelector) {
   return selectorList
     .split(",")
@@ -130,6 +134,7 @@ function scopeSelectorList(selectorList, scopeSelector) {
     .join(", ");
 }
 
+/** Scopes the single selector. */
 function scopeSingleSelector(selector, scopeSelector) {
   if (!selector) return scopeSelector;
 
@@ -152,6 +157,7 @@ function scopeSingleSelector(selector, scopeSelector) {
   return `${scopeSelector} ${selector}`;
 }
 
+/** Scopes the selector with global. */
 function scopeSelectorWithGlobal(selector, scopeSelector) {
   const leadingGlobal = selector.match(/^:global\(([^)]*)\)(.*)$/);
 
@@ -171,6 +177,7 @@ function scopeSelectorWithGlobal(selector, scopeSelector) {
   );
 }
 
+/** Replaces the global selectors. */
 function replaceGlobalSelectors(selector) {
   return selector.replace(/:global\(([^)]*)\)/g, "$1");
 }

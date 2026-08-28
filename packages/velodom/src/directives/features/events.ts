@@ -85,6 +85,7 @@ export const applyEvents: DirectiveFeature = ({
   });
 };
 
+/** Finds the event elements. */
 function findEventElements(root: DirectiveRoot) {
   const nodes: Element[] = [];
 
@@ -101,11 +102,13 @@ function findEventElements(root: DirectiveRoot) {
   return nodes;
 }
 
+/** Evaluates the `hasEventDirective()` condition for the supplied input. */
 function hasEventDirective(el: Element) {
   return [...(el?.attributes ?? [])]
     .some(attr => Boolean(parseEventDirective(attr.name)));
 }
 
+/** Parses the event directive. */
 function parseEventDirective(attrName: string) {
   if (!attrName.startsWith(VD.ON)) return null;
 
@@ -127,6 +130,7 @@ function parseEventDirective(attrName: string) {
   };
 }
 
+/** Evaluates the `shouldRunEventHandler()` condition for the supplied input. */
 function shouldRunEventHandler(
   modifiers: Set<string>,
   event: Event
@@ -142,10 +146,12 @@ function shouldRunEventHandler(
   return keys.some(key => key === eventKey);
 }
 
+/** Evaluates the `isKeyModifier()` condition for the supplied input. */
 function isKeyModifier(name: string) {
   return VD_EVENT_KEY_MODIFIERS.some(key => key === name);
 }
 
+/** Normalizes the event key. */
 function normalizeEventKey(key: string) {
   if (!key) return "";
 

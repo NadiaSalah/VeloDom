@@ -6,6 +6,7 @@
     "inlineSources": true,
     "noEmit": false,
     "outDir": "./lib",
+    "removeComments": true,
     "rewriteRelativeImportExtensions": true,
     "rootDir": "./src",
     "sourceMap": true

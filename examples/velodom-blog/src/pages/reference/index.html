@@ -24,9 +24,9 @@
       </p>
       <div class="mt-7 flex flex-wrap gap-2">
         <span class="badge badge-primary badge-outline">61 public values</span>
-        <span class="badge badge-primary badge-outline">11 package exports</span>
+        <span class="badge badge-primary badge-outline">13 package exports</span>
         <span class="badge badge-primary badge-outline">43 preferred directives</span>
-        <span class="badge badge-primary badge-outline">13 CLI commands</span>
+        <span class="badge badge-primary badge-outline">14 CLI commands</span>
       </div>
     </header>
 
@@ -46,6 +46,11 @@
             <tr><td class="p-4"><code>velodom/assets</code></td><td class="p-4">Image inspection and responsive attributes</td><td class="p-4">Node/build</td></tr>
             <tr><td class="p-4"><code>velodom/node</code></td><td class="p-4">Fetch-style application response bridge</td><td class="p-4">Server only</td></tr>
             <tr><td class="p-4"><code>velodom/testing</code></td><td class="p-4">Page and component mount helpers</td><td class="p-4">Tests only</td></tr>
+            <tr><td class="p-4"><code>velodom/vite-plugin</code></td><td class="p-4">Compiler integration and runtime manifests</td><td class="p-4">Build only</td></tr>
+            <tr><td class="p-4"><code>velodom/devtools</code></td><td class="p-4">Optional read-only development inspector</td><td class="p-4">Development only</td></tr>
+            <tr><td class="p-4"><code>velodom/cli</code></td><td class="p-4">Project intelligence command runner</td><td class="p-4">Node/tooling</td></tr>
+            <tr><td class="p-4"><code>velodom/scaffolder</code></td><td class="p-4">Starter and feature scaffolding API</td><td class="p-4">Node/tooling</td></tr>
+            <tr><td class="p-4"><code>velodom/package.json</code></td><td class="p-4">Package metadata for compatible tooling</td><td class="p-4">Metadata only</td></tr>
           </tbody>
         </table>
       </div>
@@ -261,7 +266,8 @@ vd build-report --json
 vd docs
 vd types
 vd init my-site
-vd create page account --ts</code></pre>
+vd create page account --ts
+vd version</code></pre>
       </div>
       <p class="mt-4">Inspection detects invalid directives, dead references, unused resources, cycles, large templates, SEO gaps, accessibility signals, and bundle opportunities without adding AI or browser runtime weight. Scaffolding writes visible conventional files and never requires a central registry.</p>
       <div class="mt-7 flex flex-wrap gap-3">

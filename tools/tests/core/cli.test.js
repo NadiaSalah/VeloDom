@@ -416,6 +416,10 @@ test("CLI create scaffolds convention-first project resources", async () => {
       join(root, "src/pages/blog/posts/[id]/config.ts"),
       "utf8"
     );
+    const articleFeature = await readFile(
+      join(root, "src/pages/articles/index.html"),
+      "utf8"
+    );
     const starterMain = await readFile(
       join(root, "starter/src/main.js"),
       "utf8"
@@ -443,6 +447,9 @@ test("CLI create scaffolds convention-first project resources", async () => {
 
     assert.match(config, /path: "\/blog\/posts\/:id"/);
     assert.match(config, /satisfies PageConfig/);
+    assert.match(articleFeature, /vd-for="post in posts"/);
+    assert.match(articleFeature, /vd-props="\{ title: post\.title, excerpt: post\.excerpt \}"/);
+    assert.doesNotMatch(articleFeature, /vd-prop-title="posts\[/);
     assert.match(starterMain, /await mountVeloDom\(\)/);
     assert.match(starterMain, /import "\.\/style\.css"/);
     assert.doesNotMatch(starterMain, /createViteAdapter/);

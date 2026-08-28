@@ -416,6 +416,7 @@ export function createContentRssFeed(
   ].join("\n");
 }
 
+/** Collects the markdown files. */
 async function collectMarkdownFiles(folder: string): Promise<string[]> {
   const entries = await readdir(folder, {
     withFileTypes: true
@@ -435,6 +436,7 @@ async function collectMarkdownFiles(folder: string): Promise<string[]> {
   return nested.flat().sort();
 }
 
+/** Splits the frontmatter. */
 function splitFrontmatter(source: string) {
   if (!source.startsWith("---")) {
     return {
@@ -459,6 +461,7 @@ function splitFrontmatter(source: string) {
   };
 }
 
+/** Parses the frontmatter. */
 function parseFrontmatter(lines: string[]): ContentFrontmatter {
   const frontmatter: ContentFrontmatter = {};
   let arrayKey = "";
@@ -495,6 +498,7 @@ function parseFrontmatter(lines: string[]): ContentFrontmatter {
   return frontmatter;
 }
 
+/** Parses the scalar. */
 function parseScalar(value: string): ContentFrontmatterValue {
   const trimmed = value.trim();
 
@@ -512,6 +516,7 @@ function parseScalar(value: string): ContentFrontmatterValue {
   return trimmed;
 }
 
+/** Converts Markdown source into safe HTML output. */
 function markdownToHtml(markdown: string): string {
   const lines = markdown.replace(/\r\n/g, "\n").split("\n");
   const html: string[] = [];
@@ -584,6 +589,7 @@ function markdownToHtml(markdown: string): string {
   return html.join("\n");
 }
 
+/** Converts Markdown source into plain searchable text. */
 function markdownToText(markdown: string): string {
   return markdown
     .replace(/```[\s\S]*?```/g, " ")
@@ -594,16 +600,19 @@ function markdownToText(markdown: string): string {
     .trim();
 }
 
+/** Infers the title. */
 function inferTitle(markdown: string) {
   return markdown.match(/^#\s+(.+)$/m)?.[1]?.trim() || "";
 }
 
+/** Creates the excerpt. */
 function createExcerpt(text: string, limit: number) {
   if (text.length <= limit) return text;
 
   return `${text.slice(0, limit).trimEnd()}…`;
 }
 
+/** Creates the slug from path. */
 function createSlugFromPath(path: string) {
   const normalized = path.replaceAll("\\", "/");
   const extension = extname(normalized);
@@ -614,6 +623,7 @@ function createSlugFromPath(path: string) {
   return normalizeSlug(withoutExtension || basename(path, extension));
 }
 
+/** Creates the title from slug. */
 function createTitleFromSlug(value: string) {
   return normalizeSlug(value)
     .split("-")
@@ -622,6 +632,7 @@ function createTitleFromSlug(value: string) {
     .join(" ");
 }
 
+/** Normalizes the slug. */
 function normalizeSlug(value: string) {
   return String(value || "untitled")
     .trim()
@@ -635,16 +646,19 @@ function normalizeSlug(value: string) {
     .toLowerCase() || "untitled";
 }
 
+/** Normalizes the base path. */
 function normalizeBasePath(value: string) {
   return `/${String(value || "").replace(/^\/+|\/+$/g, "")}`;
 }
 
+/** Returns the string. */
 function getString(value: ContentFrontmatterValue | undefined) {
   return typeof value === "string"
     ? value.trim()
     : "";
 }
 
+/** Returns the string list. */
 function getStringList(value: ContentFrontmatterValue | undefined) {
   if (Array.isArray(value)) {
     return value.map(item => item.trim()).filter(Boolean);
@@ -657,11 +671,13 @@ function getStringList(value: ContentFrontmatterValue | undefined) {
   return [];
 }
 
+/** Compares the content entries. */
 function compareContentEntries(left: ContentEntry, right: ContentEntry) {
   return (right.date || "").localeCompare(left.date || "")
     || left.title.localeCompare(right.title);
 }
 
+/** Escapes untrusted text for safe HTML output. */
 function escapeHtml(value: string) {
   return value
     .replaceAll("&", "&amp;")

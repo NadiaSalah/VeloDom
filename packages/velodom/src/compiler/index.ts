@@ -226,6 +226,7 @@ export function compileTemplate(
   };
 }
 
+/** Compiles the start tag. */
 function compileStartTag(
   tagSource,
   sourceOffset,
@@ -340,6 +341,7 @@ function compileStartTag(
   };
 }
 
+/** Compiles the text segment. */
 function compileTextSegment(
   text: string,
   sourceOffset: number,
@@ -427,6 +429,7 @@ function compileTextSegment(
   };
 }
 
+/** Evaluates the `shouldPreserveTextContent()` condition for the supplied input. */
 function shouldPreserveTextContent(ast) {
   return (
     !ast.selfClosing
@@ -436,6 +439,7 @@ function shouldPreserveTextContent(ast) {
   );
 }
 
+/** Evaluates the `hasPreservedTextAttribute()` condition for the supplied input. */
 function hasPreservedTextAttribute(attributes) {
   return attributes.some(attribute => (
     attribute.name === "vd-pre"
@@ -443,6 +447,7 @@ function hasPreservedTextAttribute(attributes) {
   ));
 }
 
+/** Compiles the directive name. */
 function compileDirectiveName(name) {
   if (name.startsWith("data-vd-")) {
     return {
@@ -511,6 +516,7 @@ function compileDirectiveName(name) {
   };
 }
 
+/** Normalizes the directive alias. */
 function normalizeDirectiveAlias(directive: string) {
   if (directive === "auto-state") return "request-state";
 
@@ -521,6 +527,7 @@ function normalizeDirectiveAlias(directive: string) {
   return directive;
 }
 
+/** Parses the start tag. */
 function parseStartTag(tagSource, sourceOffset) {
   let index = 1;
 
@@ -622,6 +629,7 @@ function parseStartTag(tagSource, sourceOffset) {
   };
 }
 
+/** Creates the accessibility context. */
 function createAccessibilityContext(source) {
   return {
     labelTargets: collectLabelTargets(source),
@@ -629,6 +637,7 @@ function createAccessibilityContext(source) {
   };
 }
 
+/** Creates the accessibility diagnostics. */
 function createAccessibilityDiagnostics(
   parsed,
   source,
@@ -732,6 +741,7 @@ function createAccessibilityDiagnostics(
   return diagnostics;
 }
 
+/** Creates the security diagnostics. */
 function createSecurityDiagnostics(source, filename) {
   const diagnostics = [];
 
@@ -794,6 +804,7 @@ function createSecurityDiagnostics(source, filename) {
   return diagnostics;
 }
 
+/** Collects the label targets. */
 function collectLabelTargets(source) {
   const targets = new Set();
   const pattern = /<label\b[^>]*\bfor\s*=\s*(["'])(.*?)\1/gi;
@@ -807,6 +818,7 @@ function collectLabelTargets(source) {
   return targets;
 }
 
+/** Creates the attribute lookup. */
 function createAttributeLookup(attributes) {
   const lookup = new Map();
 
@@ -817,14 +829,17 @@ function createAttributeLookup(attributes) {
   return lookup;
 }
 
+/** Evaluates the `hasAnyAttribute()` condition for the supplied input. */
 function hasAnyAttribute(attributes, names) {
   return names.some(name => attributes.has(name));
 }
 
+/** Returns the attribute value. */
 function getAttributeValue(attributes, name) {
   return attributes.get(name)?.value || "";
 }
 
+/** Evaluates the `isFormControl()` condition for the supplied input. */
 function isFormControl(tagName, attributes) {
   if (!VD_ACCESSIBILITY.FORM_CONTROL_TAGS.includes(tagName)) {
     return false;
@@ -836,6 +851,7 @@ function isFormControl(tagName, attributes) {
   );
 }
 
+/** Evaluates the `hasAccessibleName()` condition for the supplied input. */
 function hasAccessibleName(attributes, context) {
   if (hasAnyAttribute(attributes, [
     "aria-label",
@@ -850,6 +866,7 @@ function hasAccessibleName(attributes, context) {
   return Boolean(id && context.labelTargets.has(id));
 }
 
+/** Evaluates the `isInteractiveAnchor()` condition for the supplied input. */
 function isInteractiveAnchor(attributes) {
   return (
     hasAnyAttribute(attributes, [
@@ -860,6 +877,7 @@ function isInteractiveAnchor(attributes) {
   );
 }
 
+/** Evaluates the `hasClickHandler()` condition for the supplied input. */
 function hasClickHandler(attributes) {
   for (const name of attributes.keys()) {
     if (
@@ -875,6 +893,7 @@ function hasClickHandler(attributes) {
   return false;
 }
 
+/** Evaluates the `isNonSemanticClickTarget()` condition for the supplied input. */
 function isNonSemanticClickTarget(tagName, attributes) {
   if (VD_ACCESSIBILITY.INTERACTIVE_TAGS.includes(tagName)) {
     return false;
@@ -892,6 +911,7 @@ function isNonSemanticClickTarget(tagName, attributes) {
   );
 }
 
+/** Evaluates the `hasKeyboardHandler()` condition for the supplied input. */
 function hasKeyboardHandler(attributes) {
   for (const name of attributes.keys()) {
     if (
@@ -906,6 +926,7 @@ function hasKeyboardHandler(attributes) {
   return false;
 }
 
+/** Returns the heading level. */
 function getHeadingLevel(tagName) {
   if (!VD_ACCESSIBILITY.HEADING_TAGS.includes(tagName)) {
     return 0;
@@ -914,6 +935,7 @@ function getHeadingLevel(tagName) {
   return Number(tagName.slice(1));
 }
 
+/** Returns the directive expression. */
 function getDirectiveExpression(name, value) {
   if (name === "data-vd-for") {
     const match = String(value || "").match(
@@ -934,6 +956,7 @@ function getDirectiveExpression(name, value) {
     : null;
 }
 
+/** Finds the tag end. */
 function findTagEnd(source, start) {
   let quote = "";
 
@@ -956,6 +979,7 @@ function findTagEnd(source, start) {
   return -1;
 }
 
+/** Reads the modifiers. */
 function readModifiers(name) {
   return name
     .split(".")
@@ -963,10 +987,12 @@ function readModifiers(name) {
     .filter(Boolean);
 }
 
+/** Evaluates the `isWhitespace()` condition for the supplied input. */
 function isWhitespace(value) {
   return Boolean(value && /\s/.test(value));
 }
 
+/** Escapes the attribute. */
 function escapeAttribute(value: string) {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -975,6 +1001,7 @@ function escapeAttribute(value: string) {
     .replace(/>/g, "&gt;");
 }
 
+/** Creates the diagnostic. */
 function createDiagnostic(source, filename, offset, severity, code, message) {
   return {
     severity,
@@ -986,6 +1013,7 @@ function createDiagnostic(source, filename, offset, severity, code, message) {
   };
 }
 
+/** Returns the source location. */
 function getSourceLocation(source, offset) {
   const before = source.slice(0, offset);
   const lines = before.split("\n");
@@ -996,6 +1024,7 @@ function getSourceLocation(source, offset) {
   };
 }
 
+/** Strips the development metadata. */
 function stripDevelopmentMetadata(entry) {
   return {
     type: entry.type,

@@ -54,6 +54,7 @@ export function startDevelopmentServer(
   return runPackageManager(cwd, packageManager, args);
 }
 
+/** Runs the package manager. */
 function runPackageManager(
   cwd: string,
   packageManager: ScaffoldPackageManager,
@@ -82,6 +83,7 @@ function runPackageManager(
   });
 }
 
+/** Creates the invocation. */
 function createInvocation(
   packageManager: ScaffoldPackageManager,
   args: string[]

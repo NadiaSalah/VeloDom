@@ -26,6 +26,7 @@ export async function installApplicationFeatures(plan: ScaffoldPlan) {
   if (plan.testing !== "none") await writeTests(plan);
 }
 
+/** Writes the main entry. */
 async function writeMainEntry(plan: ScaffoldPlan) {
   const extension = sourceExtension(plan);
   await writeText(join(plan.destination, `src/main.${extension}`), `import { mountVeloDom } from "velodom/vite";
@@ -35,6 +36,7 @@ await mountVeloDom();
 `);
 }
 
+/** Writes the global styles. */
 async function writeGlobalStyles(plan: ScaffoldPlan) {
   const tailwind = plan.tailwind ? '@import "tailwindcss";\n\n' : "";
   await writeText(join(plan.destination, "src/style.css"), `${tailwind}:root {
@@ -119,6 +121,7 @@ input {
 `);
 }
 
+/** Writes the router example. */
 async function writeRouterExample(plan: ScaffoldPlan) {
   const extension = sourceExtension(plan);
   await writeText(join(plan.destination, "src/pages/about/index.html"), `<main class="shell hero">
@@ -139,6 +142,7 @@ async function writeRouterExample(plan: ScaffoldPlan) {
   await writeNavigation(plan);
 }
 
+/** Writes the home config. */
 async function writeHomeConfig(plan: ScaffoldPlan, withLayout: boolean) {
   const extension = sourceExtension(plan);
   await writeText(join(plan.destination, `src/pages/home/config.${extension}`), `export default {
@@ -151,6 +155,7 @@ async function writeHomeConfig(plan: ScaffoldPlan, withLayout: boolean) {
 `);
 }
 
+/** Writes the navigation. */
 async function writeNavigation(plan: ScaffoldPlan) {
   const links = [
     '<a href="/" vd-nav>Home</a>',
@@ -169,6 +174,7 @@ async function writeNavigation(plan: ScaffoldPlan) {
 `);
 }
 
+/** Writes the localization example. */
 async function writeLocalizationExample(plan: ScaffoldPlan) {
   const extension = sourceExtension(plan);
   const type = plan.language === "typescript" ? ": \"en\" | \"ar\"" : "";
@@ -220,6 +226,7 @@ export function applyLocale(locale${type}) {
   if (plan.router) await writeNavigation(plan);
 }
 
+/** Performs the internal `localizationScript()` operation. */
 function localizationScript(plan: ScaffoldPlan) {
   const localeType = plan.language === "typescript" ? ': "en" | "ar"' : "";
   return `import { applyLocale, i18n } from "../../i18n.${sourceExtension(plan)}";
@@ -237,6 +244,7 @@ export const state = {
 `;
 }
 
+/** Writes the tests. */
 async function writeTests(plan: ScaffoldPlan) {
   const extension = sourceExtension(plan);
 
@@ -265,6 +273,7 @@ test("renders the VeloDom starter", async ({ page }) => {
   }
 }
 
+/** Converts the source to type script. */
 async function convertSourceToTypeScript(directory: string) {
   const entries = await readdir(directory, { withFileTypes: true });
 
@@ -282,10 +291,12 @@ async function convertSourceToTypeScript(directory: string) {
   }
 }
 
+/** Performs the internal `sourceExtension()` operation. */
 function sourceExtension(plan: ScaffoldPlan) {
   return plan.language === "typescript" ? "ts" : "js";
 }
 
+/** Writes the text. */
 async function writeText(file: string, source: string) {
   await mkdir(dirname(file), { recursive: true });
   await writeFile(file, source);

@@ -86,6 +86,7 @@ export function createValidationPlugin(
   };
 }
 
+/** Returns the validation form. */
 function getValidationForm(
   target: EventTarget | null,
   selector: string
@@ -105,6 +106,7 @@ function getValidationForm(
   return null;
 }
 
+/** Evaluates the `isFormValid()` condition for the supplied input. */
 function isFormValid(form: HTMLFormElement) {
   if (typeof form.checkValidity === "function") {
     return form.checkValidity();
@@ -115,6 +117,7 @@ function isFormValid(form: HTMLFormElement) {
   ));
 }
 
+/** Marks the invalid state. */
 function markInvalidState(form: HTMLFormElement) {
   const controls = getValidatedControls(form);
   let hasInvalidControl = false;
@@ -135,6 +138,7 @@ function markInvalidState(form: HTMLFormElement) {
   );
 }
 
+/** Clears the invalid state. */
 function clearInvalidState(form: HTMLFormElement) {
   form.removeAttribute(VD_VALIDATION.INVALID_ATTRIBUTE);
   getValidatedControls(form).forEach(control => {
@@ -142,6 +146,7 @@ function clearInvalidState(form: HTMLFormElement) {
   });
 }
 
+/** Returns the validated controls. */
 function getValidatedControls(form: HTMLFormElement) {
   return Array.from(form.elements).filter((control): control is HTMLElement => (
     control instanceof HTMLElement
@@ -149,6 +154,7 @@ function getValidatedControls(form: HTMLFormElement) {
   ));
 }
 
+/** Evaluates the `isControlValid()` condition for the supplied input. */
 function isControlValid(control: HTMLElement) {
   return (control as HTMLInputElement).checkValidity();
 }

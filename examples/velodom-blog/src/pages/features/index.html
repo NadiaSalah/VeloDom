@@ -167,12 +167,12 @@ state.openFeatured = () =&gt; {
       <div class="code-window">
         <div class="code-toolbar"><span>routing by convention</span><span>folders first</span></div>
         <pre class="code-example" vd-pre><code>src/pages/
-├── index.html                 → /
+├── home/index.html            → /
 ├── blog/index.html            → /blog
 └── blog/posts/[id]/index.html → /blog/posts/:id
 
 &lt;a href="/blog/posts/html-first" vd-nav&gt;Read article&lt;/a&gt;
-&lt;a href="/#requests" vd-nav&gt;Jump to requests&lt;/a&gt;</code></pre>
+&lt;a href="/features#requests" vd-nav&gt;Jump to requests&lt;/a&gt;</code></pre>
       </div>
       <div class="code-window">
         <div class="code-toolbar"><span>src/pages/account/config.js</span><span>page guard</span></div>
@@ -223,7 +223,7 @@ state.openFeatured = () =&gt; {
       <h3>Progressive forms keep native HTML as the baseline.</h3>
       <div class="code-window">
         <div class="code-toolbar"><span>native form + opt-in enhancement</span><span>server owns policy</span></div>
-        <pre class="code-example" vd-pre><code>&lt;form action="/contact" method="post" vd-progressive-form vd-validate&gt;
+        <pre class="code-example" vd-pre><code>&lt;form action="/contact" method="post" vd-form vd-validate&gt;
   &lt;label&gt;
     Email
     &lt;input name="email" type="email" required&gt;
@@ -468,14 +468,22 @@ const attributes = createResponsiveImageAttributes({
       <div class="grid gap-5 lg:grid-cols-2">
         <div class="code-window">
           <div class="code-toolbar"><span>build-time localization</span><span>public subpath</span></div>
-          <pre class="code-example" vd-pre><code>import { createLocaleFormatter } from "velodom/localization";
+          <pre class="code-example" vd-pre><code>import {
+  createLocaleFormatter,
+  createLocalization,
+  defineLocaleDictionary
+} from "velodom/localization";
 
-const i18n = createLocaleFormatter({
-  locale: "ar",
-  messages: { welcome: "مرحبًا {name}" }
+const i18n = createLocalization({
+  defaultLocale: "en",
+  locales: {
+    en: { lang: "en", messages: defineLocaleDictionary({ welcome: "Welcome" }) },
+    ar: { lang: "ar", messages: defineLocaleDictionary({ welcome: "مرحبًا" }) }
+  }
 });
 
-i18n.formatMessage("welcome", { name: "Nadia" });</code></pre>
+i18n.t("ar", "welcome");
+createLocaleFormatter("ar-EG").formatCurrency(1200, "EGP");</code></pre>
         </div>
         <div class="code-window">
           <div class="code-toolbar"><span>content collection</span><span>build only</span></div>

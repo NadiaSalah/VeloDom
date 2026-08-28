@@ -64,6 +64,7 @@ the application. Import public package paths only.
 - `velodom/testing`
 - `velodom/cli` (Node tooling only)
 - `velodom/scaffolder` (Node tooling only)
+- `velodom/package.json` (package metadata only)
 
 Never import `velodom/lib/*`, `packages/velodom/src/*`, or other internals.
 
@@ -141,7 +142,8 @@ into a script module.
 ```
 
 Component names follow their path below `src/components`. Use `vd-props` for a
-dynamic object. Layouts live below `src/layouts`, contain exactly one
+dynamic object; `vd-prop-*` values are always static strings. Layouts live
+below `src/layouts`, contain exactly one
 `<vd-page></vd-page>`, and are selected with `layout` in page config.
 
 ## Routing

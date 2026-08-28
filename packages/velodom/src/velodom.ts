@@ -59,6 +59,7 @@ export function createApp(options: VeloDomAppOptions): VeloDomApp {
 
 let handlersRegistered = false;
 
+/** Registers the global error handlers. */
 function registerGlobalErrorHandlers() {
   if (handlersRegistered) return;
 

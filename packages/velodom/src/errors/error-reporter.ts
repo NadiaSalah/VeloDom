@@ -94,6 +94,7 @@ export function reportUserActionError(
   };
 }
 
+/** Normalizes the error. */
 function normalizeError(error: unknown): VeloDomAnnotatedError {
   if (error instanceof Error) {
     return error as VeloDomAnnotatedError;
@@ -112,6 +113,7 @@ function normalizeError(error: unknown): VeloDomAnnotatedError {
   return synthetic;
 }
 
+/** Resolves the location. */
 function resolveLocation(
   stack: string | undefined,
   options: ErrorReportOptions,
@@ -146,6 +148,7 @@ function resolveLocation(
   return fallback;
 }
 
+/** Parses the stack line. */
 function parseStackLine(stackLine: string) {
   const normalized = stackLine.replace(/\\/g, "/");
   const srcMatch = normalized.match(/(src\/[^:\s)]+\.[jt]s)(?:\?[^:\s)]*)?:(\d+):(\d+)/);
@@ -171,6 +174,7 @@ function parseStackLine(stackLine: string) {
   return null;
 }
 
+/** Returns the element snippet. */
 function getElementSnippet(el: Element | null | undefined) {
   if (!el?.outerHTML) return "";
 
@@ -180,6 +184,7 @@ function getElementSnippet(el: Element | null | undefined) {
     .slice(0, 220);
 }
 
+/** Performs the internal `safeStringify()` operation. */
 function safeStringify(value: unknown) {
   try {
     return JSON.stringify(value);

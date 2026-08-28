@@ -32,6 +32,15 @@
   tests, not a large synchronization generator, guard their shared conventions.
 - `packages/velodom/src` is the single home for reusable framework source,
   including the compiler, shared contracts, adapters, and Vite plugin.
+- Core documentation is enforced structurally: every TypeScript module has a
+  responsibility header, every exported declaration has public JSDoc, and
+  every real named function declaration has adjacent JSDoc. Anonymous
+  callbacks remain uncluttered. Build output uses `removeComments` so repository
+  maintainability does not become browser-runtime weight; declarations retain
+  public API documentation.
+- The documentation blog is checked against package source rather than trusted
+  as a second contract. Its package map, public/directive/CLI totals, and known
+  signature-sensitive examples fail `npm run docs:check` when they drift.
 - `examples/velodom-blog/src` is the repository's application-owned showcase. External
   applications own their own `src/pages`, `src/components`, and `src/api`.
 - Build-tool discovery belongs to adapters; the runtime accepts injected

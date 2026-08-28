@@ -44,6 +44,7 @@ export function analyzeRtlCss(
   return diagnostics;
 }
 
+/** Collects the property diagnostic. */
 function collectPropertyDiagnostic(
   diagnostics: RtlCssDiagnostic[],
   line: string,
@@ -75,6 +76,7 @@ function collectPropertyDiagnostic(
   });
 }
 
+/** Returns the text align alternative. */
 function getTextAlignAlternative(
   property: string,
   value: string,
@@ -87,6 +89,7 @@ function getTextAlignAlternative(
     : "";
 }
 
+/** Strips the line comments. */
 function stripLineComments(
   line: string,
   inComment: boolean

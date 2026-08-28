@@ -97,6 +97,9 @@ API, even if it exists in the installed tarball or repository checkout.
 - Write `vd-auto-state`; preserve `vd-request-state` only in existing code when
   a migration is not part of the request.
 - Address nested components with `name="folder/component"`.
+- Pass literal component strings with `vd-prop-*`. Pass dynamic values with a
+  single `vd-props` object; a value such as
+  `vd-prop-title="posts[0].title"` is literal text, not an expression.
 - Use app-relative navigation such as `/features#requests`, never a bare hash
   with `vd-nav` and never an external URL as a router target.
 - Prefer interpolation for inline text and `vd-text` when the whole node is a
