@@ -1,9 +1,12 @@
-# VeloDom V1 Roadmap
+# VeloDom Roadmap
 
-This roadmap describes one VeloDom V1 product family. It separates what is
-implemented from work that is current, planned, research-only, deferred, or
-rejected. Discarded pre-public milestones are not product generations; only
-their surviving user-visible outcomes are summarized in `CHANGELOG.md`.
+This roadmap preserves VeloDom V1 as the completed source baseline and keeps
+post-launch work intentionally small, optional, and evidence-driven. It
+separates the remaining V1 release gates, the approved next-release maturity
+scope, later-release opportunities, research-only work, and rejected
+directions.
+Discarded pre-public milestones are not product generations; only their
+surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 
 ## V1 Status Summary
 
@@ -17,14 +20,20 @@ their surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 | Public package source | V1 — Implemented | Local `1.0.0` manifests, exports, package docs, starters, and consumer checks |
 | Browser release gate | V1 — Current | Strict CI workflow exists; rerun it on the exact initial-release commit |
 | npm registry state | External verification | No official release is represented; verify name/version state before first publication |
-| Hybrid rendering and islands | V1 — Planned / Experimental | Design must preserve static-first authoring and optional runtime cost |
-| AI, migration, CMS, and Edge integrations | V1 — Research / Deferred | External, optional, and never required by Core |
+| Next-release authoring and rendering maturity | Next release — Planned | Resolve looped components, keyed updates, `.vd` lazy parity, and compiler development speed |
+| Next-release developer intelligence | Next release — Planned | One project index, diagnostic quality, safe fixes, generated types, and thin CLI composition |
+| Later-release extensions | Later release — Deferred | Optional integrations and tooling only after next-release contracts are proven |
+| Hybrid rendering, AI, migration, CMS, and Edge | Research / Experimental | External or high-risk capabilities; never required by Core |
 
 ### Progress counter
 
 **V1 implementation: complete. Local scaffolder/package gates: complete.**
 
 `[####################] 100%`
+
+**Next-release approved scope: 2 of 15 milestones complete.**
+
+`[###.................] 13%`
 
 The repository is the local V1 source baseline. Registry availability,
 authentication, tags, and releases are external state and are deliberately not
@@ -36,10 +45,12 @@ state.
 - **V1 — Implemented:** supported by source, tests, and public documentation.
 - **V1 — Current:** part of the current release candidate or an active release
   gate; it is not a new product generation.
-- **V1 — Planned:** approved direction with implementation still pending.
-- **V1 — Research:** investigation only; no runtime promise.
-- **V1 — Deferred / Experimental:** intentionally postponed until evidence and
-  a bounded design exist.
+- **Next release — Planned:** approved, bounded follow-up work that must retain
+  the V1 public model and pass its focused regression/performance gates.
+- **Later release — Deferred:** useful work intentionally postponed until the
+  next release creates the required contracts or release evidence.
+- **Research / Experimental:** investigation or opt-in prototype only; it is
+  not a runtime promise.
 - **Rejected:** conflicts with VeloDom's identity or adds mandatory complexity.
 
 ## V1 Core — Implemented
@@ -231,40 +242,139 @@ Current release work is governance rather than a new framework feature:
 - [ ] Create the first official Git tag/GitHub release and move verified notes
   from `Unreleased` into the dated `1.0.0` changelog section.
 
-## V1 Advanced Capabilities — Planned / Experimental
+## Next Stable Release — Approved Maturity Scope
 
-These are not implemented V1 runtime features. Any future work must remain
-optional and pass a compiler-first/runtime-budget design review:
+The next stable release is a maturity release, not a redefinition of VeloDom. Every item below
+must preserve HTML-first authoring, JavaScript/TypeScript parity, folder mode,
+and zero browser cost for unused capabilities. A proposal moves to a later
+section if it requires a new mandatory runtime abstraction, a compatibility
+layer, or unproven analysis.
 
-- [ ] Evaluate an opt-in hybrid server rendering boundary for applications that
-  explicitly need request-time HTML.
-- [ ] Evaluate route rendering modes that preserve static output as the default.
-- [ ] Evaluate compiler-generated islands or partial hydration only if they can
-  avoid a mandatory virtual DOM and keep ordinary HTML authoring intact.
-- [ ] Evaluate a full editable Lab playground/export flow, performance flame
-  charts, source navigation/maps, and browser-extension host without mutable
-  runtime internals, source writes by default, or secret collection.
-- [ ] Evaluate streaming and Edge adapters as separate contracts, not as hidden
-  behavior in the browser package.
-- [ ] Harden framework typing module-by-module until `strict` mode can replace
-  the current bounded checks. Start with shared contracts and small leaf
-  modules, then the compiler, mount/router, and request router; do not introduce
-  application-facing API changes solely to satisfy the checker.
+### P0 — Authoring, rendering, and Core quality
 
-## V1 Research — Deferred
+- [x] Make `vd-component` inside `vd-for` reliable: evaluate `vd-props` in the
+  loop scope, preserve the current component contract, and add nested-loop,
+  async-update, and browser regression coverage. This resolves the documented
+  V1 authoring constraint instead of adding a second component syntax.
+- [x] Improve keyed `vd-for` reconciliation for stable `vd-key` values so list
+  reorders move, insert, and remove existing DOM/component instances where
+  safe; preserve focus, form values, and component state. Keep conservative
+  rebuild behavior for unkeyed or ambiguous lists.
+- [ ] Restore `.vd` lazy-loading parity with folder pages by extracting route
+  configuration at build time without duplicate Vite imports or a different
+  public page format.
+- [ ] Add an incremental compiler/HMR cache keyed by normalized source and
+  compiler options, with invalidation and cold/warm-build benchmarks. It is a
+  development/build optimization, never an application runtime cache.
+- [ ] Migrate Core typing to TypeScript `strict` in small verified slices:
+  shared contracts and leaf modules first, then compiler, directives,
+  mount/router, requests, CLI, and scaffolder. Do not change the JavaScript
+  authoring API merely to satisfy the checker.
+- [ ] Create one internal, build-time Project Index with source locations and
+  compiler metadata. Existing CLI, language tools, generated declarations,
+  documentation, graph, health, and Lab views must consume it incrementally
+  rather than each gaining a separate project parser.
+
+### P1 — Diagnostics, typing, and focused developer workflows
+
+- [ ] Add stable diagnostic IDs, documented categories, source locations, and
+  typo suggestions for compiler/route/component/request findings; extend
+  `vd explain <code>` without changing deterministic offline behavior.
+- [ ] Add `vd check` as a non-destructive composition of compiler diagnostics,
+  generated-type validation, `doctor`, route/reference checks, accessibility,
+  security, and build sanity. It must report which checks actually ran and
+  never silently substitute a production build for a browser test.
+- [ ] Add `vd fix` only for reviewed, syntax-preserving fixes such as preferred
+  `vd-*` aliases and deprecated request-state names. It must preview changes,
+  leave business logic untouched, and never delete files automatically.
+- [ ] Extend `vd doctor` through the Project Index with source-provable checks:
+  invalid app-relative `vd-nav` links, impossible request targets, component
+  prop/ref/expose mismatches, unused shallow state, and unreachable template
+  handlers. Control-flow inference remains out of scope until it is reliable.
+- [ ] Extend generated application declarations for TypeScript consumers with
+  typed route parameters, request route names, and component-prop facts that
+  can be proven statically. JavaScript users keep the same zero-configuration
+  workflow and unprovable values remain `unknown`.
+- [ ] Expand `vd build-report` using Vite/Rollup metadata to attribute initial,
+  route, shared, component, and lazy-feature chunks, including duplicated
+  dependency cost when it can be measured accurately.
+- [ ] Add a narrowly scoped `vd add <feature>` installer for existing optional
+  first-party capabilities (for example i18n, tests, or Lab). Start with an
+  idempotent feature-installer contract and a generated-file manifest before
+  considering removal or third-party packages.
+- [ ] Improve the optional, read-only Lab with a component ownership tree,
+  state diffs, request waterfall, route-transition timeline, directive/source
+  inspection, and copyable diagnostic commands. Keep source writes, mutable
+  runtime state, payload capture, and secret collection out of the next release.
+- [ ] Add `vd test` as a thin command for existing project tests plus compiler
+  fixture, route, request-mock, component-interaction, and accessibility-smoke
+  helpers. Browser, unit, component, and route filters must run real selected
+  tests, not report a green placeholder.
+
+## Later Releases — Deferred Extensions
+
+These ideas fit VeloDom only as optional build/development integrations. They
+need a bounded design, a public compatibility story, and tests after the
+next-release Project Index and installer contracts are proven.
+
+- [ ] Expand the feature installer lifecycle with safe `vd remove`, `vd
+  upgrade`, compatibility reporting, and shareable project presets. Removal
+  must use generated-file manifests and refuse to delete user-owned changes.
+- [ ] Extend localization with pluralization, parameter interpolation, nested
+  key groups, missing/unused-key reports, extraction/check commands, editor
+  completion, and per-locale RTL validation while retaining build-time,
+  application-owned dictionaries.
+- [ ] Add build-only CSS and asset intelligence: unused-selector and scoped-CSS
+  duplication reports, route CSS attribution, logical-property suggestions,
+  missing dimensions, oversized/duplicate/unused assets, responsive-variant
+  checks, and LCP/preload advice. Do not add a CSS framework or automatic image
+  transformation service.
+- [ ] Evaluate an optional PWA build plugin with manifest validation, offline
+  fallback, installability diagnostics, and explicit cache-strategy templates.
+  It must not register a service worker or add runtime code unless enabled.
+- [ ] Improve error diagnosis with hierarchical ownership reporting, error IDs,
+  richer source stacks, grouped compiler/router/request errors, and a
+  development-only overlay. Preserve the existing application-owned recovery
+  boundary rather than imposing an error UI.
+- [ ] Formalize plugin manifests with compatibility ranges, declared build,
+  browser, and Node capabilities, conflict diagnostics, and conformance tests.
+  Do not create an official marketplace or execute third-party plugins while
+  validating their manifests.
+- [ ] Expand browser/performance regression benchmarks and starter compatibility
+  coverage as the new contracts land; checks remain release gates rather than
+  browser runtime behavior.
+
+## Research / Experimental Boundaries
 
 Research items are deliberately not promises and must not become Core runtime
-dependencies:
+dependencies. A written design, runtime-budget comparison, and an opt-in proof
+of concept are required before promoting any item to a later release.
 
-- [ ] Optional AI provider interface and CLI review/explain/generate helpers;
-  support local/custom providers and never require API keys, network access, or
-  telemetry.
-- [ ] HTML-to-VeloDom, React-to-VeloDom, and Vue-to-VeloDom migration helpers
-  that output ordinary reviewable folders rather than compatibility runtimes.
-- [ ] External CMS and deployment adapters that map typed records through
+- [ ] Investigate fine-grained dependency tracking as an internal optimization
+  only. Shallow state remains the default; do not introduce a required signals
+  API or wake unrelated subscriptions without proving semantics, cleanup, and
+  runtime-size benefits.
+- [ ] Evaluate an opt-in hybrid server-rendering boundary and route rendering
+  modes that keep static output the default for applications that explicitly
+  need request-time HTML.
+- [ ] Evaluate compiler-generated islands or partial hydration only if ordinary
+  HTML remains the authoring surface, no mandatory virtual DOM is introduced,
+  and pages that do not opt in pay no hydration cost.
+- [ ] Evaluate streaming and Edge adapters as separate contracts, not hidden
+  behavior in the browser package.
+- [ ] Evaluate critical-CSS extraction only as a deterministic build plugin;
+  never make it a framework styling system or require a particular CSS tool.
+- [ ] Evaluate an optional AI-provider interface and separate CLI review,
+  explain, generate, or migration helpers. Support local/custom providers and
+  never require API keys, network access, telemetry, or AI to use VeloDom.
+- [ ] Evaluate HTML-to-VeloDom, React-to-VeloDom, and Vue-to-VeloDom migration
+  helpers that output ordinary reviewable folders, never a compatibility
+  runtime or an automatic source rewrite without review.
+- [ ] Evaluate external CMS/deployment adapters that map typed records through
   `velodom/content` without credentials or remote browser fetching in Core.
-- [ ] Locale negotiation, cookie/domain locale policy, ICU parsing, and request-
-  time translation providers outside the build-time localization helpers.
+- [ ] Evaluate locale negotiation, cookie/domain locale policy, full ICU
+  parsing, and request-time translation providers outside the build-time
+  localization helpers.
 
 ## V1 Explicit Non-Goals — Rejected
 

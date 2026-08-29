@@ -62,6 +62,13 @@ or claim that a matching package is available from a registry.
 
 ### Fixed
 
+- Reconciled stable keyed `vd-for` updates by moving existing DOM/component
+  ownership ranges, preserving focus, form edits, listeners, refs, and local
+  component state across reorder/insert/remove operations, with conservative
+  rebuilding for unkeyed, ambiguous, or same-key/new-object items.
+- Made components that own `vd-for` receive current and nested loop-scope
+  values through `vd-props`, resolve dynamic component keys, remount after
+  asynchronous list replacement, and dispose lifecycle/ref ownership safely.
 - Corrected the Blog starter and `vd create feature --blog` output to pass
   expression-derived component values through `vd-props` instead of the
   static-string `vd-prop-*` family, and added empty/list rendering states.

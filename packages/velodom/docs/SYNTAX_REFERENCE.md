@@ -134,8 +134,30 @@ changes visibility/pointer behavior; it is not a DOM-removal condition.
 </li>
 ```
 
-`$index` is available when only an item name is declared. Prefer `vd-key` when
-items have stable identity.
+`$index` is available when only an item name is declared. Use `vd-key` when
+items have a stable, unique, non-empty string or finite-number identity. A
+reorder using the same item objects moves existing DOM ranges, preserving
+focus, form values, event listeners, and component-local state. Unkeyed,
+missing, invalid, or duplicate keys use conservative list rebuilding.
+
+Components may own the loop directive. `vd-props` and `vd-key` are evaluated
+against the current loop scope before each component mounts:
+
+```html
+<vd-component
+  vd-for="post in posts"
+  vd-key="post.id"
+  name="blog/post-card"
+  vd-props="{ post }"
+  vd-ref="postCards"
+></vd-component>
+```
+
+When the iterable structure changes, removed component instances run their
+normal cleanup before replacements mount. Reused keyed instances keep their
+state; using the same key for a new item object remounts that item so initial
+props cannot become stale. A keyed component ref is available through
+`state.components.postCards.byKey`.
 
 ## Forms and Two-Way Binding
 

@@ -418,13 +418,45 @@ async function assertRequestExamples(page, origin) {
       ?.textContent?.includes("Count: 1")
   ));
 
-  await page.locator('[data-demo-action="component-increment"]').click();
+  await page.locator('#component [data-demo-action="component-increment"]').click();
   await page.waitForFunction(() => (
     document.querySelector(".counter-panel-value")?.textContent?.includes("Count: 1")
   ));
   await page.locator('[data-demo-action="component-reset"]').click();
   await page.waitForFunction(() => (
     document.querySelector(".counter-panel-value")?.textContent?.includes("Count: 0")
+  ));
+
+  await waitForPageText(page, "Loop scope: First");
+  await waitForPageText(page, "Loop scope: Second");
+  const firstLoopPanel = page.locator("#loop-components .counter-panel")
+    .filter({ hasText: "Loop scope: First" });
+
+  await firstLoopPanel.evaluate(node => {
+    node.setAttribute("data-e2e-stable-loop-item", "first");
+  });
+  await firstLoopPanel
+    .locator('[data-demo-action="component-increment"]')
+    .click();
+  await page.locator('[data-demo-action="loop-components-reorder"]').click();
+  await page.waitForFunction(() => {
+    const section = document.querySelector("#loop-components");
+    const titles = [...section?.querySelectorAll(".counter-panel h3") || []]
+      .map(node => node.textContent?.trim());
+    const preserved = section?.querySelector(
+      '[data-e2e-stable-loop-item="first"]'
+    );
+
+    return titles.join("|") === "Loop scope: Second|Loop scope: First"
+      && preserved?.textContent?.includes("Count: 1");
+  });
+  await page.locator('[data-demo-action="loop-components-replace"]').click();
+  await waitForPageText(page, "Loop scope: Updated");
+  await page.waitForFunction(() => (
+    !document.body.innerText.includes("Loop scope: First")
+    && !document.body.innerText.includes("Loop scope: Second")
+    && [...document.querySelectorAll(".counter-panel h3")]
+      .filter(node => node.textContent?.includes("Loop scope:")).length === 1
   ));
 
   await page.locator('[data-vd-request="articles.getOne"]').nth(1).waitFor();

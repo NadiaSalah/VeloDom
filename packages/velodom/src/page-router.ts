@@ -357,7 +357,15 @@ export function createPageRouter(
         getPageState: ctx.getPageState,
         hasPage: ctx.hasPage,
         navigate: ctx.navigate,
-        features: activeManifest?.features
+        features: activeManifest?.features,
+        mountComponents: (root, scopedState) => mount(
+          root,
+          scopedState,
+          [],
+          ctx,
+          componentResources,
+          errorBoundary
+        )
       });
 
       const componentsCleanup = shouldMountComponents(activeManifest)

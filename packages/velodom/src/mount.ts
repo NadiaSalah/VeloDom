@@ -219,7 +219,15 @@ export async function mount(
           getPageState: pageCtx?.getPageState || null,
           hasPage: pageCtx?.hasPage || null,
           navigate: pageCtx?.navigate || null,
-          features: manifest?.features
+          features: manifest?.features,
+          mountComponents: (root, scopedState) => mount(
+            root,
+            scopedState,
+            [...ancestry, folder],
+            pageCtx,
+            resources,
+            errorBoundary
+          )
         });
 
         const childrenCleanup = shouldMountChildren(manifest)
@@ -545,9 +553,15 @@ function normalizeTemplateSyntax(root) {
 
 /** Normalizes the component tags. */
 function normalizeComponentTags(root) {
-  const candidates = [
+  const candidates = [];
+
+  if (root.matches?.(VD.COMPONENT_TAG_SELECTOR)) {
+    candidates.push(root);
+  }
+
+  candidates.push(
     ...root.querySelectorAll(VD.COMPONENT_TAG_SELECTOR)
-  ];
+  );
 
   candidates.forEach(node => {
     if (node.hasAttribute(VD.COMPONENT)) return;

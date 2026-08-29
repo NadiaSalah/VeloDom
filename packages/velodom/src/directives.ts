@@ -4,7 +4,7 @@
  * ----------------------------------------
  *
  * Loads manifest-selected directive feature chunks, caches their applicators,
- * and coordinates synchronous reactive updates after initial preparation.
+ * and coordinates reactive updates after initial preparation.
  * ----------------------------------------
  */
 
@@ -26,8 +26,9 @@ const featureCache = new Map<string, DirectiveFeature>();
 /**
  * Prepares and applies the directive features required by one DOM subtree.
  *
- * Architecture note: initial setup is asynchronous for code splitting, while
- * loaded feature applicators and later reactive updates remain synchronous.
+ * Architecture note: initial setup is asynchronous for code splitting.
+ * Ordinary bindings update synchronously; directives that discover lazy
+ * resources may return explicit setup work for the owner to await.
  */
 export async function applyDirectives(
   root: DirectiveRoot = document,
@@ -53,7 +54,7 @@ function applyLoadedDirectives(
   state: DirectiveState,
   options: DirectiveRuntimeOptions,
   features: DirectiveFeature[]
-): DirectiveCleanup {
+): DirectiveCleanup | Promise<DirectiveCleanup> {
   const cleanups: DirectiveCleanup[] = [];
   const context: DirectiveRuntimeContext = {
     props: options.props ?? {},
@@ -78,19 +79,31 @@ function applyLoadedDirectives(
     features
   );
 
-  features.forEach(feature => {
-    feature({
+  const pending = features.map(feature => feature({
       root,
       state,
       cleanups,
       context,
+      mountComponents: options.mountComponents ?? null,
       applyNested
-    });
-  });
+    }))
+    .filter(isPromiseLike);
 
-  return () => {
+  const cleanup = () => {
     cleanups.forEach(cleanup => cleanup());
   };
+
+  return pending.length > 0
+    ? Promise.all(pending).then(() => cleanup)
+    : cleanup;
+}
+
+/** Returns whether a directive feature scheduled asynchronous setup work. */
+function isPromiseLike(value: unknown): value is Promise<void> {
+  return Boolean(
+    value
+    && typeof (value as Promise<void>).then === "function"
+  );
 }
 
 /** Selects the directive features. */

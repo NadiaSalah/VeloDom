@@ -106,6 +106,11 @@ API, even if it exists in the installed tarball or repository checkout.
 - Pass literal component strings with `vd-prop-*`. Pass dynamic values with a
   single `vd-props` object; a value such as
   `vd-prop-title="posts[0].title"` is literal text, not an expression.
+- A component may own `vd-for`; pass the current item through `vd-props` and
+  use an expression such as `vd-key="post.id"` when identity matters.
+- Keep each `vd-key` unique and stable. Reordering the same item objects reuses
+  their DOM/component instances; replacing an object or using ambiguous keys
+  intentionally takes the safe remount path.
 - Use app-relative navigation such as `/features#requests`, never a bare hash
   with `vd-nav` and never an external URL as a router target.
 - Prefer interpolation for inline text and `vd-text` when the whole node is a

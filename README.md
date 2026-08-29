@@ -144,6 +144,12 @@ release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
+- Added stable `vd-key` reconciliation that moves existing DOM/component
+  ownership ranges during safe reorders, preserving focus, form edits, event
+  listeners, refs, and component-local state while retaining conservative
+  rebuilds for unkeyed or ambiguous identity.
+- Added DOM, component lifecycle, playground, and browser coverage for keyed
+  reorder, insert, removal, duplicate-key fallback, and same-key replacement.
 - Added experimental, opt-in VeloDom Lab on top of the existing Vite workflow:
   route/component/state/binding/compiler inspection, a bounded event timeline,
   safe serialization, DOM highlighting, search, themes, responsive UI, and HMR
@@ -170,7 +176,7 @@ release commit is verified, approved, tagged, and published deliberately.
 - Added concise JSDoc to every named Core function and an AST-backed regression
   gate, while stripping comments only from compiled JavaScript to preserve the
   lightweight runtime budget.
-- Verified 275 tests, documentation/type/lint gates, production/package builds,
+- Verified 278 tests, documentation/type/lint gates, production/package builds,
   installed consumers, dry-run tarballs, project doctor/health, and live
   desktop/compact navigation. Chromium, WebKit, and Mobile WebKit pass locally;
   this machine's known Firefox SWGL compositor launch failure remains delegated

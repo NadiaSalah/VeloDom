@@ -38,10 +38,17 @@ export interface DirectiveRuntimeOptions {
   hasPage?: ((pageName: string) => boolean) | null;
   navigate?: ((path: string) => unknown | Promise<unknown>) | null;
   features?: string[];
+  mountComponents?: DirectiveComponentMounter | null;
 }
 
 /** Cleanup callback owned by a directive or rendered loop item. */
 export type DirectiveCleanup = () => unknown;
+
+/** Mounts component hosts created dynamically by a directive-owned subtree. */
+export type DirectiveComponentMounter = (
+  root: DirectiveRoot,
+  state: DirectiveState
+) => Promise<DirectiveCleanup>;
 
 /** Complete execution context supplied to one directive feature module. */
 export interface DirectiveFeatureRuntime {
@@ -49,17 +56,18 @@ export interface DirectiveFeatureRuntime {
   state: DirectiveState;
   cleanups: DirectiveCleanup[];
   context: DirectiveRuntimeContext;
+  mountComponents: DirectiveComponentMounter | null;
   applyNested(
     root: DirectiveRoot,
     state: DirectiveState,
     options?: DirectiveRuntimeOptions
-  ): DirectiveCleanup;
+  ): DirectiveCleanup | Promise<DirectiveCleanup>;
 }
 
-/** Synchronous applicator exported by a lazy directive feature module. */
+/** Applicator exported by a lazy directive feature module. */
 export type DirectiveFeature = (
   runtime: DirectiveFeatureRuntime
-) => void;
+) => void | Promise<void>;
 
 /** Visibility state shared between conditionals and dependent features. */
 export const conditionalVisibility = new WeakMap<Element, boolean>();

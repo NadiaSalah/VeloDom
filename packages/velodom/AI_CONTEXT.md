@@ -140,12 +140,25 @@ into a script module.
   name="cards/post-card"
   vd-prop-title="Hello"
 ></vd-component>
+
+<vd-component
+  vd-for="post in posts"
+  vd-key="post.id"
+  name="cards/post-card"
+  vd-props="{ post }"
+></vd-component>
 ```
 
 Component names follow their path below `src/components`. Use `vd-props` for a
-dynamic object; `vd-prop-*` values are always static strings. Layouts live
+dynamic object; loop variables are available when the component owns
+`vd-for`. `vd-prop-*` values are always static strings. Layouts live
 below `src/layouts`, contain exactly one
 `<vd-page></vd-page>`, and are selected with `layout` in page config.
+
+Treat `vd-key` as stable item identity: use a unique non-empty string or finite
+number. Reordering the same item objects preserves their DOM/component state.
+Unkeyed, invalid, duplicate, or same-key/new-object items rebuild
+conservatively; do not rely on positional instance reuse.
 
 ## Routing
 

@@ -19,7 +19,8 @@ before use.
 | Literal interpolation | Directives | Stable | `\{{ value }}`, `vd-pre` | none | compiler | Yes |
 | Conditions | Directives | Stable | `vd-if/elseif/else` | `data-vd-*` legacy | compiler/runtime | Yes |
 | Visibility | Directives | Stable | `vd-show` | `data-vd-show` legacy | compiler/runtime | Yes |
-| Lists | Directives | Stable | `vd-for`, `vd-key` | `$index` | compiler/runtime | Yes |
+| Lists | Directives | Stable | `vd-for`, stable `vd-key` reconciliation | `$index`, conservative unkeyed rebuild | compiler/runtime | Yes |
+| Components in lists | Components | Stable | `vd-component` + `vd-for` + `vd-props` | nested scopes, keyed state preservation | component runtime | Yes |
 | Two-way model | Directives | Stable | `vd-model` | `data-vd-model` legacy | compiler/runtime | Yes |
 | Bindings | Directives | Stable | `vd-bind:*` | target shorthands | compiler/runtime | Yes |
 | Class/style/attr maps | Directives | Stable | `vd-class/style/attr` | `vd-bind:*` | compiler/runtime | Yes |

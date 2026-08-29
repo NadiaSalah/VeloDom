@@ -20,7 +20,7 @@ and content.
 | --- | --- |
 | `/` | Landing page and learning path |
 | `/features` | Guided lessons for the framework capabilities |
-| `/playground` | Live state, component, slot, ref, expose, and request exercises |
+| `/playground` | Live state, keyed loop reconciliation, loop-scoped components, slots, refs, expose, and request exercises |
 | `/reference` | Source-verified public package catalog |
 | `/single-file` | Optional `.vd` authoring example |
 | `/blog/posts/:id` | Dynamic route and content detail |
@@ -73,6 +73,10 @@ export async function init({ state }) {
 The documentation sidebars listen to the router-restored `hashchange` contract
 and pause viewport tracking until smooth hash scrolling settles. They do not
 duplicate router click handling.
+
+The loop playground increments one component before reordering the same item
+objects. Its counter remains unchanged, demonstrating that stable `vd-key`
+identity moves existing instances instead of remounting them.
 
 ## Run and verify
 

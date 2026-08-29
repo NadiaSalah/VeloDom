@@ -1474,8 +1474,28 @@ evaluation, so unavailable data is not accessed prematurely.
 ```
 
 `$index` is also available when only the item name is declared. Arrays and
-other iterable values are accepted. Loop rerenders dispose old node listeners
-and subscriptions.
+other iterable values are accepted. A component can own the loop and receive
+the current loop scope through `vd-props`:
+
+```html
+<vd-component
+  vd-for="post in posts"
+  vd-key="post.id"
+  name="blog/post-card"
+  vd-props="{ post }"
+  vd-ref="postCards"
+></vd-component>
+```
+
+Use `vd-key` when an item has a stable, unique, non-empty string or finite
+number identity. Reorders of the same item objects move their existing DOM
+ranges and component instances, preserving focus, form values, and local
+component state. Inserts mount only new items and removals dispose only removed
+listeners, subscriptions, lifecycle resources, and keyed refs.
+
+VeloDom deliberately takes the conservative path when a loop is unkeyed, a key
+is missing/invalid/duplicated, or the object behind an existing key is replaced:
+the affected list item is rebuilt so stale component props cannot survive.
 
 ### Two-Way Model
 
@@ -1678,7 +1698,8 @@ Dynamic object props:
 ```
 
 Component `props` are initial values. Copy values into local state when the
-component needs to change them.
+component needs to change them. When the component also owns `vd-for`, dynamic
+props and its `vd-key` expression use the current item/index scope.
 
 ### Nested Component Folders
 

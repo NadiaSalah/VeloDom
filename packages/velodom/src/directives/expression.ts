@@ -25,12 +25,17 @@ interface ExpressionEvaluationMeta {
   directive?: string;
 }
 
+const scopeLocals = new WeakMap<
+  ExpressionState,
+  Record<string, unknown>
+>();
+
 /** Creates a loop-local scope that inherits from parent reactive state. */
 export function createScope(
   parent: ExpressionState,
   locals: Record<string, unknown>
 ): ExpressionState {
-  return new Proxy(locals, {
+  const scope = new Proxy(locals, {
     get(target, key) {
       if (key === "_subscribe") return parent._subscribe;
       if (key === "_notify") return parent._notify;
@@ -54,6 +59,29 @@ export function createScope(
       return key in target || key in parent;
     }
   }) as ExpressionState;
+
+  scopeLocals.set(scope, locals);
+  return scope;
+}
+
+/**
+ * Replaces loop-local values without emitting a second parent notification.
+ *
+ * Architecture note: keyed list reconciliation calls this before child
+ * subscribers run. That lets an existing DOM/component instance observe its
+ * new index while keeping the user's original reactive update as the single
+ * notification boundary.
+ */
+export function updateScopeLocals(
+  scope: ExpressionState,
+  locals: Record<string, unknown>
+) {
+  const target = scopeLocals.get(scope);
+
+  if (!target) return false;
+
+  Object.assign(target, locals);
+  return true;
 }
 
 /** Evaluates a directive expression and reports structured failures. */

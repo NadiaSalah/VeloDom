@@ -239,9 +239,17 @@
   showcase. It verifies the landing page, features page, playground state and
   component refs, one-file page, dynamic article route, local `vd-request`
   example, and no-JavaScript SEO.
-- Components inside `vd-for` should be used carefully until component props
-  can receive loop scope values reliably. The showcase uses direct HTML cards
-  for repeated posts and keeps the reusable post-card component outside loops.
+- Components may own `vd-for`. The loop runtime evaluates `vd-props` and
+  `vd-key` against the nested loop scope, mounts asynchronously discovered
+  component resources, and owns their lifecycle cleanup and ref removal across
+  list replacement. Ordinary non-component loops retain synchronous DOM
+  updates when their iterable structure changes.
+- Keyed loops reconcile by ownership range, not by cloning markup. A unique
+  string/finite-number key plus the same item object permits reuse and movement;
+  the loop scope index is refreshed before child subscribers run. Unkeyed or
+  ambiguous lists rebuild, and a same-key/new-object item remounts deliberately
+  because component props are initial values rather than a hidden reactive-prop
+  channel.
 - Application-owned static assets live under `src/assets`. The root favicon
   duplicates are intentionally removed because `index.html` already references
   `src/assets/favicon.png`; root-level static duplicates should only return if

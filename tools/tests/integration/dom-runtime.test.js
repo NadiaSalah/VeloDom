@@ -360,6 +360,280 @@ test("loops skip structural rerender when item identity is unchanged", async () 
   cleanup();
 });
 
+test("keyed loops move stable DOM ranges without losing focus or input state", async () => {
+  const root = document.createElement("ul");
+  const first = { id: "first", name: "First" };
+  const second = { id: "second", name: "Second" };
+  const third = { id: "third", name: "Third" };
+
+  root.innerHTML = `
+    <li data-vd-for="(item, index) in items" data-vd-key="item.id">
+      <span data-vd-text="index + ': ' + item.name"></span>
+      <input value="draft">
+    </li>
+  `;
+  document.body.append(root);
+
+  const state = createState({
+    items: [first, second]
+  });
+  const cleanup = await applyDirectives(root, state);
+  const firstNode = root.querySelector('[data-vd-key="first"]');
+  const secondNode = root.querySelector('[data-vd-key="second"]');
+  const firstInput = firstNode.querySelector("input");
+
+  firstInput.value = "unsaved edit";
+  firstInput.focus();
+  state.items = [second, first];
+
+  assert.deepEqual(
+    [...root.querySelectorAll("span")].map(node => node.textContent),
+    ["0: Second", "1: First"]
+  );
+  assert.equal(root.querySelectorAll("li")[0], secondNode);
+  assert.equal(root.querySelectorAll("li")[1], firstNode);
+  assert.equal(firstInput.value, "unsaved edit");
+  assert.equal(document.activeElement, firstInput);
+
+  state.items = [third, first];
+
+  assert.deepEqual(
+    [...root.querySelectorAll("span")].map(node => node.textContent),
+    ["0: Third", "1: First"]
+  );
+  assert.equal(root.querySelectorAll("li")[1], firstNode);
+  assert.equal(root.contains(secondNode), false);
+  assert.equal(firstInput.value, "unsaved edit");
+
+  state.items = [
+    third,
+    { id: "first", name: "Replacement" }
+  ];
+
+  assert.notEqual(root.querySelectorAll("li")[1], firstNode);
+  assert.equal(
+    root.querySelectorAll("span")[1].textContent,
+    "1: Replacement"
+  );
+
+  cleanup();
+});
+
+test("ambiguous loop keys use the conservative rebuild path", async () => {
+  const root = document.createElement("ul");
+  const first = { id: "duplicate", name: "First" };
+
+  root.innerHTML = `
+    <li data-vd-for="item in items" data-vd-key="item.id">
+      <span data-vd-text="item.name"></span>
+    </li>
+  `;
+  document.body.append(root);
+
+  const state = createState({
+    items: [first]
+  });
+  const cleanup = await applyDirectives(root, state);
+  const originalNode = root.querySelector("li");
+  const originalWarn = console.warn;
+  const warnings = [];
+
+  console.warn = (...args) => {
+    warnings.push(args.join(" "));
+  };
+
+  try {
+    state.items = [
+      first,
+      { id: "duplicate", name: "Second" }
+    ];
+  } finally {
+    console.warn = originalWarn;
+  }
+
+  assert.notEqual(root.querySelector("li"), originalNode);
+  assert.equal(
+    warnings.some(message => message.includes("Ambiguous Loop Keys")),
+    true
+  );
+  assert.deepEqual(
+    [...root.querySelectorAll("span")].map(node => node.textContent),
+    ["First", "Second"]
+  );
+
+  cleanup();
+});
+
+test("looped components receive nested scopes, dynamic keys, updates, and cleanup", async () => {
+  const root = document.createElement("main");
+
+  root.innerHTML = `
+    <section data-vd-for="group in groups">
+      <vd-component
+        name="loop-card"
+        data-vd-for="item in group.items"
+        data-vd-key="item.id"
+        data-vd-ref="loopCards"
+        data-vd-props="{ groupName: group.name, item }"
+      ></vd-component>
+    </section>
+  `;
+  document.body.append(root);
+
+  const destroyed = [];
+  const firstItem = { id: "one", title: "First" };
+  const secondItem = { id: "two", title: "Second" };
+  const group = {
+    id: "news",
+    name: "News",
+    items: [firstItem, secondItem]
+  };
+  const state = createState({
+    components: {},
+    groups: [group]
+  });
+  const resources = {
+    html: {
+      "loop-card": async () => `
+        <article>
+          <strong data-vd-text="groupName"></strong>
+          <span data-vd-text="item.title"></span>
+          <button data-vd-on-click="increment()" data-vd-text="'Count: ' + count"></button>
+        </article>
+      `
+    },
+    modules: {
+      "loop-card": async () => ({
+        init({ props }) {
+          return {
+            state: {
+              count: 0,
+              groupName: props.groupName,
+              item: props.item,
+              increment() {
+                this.count += 1;
+              }
+            },
+            expose: {
+              readCount() {
+                return this.count;
+              },
+              readTitle() {
+                return this.item.title;
+              }
+            }
+          };
+        },
+        destroy({ props }) {
+          destroyed.push(`${props.groupName}:${props.item.id}`);
+        }
+      })
+    },
+    manifests: {
+      "loop-card": async () => ({
+        directives: ["data-vd-onclick", "data-vd-text"],
+        features: ["events", "text"]
+      })
+    },
+    styles: {}
+  };
+  const mountLoopComponents = (loopRoot, scopedState) => mount(
+    loopRoot,
+    scopedState,
+    [],
+    null,
+    resources
+  );
+  const directiveCleanup = await applyDirectives(root, state, {
+    mountComponents: mountLoopComponents
+  });
+  const componentCleanup = await mount(
+    root,
+    state,
+    [],
+    null,
+    resources
+  );
+
+  assert.deepEqual(
+    [...root.querySelectorAll("article")].map(node => (
+      node.textContent.replace(/\s+/g, " ").trim()
+    )),
+    ["News First Count: 0", "News Second Count: 0"]
+  );
+  assert.equal(state.components.loopCards.length, 2);
+  assert.deepEqual(
+    Object.keys(state.components.loopCards.byKey).sort(),
+    ["one", "two"]
+  );
+  assert.equal(
+    state.components.loopCards.byKey.two.readTitle(),
+    "Second"
+  );
+
+  const firstArticle = root.querySelectorAll("article")[0];
+  const secondArticle = root.querySelectorAll("article")[1];
+
+  firstArticle.querySelector("button").click();
+  assert.equal(
+    state.components.loopCards.byKey.one.readCount(),
+    1
+  );
+
+  group.items = [secondItem, firstItem];
+  state._notify();
+
+  await waitFor(() => {
+    const articles = [...root.querySelectorAll("article")];
+
+    assert.equal(articles[0], secondArticle);
+    assert.equal(articles[1], firstArticle);
+    assert.equal(
+      articles[1].querySelector("button").textContent,
+      "Count: 1"
+    );
+    assert.equal(
+      state.components.loopCards.byKey.one.readCount(),
+      1
+    );
+    assert.deepEqual(destroyed, []);
+  });
+
+  state.groups = [
+    {
+      id: "guides",
+      name: "Guides",
+      items: [
+        { id: "three", title: "Third" }
+      ]
+    }
+  ];
+
+  await waitFor(() => {
+    assert.deepEqual(
+      [...root.querySelectorAll("article")].map(node => (
+        node.textContent.replace(/\s+/g, " ").trim()
+      )),
+      ["Guides Third Count: 0"]
+    );
+    assert.deepEqual(destroyed.sort(), ["News:one", "News:two"]);
+    assert.equal(state.components.loopCards.length, 1);
+    assert.equal(
+      state.components.loopCards.byKey.three.readTitle(),
+      "Third"
+    );
+  });
+
+  await componentCleanup();
+  await directiveCleanup();
+
+  assert.equal(state.components.loopCards, undefined);
+  assert.deepEqual(
+    destroyed.sort(),
+    ["Guides:three", "News:one", "News:two"]
+  );
+});
+
 test("components integrate props, slots, refs, expose, and cleanup", async () => {
   const root = document.createElement("div");
   root.innerHTML = `
