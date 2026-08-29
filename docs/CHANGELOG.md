@@ -62,6 +62,10 @@ or claim that a matching package is available from a registry.
 
 ### Fixed
 
+- Restored `.vd` page lazy-loading parity by extracting only `<config>` as
+  eager route metadata and reusing one lazy module loader for template, script,
+  style, and manifest exports; production verification now rejects leakage of
+  the showcase single-file page into the entry chunk.
 - Reconciled stable keyed `vd-for` updates by moving existing DOM/component
   ownership ranges, preserving focus, form edits, listeners, refs, and local
   component state across reorder/insert/remove operations, with conservative

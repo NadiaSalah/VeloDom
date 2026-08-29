@@ -107,6 +107,8 @@ src/
 Folder mode remains the default. Small pages, components, and layouts may use
 the optional `.vd` format with `<template>`, `<script>`, `<style>`, and
 `<config>` blocks. Both formats compile into the same internal resource model.
+Page config is extracted for route discovery while the rest of each `.vd` page
+remains a lazy route chunk.
 
 ## Documentation Shipped With the Package
 

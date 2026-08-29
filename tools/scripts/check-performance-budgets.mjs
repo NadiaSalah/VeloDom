@@ -68,6 +68,7 @@ const packageRuntimeStats = packageStats.filter(item => (
 ));
 
 await assertDevelopmentToolsAbsent(distFiles);
+await assertSingleFilePageIsLazy(distFiles);
 
 checkBudget(
   "dist total JavaScript",
@@ -195,6 +196,33 @@ async function assertDevelopmentToolsAbsent(files) {
         `Development-only VeloDom Lab marker ${JSON.stringify(marker)} leaked into ${path.relative(workspaceRoot, file)}.`
       );
     }
+  }
+}
+
+/** Fails when the showcase `.vd` page leaks back into the entry chunk. */
+async function assertSingleFilePageIsLazy(files) {
+  const marker = "One file when co-location improves clarity.";
+  const matches = [];
+
+  for (const file of files) {
+    const source = await readFile(file, "utf8");
+
+    if (source.includes(marker)) {
+      matches.push(file);
+    }
+  }
+
+  // Synthetic budget fixtures do not contain the documentation page. The
+  // structural assertion activates only for the real showcase build.
+  if (matches.length === 0) return;
+
+  if (
+    matches.length !== 1
+    || !/^single-file-.*\.js$/.test(path.basename(matches[0]))
+  ) {
+    fail(
+      "The showcase .vd page must compile into one lazy single-file chunk instead of the application entry."
+    );
   }
 }
 

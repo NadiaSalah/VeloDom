@@ -48,9 +48,14 @@ export default { path: "/about", seo: { title: "About" } };
           <p class="mt-3 text-sm leading-6 text-slate-600">Folder mode and one-file mode create the same template, script, style, config, and source resource. Choosing `.vd` does not disable routing, SEO, components, or scoped styles.</p>
         </article>
         <article class="feature-card">
+          <span class="badge badge-primary badge-outline">Lazy route</span>
+          <h2 class="mt-4 text-xl font-black text-slate-950">Discover config, defer the page.</h2>
+          <p class="mt-3 text-sm leading-6 text-slate-600">Vite extracts only this page's config for route discovery. Its template, script, style, and manifest remain one lazy chunk until you open the route.</p>
+        </article>
+        <article class="feature-card">
           <span class="badge badge-primary badge-outline">One source of truth</span>
-          <h2 class="mt-4 text-xl font-black text-slate-950">Choose one layout per feature.</h2>
-          <p class="mt-3 text-sm leading-6 text-slate-600">Do not create both a folder resource and a same-named `.vd` resource. VeloDom reports ambiguity instead of choosing silently.</p>
+          <h2 class="mt-4 text-xl font-black text-slate-950">Folder mode keeps priority.</h2>
+          <p class="mt-3 text-sm leading-6 text-slate-600">Do not create both forms for one feature. If they coexist, the conventional folder resource wins consistently.</p>
         </article>
         <a href="/features#pages" vd-nav class="btn btn-outline w-full rounded-xl">Compare with folder pages</a>
       </aside>

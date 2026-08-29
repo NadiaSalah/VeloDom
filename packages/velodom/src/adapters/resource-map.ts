@@ -75,33 +75,6 @@ export function mapLoaderExports<T = unknown>(
   );
 }
 
-/** Extracts named exports from eager build-tool module records. */
-export function mapEagerExports<T = unknown>(
-  files: Record<string, unknown>,
-  exportName: string
-): Record<string, T> {
-  return Object.fromEntries(
-    Object.entries(files).map(([filePath, module]) => [
-      filePath,
-      (module && typeof module === "object"
-        ? (module as Record<string, unknown>)[exportName]
-        : undefined) as T
-    ])
-  );
-}
-
-/** Wraps eager build-tool modules in async loaders for runtime consistency. */
-export function mapEagerModulesToLoaders(
-  files: Record<string, unknown>
-): Record<string, () => Promise<unknown>> {
-  return Object.fromEntries(
-    Object.entries(files).map(([filePath, module]) => [
-      filePath,
-      async () => module
-    ])
-  );
-}
-
 /** Removes an adapter-specific path prefix from resource keys. */
 export function rebaseFiles(files, prefix) {
   const rebased = Object.create(null);

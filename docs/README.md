@@ -919,6 +919,11 @@ Supported blocks:
 - `<config>` is optional for pages and follows the same shape as `config.js`.
   V1 `.vd` blocks use JavaScript; choose folder mode for TypeScript page config.
 
+For page routing, Vite extracts only the `.vd` `<config>` block into eager
+build metadata. The template, script, scoped style, and feature manifest remain
+one lazy route chunk and load on first navigation, matching folder-page
+behavior without changing the public `.vd` format.
+
 Components can also use `.vd`:
 
 ```text
@@ -3924,6 +3929,8 @@ The plugin:
 - compiles raw page/component HTML
 - compiles optional `.vd` single-file pages and components into the same
   internal resource shape
+- extracts only page `<config>` blocks for eager route discovery while keeping
+  each `.vd` page runtime in one lazy route chunk
 - converts preferred directive names
 - reports compiler errors through Vite with the original file and offset, so
   Vite's development overlay/HMR cycle points to the source that needs repair

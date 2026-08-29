@@ -144,6 +144,11 @@ release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
+- Restored `.vd` page lazy-loading parity with folder pages: Vite now extracts
+  only route config eagerly and emits template, script, style, and manifest as
+  one lazy page chunk, without a second public authoring format.
+- Added a production gate proving the documentation `.vd` page stays outside
+  the application entry bundle while direct routing and interaction still work.
 - Added stable `vd-key` reconciliation that moves existing DOM/component
   ownership ranges during safe reorders, preserving focus, form edits, event
   listeners, refs, and component-local state while retaining conservative

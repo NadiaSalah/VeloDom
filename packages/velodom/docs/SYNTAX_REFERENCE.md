@@ -57,6 +57,11 @@ set `layout: false`.
 Use folder mode when TypeScript, multiple data files, or growing behavior reads
 more clearly.
 
+A page `<config>` block is extracted as small eager route metadata during the
+Vite build. Its template, script, style, and manifest stay together in one
+lazy chunk until that route is opened. This is an implementation optimization;
+the `.vd` syntax and page lifecycle are identical to folder mode.
+
 ## State and Lifecycle
 
 ```js

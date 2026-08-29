@@ -92,6 +92,8 @@ Small optional one-file page:
 ```
 
 Folder mode wins if both forms define the same resource.
+Vite reads only a page's `<config>` block eagerly for route discovery; the
+remaining `.vd` runtime stays lazy until navigation.
 
 ## State and Lifecycle
 

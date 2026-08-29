@@ -551,6 +551,11 @@
   for folder mode. The Vite plugin compiles `.vd` blocks into the same resource
   contract used by folders, and folder resources keep priority when both forms
   declare the same logical page or component name.
+- Page `.vd` route config is a build-metadata concern, not a reason to load the
+  page runtime eagerly. The adapter requests only the virtual `vd-config`
+  module for synchronous route discovery and reuses one lazy full-module loader
+  for template, script, style, and manifest exports. This preserves code
+  splitting without adding a registry file or a second page format.
 - `packages/velodom/src/page-router.ts` and `packages/velodom/src/requests/request-router.ts` are
   frozen internal filenames. They remain private implementation modules, but
   keeping the names stable protects diagnostics, runtime wiring, and
@@ -586,10 +591,6 @@
   but are never bundled into the browser runtime. `config.prerender` emits
   complete concrete route documents and still uses client takeover rather than
   true SSR hydration, which remains a separate future milestone.
-- Page `.vd` files are currently imported eagerly by the Vite adapter so their
-  `<config>` blocks remain synchronously available to the router. Folder pages
-  keep lazy chunk behavior; future build work can revisit query-based config
-  extraction if Vite/Rolldown supports it without duplicate import warnings.
 - V1 release polish is documentation and verification work, not a new feature
   phase. Code readiness, the public API freeze, and local package checks form
   the `1.0.0` source baseline. Publication and release tagging remain explicit

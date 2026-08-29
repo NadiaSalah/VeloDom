@@ -6,7 +6,6 @@ import {
   indexSingleFiles,
   mapFileApiRoutes,
   mapFileMiddleware,
-  mapEagerExports,
   mapLoaderExports,
   rebaseFiles,
   rebaseSingleFileStyles,
@@ -109,22 +108,6 @@ test("module export loaders derive values and allow missing manifests", async ()
     undefined
   );
   assert.equal(loads, 2);
-});
-
-test("eager module export maps derive values for single-file configs", () => {
-  const configs = mapEagerExports({
-    "../pages/about.vd": {
-      __vdConfig: {
-        path: "/about"
-      }
-    },
-    "../pages/empty.vd": {}
-  }, "__vdConfig");
-
-  assert.deepEqual(configs["../pages/about.vd"], {
-    path: "/about"
-  });
-  assert.equal(configs["../pages/empty.vd"], undefined);
 });
 
 test("optional convention exports are resolved without hidden ambiguity", () => {

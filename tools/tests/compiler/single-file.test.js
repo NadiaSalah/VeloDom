@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 import {
   createSingleFileConfigModule,
@@ -8,7 +11,8 @@ import {
   parseVeloDomSingleFile
 } from "../../../packages/velodom/src/vite-plugin/single-file.ts";
 import {
-  createTemplateModule
+  createTemplateModule,
+  velodom
 } from "../../../packages/velodom/src/vite-plugin/index.ts";
 
 test("single-file modules parse VeloDom blocks", () => {
@@ -111,6 +115,43 @@ test("single-file runtime modules expose template, script, style, and config", (
   assert.match(moduleCode, /export function init/);
   assert.match(moduleCode, /export const __vdStyle/);
   assert.match(moduleCode, /export \{ __vdConfig \}/);
+});
+
+test("Vite extracts eager page config without compiling the lazy runtime module", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-vd-config-"));
+  const filename = join(root, "about.vd");
+  const source = `
+    <template><main>Lazy page marker</main></template>
+    <script>export const state = { secretMarker: "lazy-script" };</script>
+    <config>export default { path: "/company" };</config>
+  `;
+
+  await writeFile(filename, source, "utf8");
+
+  try {
+    const plugin = velodom();
+    const configId = `${filename}?vd-config`;
+    const loaded = await plugin.load.call({}, configId);
+
+    assert.match(loaded.code, /path: "\/company"/);
+    assert.doesNotMatch(loaded.code, /Lazy page marker|lazy-script/);
+    assert.equal(
+      plugin.transform.call({}, loaded.code, configId),
+      null
+    );
+
+    const runtime = plugin.transform.call({
+      error(error) {
+        throw error;
+      },
+      warn() {}
+    }, source, filename);
+
+    assert.match(runtime.code, /Lazy page marker/);
+    assert.match(runtime.code, /lazy-script/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
 
 test("single-file modules require one template block", () => {

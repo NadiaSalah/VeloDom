@@ -15,8 +15,6 @@ import {
   indexSingleFiles,
   mapFileApiRoutes,
   mapFileMiddleware,
-  mapEagerExports,
-  mapEagerModulesToLoaders,
   mapLoaderExports,
   rebaseFiles,
   rebaseSingleFileStyles,
@@ -107,14 +105,8 @@ const pageManifestFiles = mapLoaderExports<
   pageTemplateFiles,
   "__vdManifest"
 );
-const pageSingleFileModules = import.meta.glob(
-  "/src/pages/**/*.vd",
-  {
-    eager: true
-  }
-);
-const pageSingleFileModuleLoaders = mapEagerModulesToLoaders(
-  pageSingleFileModules
+const pageSingleFileModuleLoaders = import.meta.glob(
+  "/src/pages/**/*.vd"
 );
 const pageSingleFileHtmlFiles = mapLoaderExports<string>(
   pageSingleFileModuleLoaders,
@@ -148,9 +140,16 @@ const pageConfigFiles = import.meta.glob(
     import: "default"
   }
 );
-const pageSingleFileConfigs = mapEagerExports(
-  pageSingleFileModules,
-  "__vdConfig"
+// Route discovery needs config before navigation, but templates, scripts,
+// styles, and manifests must stay in their lazy page chunk. The Vite plugin
+// extracts only the config block for this eager build-time metadata request.
+const pageSingleFileConfigs = import.meta.glob(
+  "/src/pages/**/*.vd",
+  {
+    eager: true,
+    import: "__vdConfig",
+    query: "?vd-config"
+  }
 );
 const pageStyleFiles = import.meta.glob(
   "/src/pages/**/*.css",

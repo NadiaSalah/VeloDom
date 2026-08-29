@@ -31,9 +31,9 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 
 `[####################] 100%`
 
-**Next-release approved scope: 2 of 15 milestones complete.**
+**Next-release approved scope: 3 of 15 milestones complete.**
 
-`[###.................] 13%`
+`[####................] 20%`
 
 The repository is the local V1 source baseline. Registry availability,
 authentication, tags, and releases are external state and are deliberately not
@@ -260,7 +260,7 @@ layer, or unproven analysis.
   reorders move, insert, and remove existing DOM/component instances where
   safe; preserve focus, form values, and component state. Keep conservative
   rebuild behavior for unkeyed or ambiguous lists.
-- [ ] Restore `.vd` lazy-loading parity with folder pages by extracting route
+- [x] Restore `.vd` lazy-loading parity with folder pages by extracting route
   configuration at build time without duplicate Vite imports or a different
   public page format.
 - [ ] Add an incremental compiler/HMR cache keyed by normalized source and

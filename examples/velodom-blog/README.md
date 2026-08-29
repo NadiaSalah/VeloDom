@@ -78,6 +78,10 @@ The loop playground increments one component before reordering the same item
 objects. Its counter remains unchanged, demonstrating that stable `vd-key`
 identity moves existing instances instead of remounting them.
 
+The `/single-file` route is also the production lazy-loading fixture: its
+config is available for routing at startup while the remaining `.vd` module is
+emitted as a separate route chunk and loaded only when opened.
+
 ## Run and verify
 
 From the repository root:

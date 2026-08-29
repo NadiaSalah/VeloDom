@@ -194,6 +194,11 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
     },
 
     transform(code, id) {
+      // Query modules are already reduced to one generated block by load().
+      // Parsing that generated JavaScript as a complete .vd file would both
+      // duplicate work and incorrectly require another <template> block.
+      if (isSingleFileBlockRequest(id)) return null;
+
       if (isSingleFileModule(id)) {
         const descriptor = parseVeloDomSingleFile(code, id);
 
@@ -548,6 +553,23 @@ function isSingleFileModule(filename: string) {
   return filename
     .split("?", 1)[0]
     .endsWith(VD_SINGLE_FILE.EXTENSION);
+}
+
+/** Returns whether an id requests one virtual block from a `.vd` source. */
+function isSingleFileBlockRequest(filename: string) {
+  const queryIndex = filename.indexOf("?");
+
+  if (queryIndex === -1) return false;
+
+  const source = filename.slice(0, queryIndex);
+
+  if (!source.endsWith(VD_SINGLE_FILE.EXTENSION)) return false;
+
+  const query = new URLSearchParams(filename.slice(queryIndex + 1));
+
+  return Object.values(VD_SINGLE_FILE.QUERIES).some(name => (
+    query.has(name)
+  ));
 }
 
 /** Evaluates the `isVeloDomStyleFile()` condition for the supplied input. */

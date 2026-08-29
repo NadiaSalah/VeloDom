@@ -10,7 +10,7 @@ before use.
 | --- | --- | --- | --- | --- | --- | --- |
 | Folder pages | Authoring | Stable | `src/pages/x/index.html` | `.vd` page | Vite adapter | Yes |
 | Dynamic routes | Routing | Stable | `src/pages/posts/[id]/` | static `path` config | router context | Yes |
-| One-file pages | Authoring | Stable | `src/pages/about.vd` | folder page | Vite plugin | Yes |
+| One-file pages | Authoring | Stable | `src/pages/about.vd` | lazy runtime + build-extracted config | Vite plugin | Yes |
 | Folder components | Components | Stable | `src/components/x/index.html` | `.vd` component | adapter | Yes |
 | Nested components | Components | Stable | `name="blog/post-card"` | split path compatibility | adapter | Yes |
 | One-file components | Components | Stable | `src/components/badge.vd` | folder component | Vite plugin | Yes |
