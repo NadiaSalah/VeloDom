@@ -270,6 +270,13 @@ layer, or unproven analysis.
   shared contracts and leaf modules first, then compiler, directives,
   mount/router, requests, CLI, and scaffolder. Do not change the JavaScript
   authoring API merely to satisfy the checker.
+  - [x] Enforce the first strict slice for public/shared contracts,
+    compiler/devtools protocol types, the build-time compiler cache, authoring,
+    lifecycle, plugins, reactive state, refs, and shared leaf utilities.
+  - [ ] Migrate the compiler implementation and optimizer pipeline.
+  - [ ] Migrate directive features and expression/runtime integration.
+  - [ ] Migrate mount, router, resource adapters, and page data.
+  - [ ] Migrate requests, CLI/project intelligence, and scaffolder modules.
 - [ ] Create one internal, build-time Project Index with source locations and
   compiler metadata. Existing CLI, language tools, generated declarations,
   documentation, graph, health, and Lab views must consume it incrementally

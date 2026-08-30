@@ -128,8 +128,9 @@
   "scripts": {
     "clean:types": "node -e \"require('node:fs').rmSync('types', { recursive: true, force: true })\"",
     "clean:package": "node -e \"require('node:fs').rmSync('lib', { recursive: true, force: true })\"",
+    "typecheck:strict": "tsc --project tsconfig.strict.json",
     "types": "npm run clean:types && tsc --project tsconfig.types.json && node scripts/rewrite-declaration-imports.mjs",
-    "package:build": "npm run clean:package && tsc --project tsconfig.build.json && npm run types",
+    "package:build": "npm run typecheck:strict && npm run clean:package && tsc --project tsconfig.build.json && npm run types",
     "prepack": "npm run package:build"
   },
   "devDependencies": {

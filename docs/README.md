@@ -426,6 +426,7 @@ Common commands:
 npm test
 npm run docs:check
 npm run typecheck
+npm run typecheck:strict
 npm run lint
 npm run check
 npm run package:check
@@ -444,7 +445,8 @@ What the main checks do:
 | --- | --- |
 | `npm test` | Runs compiler, core, request, package, and DOM integration tests. |
 | `npm run docs:check` | Enforces module headers, exported API JSDoc, named-function JSDoc, and source-derived documentation consistency. |
-| `npm run check` | Runs documentation, TypeScript, and ESLint checks. |
+| `npm run typecheck:strict` | Enforces the completed strict-migration slice for shared/public contracts and low-dependency Core utilities; the scope grows monotonically as later modules are migrated. |
+| `npm run check` | Runs documentation, baseline and migrated-slice strict TypeScript, and ESLint checks. |
 | `npm run package:check` | Builds ESM/types and tests an installed local tarball consumer. |
 | `npm run pack:check` | Runs package checks and inspects the npm tarball dry-run contents. |
 | `npm run benchmark:rendering` | Runs local happy-dom page-binding and loop-rendering benchmarks. |
@@ -4117,6 +4119,11 @@ export default {
   }
 } satisfies PageConfig;
 ```
+
+Framework implementation strictness is separate from application authoring.
+Maintainers run `npm run typecheck:strict` for the migrated Core slice; this is
+expanded module-by-module and never requires application authors to convert
+Vanilla JavaScript pages to TypeScript.
 
 `config.ts` is compiled only by build tooling and requires `typescript` as an
 application dev dependency. Keep it self-contained and use type-only imports;

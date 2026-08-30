@@ -102,6 +102,13 @@
   mode is a staged hardening task because enabling it globally exposes legacy
   implicit contracts across the compiler and request router; it must be solved
   module-by-module with tests rather than hidden behind broad assertions.
+- `packages/velodom/tsconfig.strict.json` is the monotonic strict-migration
+  boundary. Its first slice covers shared/public contracts and low-dependency
+  authoring, lifecycle, plugin, reactive, ref, compiler-type, and devtools-
+  protocol modules plus the build-time compiler cache. Both `npm run check`
+  and package builds execute it. Future
+  slices must expand this file rather than create competing strict configs or
+  weaken checks already enabled there.
 - Directive feature modules are lazy dynamic imports. A bundler may emit their
   small standalone chunks so they remain available to dynamically discovered
   pages, while compiler manifests determine which chunks the application
@@ -584,9 +591,10 @@
 
 - Assignments, declarations, arrow functions, nested template literals, and
   `new` are intentionally unsupported inside templates.
-- TypeScript `noImplicitAny` is not yet enabled globally; older internal helper
-  parameters should be tightened incrementally without changing the JavaScript
-  API.
+- TypeScript `noImplicitAny` is not yet enabled globally. The first strict
+  contracts/leaf-utility slice is enforced; compiler implementation,
+  directives, mount/router, requests, CLI, and scaffolder parameters remain
+  staged work and must be tightened without changing the JavaScript API.
 - Adapter/user-file source diagnostics are now available for validated lazy
   resources, but full source-map integration across every build tool remains a
   future hardening task.

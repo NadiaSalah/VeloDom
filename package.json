@@ -17,6 +17,7 @@
     "test": "node --test \"tools/tests/**/*.test.js\"",
     "docs:check": "node tools/scripts/check-core-docs.mjs && node tools/scripts/check-doc-consistency.mjs",
     "typecheck": "tsc --noEmit",
+    "typecheck:strict": "npm run typecheck:strict --workspace velodom",
     "package:build": "npm run package:build --workspace velodom",
     "package:consumer": "npm run package:build && node tools/scripts/check-package-consumer.mjs",
     "package:check": "npm run package:build && node tools/scripts/check-package.mjs && node tools/scripts/check-package-consumer.mjs",
@@ -27,7 +28,7 @@
     "performance:check": "node tools/scripts/check-performance-budgets.mjs",
     "test:browser": "npm run build && node tools/scripts/check-browser-e2e.mjs",
     "lint": "eslint .",
-    "check": "npm run docs:check && npm run typecheck && npm run lint"
+    "check": "npm run docs:check && npm run typecheck && npm run typecheck:strict && npm run lint"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

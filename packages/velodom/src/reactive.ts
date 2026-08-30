@@ -47,7 +47,7 @@ export function reactive<T extends object>(
 
   Object.defineProperties(proxy, {
     _subscribe: {
-      value(fn) {
+      value(fn: () => void) {
         listeners.add(fn);
 
         return () => {
@@ -207,7 +207,7 @@ export function createChildState<
 
   Object.defineProperties(proxy, {
     _subscribe: {
-      value(fn) {
+      value(fn: () => void) {
         listeners.add(fn);
 
         return () => {
@@ -232,8 +232,13 @@ export function createChildState<
 }
 
 /** Merges a module initialization result into existing reactive state. */
-export function mergeState(state, result) {
-  const next = result?.state ?? result;
+export function mergeState<TState extends object>(
+  state: TState,
+  result: unknown
+): TState {
+  const next = (
+    result as { state?: unknown } | null | undefined
+  )?.state ?? result;
 
   if (!next || typeof next !== "object" || next === state) {
     return state;

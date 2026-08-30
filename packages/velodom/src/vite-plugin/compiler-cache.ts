@@ -206,8 +206,8 @@ export function normalizeCompilerSource(source: string) {
 
 /** Normalizes Vite file ids for explicit and automatic invalidation. */
 function normalizeCompilerFilename(filename: string) {
-  return filename
-    .split("?", 1)[0]
+  return (filename
+    .split("?", 1)[0] || "")
     .replaceAll("\\", "/");
 }
 

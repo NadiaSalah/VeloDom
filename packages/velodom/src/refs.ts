@@ -11,27 +11,27 @@
 import { VD } from "./constants.ts";
 
 /** Collects single and repeated vd-ref elements beneath a root. */
-export function getRefs(el) {
+export function getRefs(
+  el: ParentNode
+): Record<string, HTMLElement | HTMLElement[]> {
+  const refs: Record<string, HTMLElement | HTMLElement[]> = {};
 
-  const refs = {};
-
-  el.querySelectorAll(VD.selector(VD.REF))
+  el.querySelectorAll<HTMLElement>(VD.selector(VD.REF))
     .forEach(node => {
-
       const key = node.dataset.vdRef;
 
-      if (refs[key]) {
+      if (!key) return;
 
-        if (Array.isArray(refs[key])) {
-          refs[key].push(node);
-        } else {
-          refs[key] = [refs[key], node];
-        }
+      const current = refs[key];
 
-      } else {
-        refs[key] = node;
+      if (Array.isArray(current)) {
+        current.push(node);
+        return;
       }
 
+      refs[key] = current
+        ? [current, node]
+        : node;
     });
 
   return refs;

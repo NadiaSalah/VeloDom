@@ -46,6 +46,8 @@ or claim that a matching package is available from a registry.
 - A repeatable compiler-cache benchmark that reports cold compilation, warm
   reuse, and an invalidated rebuild without imposing machine-specific timing
   as a release threshold.
+- An enforced first TypeScript `strict` slice for stable/shared contracts and
+  low-dependency Core utilities, wired into normal checks and package builds.
 
 ### Changed
 
@@ -66,6 +68,8 @@ or claim that a matching package is available from a registry.
   and effective compiler options, with exact-source diagnostic safety,
   automatic source/HMR invalidation, and a bounded 256-entry LRU policy. The
   standalone compiler remains deterministic and uncached.
+- Tightened reactive callback, dynamic init-result, and DOM-ref typing without
+  changing emitted behavior or the Vanilla/TypeScript application contract.
 
 ### Fixed
 

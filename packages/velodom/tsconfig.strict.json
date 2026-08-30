@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "strict": true
+  },
+  "files": [
+    "src/authoring.ts",
+    "src/compiler/types.ts",
+    "src/constants.ts",
+    "src/devtools/protocol.ts",
+    "src/lifecycle.ts",
+    "src/plugins.ts",
+    "src/reactive.ts",
+    "src/refs.ts",
+    "src/shared/directives.ts",
+    "src/shared/object.ts",
+    "src/shared/path.ts",
+    "src/types.ts",
+    "src/vite-plugin/compiler-cache.ts"
+  ]
+}
