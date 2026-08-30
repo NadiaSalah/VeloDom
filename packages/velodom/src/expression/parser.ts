@@ -10,7 +10,7 @@
 
 import { VD_EXPRESSION } from "../constants.ts";
 
-const BINARY_PRECEDENCE = Object.freeze({
+const BINARY_PRECEDENCE: Readonly<Record<string, number>> = Object.freeze({
   "??": 1,
   "||": 2,
   "&&": 3,
@@ -86,6 +86,102 @@ type ExpressionToken =
   | PlainToken
   | TemplateToken;
 
+interface ExpressionNodeBase {
+  type: string;
+  start: number;
+  end: number;
+  parenthesized?: boolean;
+}
+
+interface IdentifierNode extends ExpressionNodeBase {
+  type: "Identifier";
+  name: string;
+}
+
+interface LiteralNode extends ExpressionNodeBase {
+  type: "Literal";
+  value: unknown;
+  raw: string;
+}
+
+interface ArrayExpressionNode extends ExpressionNodeBase {
+  type: "ArrayExpression";
+  elements: ExpressionNode[];
+}
+
+interface ObjectPropertyNode extends ExpressionNodeBase {
+  type: "Property";
+  key: string;
+  value: ExpressionNode;
+  shorthand: boolean;
+}
+
+interface ObjectExpressionNode extends ExpressionNodeBase {
+  type: "ObjectExpression";
+  properties: ObjectPropertyNode[];
+}
+
+interface TemplateLiteralNode extends ExpressionNodeBase {
+  type: "TemplateLiteral";
+  quasis: string[];
+  expressions: ExpressionNode[];
+}
+
+interface UnaryExpressionNode extends ExpressionNodeBase {
+  type: "UnaryExpression";
+  operator: string;
+  argument: ExpressionNode;
+}
+
+interface UpdateExpressionNode extends ExpressionNodeBase {
+  type: "UpdateExpression";
+  operator: string;
+  argument: IdentifierNode | MemberExpressionNode;
+  prefix: boolean;
+}
+
+interface BinaryExpressionNode extends ExpressionNodeBase {
+  type: "BinaryExpression" | "LogicalExpression";
+  operator: string;
+  left: ExpressionNode;
+  right: ExpressionNode;
+}
+
+interface ConditionalExpressionNode extends ExpressionNodeBase {
+  type: "ConditionalExpression";
+  test: ExpressionNode;
+  consequent: ExpressionNode;
+  alternate: ExpressionNode;
+}
+
+interface MemberExpressionNode extends ExpressionNodeBase {
+  type: "MemberExpression";
+  object: ExpressionNode;
+  property: ExpressionNode;
+  computed: boolean;
+  optional: boolean;
+}
+
+interface CallExpressionNode extends ExpressionNodeBase {
+  type: "CallExpression";
+  callee: ExpressionNode;
+  arguments: ExpressionNode[];
+  optional: boolean;
+}
+
+type ExpressionNode =
+  | IdentifierNode
+  | LiteralNode
+  | ArrayExpressionNode
+  | ObjectExpressionNode
+  | TemplateLiteralNode
+  | UnaryExpressionNode
+  | UpdateExpressionNode
+  | BinaryExpressionNode
+  | ConditionalExpressionNode
+  | MemberExpressionNode
+  | CallExpressionNode;
+
 /** Syntax error carrying the precise expression offset and framework code. */
 export class ExpressionSyntaxError extends SyntaxError {
   override code: string;
@@ -100,7 +196,7 @@ export class ExpressionSyntaxError extends SyntaxError {
 }
 
 /** Parses one safe template expression into an expression AST. */
-export function parseExpression(source: string) {
+export function parseExpression(source: string): ExpressionNode {
   if (typeof source !== "string" || !source.trim()) {
     throw new ExpressionSyntaxError(
       "Expression cannot be empty",
@@ -116,12 +212,12 @@ export function parseExpression(source: string) {
 }
 
 /** Tokenizes one template expression for parser and diagnostic tooling. */
-export function tokenizeExpression(source: string) {
-  const tokens = [];
+export function tokenizeExpression(source: string): ExpressionToken[] {
+  const tokens: ExpressionToken[] = [];
   let index = 0;
 
   while (index < source.length) {
-    const char = source[index];
+    const char = source.charAt(index);
 
     if (/\s/.test(char)) {
       index += 1;
@@ -142,7 +238,7 @@ export function tokenizeExpression(source: string) {
       continue;
     }
 
-    if (/[0-9]/.test(char) || (char === "." && /[0-9]/.test(source[index + 1]))) {
+    if (/[0-9]/.test(char) || (char === "." && /[0-9]/.test(source.charAt(index + 1)))) {
       const token = readNumber(source, index);
       tokens.push(token);
       index = token.end;
@@ -209,7 +305,7 @@ class Parser {
     this.index = 0;
   }
 
-  parse() {
+  parse(): ExpressionNode {
     const expression = this.parseConditional();
 
     if (!this.is("eof")) {
@@ -219,7 +315,7 @@ class Parser {
     return expression;
   }
 
-  parseConditional() {
+  parseConditional(): ExpressionNode {
     const test = this.parseBinary(1);
 
     if (!this.match("?")) {
@@ -240,7 +336,7 @@ class Parser {
     };
   }
 
-  parseBinary(minimumPrecedence) {
+  parseBinary(minimumPrecedence: number): ExpressionNode {
     let left = this.parseUnary();
 
     while (true) {
@@ -268,7 +364,7 @@ class Parser {
     return left;
   }
 
-  parseUnary() {
+  parseUnary(): ExpressionNode {
     const token = this.current();
 
     if (
@@ -292,7 +388,7 @@ class Parser {
     return this.parsePostfix(this.parsePrimary());
   }
 
-  parsePostfix(base) {
+  parsePostfix(base: ExpressionNode): ExpressionNode {
     let expression = base;
 
     while (true) {
@@ -378,9 +474,9 @@ class Parser {
     return expression;
   }
 
-  parseCall(callee, optional) {
+  parseCall(callee: ExpressionNode, optional: boolean): CallExpressionNode {
     this.expect("(");
-    const args = [];
+    const args: ExpressionNode[] = [];
 
     while (!this.isValue(")")) {
       args.push(this.parseConditional());
@@ -401,7 +497,7 @@ class Parser {
     };
   }
 
-  parsePrimary() {
+  parsePrimary(): ExpressionNode {
     const token = this.current();
 
     if (token.type === "number" || token.type === "string") {
@@ -476,11 +572,11 @@ class Parser {
       return this.parseObject(token.start);
     }
 
-    this.fail(`Expected an expression but found "${token.value || "end of input"}"`);
+    return this.fail(`Expected an expression but found "${token.value || "end of input"}"`);
   }
 
-  parseArray(start) {
-    const elements = [];
+  parseArray(start: number): ArrayExpressionNode {
+    const elements: ExpressionNode[] = [];
 
     while (!this.isValue("]")) {
       elements.push(this.parseConditional());
@@ -499,8 +595,8 @@ class Parser {
     };
   }
 
-  parseObject(start) {
-    const properties = [];
+  parseObject(start: number): ObjectExpressionNode {
+    const properties: ObjectPropertyNode[] = [];
 
     while (!this.isValue("}")) {
       const keyToken = this.current();
@@ -518,7 +614,7 @@ class Parser {
         ? keyToken.value
         : String(keyToken.literal);
       assertSafeStaticMember(key, keyToken.start);
-      let value;
+      let value: ExpressionNode;
       let shorthand = false;
 
       if (this.match(":")) {
@@ -553,7 +649,7 @@ class Parser {
     };
   }
 
-  expect(value) {
+  expect(value: string): ExpressionToken {
     if (!this.isValue(value)) {
       this.fail(`Expected "${value}" but found "${this.current().value || "end of input"}"`);
     }
@@ -561,7 +657,7 @@ class Parser {
     return this.advance();
   }
 
-  expectIdentifier() {
+  expectIdentifier(): IdentifierToken {
     const token = this.current();
 
     if (token.type !== "identifier") {
@@ -572,26 +668,31 @@ class Parser {
     return token;
   }
 
-  match(value) {
+  match(value: string): boolean {
     if (!this.isValue(value)) return false;
 
     this.advance();
     return true;
   }
 
-  is(type) {
+  is(type: ExpressionToken["type"]): boolean {
     return this.current().type === type;
   }
 
-  isValue(value) {
+  isValue(value: string): boolean {
     return this.current().value === value;
   }
 
-  current() {
-    return this.tokens[this.index];
+  current(): ExpressionToken {
+    return this.tokens[this.index] || {
+      type: "eof",
+      value: "",
+      start: this.source.length,
+      end: this.source.length
+    };
   }
 
-  advance() {
+  advance(): ExpressionToken {
     const token = this.current();
     this.index += 1;
     return token;
@@ -603,10 +704,10 @@ class Parser {
 }
 
 /** Reads the identifier. */
-function readIdentifier(source, start) {
+function readIdentifier(source: string, start: number): IdentifierToken {
   let end = start + 1;
 
-  while (end < source.length && /[\w$]/.test(source[end])) {
+  while (end < source.length && /[\w$]/.test(source.charAt(end))) {
     end += 1;
   }
 
@@ -619,14 +720,14 @@ function readIdentifier(source, start) {
 }
 
 /** Reads the number. */
-function readNumber(source, start) {
+function readNumber(source: string, start: number): LiteralToken {
   const match = source.slice(start).match(/^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?/);
 
   if (!match) {
     throw new ExpressionSyntaxError("Invalid number", start);
   }
 
-  const raw = match[0];
+  const raw = match[0] || "";
 
   return {
     type: "number",
@@ -638,13 +739,13 @@ function readNumber(source, start) {
 }
 
 /** Reads the string. */
-function readString(source, start) {
-  const quote = source[start];
+function readString(source: string, start: number): LiteralToken {
+  const quote = source.charAt(start);
   let value = "";
   let index = start + 1;
 
   while (index < source.length) {
-    const char = source[index];
+    const char = source.charAt(index);
 
     if (char === quote) {
       return {
@@ -657,13 +758,13 @@ function readString(source, start) {
     }
 
     if (char === "\\") {
-      const escaped = source[index + 1];
+      const escaped = source.charAt(index + 1);
 
-      if (escaped === undefined) {
+      if (!escaped) {
         throw new ExpressionSyntaxError("Unterminated string", start);
       }
 
-      const escapes = {
+      const escapes: Record<string, string> = {
         n: "\n",
         r: "\r",
         t: "\t",
@@ -686,14 +787,14 @@ function readString(source, start) {
 }
 
 /** Reads the template. */
-function readTemplate(source, start) {
-  const quasis = [];
-  const expressions = [];
+function readTemplate(source: string, start: number): TemplateToken {
+  const quasis: string[] = [];
+  const expressions: TemplateExpressionToken[] = [];
   let value = "";
   let index = start + 1;
 
   while (index < source.length) {
-    const char = source[index];
+    const char = source.charAt(index);
 
     if (char === "`") {
       quasis.push(value);
@@ -709,13 +810,13 @@ function readTemplate(source, start) {
     }
 
     if (char === "\\") {
-      const escaped = source[index + 1];
+      const escaped = source.charAt(index + 1);
 
-      if (escaped === undefined) {
+      if (!escaped) {
         throw new ExpressionSyntaxError("Unterminated template literal", start);
       }
 
-      const escapes = {
+      const escapes: Record<string, string> = {
         n: "\n",
         r: "\r",
         t: "\t"
@@ -744,13 +845,16 @@ function readTemplate(source, start) {
 }
 
 /** Reads the template expression. */
-function readTemplateExpression(source, start) {
+function readTemplateExpression(
+  source: string,
+  start: number
+): TemplateExpressionToken {
   let depth = 1;
   let index = start;
   let quote = "";
 
   while (index < source.length) {
-    const char = source[index];
+    const char = source.charAt(index);
 
     if (quote) {
       if (char === "\\") {
@@ -804,7 +908,7 @@ function readTemplateExpression(source, start) {
 }
 
 /** Creates the identifier. */
-function createIdentifier(token) {
+function createIdentifier(token: IdentifierToken): IdentifierNode {
   if (VD_EXPRESSION.BLOCKED_IDENTIFIERS.includes(token.value)) {
     throw new ExpressionSyntaxError(
       `Expression identifier "${token.value}" is not allowed`,
@@ -822,7 +926,7 @@ function createIdentifier(token) {
 }
 
 /** Creates the literal. */
-function createLiteral(value, token) {
+function createLiteral(value: unknown, token: TokenBase): LiteralNode {
   return {
     type: "Literal",
     value,
@@ -833,13 +937,23 @@ function createLiteral(value, token) {
 }
 
 /** Creates the member expression. */
-function createMemberExpression(object, property, computed, optional) {
-  if (!computed || property.type === "Literal") {
-    const name = computed
-      ? property.value
-      : property.name;
+function createMemberExpression(
+  object: ExpressionNode,
+  property: ExpressionNode,
+  computed: boolean,
+  optional: boolean
+): MemberExpressionNode {
+  if (!computed) {
+    if (property.type !== "Identifier") {
+      throw new ExpressionSyntaxError(
+        "Static member access requires an identifier",
+        property.start
+      );
+    }
 
-    assertSafeStaticMember(String(name), property.start);
+    assertSafeStaticMember(property.name, property.start);
+  } else if (property.type === "Literal") {
+    assertSafeStaticMember(String(property.value), property.start);
   }
 
   return {
@@ -854,7 +968,7 @@ function createMemberExpression(object, property, computed, optional) {
 }
 
 /** Validates the safe static member. */
-function assertSafeStaticMember(name, offset) {
+function assertSafeStaticMember(name: string, offset: number): void {
   if (
     String(name).startsWith("__vd")
     || VD_EXPRESSION.BLOCKED_MEMBERS.includes(String(name))

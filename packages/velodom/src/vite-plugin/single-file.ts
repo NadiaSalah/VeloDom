@@ -163,7 +163,7 @@ function findSingleFileBlocks(source: string) {
   let match: RegExpExecArray | null;
 
   while ((match = pattern.exec(source))) {
-    const name = match[1].toLowerCase();
+    const name = (match[1] || "").toLowerCase();
     const closePattern = new RegExp(`</${escapeRegExp(name)}>`, "i");
     closePattern.lastIndex = pattern.lastIndex;
     const remaining = source.slice(pattern.lastIndex);
@@ -206,7 +206,7 @@ function previousMeaningfulCharacter(source: string, index: number) {
 /** Performs the internal `previousMeaningfulCharacterIndex()` operation. */
 function previousMeaningfulCharacterIndex(source: string, index: number) {
   for (let i = index - 1; i >= 0; i -= 1) {
-    if (!/\s/.test(source[i])) return i;
+    if (!/\s/.test(source.charAt(i))) return i;
   }
 
   return -1;

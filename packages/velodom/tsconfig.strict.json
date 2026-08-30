@@ -6,9 +6,14 @@
   },
   "files": [
     "src/authoring.ts",
+    "src/compiler/index.ts",
+    "src/compiler/optimizer.ts",
     "src/compiler/types.ts",
     "src/constants.ts",
     "src/devtools/protocol.ts",
+    "src/expression/parser.ts",
+    "src/global.d.ts",
+    "src/language-service.ts",
     "src/lifecycle.ts",
     "src/plugins.ts",
     "src/reactive.ts",
@@ -17,6 +22,7 @@
     "src/shared/object.ts",
     "src/shared/path.ts",
     "src/types.ts",
-    "src/vite-plugin/compiler-cache.ts"
+    "src/vite-plugin/compiler-cache.ts",
+    "src/vite-plugin/single-file.ts"
   ]
 }

@@ -146,12 +146,11 @@ release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
-- Started the staged TypeScript `strict` migration with an enforced first slice
-  covering public/shared contracts, compiler and devtools protocol types,
-  the build-time compiler cache, authoring helpers, lifecycle, plugins,
-  reactive state, refs, and shared leaf utilities. Normal checks and package
-  builds now run this slice without changing the JavaScript/TypeScript
-  application API.
+- Continued the staged TypeScript `strict` migration through the compiler
+  implementation and optimizer pipeline. The enforced boundary now also covers
+  the safe expression parser, compiler language-service path, and `.vd`
+  source-position helpers without changing template syntax or the
+  JavaScript/TypeScript application API.
 - Tightened reactive subscription callbacks, dynamic init-result narrowing,
   and DOM ref collection types while preserving existing runtime behavior.
 - Added an automatic, plugin-local incremental compiler cache keyed by
@@ -254,11 +253,12 @@ package, AI, roadmap, changelog, decision, and consumer documentation. It does
 not change runtime syntax, public exports, generated projects, or starter
 configuration.
 
-The first strict-typing slice specifically changes
-`packages/velodom/tsconfig.strict.json`, the workspace/package quality scripts,
-and focused typing in `reactive.ts` and `refs.ts`. Compiler implementation,
-router, requests, directives, CLI, and scaffolder remain later strict slices;
-the roadmap item is intentionally still open.
+The current strict-typing boundary specifically changes
+`packages/velodom/tsconfig.strict.json` plus focused contracts in shared Core,
+reactivity, refs, the compiler, optimizer, safe expression parser, language
+service, and `.vd` source helpers. Directives/runtime expression integration,
+mount/router, requests, CLI, and scaffolder remain later strict slices; the
+parent roadmap item is intentionally still open.
 
 ## TODO
 

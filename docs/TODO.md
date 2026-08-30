@@ -273,7 +273,9 @@ layer, or unproven analysis.
   - [x] Enforce the first strict slice for public/shared contracts,
     compiler/devtools protocol types, the build-time compiler cache, authoring,
     lifecycle, plugins, reactive state, refs, and shared leaf utilities.
-  - [ ] Migrate the compiler implementation and optimizer pipeline.
+  - [x] Migrate the compiler implementation and optimizer pipeline, including
+    the safe expression parser and `.vd` source-position helpers reached by the
+    public compiler entry.
   - [ ] Migrate directive features and expression/runtime integration.
   - [ ] Migrate mount, router, resource adapters, and page data.
   - [ ] Migrate requests, CLI/project intelligence, and scaffolder modules.

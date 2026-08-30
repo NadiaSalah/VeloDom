@@ -19,10 +19,88 @@ import {
 } from "../expression/parser.ts";
 import { runTemplateOptimizers } from "./optimizer.ts";
 import type {
+  CompilerDiagnostic,
   CompilerOptions,
   DirectiveMetadata,
+  SourceLocation,
+  TemplateCompileResult,
   TemplateAst
 } from "./types.ts";
+
+interface ParsedAttribute {
+  name: string;
+  value: string;
+  start: number;
+  nameStart: number;
+  nameEnd: number;
+  valueStart: number;
+}
+
+interface ParsedStartTag {
+  tagName: string;
+  attributes: ParsedAttribute[];
+  offset: number;
+  selfClosing: boolean;
+}
+
+interface ElementAttributeAst extends Record<string, unknown> {
+  type: "Attribute";
+  name: string;
+  value: string;
+  offset: number;
+}
+
+interface ElementStartAst extends Record<string, unknown> {
+  type: "ElementStart";
+  tagName: string;
+  selfClosing: boolean;
+  offset: number;
+  attributes: ElementAttributeAst[];
+  preserveText: boolean;
+}
+
+interface AccessibilityContext {
+  labelTargets: Set<string>;
+  lastHeadingLevel: number;
+}
+
+interface DirectiveCompileSuccess {
+  type: "legacy" | "event" | "binding" | "directive";
+  name: string;
+  argument?: string;
+  modifiers: string[];
+}
+
+interface DirectiveCompileFailure {
+  code: string;
+  error: string;
+}
+
+type CompiledDirectiveName =
+  | DirectiveCompileSuccess
+  | DirectiveCompileFailure
+  | null;
+
+interface AttributeReplacement {
+  start: number;
+  end: number;
+  value: string;
+}
+
+interface CompiledStartTag {
+  html: string;
+  diagnostics: CompilerDiagnostic[];
+  metadata: DirectiveMetadata[];
+  ast: ElementStartAst;
+}
+
+interface CompiledTextSegment {
+  html: string;
+  diagnostics: CompilerDiagnostic[];
+  metadata: DirectiveMetadata[];
+}
+
+type AttributeLookup = Map<string, ParsedAttribute>;
 
 /** Public optimizer utilities exposed through the compiler package entry. */
 export {
@@ -86,15 +164,15 @@ const EXPRESSION_DIRECTIVES = new Set([
 export function compileTemplate(
   source: string,
   options: CompilerOptions = {}
-) {
+): TemplateCompileResult {
   if (typeof source !== "string") {
     throw new TypeError("VeloDom compiler expected template source to be a string");
   }
 
   const filename = options.filename || "template.html";
   const mode = options.mode || "development";
-  const diagnostics = [];
-  const metadata = [];
+  const diagnostics: CompilerDiagnostic[] = [];
+  const metadata: DirectiveMetadata[] = [];
   const ast: TemplateAst = {
     type: "Template",
     filename,
@@ -228,16 +306,16 @@ export function compileTemplate(
 
 /** Compiles the start tag. */
 function compileStartTag(
-  tagSource,
-  sourceOffset,
-  fullSource,
-  filename,
-  accessibilityContext
-) {
+  tagSource: string,
+  sourceOffset: number,
+  fullSource: string,
+  filename: string,
+  accessibilityContext: AccessibilityContext
+): CompiledStartTag {
   const parsed = parseStartTag(tagSource, sourceOffset);
-  const diagnostics = [];
-  const metadata = [];
-  const replacements = [];
+  const diagnostics: CompilerDiagnostic[] = [];
+  const metadata: DirectiveMetadata[] = [];
+  const replacements: AttributeReplacement[] = [];
 
   diagnostics.push(...createAccessibilityDiagnostics(
     parsed,
@@ -251,7 +329,7 @@ function compileStartTag(
 
     if (!compiled) return;
 
-    if (compiled.error) {
+    if ("error" in compiled) {
       diagnostics.push(createDiagnostic(
         fullSource,
         filename,
@@ -275,7 +353,7 @@ function compileStartTag(
         const syntaxError = error instanceof ExpressionSyntaxError
           ? error
           : new ExpressionSyntaxError(
-            error?.message || "Invalid directive expression"
+            getErrorMessage(error, "Invalid directive expression")
           );
 
         diagnostics.push(createDiagnostic(
@@ -347,9 +425,9 @@ function compileTextSegment(
   sourceOffset: number,
   fullSource: string,
   filename: string
-) {
-  const diagnostics = [];
-  const metadata = [];
+): CompiledTextSegment {
+  const diagnostics: CompilerDiagnostic[] = [];
+  const metadata: DirectiveMetadata[] = [];
   let html = "";
   let cursor = 0;
   const pattern = /(\\)?{{([\s\S]*?)}}/g;
@@ -390,7 +468,7 @@ function compileTextSegment(
         const syntaxError = error instanceof ExpressionSyntaxError
           ? error
           : new ExpressionSyntaxError(
-            error?.message || "Invalid text interpolation expression"
+            getErrorMessage(error, "Invalid text interpolation expression")
           );
 
         diagnostics.push(createDiagnostic(
@@ -430,7 +508,7 @@ function compileTextSegment(
 }
 
 /** Evaluates the `shouldPreserveTextContent()` condition for the supplied input. */
-function shouldPreserveTextContent(ast) {
+function shouldPreserveTextContent(ast: ElementStartAst): boolean {
   return (
     !ast.selfClosing
     && (ast.tagName === "script"
@@ -440,7 +518,7 @@ function shouldPreserveTextContent(ast) {
 }
 
 /** Evaluates the `hasPreservedTextAttribute()` condition for the supplied input. */
-function hasPreservedTextAttribute(attributes) {
+function hasPreservedTextAttribute(attributes: ParsedAttribute[]): boolean {
   return attributes.some(attribute => (
     attribute.name === "vd-pre"
     || attribute.name === VD.PRE
@@ -448,7 +526,7 @@ function hasPreservedTextAttribute(attributes) {
 }
 
 /** Compiles the directive name. */
-function compileDirectiveName(name) {
+function compileDirectiveName(name: string): CompiledDirectiveName {
   if (name.startsWith("data-vd-")) {
     return {
       type: "legacy",
@@ -500,7 +578,7 @@ function compileDirectiveName(name) {
     };
   }
 
-  const [baseName] = directive.split(".");
+  const baseName = directive.split(".")[0] || "";
 
   if (!isPreferredDirective(baseName)) {
     return {
@@ -528,7 +606,7 @@ function normalizeDirectiveAlias(directive: string) {
 }
 
 /** Parses the start tag. */
-function parseStartTag(tagSource, sourceOffset) {
+function parseStartTag(tagSource: string, sourceOffset: number): ParsedStartTag {
   let index = 1;
 
   while (isWhitespace(tagSource[index])) index += 1;
@@ -547,7 +625,7 @@ function parseStartTag(tagSource, sourceOffset) {
   const tagName = tagSource
     .slice(tagStart, index)
     .toLowerCase();
-  const attributes = [];
+  const attributes: ParsedAttribute[] = [];
 
   while (index < tagSource.length) {
     while (isWhitespace(tagSource[index])) index += 1;
@@ -630,7 +708,7 @@ function parseStartTag(tagSource, sourceOffset) {
 }
 
 /** Creates the accessibility context. */
-function createAccessibilityContext(source) {
+function createAccessibilityContext(source: string): AccessibilityContext {
   return {
     labelTargets: collectLabelTargets(source),
     lastHeadingLevel: 0
@@ -639,14 +717,14 @@ function createAccessibilityContext(source) {
 
 /** Creates the accessibility diagnostics. */
 function createAccessibilityDiagnostics(
-  parsed,
-  source,
-  filename,
-  context
-) {
+  parsed: ParsedStartTag,
+  source: string,
+  filename: string,
+  context: AccessibilityContext
+): CompilerDiagnostic[] {
   const tagName = parsed.tagName;
   const attributes = createAttributeLookup(parsed.attributes);
-  const diagnostics = [];
+  const diagnostics: CompilerDiagnostic[] = [];
 
   if (tagName === "img" && !hasAnyAttribute(attributes, [
     "alt",
@@ -742,8 +820,11 @@ function createAccessibilityDiagnostics(
 }
 
 /** Creates the security diagnostics. */
-function createSecurityDiagnostics(source, filename) {
-  const diagnostics = [];
+function createSecurityDiagnostics(
+  source: string,
+  filename: string
+): CompilerDiagnostic[] {
+  const diagnostics: CompilerDiagnostic[] = [];
 
   for (const match of source.matchAll(/\bhref\s*=\s*(["'])\s*javascript:/gi)) {
     diagnostics.push(createDiagnostic(
@@ -770,8 +851,8 @@ function createSecurityDiagnostics(source, filename) {
   }
 
   for (const match of source.matchAll(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi)) {
-    const attributes = match[1];
-    const body = match[2];
+    const attributes = match[1] || "";
+    const body = match[2] || "";
     const method = attributes.match(/\bmethod\s*=\s*(["'])(.*?)\1/i)?.[2]
       ?.trim()
       .toLowerCase() || "get";
@@ -805,8 +886,8 @@ function createSecurityDiagnostics(source, filename) {
 }
 
 /** Collects the label targets. */
-function collectLabelTargets(source) {
-  const targets = new Set();
+function collectLabelTargets(source: string): Set<string> {
+  const targets = new Set<string>();
   const pattern = /<label\b[^>]*\bfor\s*=\s*(["'])(.*?)\1/gi;
   let match = pattern.exec(source);
 
@@ -819,8 +900,8 @@ function collectLabelTargets(source) {
 }
 
 /** Creates the attribute lookup. */
-function createAttributeLookup(attributes) {
-  const lookup = new Map();
+function createAttributeLookup(attributes: ParsedAttribute[]): AttributeLookup {
+  const lookup: AttributeLookup = new Map();
 
   attributes.forEach(attribute => {
     lookup.set(attribute.name.toLowerCase(), attribute);
@@ -830,17 +911,20 @@ function createAttributeLookup(attributes) {
 }
 
 /** Evaluates the `hasAnyAttribute()` condition for the supplied input. */
-function hasAnyAttribute(attributes, names) {
+function hasAnyAttribute(
+  attributes: AttributeLookup,
+  names: string[]
+): boolean {
   return names.some(name => attributes.has(name));
 }
 
 /** Returns the attribute value. */
-function getAttributeValue(attributes, name) {
+function getAttributeValue(attributes: AttributeLookup, name: string): string {
   return attributes.get(name)?.value || "";
 }
 
 /** Evaluates the `isFormControl()` condition for the supplied input. */
-function isFormControl(tagName, attributes) {
+function isFormControl(tagName: string, attributes: AttributeLookup): boolean {
   if (!VD_ACCESSIBILITY.FORM_CONTROL_TAGS.includes(tagName)) {
     return false;
   }
@@ -852,7 +936,10 @@ function isFormControl(tagName, attributes) {
 }
 
 /** Evaluates the `hasAccessibleName()` condition for the supplied input. */
-function hasAccessibleName(attributes, context) {
+function hasAccessibleName(
+  attributes: AttributeLookup,
+  context: AccessibilityContext
+): boolean {
   if (hasAnyAttribute(attributes, [
     "aria-label",
     "aria-labelledby",
@@ -867,7 +954,7 @@ function hasAccessibleName(attributes, context) {
 }
 
 /** Evaluates the `isInteractiveAnchor()` condition for the supplied input. */
-function isInteractiveAnchor(attributes) {
+function isInteractiveAnchor(attributes: AttributeLookup): boolean {
   return (
     hasAnyAttribute(attributes, [
       "data-vd-nav",
@@ -878,7 +965,7 @@ function isInteractiveAnchor(attributes) {
 }
 
 /** Evaluates the `hasClickHandler()` condition for the supplied input. */
-function hasClickHandler(attributes) {
+function hasClickHandler(attributes: AttributeLookup): boolean {
   for (const name of attributes.keys()) {
     if (
       name === "data-vd-onclick"
@@ -894,7 +981,10 @@ function hasClickHandler(attributes) {
 }
 
 /** Evaluates the `isNonSemanticClickTarget()` condition for the supplied input. */
-function isNonSemanticClickTarget(tagName, attributes) {
+function isNonSemanticClickTarget(
+  tagName: string,
+  attributes: AttributeLookup
+): boolean {
   if (VD_ACCESSIBILITY.INTERACTIVE_TAGS.includes(tagName)) {
     return false;
   }
@@ -912,7 +1002,7 @@ function isNonSemanticClickTarget(tagName, attributes) {
 }
 
 /** Evaluates the `hasKeyboardHandler()` condition for the supplied input. */
-function hasKeyboardHandler(attributes) {
+function hasKeyboardHandler(attributes: AttributeLookup): boolean {
   for (const name of attributes.keys()) {
     if (
       VD_ACCESSIBILITY.KEYBOARD_EVENT_PREFIXES.some(prefix => (
@@ -927,7 +1017,7 @@ function hasKeyboardHandler(attributes) {
 }
 
 /** Returns the heading level. */
-function getHeadingLevel(tagName) {
+function getHeadingLevel(tagName: string): number {
   if (!VD_ACCESSIBILITY.HEADING_TAGS.includes(tagName)) {
     return 0;
   }
@@ -936,15 +1026,13 @@ function getHeadingLevel(tagName) {
 }
 
 /** Returns the directive expression. */
-function getDirectiveExpression(name, value) {
+function getDirectiveExpression(name: string, value: string): string | null {
   if (name === "data-vd-for") {
     const match = String(value || "").match(
       /^\s*(?:\(\s*[\w$]+\s*,\s*[\w$]+\s*\)|[\w$]+)\s+in\s+(.+)\s*$/
     );
 
-    return match
-      ? match[1]
-      : null;
+    return match?.[1] || null;
   }
 
   if (name.startsWith("data-vd-on")) {
@@ -957,7 +1045,7 @@ function getDirectiveExpression(name, value) {
 }
 
 /** Finds the tag end. */
-function findTagEnd(source, start) {
+function findTagEnd(source: string, start: number): number {
   let quote = "";
 
   for (let index = start + 1; index < source.length; index += 1) {
@@ -980,7 +1068,7 @@ function findTagEnd(source, start) {
 }
 
 /** Reads the modifiers. */
-function readModifiers(name) {
+function readModifiers(name: string): string[] {
   return name
     .split(".")
     .slice(1)
@@ -988,7 +1076,7 @@ function readModifiers(name) {
 }
 
 /** Evaluates the `isWhitespace()` condition for the supplied input. */
-function isWhitespace(value) {
+function isWhitespace(value: string | undefined): boolean {
   return Boolean(value && /\s/.test(value));
 }
 
@@ -1002,7 +1090,14 @@ function escapeAttribute(value: string) {
 }
 
 /** Creates the diagnostic. */
-function createDiagnostic(source, filename, offset, severity, code, message) {
+function createDiagnostic(
+  source: string,
+  filename: string,
+  offset: number,
+  severity: CompilerDiagnostic["severity"],
+  code: string,
+  message: string
+): CompilerDiagnostic {
   return {
     severity,
     code,
@@ -1014,18 +1109,18 @@ function createDiagnostic(source, filename, offset, severity, code, message) {
 }
 
 /** Returns the source location. */
-function getSourceLocation(source, offset) {
+function getSourceLocation(source: string, offset: number): SourceLocation {
   const before = source.slice(0, offset);
   const lines = before.split("\n");
 
   return {
     line: lines.length,
-    column: lines[lines.length - 1].length + 1
+    column: (lines.at(-1) || "").length + 1
   };
 }
 
 /** Strips the development metadata. */
-function stripDevelopmentMetadata(entry) {
+function stripDevelopmentMetadata(entry: DirectiveMetadata): DirectiveMetadata {
   return {
     type: entry.type,
     name: entry.name,
@@ -1033,4 +1128,13 @@ function stripDevelopmentMetadata(entry) {
     modifiers: entry.modifiers,
     expression: entry.expression
   };
+}
+
+/** Returns a stable message for thrown values without assuming Error shape. */
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return fallback;
 }

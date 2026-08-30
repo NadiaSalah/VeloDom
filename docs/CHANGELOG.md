@@ -70,6 +70,11 @@ or claim that a matching package is available from a registry.
   standalone compiler remains deterministic and uncached.
 - Tightened reactive callback, dynamic init-result, and DOM-ref typing without
   changing emitted behavior or the Vanilla/TypeScript application contract.
+- Expanded the enforced TypeScript `strict` boundary through the compiler and
+  optimizer implementation, safe expression parser, language-service compiler
+  path, and `.vd` source-position helpers. Internal AST, attribute, diagnostic,
+  and optimizer-error contracts are now explicit without changing public
+  template syntax or generated output.
 
 ### Fixed
 

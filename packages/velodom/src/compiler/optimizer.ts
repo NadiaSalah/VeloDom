@@ -91,8 +91,12 @@ export function runTemplateOptimizers(
     try {
       patch = optimizer.optimize(current, optimizerContext);
     } catch (error) {
+      const message = error instanceof Error && error.message
+        ? error.message
+        : String(error);
+
       throw new Error(
-        `VeloDom template optimizer "${optimizer.name}" failed: ${error?.message || error}`,
+        `VeloDom template optimizer "${optimizer.name}" failed: ${message}`,
         {
           cause: error
         }
