@@ -82,6 +82,11 @@ The `/single-file` route is also the production lazy-loading fixture: its
 config is available for routing at startup while the remaining `.vd` module is
 emitted as a separate route chunk and loaded only when opened.
 
+During development, unchanged templates in this consumer also exercise the
+Vite plugin's bounded incremental compiler cache. It is automatic build
+tooling, so the example needs no application cache configuration or runtime
+demo for it.
+
 ## Run and verify
 
 From the repository root:

@@ -56,6 +56,7 @@ npm test
 npm run check
 npm run build
 npm run pack:check
+npm run benchmark:compiler
 ```
 
 The root development command builds the package and starts
@@ -144,6 +145,13 @@ release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
+- Added an automatic, plugin-local incremental compiler cache keyed by
+  normalized template source and effective compiler options. It invalidates on
+  source changes and Vite hot updates, keeps at most 256 least-recently-used
+  results, and adds no browser runtime code or user configuration.
+- Added a repeatable `npm run benchmark:compiler` report for cold compilation,
+  warm cache hits, and an explicitly invalidated rebuild without turning
+  machine-specific timing into a release threshold.
 - Restored `.vd` page lazy-loading parity with folder pages: Vite now extracts
   only route config eagerly and emits template, script, style, and manifest as
   one lazy page chunk, without a second public authoring format.
@@ -181,11 +189,10 @@ release commit is verified, approved, tagged, and published deliberately.
 - Added concise JSDoc to every named Core function and an AST-backed regression
   gate, while stripping comments only from compiled JavaScript to preserve the
   lightweight runtime budget.
-- Verified 278 tests, documentation/type/lint gates, production/package builds,
-  installed consumers, dry-run tarballs, project doctor/health, and live
-  desktop/compact navigation. Chromium, WebKit, and Mobile WebKit pass locally;
-  this machine's known Firefox SWGL compositor launch failure remains delegated
-  to the required strict Linux workflow.
+- Verified 282 tests, documentation/type/lint gates, production and package
+  builds, the installed tarball consumer, both package dry-runs, performance
+  budgets, the compiler benchmark, and Chromium browser E2E. Broader strict
+  browser-matrix confirmation remains a final-release workflow responsibility.
 - Normalized release history around one planned first official `1.0.0` release;
   discarded private repository and registry experiments are now represented by
   one concise pre-public note instead of false version chronology.
@@ -231,11 +238,20 @@ guides, and documentation/test checks under `tools/`.
 Official starter input now lives only in the composable `templates/default`
 and `templates/starters` sources inside the VeloDom package.
 
+The incremental-compiler milestone specifically changes
+`packages/velodom/src/vite-plugin`, the shared compiler-cache constant, focused
+compiler/Vite tests, the repository benchmark command, and synchronized root,
+package, AI, roadmap, changelog, decision, and consumer documentation. It does
+not change runtime syntax, public exports, generated projects, or starter
+configuration.
+
 ## TODO
 
 Only optional or future work belongs in [docs/TODO.md](docs/TODO.md). Near-term
 release work should stay limited to:
 
+- migrate Core TypeScript strictness in the small verified slices defined by
+  the next-release roadmap, without changing the Vanilla authoring API;
 - run the complete package and browser gates on the final commit;
 - inspect both npm dry-run tarballs for unexpected files or size growth;
 - publish `velodom` first and `create-velodom` second only after explicit owner

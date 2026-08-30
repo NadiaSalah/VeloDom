@@ -65,6 +65,7 @@ before use.
 | Deterministic explain | DX | Supported | `vd explain <file|topic>` | compiler analysis | package binary | Yes |
 | Testing mounts | Testing | Stable | `velodom/testing` | browser E2E | public helpers | Yes |
 | Compiler API | Compiler | Stable | `velodom/compiler` | Vite plugin | public compiler | Yes |
+| Incremental compiler cache | Build | Supported | automatic Vite plugin behavior | source/HMR invalidation, bounded LRU | Vite plugin | Yes |
 | Language analysis | Editor | Supported | compiler analysis APIs | VS Code package | public APIs | Yes |
 | Feature-based project scaffolding | DX | Stable | `npm create velodom`, `vd create` | Minimal/Blog/Empty, scriptable flags | `velodom/cli`, `velodom/scaffolder` | Yes |
 | Project intelligence | DX | Supported | `vd doctor/inspect/...` | none | package binary | Yes |

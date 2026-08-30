@@ -431,6 +431,7 @@ npm run check
 npm run package:check
 npm run pack:check
 npm run benchmark:rendering
+npm run benchmark:compiler
 npm run performance:check
 npm run test:browser
 npm run build
@@ -447,6 +448,7 @@ What the main checks do:
 | `npm run package:check` | Builds ESM/types and tests an installed local tarball consumer. |
 | `npm run pack:check` | Runs package checks and inspects the npm tarball dry-run contents. |
 | `npm run benchmark:rendering` | Runs local happy-dom page-binding and loop-rendering benchmarks. |
+| `npm run benchmark:compiler` | Reports cold template compilation, warm incremental-cache reuse, and one explicitly invalidated rebuild. Timings are diagnostic rather than a machine-specific release threshold. |
 | `npm run performance:check` | Enforces JavaScript size budgets for generated chunks and package runtime modules after build artifacts exist. Set `VELODOM_CSS_BUDGET_KB` to optionally enforce a project-owned total CSS budget too. |
 | `npm run test:browser` | Builds the showcase and runs the Playwright browser matrix. Chromium/Chrome/Edge is required; Firefox, WebKit, and mobile WebKit run when installed. |
 | `npm run build` | Runs all quality/package gates, builds the showcase, then checks performance budgets. |
@@ -3939,6 +3941,13 @@ The plugin:
 - emits deterministic runtime feature manifests
 - lets the runtime load only required directive feature modules
 - generates static SEO route documents after a normal client production build
+
+Within one Vite plugin instance, repeated compilation is reused through a
+bounded incremental cache keyed by normalized template source and effective
+compiler options. File changes and Vite hot updates invalidate only the
+affected source variants. This behavior is automatic, build-time only, and
+adds no application setting, browser cache, or runtime module. Direct calls to
+the standalone compiler remain uncached and deterministic.
 
 ### Standalone Compiler
 

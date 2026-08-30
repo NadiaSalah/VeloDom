@@ -34,6 +34,9 @@ import {
   stripBuildOnlySeoEntries
 } from "./single-file.ts";
 import {
+  createIncrementalCompilerCache
+} from "./compiler-cache.ts";
+import {
   VD_DEVTOOLS,
   VD_SINGLE_FILE
 } from "../constants.ts";
@@ -112,6 +115,9 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
   let developmentServer: ViteDevServer | undefined;
   let shouldGenerateSeo = false;
   const compilerRecords = new Map<string, DevtoolsCompilerRecord>();
+  const compilerCache = createIncrementalCompilerCache<
+    ReturnType<typeof createTemplateModule>
+  >();
   const labEnabled = isLabEnabled(options.lab);
   const labMetadataPath = normalizeLabMetadataPath(options.lab);
   const recordLabCompilerResult = (
@@ -133,6 +139,15 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
       });
     }
   };
+  const compileTemplateModule = (
+    source: string,
+    sourceFile: string,
+    moduleOptions: TemplateModuleOptions
+  ) => compilerCache.getOrCompile({
+    source,
+    sourceFile,
+    options: moduleOptions
+  }, () => createTemplateModule(source, moduleOptions));
 
   return {
     name: "velodom",
@@ -160,6 +175,10 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
         labMetadataPath,
         compilerRecords
       );
+    },
+
+    handleHotUpdate(context) {
+      compilerCache.invalidate(context.file);
     },
 
     buildStart() {
@@ -207,7 +226,7 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
           descriptor.style,
           `${id}<style>`
         );
-        const module = createTemplateModule(descriptor.template, {
+        const module = compileTemplateModule(descriptor.template, id, {
           ...options,
           filename: `${id}<template>`,
           mode
@@ -259,11 +278,15 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
         const descriptor = parseVeloDomSingleFile(source, filename);
 
         if (query.has(VD_SINGLE_FILE.QUERIES.TEMPLATE)) {
-          const module = createTemplateModule(descriptor.template, {
-            ...options,
-            filename: `${filename}<template>`,
-            mode
-          });
+          const module = compileTemplateModule(
+            descriptor.template,
+            filename,
+            {
+              ...options,
+              filename: `${filename}<template>`,
+              mode
+            }
+          );
 
           recordLabCompilerResult(
             module.result,
@@ -303,7 +326,7 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
       }
 
       const source = await readFile(filename, "utf8");
-      const module = createTemplateModule(source, {
+      const module = compileTemplateModule(source, filename, {
         ...options,
         filename,
         mode

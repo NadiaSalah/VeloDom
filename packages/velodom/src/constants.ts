@@ -534,6 +534,11 @@ export const VD_COMPILER_OPTIMIZER_RESULT_KEYS = Object.freeze([
   "diagnostics"
 ]);
 
+/** Bounded build-time cache settings for Vite template compilation. */
+export const VD_COMPILER_CACHE = Object.freeze({
+  MAX_ENTRIES: 256
+});
+
 /** Manifest features implemented by lazy directive runtime modules. */
 export const VD_DIRECTIVE_RUNTIME_FEATURES = Object.freeze([
   VD_COMPILER_FEATURES.CONDITIONALS,

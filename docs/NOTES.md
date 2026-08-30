@@ -556,6 +556,14 @@
   module for synchronous route discovery and reuses one lazy full-module loader
   for template, script, style, and manifest exports. This preserves code
   splitting without adding a registry file or a second page format.
+- Incremental compilation is scoped to one Vite plugin instance and never
+  enters the browser runtime. Cache identity includes normalized source,
+  filename, mode, emission settings, and custom optimizer identity; an
+  exact-source guard prevents line-ending normalization from reusing incorrect
+  diagnostic offsets. Source fingerprints and Vite hot updates both invalidate
+  affected variants, while a 256-entry LRU bound releases old results and file
+  fingerprints. The standalone compiler intentionally stays uncached so its
+  public calls remain explicit and deterministic.
 - `packages/velodom/src/page-router.ts` and `packages/velodom/src/requests/request-router.ts` are
   frozen internal filenames. They remain private implementation modules, but
   keeping the names stable protects diagnostics, runtime wiring, and

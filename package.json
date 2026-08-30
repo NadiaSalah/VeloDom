@@ -22,6 +22,7 @@
     "package:check": "npm run package:build && node tools/scripts/check-package.mjs && node tools/scripts/check-package-consumer.mjs",
     "create-package:check": "npm run package:build && node tools/scripts/check-create-package.mjs",
     "pack:check": "npm run package:check && node tools/scripts/check-create-package.mjs && node tools/scripts/check-pack-dry-run.mjs",
+    "benchmark:compiler": "node tools/scripts/benchmark-compiler-cache.mjs",
     "benchmark:rendering": "node tools/scripts/benchmark-rendering.mjs",
     "performance:check": "node tools/scripts/check-performance-budgets.mjs",
     "test:browser": "npm run build && node tools/scripts/check-browser-e2e.mjs",

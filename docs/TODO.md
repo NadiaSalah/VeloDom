@@ -31,9 +31,9 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 
 `[####################] 100%`
 
-**Next-release approved scope: 3 of 15 milestones complete.**
+**Next-release approved scope: 4 of 15 milestones complete.**
 
-`[####................] 20%`
+`[#####...............] 27%`
 
 The repository is the local V1 source baseline. Registry availability,
 authentication, tags, and releases are external state and are deliberately not
@@ -263,7 +263,7 @@ layer, or unproven analysis.
 - [x] Restore `.vd` lazy-loading parity with folder pages by extracting route
   configuration at build time without duplicate Vite imports or a different
   public page format.
-- [ ] Add an incremental compiler/HMR cache keyed by normalized source and
+- [x] Add an incremental compiler/HMR cache keyed by normalized source and
   compiler options, with invalidation and cold/warm-build benchmarks. It is a
   development/build optimization, never an application runtime cache.
 - [ ] Migrate Core typing to TypeScript `strict` in small verified slices:

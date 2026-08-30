@@ -110,6 +110,11 @@ the optional `.vd` format with `<template>`, `<script>`, `<style>`, and
 Page config is extracted for route discovery while the rest of each `.vd` page
 remains a lazy route chunk.
 
+The Vite plugin also reuses unchanged template compilation within its own
+development/build process. Source edits and hot updates invalidate affected
+entries, retained work is bounded, and no cache API or browser code is added to
+applications.
+
 ## Documentation Shipped With the Package
 
 - [Quick Start](docs/QUICK_START.md) — verified setup and first edits.

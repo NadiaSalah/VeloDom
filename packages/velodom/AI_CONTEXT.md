@@ -94,6 +94,9 @@ Small optional one-file page:
 Folder mode wins if both forms define the same resource.
 Vite reads only a page's `<config>` block eagerly for route discovery; the
 remaining `.vd` runtime stays lazy until navigation.
+Vite's incremental compiler cache is automatic build tooling. Do not model it
+as application state, add a browser cache for it, or generate user config for
+it.
 
 ## State and Lifecycle
 

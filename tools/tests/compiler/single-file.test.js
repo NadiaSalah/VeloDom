@@ -154,6 +154,36 @@ test("Vite extracts eager page config without compiling the lazy runtime module"
   }
 });
 
+test("Vite reuses compiler work and invalidates it on hot update", () => {
+  let optimizerRuns = 0;
+  const plugin = velodom({
+    compiler: {
+      optimizers: [{
+        name: "count-runs",
+        optimize() {
+          optimizerRuns += 1;
+        }
+      }]
+    }
+  });
+  const filename = "C:/app/src/pages/about.vd";
+  const source = "<template><main vd-text=\"title\"></main></template>";
+  const context = {
+    error(error) {
+      throw error;
+    },
+    warn() {}
+  };
+
+  plugin.transform.call(context, source, filename);
+  plugin.transform.call(context, source, filename);
+  assert.equal(optimizerRuns, 1);
+
+  plugin.handleHotUpdate({ file: filename });
+  plugin.transform.call(context, source, filename);
+  assert.equal(optimizerRuns, 2);
+});
+
 test("single-file modules require one template block", () => {
   assert.throws(
     () => parseVeloDomSingleFile("<script>export {};</script>"),

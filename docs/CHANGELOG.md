@@ -43,6 +43,9 @@ or claim that a matching package is available from a registry.
   Prettier, route examples, localization, tests, Git, install, and startup.
 - Package-local quick start, syntax reference, feature inventory, and AI
   guidance that ship with the package artifact.
+- A repeatable compiler-cache benchmark that reports cold compilation, warm
+  reuse, and an invalidated rebuild without imposing machine-specific timing
+  as a release threshold.
 
 ### Changed
 
@@ -59,6 +62,10 @@ or claim that a matching package is available from a registry.
   project analysis optional and outside the default browser runtime.
 - Split the tiny production inspection hook from the full development session
   and Lab UI so normal builds can remove all Lab bootstrap code.
+- Added a plugin-instance incremental compiler cache keyed by normalized source
+  and effective compiler options, with exact-source diagnostic safety,
+  automatic source/HMR invalidation, and a bounded 256-entry LRU policy. The
+  standalone compiler remains deterministic and uncached.
 
 ### Fixed
 
