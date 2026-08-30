@@ -16,7 +16,9 @@ import {
   isInsideForTemplate
 } from "../runtime.ts";
 import type {
+  DirectiveCleanup,
   DirectiveFeatureRuntime,
+  DirectiveRoot,
   DirectiveRuntimeContext,
   DirectiveState
 } from "../runtime.ts";
@@ -43,9 +45,9 @@ export function applyBindings(runtime: DirectiveFeatureRuntime) {
 
 /** Applies the attribute binding. */
 function applyAttributeBinding(
-  root,
+  root: DirectiveRoot,
   state: DirectiveState,
-  cleanups,
+  cleanups: DirectiveCleanup[],
   context: DirectiveRuntimeContext,
   directive: string,
   attrName: string
@@ -53,7 +55,7 @@ function applyAttributeBinding(
   findAll(root, directive).forEach(el => {
     if (isInsideForTemplate(el, VD.FOR)) return;
 
-    const expression = el.getAttribute(directive);
+    const expression = el.getAttribute(directive) ?? "";
     const update = () => {
       if (isConditionallyInactive(el)) return;
 
@@ -84,7 +86,7 @@ function applyValueBinding({
   findAll(root, VD.VALUE).forEach(el => {
     if (isInsideForTemplate(el, VD.FOR)) return;
 
-    const expression = el.getAttribute(VD.VALUE);
+    const expression = el.getAttribute(VD.VALUE) ?? "";
     const update = () => {
       if (isConditionallyInactive(el)) return;
 
@@ -122,7 +124,7 @@ function applyBooleanBinding(
   findAll(root, directive).forEach(el => {
     if (isInsideForTemplate(el, VD.FOR)) return;
 
-    const expression = el.getAttribute(directive);
+    const expression = el.getAttribute(directive) ?? "";
     const update = () => {
       if (isConditionallyInactive(el)) return;
 
@@ -161,7 +163,7 @@ function applyClassBinding(runtime: DirectiveFeatureRuntime) {
   findAll(root, VD.CLASS).forEach(el => {
     if (isInsideForTemplate(el, VD.FOR)) return;
 
-    const expression = el.getAttribute(VD.CLASS);
+    const expression = el.getAttribute(VD.CLASS) ?? "";
     let applied = new Set<string>();
     const update = () => {
       if (isConditionallyInactive(el)) return;
@@ -202,7 +204,7 @@ function applyStyleBinding(runtime: DirectiveFeatureRuntime) {
   findAll(root, VD.STYLE).forEach(el => {
     if (isInsideForTemplate(el, VD.FOR)) return;
 
-    const expression = el.getAttribute(VD.STYLE);
+    const expression = el.getAttribute(VD.STYLE) ?? "";
     let appliedKeys: string[] = [];
     const update = () => {
       if (isConditionallyInactive(el)) return;
@@ -265,7 +267,7 @@ function applyAttrBinding(runtime: DirectiveFeatureRuntime) {
   findAll(root, VD.ATTR).forEach(el => {
     if (isInsideForTemplate(el, VD.FOR)) return;
 
-    const expression = el.getAttribute(VD.ATTR);
+    const expression = el.getAttribute(VD.ATTR) ?? "";
     let appliedKeys: string[] = [];
     const update = () => {
       if (isConditionallyInactive(el)) return;

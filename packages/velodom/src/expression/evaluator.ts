@@ -9,14 +9,14 @@
  */
 
 import { VD_EXPRESSION } from "../constants.ts";
-import { parseExpression } from "./parser.ts";
+import {
+  parseExpression,
+  type ExpressionNode
+} from "./parser.ts";
 
-const expressionCache = new Map<
-  string,
-  ReturnType<typeof parseExpression>
->();
+const expressionCache = new Map<string, ExpressionNode>();
 
-const safeGlobals = Object.freeze({
+const safeGlobals: Readonly<Record<string, unknown>> = Object.freeze({
   Array,
   Boolean,
   JSON,
@@ -42,11 +42,33 @@ export interface ExpressionScope {
   el?: unknown;
 }
 
+type EvaluationScope = Required<ExpressionScope>;
+type UnaryNode = Extract<ExpressionNode, { type: "UnaryExpression" }>;
+type UpdateNode = Extract<ExpressionNode, { type: "UpdateExpression" }>;
+type LogicalNode = Extract<ExpressionNode, { type: "LogicalExpression" }>;
+type CallNode = Extract<ExpressionNode, { type: "CallExpression" }>;
+type MemberNode = Extract<ExpressionNode, { type: "MemberExpression" }>;
+type WritableNode = Extract<
+  ExpressionNode,
+  { type: "Identifier" | "MemberExpression" }
+>;
+
+interface ResolvedReference {
+  value: unknown;
+  receiver: unknown;
+  optional?: boolean;
+}
+
+interface WritableReference {
+  receiver: Record<string, unknown>;
+  key: string;
+}
+
 /** Parses, caches, and evaluates a safe expression against a scope. */
 export function evaluateExpression(
   source: string,
   scope: ExpressionScope = {}
-) {
+): unknown {
   let ast = expressionCache.get(source);
 
   if (!ast) {
@@ -63,7 +85,10 @@ export function evaluateExpression(
 }
 
 /** Evaluates a previously parsed expression AST. */
-export function evaluateAst(ast, scope: Required<ExpressionScope>) {
+export function evaluateAst(
+  ast: ExpressionNode,
+  scope: EvaluationScope
+): unknown {
   switch (ast.type) {
     case "Literal":
       return ast.value;
@@ -75,7 +100,7 @@ export function evaluateAst(ast, scope: Required<ExpressionScope>) {
       return ast.elements.map(element => evaluateAst(element, scope));
 
     case "ObjectExpression": {
-      const object = {};
+      const object: Record<string, unknown> = {};
 
       ast.properties.forEach(property => {
         assertSafeMember(property.key);
@@ -122,7 +147,7 @@ export function evaluateAst(ast, scope: Required<ExpressionScope>) {
       return evaluateCall(ast, scope);
 
     default:
-      throw new TypeError(`Unsupported expression node "${ast.type}"`);
+      throw new TypeError("Unsupported expression node");
   }
 }
 
@@ -132,7 +157,7 @@ export function clearExpressionCache() {
 }
 
 /** Evaluates the unary. */
-function evaluateUnary(ast, scope) {
+function evaluateUnary(ast: UnaryNode, scope: EvaluationScope): unknown {
   if (ast.operator === "typeof" && ast.argument.type === "Identifier") {
     const reference = resolveIdentifier(ast.argument.name, scope, true);
     return typeof reference.value;
@@ -144,9 +169,9 @@ function evaluateUnary(ast, scope) {
     case "!":
       return !value;
     case "+":
-      return +value;
+      return +(value as number);
     case "-":
-      return -value;
+      return -(value as number);
     case "typeof":
       return typeof value;
     default:
@@ -155,26 +180,30 @@ function evaluateUnary(ast, scope) {
 }
 
 /** Evaluates the binary. */
-function evaluateBinary(operator, left, right) {
+function evaluateBinary(
+  operator: string,
+  left: unknown,
+  right: unknown
+): unknown {
   switch (operator) {
     case "+":
-      return left + right;
+      return (left as number) + (right as number);
     case "-":
-      return left - right;
+      return (left as number) - (right as number);
     case "*":
-      return left * right;
+      return (left as number) * (right as number);
     case "/":
-      return left / right;
+      return (left as number) / (right as number);
     case "%":
-      return left % right;
+      return (left as number) % (right as number);
     case "<":
-      return left < right;
+      return (left as number) < (right as number);
     case "<=":
-      return left <= right;
+      return (left as number) <= (right as number);
     case ">":
-      return left > right;
+      return (left as number) > (right as number);
     case ">=":
-      return left >= right;
+      return (left as number) >= (right as number);
     case "==":
       return left == right;
     case "!=":
@@ -189,7 +218,7 @@ function evaluateBinary(operator, left, right) {
 }
 
 /** Evaluates the update. */
-function evaluateUpdate(ast, scope) {
+function evaluateUpdate(ast: UpdateNode, scope: EvaluationScope): unknown {
   const reference = resolveWritableStateReference(ast.argument, scope);
   const previous = reference.receiver[reference.key];
   const next = ast.operator === "++"
@@ -202,7 +231,7 @@ function evaluateUpdate(ast, scope) {
 }
 
 /** Evaluates the logical. */
-function evaluateLogical(ast, scope) {
+function evaluateLogical(ast: LogicalNode, scope: EvaluationScope): unknown {
   const left = evaluateAst(ast.left, scope);
 
   if (ast.operator === "&&") {
@@ -223,8 +252,8 @@ function evaluateLogical(ast, scope) {
 }
 
 /** Evaluates the call. */
-function evaluateCall(ast, scope) {
-  const reference = ast.callee.type === "MemberExpression"
+function evaluateCall(ast: CallNode, scope: EvaluationScope): unknown {
+  const reference: ResolvedReference = ast.callee.type === "MemberExpression"
     ? resolveMember(ast.callee, scope)
     : ast.callee.type === "Identifier"
       ? resolveIdentifier(ast.callee.name, scope)
@@ -254,7 +283,10 @@ function evaluateCall(ast, scope) {
 }
 
 /** Resolves the member. */
-function resolveMember(ast, scope) {
+function resolveMember(
+  ast: MemberNode,
+  scope: EvaluationScope
+): ResolvedReference {
   const object = evaluateAst(ast.object, scope);
 
   if (object === null || object === undefined) {
@@ -271,20 +303,26 @@ function resolveMember(ast, scope) {
 
   const key = ast.computed
     ? evaluateAst(ast.property, scope)
-    : ast.property.name;
+    : ast.property.type === "Identifier"
+      ? ast.property.name
+      : "";
   const normalizedKey = String(key);
 
   assertSafeMember(normalizedKey);
 
   return {
-    value: object[normalizedKey],
+    value: Reflect.get(Object(object), normalizedKey),
     receiver: object,
     optional: false
   };
 }
 
 /** Resolves the identifier. */
-function resolveIdentifier(name, scope, allowMissing = false) {
+function resolveIdentifier(
+  name: string,
+  scope: EvaluationScope,
+  allowMissing = false
+): ResolvedReference {
   if (VD_EXPRESSION.BLOCKED_IDENTIFIERS.includes(name)) {
     throw new TypeError(`Expression identifier "${name}" is not allowed`);
   }
@@ -328,7 +366,10 @@ function resolveIdentifier(name, scope, allowMissing = false) {
 }
 
 /** Resolves the writable state reference. */
-function resolveWritableStateReference(ast, scope) {
+function resolveWritableStateReference(
+  ast: WritableNode,
+  scope: EvaluationScope
+): WritableReference {
   if (!isStateExpression(ast, scope)) {
     throw new TypeError(
       "Update expressions may only change application state values"
@@ -348,25 +389,34 @@ function resolveWritableStateReference(ast, scope) {
 
   const reference = resolveMember(ast, scope);
 
-  if (reference.optional || reference.receiver === undefined) {
+  if (
+    reference.optional
+    || !reference.receiver
+    || typeof reference.receiver !== "object"
+  ) {
     throw new TypeError("Optional state members cannot be updated");
   }
 
   const key = ast.computed
     ? evaluateAst(ast.property, scope)
-    : ast.property.name;
+    : ast.property.type === "Identifier"
+      ? ast.property.name
+      : "";
 
   assertSafeMember(String(key));
 
   return {
-    receiver: reference.receiver,
+    receiver: reference.receiver as Record<string, unknown>,
     key: String(key)
   };
 }
 
 /** Evaluates the `isStateExpression()` condition for the supplied input. */
-function isStateExpression(ast, scope) {
-  let root = ast;
+function isStateExpression(
+  ast: WritableNode,
+  scope: EvaluationScope
+): boolean {
+  let root: ExpressionNode = ast;
 
   while (root.type === "MemberExpression") {
     root = root.object;
@@ -384,7 +434,7 @@ function isStateExpression(ast, scope) {
 }
 
 /** Validates the safe member. */
-function assertSafeMember(name) {
+function assertSafeMember(name: string): void {
   if (
     String(name).startsWith("__vd")
     || VD_EXPRESSION.BLOCKED_MEMBERS.includes(String(name))

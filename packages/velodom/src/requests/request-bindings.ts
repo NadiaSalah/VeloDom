@@ -16,16 +16,17 @@ import {
   findProtectedStatePathKey,
   normalizeFolderPath
 } from "../shared/path.ts";
+import type { DirectiveState } from "../directives/runtime.ts";
 
-type RequestBindingState = Record<string, unknown> & {
+type RequestBindingState = DirectiveState & {
   __vdPageName?: string;
   $allowExternalWrite?: string[];
 };
 
 interface RequestBindingContext {
   page?: string;
-  getPageState?: (pageName: string) => RequestBindingState;
-  hasPage?: (pageName: string) => boolean;
+  getPageState?: ((pageName: string) => RequestBindingState) | null;
+  hasPage?: ((pageName: string) => boolean) | null;
 }
 
 interface RequestBindingProblemOptions {
@@ -359,7 +360,9 @@ function resolveAbsoluteBinding(
     };
   }
 
-  if (Object.hasOwn(currentState, parts[0])) {
+  const first = parts[0];
+
+  if (first && Object.hasOwn(currentState, first)) {
     return {
       state: currentState,
       path: parts.join("."),
@@ -367,7 +370,11 @@ function resolveAbsoluteBinding(
     };
   }
 
-  const pageName = parts[0];
+  const pageName = first;
+
+  if (!pageName) {
+    return null;
+  }
 
   if (context.hasPage && !context.hasPage(pageName)) {
     return report(meta, `Target page "${pageName}" does not exist`, {
@@ -416,6 +423,9 @@ function deriveRequestStatusPath(
     : VD_REQUEST.STATUS_SUFFIXES.ERROR;
   const last = segments.pop();
   const resultSuffix = VD_REQUEST.STATUS_SUFFIXES.RESULT;
+
+  if (!last) return "";
+
   const base = last.endsWith(resultSuffix)
     ? last.slice(0, -resultSuffix.length)
     : last;

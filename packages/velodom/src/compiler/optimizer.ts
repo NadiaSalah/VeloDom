@@ -12,6 +12,7 @@ import {
   VD_COMPILER_FEATURES,
   VD_COMPILER_OPTIMIZER_RESULT_KEYS
 } from "../constants.ts";
+import { getThrownString } from "../shared/thrown.ts";
 import type {
   DirectiveMetadata,
   RuntimeFeatureManifest,
@@ -91,9 +92,7 @@ export function runTemplateOptimizers(
     try {
       patch = optimizer.optimize(current, optimizerContext);
     } catch (error) {
-      const message = error instanceof Error && error.message
-        ? error.message
-        : String(error);
+      const message = getThrownString(error, "message", String(error));
 
       throw new Error(
         `VeloDom template optimizer "${optimizer.name}" failed: ${message}`,

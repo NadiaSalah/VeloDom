@@ -276,9 +276,12 @@ layer, or unproven analysis.
   - [x] Migrate the compiler implementation and optimizer pipeline, including
     the safe expression parser and `.vd` source-position helpers reached by the
     public compiler entry.
-  - [ ] Migrate directive features and expression/runtime integration.
+  - [x] Migrate directive features and expression/runtime integration,
+    including the auth, middleware, binding, and request-router dependencies
+    reached by the declarative request feature.
   - [ ] Migrate mount, router, resource adapters, and page data.
-  - [ ] Migrate requests, CLI/project intelligence, and scaffolder modules.
+  - [ ] Migrate CLI/project intelligence and scaffolder modules. Request
+    runtime dependencies are covered by the directive integration slice above.
 - [ ] Create one internal, build-time Project Index with source locations and
   compiler metadata. Existing CLI, language tools, generated declarations,
   documentation, graph, health, and Lab views must consume it incrementally

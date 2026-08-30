@@ -13,6 +13,10 @@ import {
   VD_REQUEST
 } from "../constants.ts";
 import { isPlainObject } from "../shared/object.ts";
+import {
+  getThrownString,
+  hasThrownProperty
+} from "../shared/thrown.ts";
 import type {
   AuthProvider,
   AuthSessionPayload,
@@ -163,12 +167,19 @@ export async function resolveRequestSession(
       options: authConfig.options || {}
     });
   } catch (error) {
-    if (error?.name === "AbortError" || error?.__vdStage) {
+    if (
+      getThrownString(error, "name") === "AbortError"
+      || hasThrownProperty(error, "__vdStage")
+    ) {
       throw error;
     }
 
     throw createAuthError(
-      error?.message || `Auth provider "${authConfig.provider}" failed`,
+      getThrownString(
+        error,
+        "message",
+        `Auth provider "${authConfig.provider}" failed`
+      ),
       `Check the "${authConfig.provider}" auth provider implementation.`,
       error
     );
@@ -200,12 +211,16 @@ export function createServerSessionAuthProvider(
         }
       });
     } catch (error) {
-      if (error?.name === "AbortError") {
+      if (getThrownString(error, "name") === "AbortError") {
         throw error;
       }
 
       throw createAuthError(
-        error?.message || `Auth session request failed for ${options.sessionUrl}`,
+        getThrownString(
+          error,
+          "message",
+          `Auth session request failed for ${options.sessionUrl}`
+        ),
         "Check the session endpoint, network connection, and CORS credentials configuration.",
         error
       );

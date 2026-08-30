@@ -16,6 +16,9 @@ import {
 import { reportUserActionError } from "../errors/error-reporter.ts";
 import { isPlainObject } from "../shared/object.ts";
 import {
+  getThrownString
+} from "../shared/thrown.ts";
+import {
   createAuthRuntime,
   getDefaultAuthSessionUrl,
   normalizeRequestAuthConfig,
@@ -38,7 +41,11 @@ import type {
 } from "../errors/error-reporter.ts";
 import type {
   RequestContext,
-  RequestHookOptions
+  RequestHookOptions,
+  RequestLifecyclePayload,
+  RouteHandler,
+  StateRecord,
+  UnknownRecord
 } from "../types.ts";
 import type {
   DirectiveCleanup,
@@ -88,12 +95,70 @@ interface RequestDirectiveHelpers {
   ): void;
 }
 
-const activeRequests = new WeakMap();
-const activeTargetRequests = new WeakMap();
-const pendingRequestTimers = new WeakMap();
-const requestThrottleWindows = new WeakMap();
-let apiRoutes = Object.create(null);
-let appRequestMiddleware = Object.create(null);
+type RequestEvaluate = RequestDirectiveHelpers["evaluate"];
+type RequestWriteValue = RequestDirectiveHelpers["writeValue"];
+type RequestConfig = UnknownRecord;
+type RequestSession = Awaited<ReturnType<typeof resolveRequestSession>>;
+type ResolvedRequestBinding = NonNullable<
+  ReturnType<typeof resolveRequestBinding>
+>;
+type NormalizedAuthConfig = NonNullable<
+  ReturnType<typeof normalizeRequestAuthConfig>
+>;
+
+interface NormalizedRouteConfig {
+  name: string;
+  handler: RouteHandler;
+  auth: NormalizedAuthConfig;
+  authRedirect: string;
+  roles: string[];
+  middleware: unknown[];
+}
+
+interface ActiveRequest {
+  controller: AbortController;
+  routeName: string;
+  targetState: DirectiveState | null;
+  targetPath: string;
+}
+
+interface PendingRequestTimer {
+  timer: ReturnType<typeof setTimeout>;
+}
+
+interface RequestDelayProblemOptions extends RequestProblemOptions {
+  state: RequestDirectiveState;
+  el: Element;
+  routeName: string;
+  directive: string;
+  expression: unknown;
+  message: string;
+  title: string;
+  hint: string;
+}
+
+interface RequestAuthorizationContext {
+  signal: AbortSignal;
+  state: RequestDirectiveState;
+  el: Element;
+}
+
+interface RequestExecutionOptions {
+  routeConfig: NormalizedRouteConfig;
+  params: StateRecord;
+  requestContext: RequestContext;
+  retryOptions: RequestRetryRuntimeOptions;
+}
+
+const activeRequests = new WeakMap<Element, ActiveRequest>();
+const activeTargetRequests = new WeakMap<
+  DirectiveState,
+  Map<string, ActiveRequest>
+>();
+const pendingRequestTimers = new WeakMap<Element, PendingRequestTimer>();
+const requestThrottleWindows = new WeakMap<Element, number>();
+let apiRoutes: UnknownRecord = Object.create(null);
+let appRequestMiddleware: UnknownRecord = Object.create(null);
 let requestHooks: RequestHookOptions = {};
 let authRuntime = createAuthRuntime();
 
@@ -141,7 +206,7 @@ export function applyRequests(
       const isForm = el.tagName === "FORM";
       const eventName = isForm ? "submit" : "click";
 
-      const handler = (event) => {
+      const handler = (event: Event) => {
         event.preventDefault();
 
         scheduleRequestDirective(
@@ -166,7 +231,14 @@ export function applyRequests(
 }
 
 /** Schedules the request directive. */
-function scheduleRequestDirective(el, state, context, event, evaluate, writeValue) {
+function scheduleRequestDirective(
+  el: Element,
+  state: RequestDirectiveState,
+  context: DirectiveRuntimeContext,
+  event: Event,
+  evaluate: RequestEvaluate,
+  writeValue: RequestWriteValue
+): void {
   const routeName = (el.getAttribute(VD.REQUEST) || "").trim();
 
   if (!routeName || !hasApiRoute(routeName)) {
@@ -190,7 +262,7 @@ function scheduleRequestDirective(el, state, context, event, evaluate, writeValu
     routeName
   );
 
-  if (requestConfig === VD_INTERNAL.REQUEST_ABORT) {
+  if (isRequestAbort(requestConfig)) {
     return;
   }
 
@@ -204,7 +276,7 @@ function scheduleRequestDirective(el, state, context, event, evaluate, writeValu
     routeName
   );
 
-  if (throttleMs === VD_INTERNAL.REQUEST_ABORT) {
+  if (isRequestAbort(throttleMs)) {
     return;
   }
 
@@ -218,7 +290,7 @@ function scheduleRequestDirective(el, state, context, event, evaluate, writeValu
     routeName
   );
 
-  if (debounceMs === VD_INTERNAL.REQUEST_ABORT) {
+  if (isRequestAbort(debounceMs)) {
     return;
   }
 
@@ -256,7 +328,14 @@ function scheduleRequestDirective(el, state, context, event, evaluate, writeValu
 }
 
 /** Runs the request directive. */
-async function runRequestDirective(el, state, context, event, evaluate, writeValue) {
+async function runRequestDirective(
+  el: Element,
+  state: RequestDirectiveState,
+  context: DirectiveRuntimeContext,
+  event: Event,
+  evaluate: RequestEvaluate,
+  writeValue: RequestWriteValue
+): Promise<void> {
   const routeName = (el.getAttribute(VD.REQUEST) || "").trim();
 
   if (!routeName) {
@@ -282,7 +361,7 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
 
   const requestConfig = getRequestConfig(el, state, context, event, evaluate, routeName);
 
-  if (requestConfig === VD_INTERNAL.REQUEST_ABORT) {
+  if (isRequestAbort(requestConfig)) {
     return;
   }
 
@@ -305,7 +384,7 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
     evaluate
   );
 
-  if (params === VD_INTERNAL.REQUEST_ABORT) {
+  if (isRequestAbort(params)) {
     reportRequestDirectiveProblem(state, el, routeName, "vd-params must return an object", {
       title: "Invalid Request Params",
       directive: VD.PARAMS,
@@ -401,11 +480,11 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
     target: targetBinding.path || null
   });
 
-  if (errorBinding.path) {
+  if (errorBinding.path && errorBinding.state) {
     writeValue(errorBinding.path, errorBinding.state, "");
   }
 
-  if (loadingBinding.path) {
+  if (loadingBinding.path && loadingBinding.state) {
     writeValue(loadingBinding.path, loadingBinding.state, true);
   }
 
@@ -481,7 +560,7 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
       return;
     }
 
-    if (targetBinding.path) {
+    if (targetBinding.path && targetBinding.state) {
       writeValue(targetBinding.path, targetBinding.state, result);
     }
 
@@ -496,16 +575,24 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
     await runAfterRequestHook(successPayload);
     devtoolsStatus = "success";
   } catch (err) {
-    if (!isLatestRequest(el, activeRequest) || err?.name === "AbortError") {
+    if (
+      !isLatestRequest(el, activeRequest)
+      || getThrownString(err, "name") === "AbortError"
+    ) {
       devtoolsStatus = "aborted";
       return;
     }
 
     devtoolsStatus = "error";
 
-    const message = err?.message || "Request failed";
+    const message = getThrownString(err, "message", "Request failed");
+    const stage = getThrownString(
+      err,
+      "__vdStage",
+      VD_REQUEST.STAGES.REQUEST
+    );
 
-    if (errorBinding.path) {
+    if (errorBinding.path && errorBinding.state) {
       writeValue(errorBinding.path, errorBinding.state, message);
     }
 
@@ -516,21 +603,25 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
       file: "velodom/requests/request-router.ts",
       line: 177,
       el,
-      hint: err?.__vdHint || "Verify the route config, auth mode, application middleware, and request params."
+      hint: getThrownString(
+        err,
+        "__vdHint",
+        "Verify the route config, auth mode, application middleware, and request params."
+      )
     });
 
     devtools?.emit("request:error", {
       durationMs: readPerformanceTime() - devtoolsStartedAt,
       message,
       route: routeName,
-      stage: err?.__vdStage || VD_REQUEST.STAGES.REQUEST
+      stage
     });
 
     state.emit?.(VD_REQUEST.EVENTS.ERROR, {
       route: routeName,
       error: err,
       message: reported.message,
-      stage: err?.__vdStage || VD_REQUEST.STAGES.REQUEST,
+      stage,
       element: el
     });
 
@@ -548,10 +639,14 @@ async function runRequestDirective(el, state, context, event, evaluate, writeVal
       signal: activeRequest.controller.signal,
       error: err,
       ok: false,
-      stage: err?.__vdStage || VD_REQUEST.STAGES.REQUEST
+      stage
     });
   } finally {
-    if (isLatestRequest(el, activeRequest) && loadingBinding.path) {
+    if (
+      isLatestRequest(el, activeRequest)
+      && loadingBinding.path
+      && loadingBinding.state
+    ) {
       writeValue(loadingBinding.path, loadingBinding.state, false);
     }
 
@@ -569,8 +664,20 @@ function readPerformanceTime() {
   return globalThis.performance?.now?.() ?? Date.now();
 }
 
+/** Returns whether a request helper returned the shared abort sentinel. */
+function isRequestAbort(value: unknown): value is symbol {
+  return value === VD_INTERNAL.REQUEST_ABORT;
+}
+
 /** Returns the request params. */
-function getRequestParams(el, state, context, paramsInput, event, evaluate) {
+function getRequestParams(
+  el: Element,
+  state: RequestDirectiveState,
+  context: DirectiveRuntimeContext,
+  paramsInput: unknown,
+  event: Event,
+  evaluate: RequestEvaluate
+): StateRecord | symbol {
   const form = getRequestForm(el);
   const formParams = form
     ? readFormValues(form)
@@ -597,7 +704,14 @@ function getRequestParams(el, state, context, paramsInput, event, evaluate) {
 }
 
 /** Returns the request config. */
-function getRequestConfig(el, state, context, event, evaluate, routeName) {
+function getRequestConfig(
+  el: Element,
+  state: RequestDirectiveState,
+  context: DirectiveRuntimeContext,
+  event: Event,
+  evaluate: RequestEvaluate,
+  routeName: string
+): RequestConfig | symbol {
   const expression = (el.getAttribute(VD.REQUEST_CONFIG) || "").trim();
 
   if (!expression) {
@@ -752,7 +866,7 @@ function getRequestConfig(el, state, context, event, evaluate, routeName) {
 }
 
 /** Normalizes the request hooks. */
-function normalizeRequestHooks(value) {
+function normalizeRequestHooks(value: unknown): RequestHookOptions {
   if (value === undefined || value === null) return {};
 
   if (!isPlainObject(value)) {
@@ -780,13 +894,13 @@ function normalizeRequestHooks(value) {
 
 /** Creates the request lifecycle payload. */
 function createRequestLifecyclePayload(
-  routeName,
-  params,
-  state,
-  el,
-  session,
-  signal
-) {
+  routeName: string,
+  params: StateRecord,
+  state: RequestDirectiveState,
+  el: Element,
+  session: RequestSession,
+  signal: AbortSignal
+): RequestLifecyclePayload {
   return {
     route: routeName,
     routeName,
@@ -799,7 +913,9 @@ function createRequestLifecyclePayload(
 }
 
 /** Runs the before request hook. */
-function runBeforeRequestHook(payload) {
+function runBeforeRequestHook(
+  payload: RequestLifecyclePayload
+): boolean | Promise<boolean> {
   if (typeof requestHooks.beforeRequest !== "function") return true;
 
   const result = requestHooks.beforeRequest(payload);
@@ -812,14 +928,19 @@ function runBeforeRequestHook(payload) {
 }
 
 /** Runs the after request hook. */
-async function runAfterRequestHook(payload) {
+async function runAfterRequestHook(
+  payload: RequestLifecyclePayload
+): Promise<void> {
   if (typeof requestHooks.afterRequest !== "function") return;
 
   await requestHooks.afterRequest(payload);
 }
 
 /** Runs the request success callback. */
-async function runRequestSuccessCallback(requestConfig, payload) {
+async function runRequestSuccessCallback(
+  requestConfig: RequestConfig,
+  payload: RequestLifecyclePayload
+): Promise<void> {
   if (typeof requestConfig?.onSuccess !== "function") return;
 
   await requestConfig.onSuccess(payload);
@@ -831,7 +952,7 @@ async function executeRequestWithRetry({
   params,
   requestContext,
   retryOptions
-}) {
+}: RequestExecutionOptions) {
   let failures = 0;
 
   for (;;) {
@@ -850,7 +971,7 @@ async function executeRequestWithRetry({
       if (
         failures >= retryOptions.retries
         || requestContext.signal?.aborted
-        || error?.name === "AbortError"
+        || getThrownString(error, "name") === "AbortError"
       ) {
         throw error;
       }
@@ -866,7 +987,7 @@ async function executeRequestWithRetry({
 
 /** Returns the request retry options. */
 function getRequestRetryOptions(
-  requestConfig
+  requestConfig: RequestConfig
 ): RequestRetryRuntimeOptions {
   const retryKey = VD_REQUEST.RETRY_KEYS.find(name => (
     requestConfig?.[name] !== undefined
@@ -886,7 +1007,10 @@ function getRequestRetryOptions(
 }
 
 /** Returns the auth redirect target. */
-function getAuthRedirectTarget(requestConfig, routeConfig) {
+function getAuthRedirectTarget(
+  requestConfig: RequestConfig,
+  routeConfig: NormalizedRouteConfig
+): string {
   const requestKey = VD_REQUEST.AUTH_REDIRECT_KEYS.find(name => (
     requestConfig?.[name] !== undefined
   ));
@@ -899,7 +1023,7 @@ function getAuthRedirectTarget(requestConfig, routeConfig) {
 }
 
 /** Normalizes the auth redirect path. */
-function normalizeAuthRedirectPath(value) {
+function normalizeAuthRedirectPath(value: unknown): string | null {
   if (value === undefined || value === null || value === "") return "";
 
   const path = String(value).trim();
@@ -912,9 +1036,13 @@ function normalizeAuthRedirectPath(value) {
 }
 
 /** Evaluates the `shouldRedirectAuthFailure()` condition for the supplied input. */
-function shouldRedirectAuthFailure(err, target, context) {
+function shouldRedirectAuthFailure(
+  err: unknown,
+  target: string,
+  context: DirectiveRuntimeContext
+): boolean {
   return (
-    err?.__vdStage === VD_REQUEST.STAGES.AUTH
+    getThrownString(err, "__vdStage") === VD_REQUEST.STAGES.AUTH
     && Boolean(target)
     && typeof context.navigate === "function"
   );
@@ -922,14 +1050,14 @@ function shouldRedirectAuthFailure(err, target, context) {
 
 /** Returns the request throttle ms. */
 function getRequestThrottleMs(
-  el,
-  requestConfig,
-  state,
-  context,
-  event,
-  evaluate,
-  routeName
-) {
+  el: Element,
+  requestConfig: RequestConfig,
+  state: RequestDirectiveState,
+  context: DirectiveRuntimeContext,
+  event: Event,
+  evaluate: RequestEvaluate,
+  routeName: string
+): number | symbol {
   if (el.hasAttribute(VD.THROTTLE)) {
     const expression = (el.getAttribute(VD.THROTTLE) || "").trim();
     const evaluated = expression
@@ -970,14 +1098,14 @@ function getRequestThrottleMs(
 
 /** Returns the request debounce ms. */
 function getRequestDebounceMs(
-  el,
-  requestConfig,
-  state,
-  context,
-  event,
-  evaluate,
-  routeName
-) {
+  el: Element,
+  requestConfig: RequestConfig,
+  state: RequestDirectiveState,
+  context: DirectiveRuntimeContext,
+  event: Event,
+  evaluate: RequestEvaluate,
+  routeName: string
+): number | symbol {
   if (el.hasAttribute(VD.DEBOUNCE)) {
     const expression = (el.getAttribute(VD.DEBOUNCE) || "").trim();
     const evaluated = expression
@@ -1017,7 +1145,10 @@ function getRequestDebounceMs(
 }
 
 /** Normalizes the request delay. */
-function normalizeRequestDelay(value, options) {
+function normalizeRequestDelay(
+  value: unknown,
+  options: RequestDelayProblemOptions
+): number | symbol {
   if (isValidRequestDelay(value)) {
     return Number(value);
   }
@@ -1039,7 +1170,7 @@ function normalizeRequestDelay(value, options) {
 }
 
 /** Evaluates the `isValidRequestDelay()` condition for the supplied input. */
-function isValidRequestDelay(value) {
+function isValidRequestDelay(value: unknown): value is number {
   return (
     typeof value === "number"
     && Number.isFinite(value)
@@ -1048,7 +1179,7 @@ function isValidRequestDelay(value) {
 }
 
 /** Evaluates the `isValidRequestRetryCount()` condition for the supplied input. */
-function isValidRequestRetryCount(value) {
+function isValidRequestRetryCount(value: unknown): boolean {
   return (
     typeof value === "boolean"
     || (
@@ -1059,7 +1190,7 @@ function isValidRequestRetryCount(value) {
 }
 
 /** Normalizes the request retry count. */
-function normalizeRequestRetryCount(value) {
+function normalizeRequestRetryCount(value: unknown): number {
   if (value === true) return 1;
   if (value === false || value === undefined) return 0;
 
@@ -1067,7 +1198,10 @@ function normalizeRequestRetryCount(value) {
 }
 
 /** Waits for the for retry delay. */
-function waitForRetryDelay(ms, signal) {
+function waitForRetryDelay(
+  ms: number,
+  signal?: AbortSignal
+): Promise<void> {
   if (!signal) {
     return new Promise(resolve => {
       setTimeout(resolve, ms);
@@ -1078,26 +1212,28 @@ function waitForRetryDelay(ms, signal) {
     return Promise.reject(createRequestAbortError());
   }
 
+  const abortSignal = signal;
+
   return new Promise((resolve, reject) => {
     /** Aborts the active operation. */
     function abort() {
       clearTimeout(timer);
-      signal.removeEventListener("abort", abort);
+      abortSignal.removeEventListener("abort", abort);
       reject(createRequestAbortError());
     }
 
     const timer = setTimeout(() => {
-      signal.removeEventListener("abort", abort);
+      abortSignal.removeEventListener("abort", abort);
       resolve(undefined);
     }, ms);
-    signal.addEventListener("abort", abort, {
+    abortSignal.addEventListener("abort", abort, {
       once: true
     });
   });
 }
 
 /** Creates the request abort error. */
-function createRequestAbortError() {
+function createRequestAbortError(): Error {
   const error = new Error("Request aborted");
 
   error.name = "AbortError";
@@ -1105,7 +1241,10 @@ function createRequestAbortError() {
 }
 
 /** Returns the request params input. */
-function getRequestParamsInput(el, requestConfig) {
+function getRequestParamsInput(
+  el: Element,
+  requestConfig: RequestConfig
+): unknown {
   if (el.hasAttribute(VD.PARAMS)) {
     return (el.getAttribute(VD.PARAMS) || "").trim();
   }
@@ -1114,7 +1253,10 @@ function getRequestParamsInput(el, requestConfig) {
 }
 
 /** Evaluates the `hasRequestStateAutomation()` condition for the supplied input. */
-function hasRequestStateAutomation(el, requestConfig) {
+function hasRequestStateAutomation(
+  el: Element,
+  requestConfig: RequestConfig
+): boolean {
   return el.hasAttribute(VD.REQUEST_STATE)
     || el.hasAttribute(VD.AUTO_STATE)
     || requestConfig?.autoState === true
@@ -1122,7 +1264,12 @@ function hasRequestStateAutomation(el, requestConfig) {
 }
 
 /** Returns the request config text. */
-function getRequestConfigText(el, requestConfig, key, attributeName) {
+function getRequestConfigText(
+  el: Element,
+  requestConfig: RequestConfig,
+  key: string,
+  attributeName: string
+): string {
   if (el.hasAttribute(attributeName)) {
     return (el.getAttribute(attributeName) || "").trim();
   }
@@ -1141,16 +1288,23 @@ function getRequestConfigText(el, requestConfig, key, attributeName) {
 }
 
 /** Reads the form values. */
-function readFormValues(form) {
+function readFormValues(
+  form: HTMLFormElement
+): Record<string, FormDataEntryValue | FormDataEntryValue[]> {
   const formData = new FormData(form);
-  const values = {};
+  const values: Record<
+    string,
+    FormDataEntryValue | FormDataEntryValue[]
+  > = {};
 
   [...formData.entries()].forEach(([key, value]) => {
-    if (key in values) {
-      if (Array.isArray(values[key])) {
-        values[key].push(value);
+    const existing = values[key];
+
+    if (existing !== undefined) {
+      if (Array.isArray(existing)) {
+        existing.push(value);
       } else {
-        values[key] = [values[key], value];
+        values[key] = [existing, value];
       }
 
       return;
@@ -1163,12 +1317,12 @@ function readFormValues(form) {
 }
 
 /** Returns the request form. */
-function getRequestForm(el) {
+function getRequestForm(el: Element): HTMLFormElement | null {
   if (el.tagName === "FORM") {
-    return el;
+    return el as HTMLFormElement;
   }
 
-  if (el.form) {
+  if ("form" in el && el.form instanceof HTMLFormElement) {
     return el.form;
   }
 
@@ -1176,7 +1330,11 @@ function getRequestForm(el) {
 }
 
 /** Begins the request. */
-function beginRequest(el, targetBinding, routeName) {
+function beginRequest(
+  el: Element,
+  targetBinding: ResolvedRequestBinding,
+  routeName: string
+): ActiveRequest {
   const previousElementRequest = activeRequests.get(el);
   previousElementRequest?.controller.abort();
 
@@ -1205,7 +1363,7 @@ function beginRequest(el, targetBinding, routeName) {
 }
 
 /** Cancels the element request. */
-function cancelElementRequest(el) {
+function cancelElementRequest(el: Element): void {
   const request = activeRequests.get(el);
 
   if (!request) return;
@@ -1215,7 +1373,7 @@ function cancelElementRequest(el) {
 }
 
 /** Cancels the pending request. */
-function cancelPendingRequest(el) {
+function cancelPendingRequest(el: Element): void {
   const pending = pendingRequestTimers.get(el);
 
   if (!pending) return;
@@ -1225,7 +1383,7 @@ function cancelPendingRequest(el) {
 }
 
 /** Consumes the request throttle. */
-function consumeRequestThrottle(el, throttleMs) {
+function consumeRequestThrottle(el: Element, throttleMs: number): boolean {
   if (throttleMs <= 0) return true;
 
   const now = Date.now();
@@ -1240,12 +1398,12 @@ function consumeRequestThrottle(el, throttleMs) {
 }
 
 /** Clears the request throttle. */
-function clearRequestThrottle(el) {
+function clearRequestThrottle(el: Element): void {
   requestThrottleWindows.delete(el);
 }
 
 /** Finishes the request. */
-function finishRequest(el, request) {
+function finishRequest(el: Element, request: ActiveRequest): void {
   if (activeRequests.get(el) === request) {
     activeRequests.delete(el);
   }
@@ -1260,7 +1418,7 @@ function finishRequest(el, request) {
 }
 
 /** Evaluates the `isLatestRequest()` condition for the supplied input. */
-function isLatestRequest(el, request) {
+function isLatestRequest(el: Element, request: ActiveRequest): boolean {
   if (activeRequests.get(el) !== request) {
     return false;
   }
@@ -1275,7 +1433,9 @@ function isLatestRequest(el, request) {
 }
 
 /** Returns the target request map. */
-function getTargetRequestMap(state) {
+function getTargetRequestMap(
+  state: DirectiveState
+): Map<string, ActiveRequest> {
   let requests = activeTargetRequests.get(state);
 
   if (!requests) {
@@ -1287,20 +1447,29 @@ function getTargetRequestMap(state) {
 }
 
 /** Resolves the route config. */
-function resolveRouteConfig(routeName, state, el) {
-  const raw = apiRoutes?.[routeName];
+function resolveRouteConfig(
+  routeName: string,
+  state: RequestDirectiveState,
+  el: Element
+): NormalizedRouteConfig | null {
+  const raw = apiRoutes[routeName];
 
   if (typeof raw === "function") {
+    const auth = normalizeRequestAuthConfig(false, authRuntime);
+
+    if (!auth) return null;
+
     return {
       name: routeName,
-      handler: raw,
-      auth: normalizeRequestAuthConfig(false, authRuntime),
+      handler: raw as RouteHandler,
+      auth,
+      authRedirect: "",
       roles: [],
       middleware: []
     };
   }
 
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+  if (!isPlainObject(raw)) {
     reportRequestDirectiveProblem(state, el, routeName, `Route "${routeName}" has an invalid config`, {
       title: "Invalid Route Config",
       directive: VD.REQUEST,
@@ -1333,12 +1502,16 @@ function resolveRouteConfig(routeName, state, el) {
   const authRedirect = normalizeRouteAuthRedirect(raw, routeName, state, el);
   if (authRedirect === null) return null;
 
+  const effectiveAuth = roles.length > 0 && !auth.enabled
+    ? normalizeRequestAuthConfig(true, authRuntime)
+    : auth;
+
+  if (!effectiveAuth) return null;
+
   return {
     name: routeName,
-    handler: raw.handler,
-    auth: roles.length > 0 && !auth.enabled
-      ? normalizeRequestAuthConfig(true, authRuntime)
-      : auth,
+    handler: raw.handler as RouteHandler,
+    auth: effectiveAuth,
     authRedirect,
     roles,
     middleware
@@ -1346,7 +1519,12 @@ function resolveRouteConfig(routeName, state, el) {
 }
 
 /** Normalizes the route auth redirect. */
-function normalizeRouteAuthRedirect(raw, routeName, state, el) {
+function normalizeRouteAuthRedirect(
+  raw: UnknownRecord,
+  routeName: string,
+  state: RequestDirectiveState,
+  el: Element
+): string | null {
   const key = VD_REQUEST.AUTH_REDIRECT_KEYS.find(name => (
     raw[name] !== undefined
   ));
@@ -1369,7 +1547,12 @@ function normalizeRouteAuthRedirect(raw, routeName, state, el) {
 }
 
 /** Normalizes the route auth. */
-function normalizeRouteAuth(value, routeName, state, el) {
+function normalizeRouteAuth(
+  value: unknown,
+  routeName: string,
+  state: RequestDirectiveState,
+  el: Element
+): NormalizedAuthConfig | null {
   const auth = normalizeRequestAuthConfig(value, authRuntime);
 
   if (auth) {
@@ -1388,7 +1571,12 @@ function normalizeRouteAuth(value, routeName, state, el) {
 }
 
 /** Normalizes the route roles. */
-function normalizeRouteRoles(value, routeName, state, el) {
+function normalizeRouteRoles(
+  value: unknown,
+  routeName: string,
+  state: RequestDirectiveState,
+  el: Element
+): string[] | null {
   if (value === undefined) {
     return [];
   }
@@ -1423,7 +1611,12 @@ function normalizeRouteRoles(value, routeName, state, el) {
 }
 
 /** Normalizes the route middleware. */
-function normalizeRouteMiddleware(value, routeName, state, el) {
+function normalizeRouteMiddleware(
+  value: unknown,
+  routeName: string,
+  state: RequestDirectiveState,
+  el: Element
+): unknown[] | null {
   if (value === undefined) {
     return [];
   }
@@ -1450,7 +1643,10 @@ function normalizeRouteMiddleware(value, routeName, state, el) {
 }
 
 /** Authorizes the route request. */
-async function authorizeRouteRequest(routeConfig, context) {
+async function authorizeRouteRequest(
+  routeConfig: NormalizedRouteConfig,
+  context: RequestAuthorizationContext
+): Promise<RequestSession> {
   if (!routeConfig.auth.enabled) {
     return null;
   }
@@ -1488,12 +1684,12 @@ async function authorizeRouteRequest(routeConfig, context) {
 
 /** Reports the request directive problem. */
 function reportRequestDirectiveProblem(
-  state,
-  el,
-  routeName,
-  error,
+  state: RequestDirectiveState | undefined,
+  el: Element | undefined,
+  routeName: string | undefined,
+  error: unknown,
   options: RequestProblemOptions = {}
-) {
+): null {
   const problem = error instanceof Error
     ? error
     : new Error(String(error || "Invalid request configuration"));
@@ -1526,7 +1722,11 @@ function reportRequestDirectiveProblem(
 }
 
 /** Creates the stage error. */
-function createStageError(stage, message, hint = "") {
+function createStageError(
+  stage: string,
+  message: string,
+  hint = ""
+): Error {
   const error = new Error(message);
 
   error.__vdStage = stage;
@@ -1536,12 +1736,14 @@ function createStageError(stage, message, hint = "") {
 }
 
 /** Returns the request error title. */
-function getRequestErrorTitle(error) {
-  if (error?.__vdStage === VD_REQUEST.STAGES.AUTH) {
+function getRequestErrorTitle(error: unknown): string {
+  const stage = getThrownString(error, "__vdStage");
+
+  if (stage === VD_REQUEST.STAGES.AUTH) {
     return "Request Authorization Failed";
   }
 
-  if (error?.__vdStage === VD_REQUEST.STAGES.MIDDLEWARE) {
+  if (stage === VD_REQUEST.STAGES.MIDDLEWARE) {
     return "Request Middleware Failed";
   }
 
@@ -1549,20 +1751,20 @@ function getRequestErrorTitle(error) {
 }
 
 /** Evaluates the `hasApiRoute()` condition for the supplied input. */
-function hasApiRoute(name) {
+function hasApiRoute(name: string): boolean {
   return Object.hasOwn(apiRoutes, name);
 }
 
 /** Lists the registered API routes. */
-function listApiRoutes() {
+function listApiRoutes(): string[] {
   return Object.keys(apiRoutes || {});
 }
 
 /** Calls the selected API route. */
 function callApiRoute(
-  routeConfig,
-  params = {},
+  routeConfig: NormalizedRouteConfig,
+  params: StateRecord = {},
   context: RequestContext = {}
-) {
+): ReturnType<RouteHandler> {
   return routeConfig.handler(params, context);
 }

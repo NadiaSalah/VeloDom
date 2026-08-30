@@ -326,8 +326,11 @@ function shouldMountChildren(
   );
 }
 
-/** Returns the props. */
-function getProps(el, parentState) {
+/** Returns component props collected from object and attribute bindings. */
+function getProps(
+  el: HTMLElement,
+  parentState: ComponentState | null
+): UnknownRecord {
 
   const props = parsePropsObject(
     el.getAttribute(VD.PROPS),
@@ -349,7 +352,7 @@ function getProps(el, parentState) {
     if (attr.name.startsWith(VD.PROP)) return;
     if (attr.name === VD.PROPS) return;
 
-    const ignore = [
+    const ignore: readonly string[] = [
       VD.REF,
       VD.IF,
       VD.SHOW,
@@ -398,8 +401,11 @@ function getProps(el, parentState) {
   return props;
 }
 
-/** Parses the props object. */
-function parsePropsObject(expression, state) {
+/** Parses an optional object expression used by `vd-props`. */
+function parsePropsObject(
+  expression: string | null,
+  state: ComponentState | null
+): UnknownRecord {
   if (!expression) return {};
 
   try {
@@ -411,7 +417,7 @@ function parsePropsObject(expression, state) {
       return {};
     }
 
-    return result;
+    return result as UnknownRecord;
   } catch (err) {
     reportUserActionError(err, {
       title: "Invalid Component Props Expression",

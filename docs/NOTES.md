@@ -106,10 +106,20 @@
   boundary. It covers shared/public contracts, low-dependency authoring,
   lifecycle, plugin, reactive, ref, compiler/devtools protocol modules, the
   build-time compiler cache, compiler and optimizer implementations, the safe
-  expression parser, language-service compiler path, and `.vd` source helpers.
-  Both `npm run check` and package builds execute it. Future slices must expand
-  this file rather than create competing strict configs or weaken checks
-  already enabled there.
+  expression parser/evaluator, directive registry and feature modules, the
+  declarative request path's auth/middleware/binding/router dependencies,
+  language-service compiler path, and `.vd` source helpers. Both `npm run check`
+  and package builds execute it. Future slices must expand this file rather than
+  create competing strict configs or weaken checks already enabled there.
+- Directive registration reaches request routing through the lazy declarative
+  request feature. That dependency belongs to the same strict slice: hiding it
+  with unchecked imports would leave the runtime boundary weaker than the
+  compiler boundary. Mount/page routing/resource adapters/page data and
+  CLI/scaffolding remain separate later slices.
+- Unknown caught values are inspected through `shared/thrown.ts`. Compiler and
+  request modules must not duplicate unsafe property access or assume every
+  thrown value is an `Error`; source metadata from structured failures remains
+  available when present.
 - Directive feature modules are lazy dynamic imports. A bundler may emit their
   small standalone chunks so they remain available to dynamically discovered
   pages, while compiler manifests determine which chunks the application

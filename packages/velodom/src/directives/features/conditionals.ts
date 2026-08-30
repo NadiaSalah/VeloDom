@@ -16,7 +16,11 @@ import {
   hasInactiveConditionalAncestor,
   isInsideForTemplate
 } from "../runtime.ts";
-import type { DirectiveFeature } from "../runtime.ts";
+import type {
+  DirectiveFeature,
+  DirectiveRoot,
+  DirectiveState
+} from "../runtime.ts";
 
 const invalidPlacementReported = new WeakSet<Element>();
 const invalidTypeReported = new WeakSet<Element>();
@@ -73,7 +77,7 @@ export const applyConditionals: DirectiveFeature = ({
 };
 
 /** Finds the conditional elements. */
-function findConditionalElements(root) {
+function findConditionalElements(root: DirectiveRoot): Element[] {
   const nodes: Element[] = [];
   const selector = [
     VD.selector(VD.IF),
@@ -119,10 +123,10 @@ function isConditionalFollowup(el: Element) {
 /** Evaluates the `shouldShowConditionalNode()` condition for the supplied input. */
 function shouldShowConditionalNode(
   node: Element,
-  state,
-  props,
+  state: DirectiveState,
+  props: Record<string, unknown>,
   alreadyMatched: boolean
-) {
+): boolean {
   if (node.hasAttribute(VD.ELSE)) {
     return !alreadyMatched;
   }
@@ -132,7 +136,8 @@ function shouldShowConditionalNode(
   }
 
   const expression = node.getAttribute(VD.IF)
-    ?? node.getAttribute(VD.ELSEIF);
+    ?? node.getAttribute(VD.ELSEIF)
+    ?? "";
   const directive = node.hasAttribute(VD.IF) ? VD.IF : VD.ELSEIF;
   const value = evaluate(expression, state, null, node, props, {
     directive
@@ -180,7 +185,7 @@ function reportInvalidConditionalPlacement(el: Element) {
 /** Reports the invalid conditional type. */
 function reportInvalidConditionalType(
   el: Element,
-  expression,
+  expression: string,
   directive: string,
   value: unknown
 ) {

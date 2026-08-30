@@ -13,6 +13,10 @@ import {
   VD_REQUEST
 } from "../constants.ts";
 import { isPlainObject } from "../shared/object.ts";
+import {
+  getThrownString,
+  hasThrownProperty
+} from "../shared/thrown.ts";
 import type {
   MaybePromise,
   RequestContext,
@@ -129,7 +133,16 @@ export function resolveRequestMiddleware(
       };
     }
 
-    resolved.push(createMiddlewareDescriptor(name, handlers[name]));
+    const handler = handlers[name];
+
+    if (!handler) {
+      return {
+        error: `unknown middleware "${entry.trim()}"`,
+        available: listMiddlewareNames(handlers)
+      };
+    }
+
+    resolved.push(createMiddlewareDescriptor(name, handler));
   }
 
   return {
@@ -153,6 +166,8 @@ export async function executeRequestMiddleware({
     );
   }
 
+  const routeHandler = handler;
+
   if (!isPlainObject(params)) {
     throw createMiddlewareError("Request params must be a plain object");
   }
@@ -166,7 +181,7 @@ export async function executeRequestMiddleware({
   ): Promise<unknown> {
     if (index >= middleware.length) {
       effectiveParams = { ...currentParams };
-      return handler(effectiveParams, context);
+      return routeHandler(effectiveParams, context);
     }
 
     const descriptor = normalizeMiddlewareDescriptor(middleware[index], index);
@@ -231,6 +246,12 @@ export async function executeRequestMiddleware({
       return result;
     }
 
+    if (!downstream) {
+      throw createMiddlewareError(
+        `Middleware "${descriptor.name}" did not schedule downstream work`
+      );
+    }
+
     const downstreamResult = await downstream;
 
     return result === undefined
@@ -270,7 +291,7 @@ function normalizeMiddlewareRegistry(
 }
 
 /** Normalizes the middleware name. */
-function normalizeMiddlewareName(value) {
+function normalizeMiddlewareName(value: string): string {
   const reference = value.trim();
   const separatorIndex = reference.indexOf(":");
 
@@ -348,12 +369,16 @@ async function callMiddleware<TResult>(
   try {
     return await callback();
   } catch (error) {
-    if (error?.__vdStage) {
+    if (hasThrownProperty(error, "__vdStage")) {
       throw error;
     }
 
     const wrapped = createMiddlewareError(
-      error?.message || `Middleware "${descriptor.name}" failed`
+      getThrownString(
+        error,
+        "message",
+        `Middleware "${descriptor.name}" failed`
+      )
     );
     wrapped.cause = error;
     wrapped.__vdMiddleware = descriptor.name;
@@ -362,7 +387,7 @@ async function callMiddleware<TResult>(
 }
 
 /** Creates the middleware error. */
-function createMiddlewareError(message) {
+function createMiddlewareError(message: string): Error {
   const error = new Error(message);
   error.__vdStage = VD_REQUEST.STAGES.MIDDLEWARE;
   error.__vdHint = "Check the middleware names registered through createApp({ middleware }).";

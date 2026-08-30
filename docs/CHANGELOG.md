@@ -75,6 +75,11 @@ or claim that a matching package is available from a registry.
   path, and `.vd` source-position helpers. Internal AST, attribute, diagnostic,
   and optimizer-error contracts are now explicit without changing public
   template syntax or generated output.
+- Expanded the same monotonic strict boundary through directive registration
+  and lazy feature modules, safe-expression evaluation, and the auth,
+  middleware, binding, and request-router dependencies used by declarative
+  requests. Unknown thrown-value inspection is now shared instead of duplicated
+  across compiler and request paths; public syntax and exports are unchanged.
 
 ### Fixed
 

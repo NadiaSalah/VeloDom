@@ -17,6 +17,7 @@ import {
   ExpressionSyntaxError,
   parseExpression
 } from "../expression/parser.ts";
+import { getThrownString } from "../shared/thrown.ts";
 import { runTemplateOptimizers } from "./optimizer.ts";
 import type {
   CompilerDiagnostic,
@@ -353,7 +354,7 @@ function compileStartTag(
         const syntaxError = error instanceof ExpressionSyntaxError
           ? error
           : new ExpressionSyntaxError(
-            getErrorMessage(error, "Invalid directive expression")
+            getThrownString(error, "message", "Invalid directive expression")
           );
 
         diagnostics.push(createDiagnostic(
@@ -468,7 +469,11 @@ function compileTextSegment(
         const syntaxError = error instanceof ExpressionSyntaxError
           ? error
           : new ExpressionSyntaxError(
-            getErrorMessage(error, "Invalid text interpolation expression")
+            getThrownString(
+              error,
+              "message",
+              "Invalid text interpolation expression"
+            )
           );
 
         diagnostics.push(createDiagnostic(
@@ -1128,13 +1133,4 @@ function stripDevelopmentMetadata(entry: DirectiveMetadata): DirectiveMetadata {
     modifiers: entry.modifiers,
     expression: entry.expression
   };
-}
-
-/** Returns a stable message for thrown values without assuming Error shape. */
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error instanceof Error && error.message) {
-    return error.message;
-  }
-
-  return fallback;
 }

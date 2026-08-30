@@ -141,7 +141,14 @@ interface UpdateExpressionNode extends ExpressionNodeBase {
 }
 
 interface BinaryExpressionNode extends ExpressionNodeBase {
-  type: "BinaryExpression" | "LogicalExpression";
+  type: "BinaryExpression";
+  operator: string;
+  left: ExpressionNode;
+  right: ExpressionNode;
+}
+
+interface LogicalExpressionNode extends ExpressionNodeBase {
+  type: "LogicalExpression";
   operator: string;
   left: ExpressionNode;
   right: ExpressionNode;
@@ -169,7 +176,8 @@ interface CallExpressionNode extends ExpressionNodeBase {
   optional: boolean;
 }
 
-type ExpressionNode =
+/** Internal safe-expression AST union consumed by the runtime evaluator. */
+export type ExpressionNode =
   | IdentifierNode
   | LiteralNode
   | ArrayExpressionNode
@@ -178,6 +186,7 @@ type ExpressionNode =
   | UnaryExpressionNode
   | UpdateExpressionNode
   | BinaryExpressionNode
+  | LogicalExpressionNode
   | ConditionalExpressionNode
   | MemberExpressionNode
   | CallExpressionNode;

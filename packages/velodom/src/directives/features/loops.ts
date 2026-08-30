@@ -167,7 +167,7 @@ export const applyLoops: DirectiveFeature = ({
       );
 
       if (!hasUniqueStableKeys(entries)) {
-        reportAmbiguousLoopKeys(el, keyExpression);
+        reportAmbiguousLoopKeys(el, keyExpression || "");
         return replaceRenderedItems(
           items,
           nextItems,
@@ -686,11 +686,14 @@ function parseFor(expression: string): LoopConfig | null {
     /^\s*(?:\(\s*([\w$]+)\s*,\s*([\w$]+)\s*\)|([\w$]+))\s+in\s+(.+)\s*$/
   );
 
-  if (!match) return null;
+  const item = match?.[1] || match?.[3];
+  const source = match?.[4];
+
+  if (!item || !source) return null;
 
   return {
-    item: match[1] || match[3],
-    index: match[2] || "$index",
-    source: match[4]
+    item,
+    index: match?.[2] || "$index",
+    source
   };
 }

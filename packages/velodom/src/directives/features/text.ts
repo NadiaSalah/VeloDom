@@ -26,7 +26,7 @@ export const applyText: DirectiveFeature = ({
   findAll(root, VD.TEXT).forEach(el => {
     if (isInsideForTemplate(el, VD.FOR)) return;
 
-    const expression = el.getAttribute(VD.TEXT);
+    const expression = el.getAttribute(VD.TEXT) ?? "";
     let currentText: string | null = null;
     const update = () => {
       if (isConditionallyInactive(el)) return;

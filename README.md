@@ -146,11 +146,14 @@ release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
-- Continued the staged TypeScript `strict` migration through the compiler
-  implementation and optimizer pipeline. The enforced boundary now also covers
-  the safe expression parser, compiler language-service path, and `.vd`
-  source-position helpers without changing template syntax or the
-  JavaScript/TypeScript application API.
+- Continued the staged TypeScript `strict` migration through the directive
+  engine and lazy feature modules, the complete safe-expression evaluator, and
+  the declarative request dependencies reached by directives: auth,
+  middleware, bindings, and request routing. The enforced boundary preserves
+  template syntax and the JavaScript/TypeScript application API.
+- Consolidated safe inspection of unknown thrown values into one internal Core
+  helper, removing duplicate compiler/request error extraction while retaining
+  source-aware diagnostics and non-`Error` compatibility.
 - Tightened reactive subscription callbacks, dynamic init-result narrowing,
   and DOM ref collection types while preserving existing runtime behavior.
 - Added an automatic, plugin-local incremental compiler cache keyed by
@@ -255,10 +258,11 @@ configuration.
 
 The current strict-typing boundary specifically changes
 `packages/velodom/tsconfig.strict.json` plus focused contracts in shared Core,
-reactivity, refs, the compiler, optimizer, safe expression parser, language
-service, and `.vd` source helpers. Directives/runtime expression integration,
-mount/router, requests, CLI, and scaffolder remain later strict slices; the
-parent roadmap item is intentionally still open.
+reactivity, refs, the compiler/optimizer, safe expression parser and evaluator,
+directive engine/features, declarative request dependencies, language service,
+and `.vd` source helpers. Mount/page routing/resource adapters/page data and
+CLI/project intelligence/scaffolding remain later strict slices; the parent
+roadmap item is intentionally still open.
 
 ## TODO
 

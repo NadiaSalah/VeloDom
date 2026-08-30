@@ -27,7 +27,7 @@ export const applyVisibility: DirectiveFeature = ({
   findAll(root, VD.SHOW).forEach(el => {
     if (isInsideForTemplate(el, VD.FOR)) return;
 
-    const expression = el.getAttribute(VD.SHOW);
+    const expression = el.getAttribute(VD.SHOW) ?? "";
     const update = () => {
       if (isConditionallyInactive(el)) return;
 

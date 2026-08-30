@@ -168,16 +168,21 @@ export function writeValue(
   }
 
   const keys = normalizedPath.split(".");
+  const first = keys[0];
 
-  if (keys.length === 1) {
-    state[keys[0]] = value;
+  if (keys.length === 1 && first) {
+    state[first] = value;
     return;
   }
 
   const last = keys.pop();
-  const target = keys.reduce((current, key) => current?.[key], state);
+  const target = keys.reduce<unknown>((current, key) => (
+    current && typeof current === "object"
+      ? (current as Record<string, unknown>)[key]
+      : undefined
+  ), state);
 
-  if (!target) {
+  if (!last || !target || typeof target !== "object") {
     reportUserActionError("Model path target does not exist", {
       title: "Invalid Model Path",
       directive: VD.MODEL,
@@ -210,7 +215,7 @@ export function isIterable(value: unknown): value is Iterable<unknown> {
 function resolvePathKeys(
   path: unknown,
   state: ExpressionState
-) {
+): string {
   const cleaned = String(path || "")
     .trim()
     .replace(/\[(\w+)\]/g, ".$1")
@@ -231,7 +236,9 @@ function resolvePathKeys(
     return parts[0] || "";
   }
 
-  if (parts[0] in state) {
+  const first = parts[0];
+
+  if (first && first in state) {
     return parts.join(".");
   }
 
