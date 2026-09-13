@@ -63,7 +63,8 @@ before use.
 | Devtools inspector | DX | Supported | `velodom/devtools` | CLI inspection | public helper | Yes |
 | VeloDom Lab | DX | Experimental | `vd lab`, optional `--lab` starter choice | ownership tree, state diffs, request waterfall, route timeline, source diagnostics | `velodom/devtools`, Vite plugin | Yes |
 | Deterministic explain | DX | Supported | `vd explain <file|topic|diagnostic-code>` | compiler analysis and stable diagnostic catalog | package binary | Yes |
-| Testing mounts | Testing | Stable | `velodom/testing` | browser E2E | public helpers | Yes |
+| Testing helpers | Testing | Stable | `velodom/testing` | compiler/route/request/event/a11y fixtures plus page/component mounts | public helpers | Yes |
+| Project test dispatcher | DX | Supported | `vd test [layer]` | existing application package scripts only | package binary | Yes |
 | Compiler API | Compiler | Stable | `velodom/compiler` | Vite plugin | public compiler | Yes |
 | Incremental compiler cache | Build | Supported | automatic Vite plugin behavior | source/HMR invalidation, bounded LRU | Vite plugin | Yes |
 | Language analysis | Editor | Supported | compiler analysis APIs | VS Code package | public APIs | Yes |

@@ -285,14 +285,20 @@ test("vite adapter and plugin public exports are frozen", () => {
 
 test("testing utilities public exports are frozen", () => {
   assert.deepEqual(Object.keys(testingApi).sort(), [
+    "compileTestFixture",
+    "createRequestMock",
+    "dispatchTestEvent",
+    "inspectAccessibilitySmoke",
     "mountTestComponent",
-    "mountTestPage"
+    "mountTestPage",
+    "resolveTestRoute"
   ]);
   assert.deepEqual(readInterfaceExportNames(testingEntrySource), [
     "TestComponentDefinition",
     "TestComponentMountOptions",
     "TestMountResult",
-    "TestPageMountOptions"
+    "TestPageMountOptions",
+    "TestRequestMock"
   ]);
 });
 

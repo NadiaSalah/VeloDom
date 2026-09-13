@@ -40,6 +40,9 @@ For an existing application, `vd add i18n|tests|lab` installs only those
 first-party optional features and records generated ownership in
 `.velodom/features.json`. Never invent other feature names or bypass a reported
 file/script conflict.
+Run configured tests with `vd test` or a focused layer such as `vd test unit`
+or `vd test --browser`. The command delegates to real package scripts and fails
+if that layer is not configured; never describe an absent layer as tested.
 
 ## Application Ownership
 
@@ -207,6 +210,9 @@ visibility are never server authorization.
   plugins, devtools, and Node integration are optional public capabilities.
 - `vd lab` is an optional local Vite inspector. It is read-only,
   development-only, and never required to run or build an application.
+- `velodom/testing` provides test-only compiler fixtures, route resolution,
+  request doubles, DOM event dispatch, accessibility smoke diagnostics, and
+  page/component mounts. It is not an application runtime service.
 - Use only capabilities marked implemented in `docs/FEATURE_INVENTORY.md`.
 
 ## Mandatory AI Rules

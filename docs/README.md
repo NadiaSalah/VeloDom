@@ -204,7 +204,7 @@ marketing list.
 | `velodom/devtools` | `mountDevtoolsInspector`, `mountVeloDomLab`, `VELODOM_DEVTOOLS_PROTOCOL_VERSION` |
 | `velodom/vite` | `createViteAdapter`, `createViteApp`, `mountVeloDom` |
 | `velodom/vite-plugin` | `createTemplateModule`, `velodom` |
-| `velodom/testing` | `mountTestPage`, `mountTestComponent` |
+| `velodom/testing` | compiler/route/request/event/a11y fixtures plus page/component mounts |
 | `velodom/cli` | `runVeloDomCli` (Node only) |
 | `velodom/scaffolder` | `createVeloDomProject`, `detectPackageManager` (Node only) |
 
@@ -483,6 +483,9 @@ vd docs
 vd types
 vd add i18n
 vd add tests --unit
+vd test
+vd test unit
+vd test --browser
 vd version
 vd create my-site --recommended
 vd init my-site --recommended
@@ -587,6 +590,13 @@ explicitly. The installer preflights generated paths and package/Vite changes,
 refuses conflicts, writes `.velodom/features.json` with created-file hashes,
 and becomes a no-op when the same feature is already recorded. It never runs a
 package install, deletes files, or manages third-party plugins.
+`vd test` is a thin selector for tests already owned by the application. With
+no filter (or `all`) it runs `test`; `unit`, `browser`, `compiler`, `route`,
+`request`, `component`, and `a11y` select the corresponding focused package
+script. Browser accepts `test:browser` or the common `test:e2e` alias, and
+accessibility accepts `test:a11y` or `test:accessibility`. Missing or recursive
+scripts fail visibly—VeloDom never replaces an unconfigured layer with a green
+placeholder.
 `vd benchmark` delegates to the project's `benchmark:rendering` script so
 performance checks stay repeatable and outside the browser runtime.
 
@@ -683,7 +693,15 @@ Use `velodom/testing` in happy-dom, jsdom, or real-browser tests when you want
 to mount small VeloDom units without importing internal core files:
 
 ```js
-import { mountTestPage, mountTestComponent } from "velodom/testing";
+import {
+  compileTestFixture,
+  createRequestMock,
+  dispatchTestEvent,
+  inspectAccessibilitySmoke,
+  mountTestComponent,
+  mountTestPage,
+  resolveTestRoute
+} from "velodom/testing";
 
 const page = await mountTestPage("<h1 vd-text=\"title\"></h1>", {
   state: {
@@ -693,12 +711,25 @@ const page = await mountTestPage("<h1 vd-text=\"title\"></h1>", {
 
 page.state.title = "Updated";
 await page.cleanup();
+
+const route = resolveTestRoute("/posts/42", ["posts/[id]"]);
+const request = createRequestMock({ ok: true });
+await request.handler({ id: route.params.id });
+
+const fixture = compileTestFixture("<img src=\"cover.webp\">");
+const a11y = inspectAccessibilitySmoke(fixture.html);
 ```
 
 `mountTestPage()` compiles preferred `vd-*` syntax, creates reactive state,
 applies directives, and returns `{ root, state, cleanup }`.
 `mountTestComponent()` mounts one in-memory component definition with optional
 props, slots, module hooks, style, and manifest overrides.
+`compileTestFixture()` and `resolveTestRoute()` exercise the same compiler and
+ranked route matcher as applications. `createRequestMock()` records calls while
+avoiding network I/O, `dispatchTestEvent()` drives ordinary DOM interactions,
+and `inspectAccessibilitySmoke()` returns only deterministic `VD_A11Y_*`
+compiler diagnostics. Import these from the test-only subpath; they add no
+application runtime service.
 
 ## Project Structure
 
@@ -4644,8 +4675,13 @@ cookies, and ICU parsing remain application or adapter concerns.
 
 ### `velodom/testing`
 
+- `compileTestFixture`
+- `createRequestMock`
+- `dispatchTestEvent`
+- `inspectAccessibilitySmoke`
 - `mountTestPage`
 - `mountTestComponent`
+- `resolveTestRoute`
 - page/component testing utility types
 
 ### `velodom/cli` and `velodom/scaffolder`

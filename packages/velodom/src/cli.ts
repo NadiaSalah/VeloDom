@@ -82,11 +82,10 @@ import type {
   ParsedArgs
 } from "./cli/types.ts";
 import {
+  resolveProjectPackageManager,
   runPackageScript
 } from "./scaffolder/package-manager.ts";
-import type {
-  ScaffoldPackageManager
-} from "./scaffolder/types.ts";
+import { runProjectTestCommand } from "./cli/test-runner.ts";
 
 interface CliOptions {
   cwd?: string;
@@ -189,6 +188,7 @@ Usage:
   vd docs [--json] [--root <dir>]
   vd types [--out <file>] [--root <dir>]
   vd add i18n|tests|lab [--unit|--e2e|--all] [--root <dir>]
+  vd test [all|unit|browser|compiler|route|request|component|a11y] [--root <dir>]
   vd create [project-name] [project options]
   vd init [project-name] [project options]
   vd create page <name> [--ts] [--single-file] [--demo <kind>] [--root <dir>]
@@ -228,6 +228,8 @@ Examples:
   vd create component shared/post-card --single-file
   vd add i18n
   vd add tests --unit
+  vd test unit
+  vd test --browser
   vd create feature articles --blog
   vd create my-site --recommended
   npx create-velodom@latest my-site --template minimal --typescript
@@ -330,6 +332,12 @@ export async function runVeloDomCli(
         return 0;
       case "add":
         return await runAddFeatureCommand(
+          context,
+          values[0] || "",
+          parsed.flags
+        );
+      case "test":
+        return await runProjectTestCommand(
           context,
           values[0] || "",
           parsed.flags
@@ -490,7 +498,7 @@ async function runLabCommand(
     return 0;
   }
 
-  const packageManager = await resolveLabPackageManager(
+  const packageManager = await resolveProjectPackageManager(
     context.cwd,
     manifest.packageManager
   );
@@ -504,37 +512,6 @@ async function runLabCommand(
       VELODOM_LAB_DEBUG: flags.has("debug") ? "1" : "0"
   });
   return 0;
-}
-
-/** Resolves the local package manager without introducing a global preference. */
-async function resolveLabPackageManager(
-  root: string,
-  declared: string | undefined
-): Promise<ScaffoldPackageManager> {
-  const requested = declared?.split("@")[0]?.toLowerCase();
-  const supported: ScaffoldPackageManager[] = ["npm", "pnpm", "yarn", "bun"];
-
-  if (supported.includes(requested as ScaffoldPackageManager)) {
-    return requested as ScaffoldPackageManager;
-  }
-
-  const locks: Array<[string, ScaffoldPackageManager]> = [
-    ["pnpm-lock.yaml", "pnpm"],
-    ["yarn.lock", "yarn"],
-    ["bun.lock", "bun"],
-    ["bun.lockb", "bun"],
-    ["package-lock.json", "npm"]
-  ];
-
-  for (const [file, packageManager] of locks) {
-    try {
-      if ((await stat(join(root, file))).isFile()) return packageManager;
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-    }
-  }
-
-  return "npm";
 }
 
 /** Prints a deterministic framework or source explanation without external AI. */

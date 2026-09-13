@@ -206,6 +206,7 @@ Generated with VeloDom's **${plan.starter}** starter using ${plan.language}.
 ${plan.packageManager} install
 ${formatPackageScript(plan.packageManager, "dev")}
 ${plan.lab ? `# Optional local inspector\n${formatPackageScript(plan.packageManager, "lab")}\n` : ""}
+${plan.testing !== "none" ? `# Run the configured real test layers\nnpx vd test${plan.testing === "unit" ? " unit" : plan.testing === "e2e" ? " browser" : ""}\n` : ""}
 \`\`\`
 
 ## Included
@@ -228,6 +229,8 @@ Package-local AI guidance is available after installation at
 Add an optional first-party capability later with \`npx vd add i18n\`,
 \`npx vd add tests --unit\`, or \`npx vd add lab\`. The installer refuses
 conflicts and records generated-file ownership in \`.velodom/features.json\`.
+When tests are configured, \`npx vd test\` delegates to the generated package
+scripts; focused layers such as \`npx vd test unit\` never fake a passing result.
 `);
 }
 

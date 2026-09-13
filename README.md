@@ -132,8 +132,8 @@ docs/
 ## Current Status
 
 The package source is version `1.0.0`. Its public contract exposes 13 package
-entry points, 63 browser/build public values, 43 preferred directive names,
-and 19 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
+entry points, 68 browser/build public values, 43 preferred directive names,
+and 20 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
 the automated test suite, production builds, package boundaries, an installed
 tarball consumer, the generated starter, and browser targets.
 
@@ -183,6 +183,12 @@ release commit is verified, approved, tagged, and published deliberately.
   state diffs, a payload-free request waterfall, correlated route transitions,
   directive/source locations, and copyable local `vd explain` commands.
   Request/navigation IDs exist only in bounded development events.
+- Added `vd test` as a thin dispatcher over real application-owned package
+  scripts. Unit, browser, compiler, route, request, component, and accessibility
+  filters fail when their script is absent instead of reporting a placeholder
+  pass. `velodom/testing` now also supplies compiler fixtures, route resolution,
+  recorded request doubles, DOM event dispatch, and compiler-backed
+  accessibility smoke checks without entering production bundles.
 - Completed the monotonic TypeScript `strict` migration. The final CLI,
   project-intelligence, and scaffolder slice was hardened, then the gate was
   extended to all 88 package source files through `src/**/*.ts` so future

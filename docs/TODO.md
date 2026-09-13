@@ -31,9 +31,9 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 
 `[####################] 100%`
 
-**Next-release approved scope: 14 of 15 milestones complete.**
+**Next-release approved scope: 15 of 15 milestones complete.**
 
-`[###################.] 93%`
+`[####################] 100%`
 
 The repository is the local V1 source baseline. Registry availability,
 authentication, tags, and releases are external state and are deliberately not
@@ -350,10 +350,14 @@ layer, or unproven analysis.
   The Lab now derives those views from bounded snapshots, correlates concurrent
   requests/navigation with internal development IDs, and copies only local
   `vd explain` commands through the browser Clipboard API.
-- [ ] Add `vd test` as a thin command for existing project tests plus compiler
+- [x] Add `vd test` as a thin command for existing project tests plus compiler
   fixture, route, request-mock, component-interaction, and accessibility-smoke
   helpers. Browser, unit, component, and route filters must run real selected
-  tests, not report a green placeholder.
+  tests, not report a green placeholder. The command now selects an existing
+  package script (`test`, `test:unit`, `test:browser`/`test:e2e`, or focused
+  compiler/route/request/component/accessibility scripts), rejects missing or
+  recursive scripts, and `velodom/testing` exposes deterministic helpers over
+  the real compiler, router, DOM event, request-double, and accessibility paths.
 
 ## Later Releases — Deferred Extensions
 

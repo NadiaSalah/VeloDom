@@ -12,13 +12,22 @@ import { applyDirectives } from "./directives.ts";
 import { mount } from "./mount.ts";
 import { createState } from "./reactive.ts";
 import { compileTemplate } from "./compiler/index.ts";
+import {
+  createRouteTable,
+  resolveRouteLocation
+} from "./router.ts";
 import type {
   ReactiveStateMethods
 } from "./reactive.ts";
 import type {
-  RuntimeFeatureManifest
+  CompilerDiagnostic,
+  CompilerOptions,
+  RuntimeFeatureManifest,
+  TemplateCompileResult
 } from "./compiler/types.ts";
 import type {
+  PageConfig,
+  RouteLocation,
   StateRecord,
   UnknownRecord
 } from "./types.ts";
@@ -58,6 +67,87 @@ export interface TestComponentMountOptions<TState extends StateRecord = StateRec
   slotHtml?: string;
 }
 
+/** Recorded calls and reset behavior returned by a request test double. */
+export interface TestRequestMock<
+  TArgs extends unknown[] = unknown[],
+  TResult = unknown
+> {
+  calls: TArgs[];
+  handler(...args: TArgs): Promise<TResult>;
+  reset(): void;
+}
+
+/** Compiles an in-memory fixture through the public VeloDom compiler path. */
+export function compileTestFixture(
+  html: string,
+  options: CompilerOptions = {}
+): TemplateCompileResult {
+  return compileTemplate(html, {
+    filename: options.filename || "test-fixture.html",
+    mode: options.mode || "development",
+    optimizers: options.optimizers
+  });
+}
+
+/** Resolves one test URL with the same ranked route matcher used at runtime. */
+export function resolveTestRoute(
+  path: string,
+  pages: string[],
+  configs: Record<string, PageConfig> = {}
+): RouteLocation {
+  return resolveRouteLocation(path, createRouteTable(pages, configs));
+}
+
+/** Creates an async request handler that records arguments without network I/O. */
+export function createRequestMock<
+  TArgs extends unknown[] = unknown[],
+  TResult = unknown
+>(
+  implementation: TResult | ((...args: TArgs) => TResult | Promise<TResult>)
+): TestRequestMock<TArgs, TResult> {
+  const calls: TArgs[] = [];
+
+  return {
+    calls,
+    async handler(...args: TArgs) {
+      calls.push(args);
+
+      return typeof implementation === "function"
+        ? await (implementation as (...values: TArgs) => TResult | Promise<TResult>)(...args)
+        : implementation;
+    },
+    reset() {
+      calls.length = 0;
+    }
+  };
+}
+
+/** Dispatches one bubbling test event and returns it for assertion. */
+export function dispatchTestEvent(
+  target: EventTarget,
+  type: string,
+  init: EventInit = {}
+): Event {
+  const event = new Event(type, {
+    bubbles: true,
+    cancelable: true,
+    ...init
+  });
+
+  target.dispatchEvent(event);
+  return event;
+}
+
+/** Returns the compiler's deterministic accessibility-smoke diagnostics. */
+export function inspectAccessibilitySmoke(
+  html: string,
+  filename = "test-accessibility.html"
+): CompilerDiagnostic[] {
+  return compileTestFixture(html, { filename }).diagnostics.filter(
+    diagnostic => diagnostic.code.startsWith("VD_A11Y_")
+  );
+}
+
 /**
  * Mounts a page-like HTML template with VeloDom directives in a test DOM.
  *
@@ -72,7 +162,7 @@ export async function mountTestPage<
 ): Promise<TestMountResult<TState>> {
   const root = document.createElement(options.rootTag || "main");
   const state = createState(options.state || {} as TState);
-  const compiled = compileTemplate(html, {
+  const compiled = compileTestFixture(html, {
     filename: "test-page.html",
     mode: "production"
   });
@@ -113,7 +203,7 @@ export async function mountTestComponent<
     ...(options.parentState || {}),
     __vdTestProps: options.props || {}
   });
-  const compiled = compileTemplate(
+  const compiled = compileTestFixture(
     definition.html,
     {
       filename: `${name}/index.html`,

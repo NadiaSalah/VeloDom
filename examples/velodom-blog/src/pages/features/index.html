@@ -522,13 +522,15 @@ vd build-report         # chunk and optimization signals
 vd docs                 # generated project reference
 vd types                # application-owned declarations
 vd add i18n             # conflict-safe optional feature install
+vd test unit            # real project script; no placeholder pass
+vd test --browser       # test:browser or test:e2e
 vd init my-site         # complete beginner starter
 vd create page guide --demo seo</code></pre>
       </div>
       <div class="grid gap-5 lg:grid-cols-2">
         <div class="feature-card">
           <h3 class="text-lg font-black text-slate-950">Testing</h3>
-          <p class="mt-2 text-sm leading-6 text-slate-600">Use <code class="inline-code">velodom/testing</code> to mount public page/component resources in a browser-like test environment. Real-browser Playwright checks cover routing, forms, requests, and no-JavaScript SEO.</p>
+          <p class="mt-2 text-sm leading-6 text-slate-600">Use <code class="inline-code">velodom/testing</code> for compiler fixtures, route resolution, recorded request mocks, DOM interactions, accessibility smoke checks, and page/component mounts. <code class="inline-code">vd test</code> selects only real package scripts; missing layers fail clearly.</p>
         </div>
         <div class="feature-card">
           <h3 class="text-lg font-black text-slate-950">Editor intelligence</h3>
@@ -647,7 +649,12 @@ export const cache = {
         <pre class="code-example" vd-pre><code>import { createApp, definePlugin } from "velodom";
 import { mountVeloDom } from "velodom/vite";
 import { compileTemplate } from "velodom/compiler";
-import { mountTestPage } from "velodom/testing";
+import {
+  compileTestFixture,
+  inspectAccessibilitySmoke,
+  mountTestPage,
+  resolveTestRoute
+} from "velodom/testing";
 
 // Do not import velodom/lib/* or packages/velodom/src/*
 // Those are framework internals, not application APIs.</code></pre>

@@ -170,6 +170,7 @@ vd build-report
 vd docs
 vd types
 vd add i18n|tests|lab
+vd test [all|unit|browser|compiler|route|request|component|a11y]
 vd version
 ```
 
@@ -194,6 +195,12 @@ missing production artifact is reported as unavailable rather than guessed.
 conflicting user files or scripts, records generated-file ownership in
 `.velodom/features.json`, and leaves dependency installation explicit. Tests
 default to unit; `--e2e` and `--all` select real Playwright layers.
+`vd test` delegates to one real package script already owned by the project.
+Focused layers fail when their script is missing; browser accepts
+`test:browser` or `test:e2e`, and no filter runs `test`. The explicit
+`velodom/testing` subpath provides compiler fixtures, route resolution,
+recorded request doubles, DOM event dispatch, accessibility smoke diagnostics,
+and page/component mounts without adding production runtime code.
 
 Choose `--lab` during scripted project creation or select it in Customize mode
 to add `npm run lab`. The command starts the existing Vite server with an

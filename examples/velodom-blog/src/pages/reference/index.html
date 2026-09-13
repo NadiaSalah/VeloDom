@@ -23,10 +23,10 @@
         source tree.
       </p>
       <div class="mt-7 flex flex-wrap gap-2">
-        <span class="badge badge-primary badge-outline">63 public values</span>
+        <span class="badge badge-primary badge-outline">68 public values</span>
         <span class="badge badge-primary badge-outline">13 package exports</span>
         <span class="badge badge-primary badge-outline">43 preferred directives</span>
-        <span class="badge badge-primary badge-outline">19 CLI commands</span>
+        <span class="badge badge-primary badge-outline">20 CLI commands</span>
       </div>
     </header>
 
@@ -232,10 +232,18 @@ import {
   mountDevtoolsInspector, mountVeloDomLab,
   VELODOM_DEVTOOLS_PROTOCOL_VERSION
 } from "velodom/devtools";
-import { mountTestComponent, mountTestPage } from "velodom/testing";
+import {
+  createRequestMock, inspectAccessibilitySmoke,
+  mountTestComponent, mountTestPage, resolveTestRoute
+} from "velodom/testing";
 
-const mounted = await mountTestPage(pageResource);
-await mounted.destroy();</code></pre>
+const pageResource = '&lt;h1 vd-text="title"&gt;&lt;/h1&gt;';
+const mounted = await mountTestPage(pageResource, { state: { title: "Test" } });
+const route = resolveTestRoute("/posts/42", ["posts/[id]"]);
+const request = createRequestMock({ ok: true });
+await request.handler(route.params);
+const a11y = inspectAccessibilitySmoke(pageResource);
+await mounted.cleanup();</code></pre>
       </div>
       <p class="mt-4">The Node adapter converts Node HTTP to Fetch request/response semantics; it is not automatic SSR. The devtools inspector is read-only and development-only. Test mounts use browser-like DOM environments and preserve normal lifecycle cleanup.</p>
     </section>
@@ -274,11 +282,13 @@ vd build-report --json
 vd docs
 vd types
 vd add i18n            # safe existing-project feature install
+vd test unit           # run the project's real test:unit script
+vd test --browser      # run test:browser or test:e2e
 vd init my-site
 vd create page account --ts
 vd version</code></pre>
       </div>
-      <p class="mt-4">Inspection detects invalid directives, dead references, unused resources, cycles, large templates, SEO gaps, accessibility signals, and bundle opportunities without adding AI or browser runtime weight. <code>vd types</code> derives route params, request names, and statically provable component props while leaving unknown values honest. After a production build, <code>vd build-report</code> uses Rollup metadata to distinguish initial, route, component, shared, and lazy-feature chunks without guessing from minified code. <code>vd add i18n|tests|lab</code> adds an existing optional capability safely and records its generated files. Scaffolding writes visible conventional files and never requires a central registry.</p>
+      <p class="mt-4">Inspection detects invalid directives, dead references, unused resources, cycles, large templates, SEO gaps, accessibility signals, and bundle opportunities without adding AI or browser runtime weight. <code>vd types</code> derives route params, request names, and statically provable component props while leaving unknown values honest. After a production build, <code>vd build-report</code> uses Rollup metadata to distinguish initial, route, component, shared, and lazy-feature chunks without guessing from minified code. <code>vd add i18n|tests|lab</code> adds an existing optional capability safely and records its generated files. <code>vd test</code> delegates to real application package scripts and fails if a selected test layer is not configured. Scaffolding writes visible conventional files and never requires a central registry.</p>
       <div class="mt-7 flex flex-wrap gap-3">
         <a href="/features" vd-nav class="btn btn-primary rounded-xl">Read guided lessons</a>
         <a href="/single-file" vd-nav class="btn btn-outline rounded-xl">Open the .vd example</a>

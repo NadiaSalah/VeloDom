@@ -81,6 +81,12 @@ Use `vd check --json` for one non-destructive summary of the static gates. Its
 browser step is deliberately `not-run`; execute real project E2E tests when
 browser evidence is required.
 
+Use `vd test` only as a thin entry point to the project's real package scripts.
+Select `unit`, `browser`, `compiler`, `route`, `request`, `component`, or
+`a11y` when that focused script exists. A missing layer is untested, not a pass.
+For small fixtures, import compiler, route, request-mock, interaction,
+accessibility-smoke, and mount helpers from `velodom/testing`.
+
 Run `vd fix` without flags and review the file/line preview. Use `--write` only
 for the built-in preferred-directive alias migration; it intentionally leaves
 scripts, business logic, and unknown syntax unchanged.
@@ -97,7 +103,6 @@ routes, components, state, bindings, events, requests, or compiler metadata
 would help. Lab is optional; do not add it to production code or assume it can
 mutate application state or source. Its ownership, diff, request, route, and
 compiler/source views are read-only and deliberately omit network payloads.
-mutate application state.
 
 ## Use Public Package Exports
 

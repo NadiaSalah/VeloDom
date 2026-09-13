@@ -118,9 +118,12 @@ export async function installProjectFeature(
         "^1.61.1",
         "package.json devDependencies"
       );
-      nextSteps.push(`${packageManager} install`, `${packageManager} run test:e2e`);
+      nextSteps.push(
+        `${packageManager} install`,
+        testing === "all" ? "npx vd test" : "npx vd test browser"
+      );
     } else {
-      nextSteps.push(`${packageManager} run test:unit`);
+      nextSteps.push("npx vd test unit");
     }
     options.mode = testing;
   }

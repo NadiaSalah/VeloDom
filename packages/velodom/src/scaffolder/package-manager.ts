@@ -9,6 +9,7 @@
  */
 
 import { spawn } from "node:child_process";
+import { stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import type { ScaffoldPackageManager } from "./types.ts";
 
@@ -19,6 +20,37 @@ export function detectPackageManager(
   const name = userAgent.trim().split("/")[0]?.toLowerCase();
 
   if (name === "pnpm" || name === "yarn" || name === "bun") return name;
+  return "npm";
+}
+
+/** Resolves the package manager declared by a project or implied by its lockfile. */
+export async function resolveProjectPackageManager(
+  cwd: string,
+  declared?: string
+): Promise<ScaffoldPackageManager> {
+  const requested = declared?.split("@")[0]?.toLowerCase();
+  const supported: ScaffoldPackageManager[] = ["npm", "pnpm", "yarn", "bun"];
+
+  if (supported.includes(requested as ScaffoldPackageManager)) {
+    return requested as ScaffoldPackageManager;
+  }
+
+  const locks: Array<[string, ScaffoldPackageManager]> = [
+    ["pnpm-lock.yaml", "pnpm"],
+    ["yarn.lock", "yarn"],
+    ["bun.lock", "bun"],
+    ["bun.lockb", "bun"],
+    ["package-lock.json", "npm"]
+  ];
+
+  for (const [file, packageManager] of locks) {
+    try {
+      if ((await stat(join(cwd, file))).isFile()) return packageManager;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+  }
+
   return "npm";
 }
 

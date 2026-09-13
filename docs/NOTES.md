@@ -64,6 +64,16 @@
   build, or reports browser success; the browser step is always `not-run` with
   the real follow-up named. CLI impact is `DEFAULT_INCLUDED`; starters and
   runtime exports do not change.
+- `vd test` is a process dispatcher, not a framework-owned test runner. It
+  resolves one application package script and delegates to the project's
+  package manager; absent focused scripts are errors, so filters can never
+  produce placeholder success. CLI impact is `DEFAULT_INCLUDED`; projects
+  without tests gain no files, while scaffolds that select tests already emit
+  compatible `test`, `test:unit`, and `test:e2e` scripts.
+- Test fixtures belong to the explicit `velodom/testing` subpath. Compiler,
+  route, request-double, interaction, and accessibility helpers reuse public
+  production semantics but remain test-only imports, preserving browser-runtime
+  size and Vanilla/TypeScript authoring parity.
 - `vd fix` is not a formatter or codemod framework. The allowlist owns only
   semantic-equivalent template aliases, previews by default, confines `.vd`
   changes to `<template>`, and compares the current file with its indexed
