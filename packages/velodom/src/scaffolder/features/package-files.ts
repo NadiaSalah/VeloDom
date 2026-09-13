@@ -34,9 +34,6 @@ export async function writeProjectConfiguration(
     await writeText(join(plan.destination, ".prettierignore"), "dist\nnode_modules\ncoverage\n");
   }
 
-  if (plan.testing === "e2e" || plan.testing === "all") {
-    await writeText(join(plan.destination, "playwright.config.js"), createPlaywrightConfig(plan));
-  }
 }
 
 /** Creates the manifest. */
@@ -237,26 +234,6 @@ function createHtmlShell(plan: ScaffoldPlan) {
     <script type="module" src="/src/main.${extension}"></script>
   </body>
 </html>
-`;
-}
-
-/** Creates the playwright config. */
-function createPlaywrightConfig(plan: ScaffoldPlan) {
-  const devCommand = plan.packageManager === "pnpm" || plan.packageManager === "yarn"
-    ? `${plan.packageManager} dev`
-    : `${plan.packageManager} run dev`;
-
-  return `import { defineConfig } from "@playwright/test";
-
-export default defineConfig({
-  testDir: "./tests/e2e",
-  use: { baseURL: "http://127.0.0.1:4173" },
-  webServer: {
-    command: "${devCommand} -- --host 127.0.0.1 --port 4173",
-    url: "http://127.0.0.1:4173",
-    reuseExistingServer: !process.env.CI,
-  },
-});
 `;
 }
 

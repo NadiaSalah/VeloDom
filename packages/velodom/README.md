@@ -169,6 +169,7 @@ vd benchmark
 vd build-report
 vd docs
 vd types
+vd add i18n|tests|lab
 vd version
 ```
 
@@ -189,6 +190,10 @@ unprovable values remain `unknown` and JavaScript projects need no declarations.
 attribute initial, route, component, shared, and lazy-feature chunks. Duplicate
 dependency cost is shown only from Rollup rendered-module measurements; a
 missing production artifact is reported as unavailable rather than guessed.
+`vd add i18n|tests|lab` is an idempotent existing-project installer. It refuses
+conflicting user files or scripts, records generated-file ownership in
+`.velodom/features.json`, and leaves dependency installation explicit. Tests
+default to unit; `--e2e` and `--all` select real Playwright layers.
 
 Choose `--lab` during scripted project creation or select it in Customize mode
 to add `npm run lab`. The command starts the existing Vite server with an

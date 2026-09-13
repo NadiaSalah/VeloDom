@@ -66,6 +66,7 @@ import {
   applyProjectFixPlan,
   createProjectFixPlan
 } from "./cli/fixes.ts";
+import { installProjectFeature } from "./cli/feature-installer.ts";
 import {
   formatBytes,
   printDependencySignals,
@@ -187,6 +188,7 @@ Usage:
   vd build-report [--json] [--root <dir>]
   vd docs [--json] [--root <dir>]
   vd types [--out <file>] [--root <dir>]
+  vd add i18n|tests|lab [--unit|--e2e|--all] [--root <dir>]
   vd create [project-name] [project options]
   vd init [project-name] [project options]
   vd create page <name> [--ts] [--single-file] [--demo <kind>] [--root <dir>]
@@ -224,6 +226,8 @@ Examples:
   vd create page blog/posts/[id] --ts
   vd create page counter --demo counter
   vd create component shared/post-card --single-file
+  vd add i18n
+  vd add tests --unit
   vd create feature articles --blog
   vd create my-site --recommended
   npx create-velodom@latest my-site --template minimal --typescript
@@ -324,6 +328,12 @@ export async function runVeloDomCli(
       case "types":
         await writeApplicationDeclarations(context, parsed.options.out);
         return 0;
+      case "add":
+        return await runAddFeatureCommand(
+          context,
+          values[0] || "",
+          parsed.flags
+        );
       case "init":
         await createResource(
           context,
@@ -353,6 +363,35 @@ export async function runVeloDomCli(
     context.stderr(error instanceof Error ? error.message : String(error));
     return 1;
   }
+}
+
+/** Adds one existing optional first-party capability to the current project. */
+async function runAddFeatureCommand(
+  context: CliContext,
+  feature: string,
+  flags: Set<string>
+) {
+  if (!feature) {
+    throw new Error("vd add requires one feature: i18n, tests, or lab.");
+  }
+
+  const result = await installProjectFeature(context.cwd, feature, flags);
+
+  if (flags.has("json")) {
+    context.stdout(JSON.stringify(result, null, 2));
+    return 0;
+  }
+
+  context.stdout(
+    result.alreadyInstalled
+      ? `VeloDom feature "${result.feature}" is already installed.`
+      : `Added VeloDom feature "${result.feature}".`
+  );
+  result.createdFiles.forEach(file => context.stdout(`  created ${file}`));
+  result.modifiedFiles.forEach(file => context.stdout(`  updated ${file}`));
+  result.nextSteps.forEach(step => context.stdout(`  next: ${step}`));
+
+  return 0;
 }
 
 /** Prints the inspection. */

@@ -36,6 +36,10 @@ tools, routing examples, localization, tests, local Lab, Git, install, and
 server start.
 
 The generated project is user-owned. Never edit `node_modules/velodom`.
+For an existing application, `vd add i18n|tests|lab` installs only those
+first-party optional features and records generated ownership in
+`.velodom/features.json`. Never invent other feature names or bypass a reported
+file/script conflict.
 
 ## Application Ownership
 

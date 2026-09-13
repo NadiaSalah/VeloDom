@@ -133,7 +133,7 @@ docs/
 
 The package source is version `1.0.0`. Its public contract exposes 13 package
 entry points, 63 browser/build public values, 43 preferred directive names,
-and 18 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
+and 19 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
 the automated test suite, production builds, package boundaries, an installed
 tarball consumer, the generated starter, and browser targets.
 
@@ -175,6 +175,10 @@ release commit is verified, approved, tagged, and published deliberately.
   Vite plugin. Reports now attribute initial, route, component, shared, and lazy
   feature chunks from Rollup module metadata and measure duplicated dependency
   bytes only when Rollup can prove them; missing metadata is reported plainly.
+- Added idempotent `vd add i18n|tests|lab` for existing applications. It
+  preflights conflicts, never overwrites user files, records generated hashes
+  and controlled config changes in `.velodom/features.json`, and leaves package
+  installation explicit.
 - Completed the monotonic TypeScript `strict` migration. The final CLI,
   project-intelligence, and scaffolder slice was hardened, then the gate was
   extended to all 88 package source files through `src/**/*.ts` so future

@@ -481,6 +481,8 @@ vd benchmark
 vd build-report --json
 vd docs
 vd types
+vd add i18n
+vd add tests --unit
 vd version
 vd create my-site --recommended
 vd init my-site --recommended
@@ -579,6 +581,12 @@ without executing application code. It is optional: JavaScript
 projects do nothing, while TypeScript projects may import the generated
 `velodom/app` module for `VeloDomPageParamsFor`, `VeloDomRequestRouteName`, and
 `VeloDomComponentPropsFor` without a runtime dependency.
+`vd add i18n|tests|lab` installs only existing first-party optional capabilities
+into an application. Unit tests are the small default; use `--e2e` or `--all`
+explicitly. The installer preflights generated paths and package/Vite changes,
+refuses conflicts, writes `.velodom/features.json` with created-file hashes,
+and becomes a no-op when the same feature is already recorded. It never runs a
+package install, deletes files, or manages third-party plugins.
 `vd benchmark` delegates to the project's `benchmark:rendering` script so
 performance checks stay repeatable and outside the browser runtime.
 

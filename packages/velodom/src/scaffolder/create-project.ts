@@ -224,6 +224,10 @@ and import framework capabilities only from public \`velodom/*\` entry points.
 
 Package-local AI guidance is available after installation at
 \`node_modules/velodom/AI_CONTEXT.md\`.
+
+Add an optional first-party capability later with \`npx vd add i18n\`,
+\`npx vd add tests --unit\`, or \`npx vd add lab\`. The installer refuses
+conflicts and records generated-file ownership in \`.velodom/features.json\`.
 `);
 }
 

@@ -31,9 +31,9 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 
 `[####################] 100%`
 
-**Next-release approved scope: 12 of 15 milestones complete.**
+**Next-release approved scope: 13 of 15 milestones complete.**
 
-`[################....] 80%`
+`[#################...] 87%`
 
 The repository is the local V1 source baseline. Registry availability,
 authentication, tags, and releases are external state and are deliberately not
@@ -336,10 +336,13 @@ layer, or unproven analysis.
   a versioned, source-free `dist/velodom-build-meta.json`; the report derives
   chunk ownership and Rollup rendered-module duplication from that artifact and
   states when metadata is unavailable instead of guessing from minified text.
-- [ ] Add a narrowly scoped `vd add <feature>` installer for existing optional
+- [x] Add a narrowly scoped `vd add <feature>` installer for existing optional
   first-party capabilities (for example i18n, tests, or Lab). Start with an
   idempotent feature-installer contract and a generated-file manifest before
-  considering removal or third-party packages.
+  considering removal or third-party packages. `vd add i18n|tests|lab` now
+  preflights every write, refuses user-file/script conflicts, records created
+  file hashes and controlled modifications in `.velodom/features.json`, and is
+  idempotent without installing packages or creating a plugin marketplace.
 - [ ] Improve the optional, read-only Lab with a component ownership tree,
   state diffs, request waterfall, route-transition timeline, directive/source
   inspection, and copyable diagnostic commands. Keep source writes, mutable

@@ -123,6 +123,17 @@ npx vd routes
 npx vd lab --check
 ```
 
+Add an existing optional first-party feature without recreating the project:
+
+```bash
+npx vd add i18n
+npx vd add tests --unit
+npx vd add lab
+```
+
+The installer checks conflicts before writing and records only its generated
+files in `.velodom/features.json`; it never overwrites application-owned work.
+
 If the project selected Lab, use `npm run lab`. Otherwise `npx vd lab` can
 temporarily enable it through the existing Vite development command without
 changing production output.

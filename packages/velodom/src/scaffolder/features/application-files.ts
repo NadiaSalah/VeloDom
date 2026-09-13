@@ -11,6 +11,10 @@
 import { mkdir, rename, readdir, writeFile } from "node:fs/promises";
 import { dirname, extname, join } from "node:path";
 import type { ScaffoldPlan } from "../types.ts";
+import {
+  createLocalizationFeatureFiles,
+  createTestingFeatureFiles
+} from "./optional-files.ts";
 
 /** Applies language conversion and optional feature files to one starter. */
 export async function installApplicationFeatures(plan: ScaffoldPlan) {
@@ -176,101 +180,38 @@ async function writeNavigation(plan: ScaffoldPlan) {
 
 /** Writes the localization example. */
 async function writeLocalizationExample(plan: ScaffoldPlan) {
-  const extension = sourceExtension(plan);
-  const type = plan.language === "typescript" ? ": \"en\" | \"ar\"" : "";
-  await writeText(join(plan.destination, `src/i18n.${extension}`), `import { createLocalization, defineLocaleDictionary } from "velodom/localization";
-
-/** Application-owned dictionaries consumed by VeloDom build integration. */
-export const localizationOptions = {
-  defaultLocale: "en",
-  locales: {
-    en: {
-      lang: "en",
-      messages: defineLocaleDictionary({ greeting: "Hello from VeloDom" }),
-    },
-    ar: {
-      lang: "ar",
-      messages: defineLocaleDictionary({ greeting: "مرحبًا من VeloDom" }),
-    },
-  },
-}${plan.language === "typescript" ? " as const" : ""};
-
-/** Typed localization controller shared by application pages and build hooks. */
-export const i18n = createLocalization(localizationOptions);
-/** Applies one explicit locale and writing direction to the current document. */
-export function applyLocale(locale${type}) {
-  document.documentElement.lang = locale;
-  document.documentElement.dir = locale === "ar" ? "rtl" : "ltr";
-}
-`);
-  await writeText(join(plan.destination, "src/pages/localization/index.html"), `<main class="shell hero">
-  <p>Optional localization</p>
-  <h1 vd-text="greeting"></h1>
-  <div>
-    <button class="button" type="button" vd-on:click="setLocale('en')">English</button>
-    <button class="button" type="button" vd-on:click="setLocale('ar')">العربية</button>
-  </div>
-</main>
-`);
-  await writeText(join(plan.destination, `src/pages/localization/script.${extension}`), localizationScript(plan));
-  await writeText(join(plan.destination, `src/pages/localization/config.${extension}`), `export default {
-  path: "/localization",
-  layout: "default",
-  seo: {
-    title: "Localization",
-    description: "English and Arabic localization example.",
-  },
-};
-`);
+  await writeGeneratedFiles(
+    plan.destination,
+    createLocalizationFeatureFiles(plan.language)
+  );
 
   if (plan.router) await writeNavigation(plan);
 }
 
-/** Performs the internal `localizationScript()` operation. */
-function localizationScript(plan: ScaffoldPlan) {
-  const localeType = plan.language === "typescript" ? ': "en" | "ar"' : "";
-  return `import { applyLocale, i18n } from "../../i18n.${sourceExtension(plan)}";
-
-/** Shallow page state for the generated locale-switching example. */
-export const state = {
-  locale: "en"${plan.language === "typescript" ? ' as "en" | "ar"' : ""},
-  greeting: i18n.t("en", "greeting"),
-  setLocale(locale${localeType}) {
-    this.locale = locale;
-    this.greeting = i18n.t(locale, "greeting");
-    applyLocale(locale);
-  },
-};
-`;
-}
-
 /** Writes the tests. */
 async function writeTests(plan: ScaffoldPlan) {
-  const extension = sourceExtension(plan);
+  if (plan.testing === "none") return;
 
-  if (plan.testing === "unit" || plan.testing === "all") {
-    // Keep unit tests executable on the minimum supported Node version without
-    // requiring a TypeScript loader merely because application source is typed.
-    await writeText(join(plan.destination, "tests/unit/project.test.js"), `import assert from "node:assert/strict";
-import test from "node:test";
-import { readFile } from "node:fs/promises";
+  await writeGeneratedFiles(
+    plan.destination,
+    createTestingFeatureFiles(
+      plan.language,
+      plan.testing,
+      plan.packageManager === "pnpm" || plan.packageManager === "yarn"
+        ? `${plan.packageManager} dev`
+        : `${plan.packageManager} run dev`
+    )
+  );
+}
 
-test("generated project depends on VeloDom", async () => {
-  const manifest = JSON.parse(await readFile(new URL("../../package.json", import.meta.url), "utf8"));
-  assert.match(manifest.dependencies.velodom, /^\\^\\d+\\./);
-});
-`);
-  }
-
-  if (plan.testing === "e2e" || plan.testing === "all") {
-    await writeText(join(plan.destination, `tests/e2e/home.spec.${extension}`), `import { expect, test } from "@playwright/test";
-
-test("renders the VeloDom starter", async ({ page }) => {
-  await page.goto("/");
-  await expect(page.locator("h1").first()).toBeVisible();
-});
-`);
-  }
+/** Writes a deterministic map of generated application files. */
+async function writeGeneratedFiles(
+  destination: string,
+  files: Record<string, string>
+) {
+  await Promise.all(Object.entries(files).map(([file, source]) => (
+    writeText(join(destination, file), source)
+  )));
 }
 
 /** Converts the source to type script. */

@@ -70,6 +70,9 @@ or claim that a matching package is available from a registry.
 - Versioned, source-free Rollup build metadata emitted by the Vite plugin and
   consumed by `vd build-report` for initial/route/component/shared/lazy-feature
   attribution plus measured rendered-module dependency duplication.
+- Idempotent `vd add i18n|tests|lab` installation with preflight conflict
+  checks, explicit dependency installation, and a hashed generated-file /
+  controlled-modification manifest at `.velodom/features.json`.
 - An enforced first TypeScript `strict` slice for stable/shared contracts and
   low-dependency Core utilities, wired into normal checks and package builds.
 
@@ -159,7 +162,7 @@ or claim that a matching package is available from a registry.
 ### Documentation
 
 - Synchronized the academic showcase with the source-derived V1 contract: 13
-  package exports, 63 public values, 43 preferred directives, and 18 CLI
+  package exports, 63 public values, 43 preferred directives, and 19 CLI
   commands, including every supported package entry point.
 - Added named-function JSDoc coverage across all framework TypeScript modules
   and made the documentation gate reject undocumented function declarations.

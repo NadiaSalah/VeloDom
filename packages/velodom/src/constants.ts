@@ -82,6 +82,13 @@ export const VD_BUILD = Object.freeze({
   METADATA_VERSION: 1
 });
 
+/** Idempotent optional-feature installer manifest contract. */
+export const VD_FEATURE_INSTALLER = Object.freeze({
+  FEATURES: Object.freeze(["i18n", "lab", "tests"]),
+  MANIFEST_FILE: ".velodom/features.json",
+  MANIFEST_VERSION: 1
+});
+
 /** Build and browser markers used by optional page-data transfer. */
 export const VD_PAGE_DATA = Object.freeze({
   ATTRIBUTE: "data-vd-page-data",

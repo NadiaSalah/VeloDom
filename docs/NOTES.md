@@ -561,6 +561,11 @@
   paths, while duplicated dependency cost is reported only from Rollup's
   rendered-module lengths. Missing or incompatible metadata is an explicit
   unavailable state, never a minified-code heuristic.
+- `vd add` is intentionally limited to existing first-party `i18n`, `tests`,
+  and `lab` capabilities. It preflights all files/config entries and writes a
+  versioned ownership manifest only after success. This establishes the safety
+  contract needed by any later remove/upgrade lifecycle without introducing a
+  plugin registry, package installation side effect, or browser code.
 - `vd graph` exports relationships that can be proven statically today:
   pages-to-routes, templates-to-components, templates-to-requests, and
   request-to-middleware registrations. Event/ref/state graphs remain separate
