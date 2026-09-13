@@ -117,6 +117,7 @@ interface NormalizedRouteConfig {
 
 interface ActiveRequest {
   controller: AbortController;
+  id: number;
   routeName: string;
   targetState: DirectiveState | null;
   targetPath: string;
@@ -161,6 +162,7 @@ let apiRoutes: UnknownRecord = Object.create(null);
 let appRequestMiddleware: UnknownRecord = Object.create(null);
 let requestHooks: RequestHookOptions = {};
 let authRuntime = createAuthRuntime();
+let nextRequestId = 1;
 
 /** Replaces the application-owned request routes, middleware, and auth config. */
 export function configureRequestRuntime({
@@ -476,6 +478,7 @@ async function runRequestDirective(
   let devtoolsStatus = "cancelled";
 
   devtools?.emit("request:start", {
+    requestId: activeRequest.id,
     route: routeName,
     target: targetBinding.path || null
   });
@@ -613,6 +616,7 @@ async function runRequestDirective(
     devtools?.emit("request:error", {
       durationMs: readPerformanceTime() - devtoolsStartedAt,
       message,
+      requestId: activeRequest.id,
       route: routeName,
       stage
     });
@@ -653,6 +657,7 @@ async function runRequestDirective(
     finishRequest(el, activeRequest);
     devtools?.emit("request:end", {
       durationMs: readPerformanceTime() - devtoolsStartedAt,
+      requestId: activeRequest.id,
       route: routeName,
       status: devtoolsStatus
     });
@@ -1341,10 +1346,12 @@ function beginRequest(
   const controller = new AbortController();
   const request = {
     controller,
+    id: nextRequestId,
     routeName,
     targetState: targetBinding.state,
     targetPath: targetBinding.path
   };
+  nextRequestId += 1;
 
   activeRequests.set(el, request);
 

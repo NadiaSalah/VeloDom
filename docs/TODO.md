@@ -31,9 +31,9 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 
 `[####################] 100%`
 
-**Next-release approved scope: 13 of 15 milestones complete.**
+**Next-release approved scope: 14 of 15 milestones complete.**
 
-`[#################...] 87%`
+`[###################.] 93%`
 
 The repository is the local V1 source baseline. Registry availability,
 authentication, tags, and releases are external state and are deliberately not
@@ -343,10 +343,13 @@ layer, or unproven analysis.
   preflights every write, refuses user-file/script conflicts, records created
   file hashes and controlled modifications in `.velodom/features.json`, and is
   idempotent without installing packages or creating a plugin marketplace.
-- [ ] Improve the optional, read-only Lab with a component ownership tree,
+- [x] Improve the optional, read-only Lab with a component ownership tree,
   state diffs, request waterfall, route-transition timeline, directive/source
   inspection, and copyable diagnostic commands. Keep source writes, mutable
   runtime state, payload capture, and secret collection out of the next release.
+  The Lab now derives those views from bounded snapshots, correlates concurrent
+  requests/navigation with internal development IDs, and copies only local
+  `vd explain` commands through the browser Clipboard API.
 - [ ] Add `vd test` as a thin command for existing project tests plus compiler
   fixture, route, request-mock, component-interaction, and accessibility-smoke
   helpers. Browser, unit, component, and route filters must run real selected

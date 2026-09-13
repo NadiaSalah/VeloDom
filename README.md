@@ -179,6 +179,10 @@ release commit is verified, approved, tagged, and published deliberately.
   preflights conflicts, never overwrites user files, records generated hashes
   and controlled config changes in `.velodom/features.json`, and leaves package
   installation explicit.
+- Expanded the optional read-only Lab with a true nested ownership tree, recent
+  state diffs, a payload-free request waterfall, correlated route transitions,
+  directive/source locations, and copyable local `vd explain` commands.
+  Request/navigation IDs exist only in bounded development events.
 - Completed the monotonic TypeScript `strict` migration. The final CLI,
   project-intelligence, and scaffolder slice was hardened, then the gate was
   extended to all 88 package source files through `src/**/*.ts` so future
@@ -226,9 +230,10 @@ release commit is verified, approved, tagged, and published deliberately.
 - Added DOM, component lifecycle, playground, and browser coverage for keyed
   reorder, insert, removal, duplicate-key fallback, and same-key replacement.
 - Added experimental, opt-in VeloDom Lab on top of the existing Vite workflow:
-  route/component/state/binding/compiler inspection, a bounded event timeline,
-  safe serialization, DOM highlighting, search, themes, responsive UI, and HMR
-  metadata refresh through a versioned read-only protocol.
+  route/component/state/binding/compiler inspection, a nested ownership tree,
+  state diffs, request waterfall, correlated route timeline, safe serialization,
+  DOM highlighting, search, themes, responsive UI, and HMR metadata refresh
+  through a versioned read-only protocol.
 - Added `vd lab`, focused `vd inspect` views, deterministic `vd explain`, Lab
   setup checks in `vd doctor`, and an optional `--lab` project choice shared by
   JavaScript/TypeScript and every starter.

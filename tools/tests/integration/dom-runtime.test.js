@@ -6,6 +6,11 @@ import { createPageEventHub } from "../../../packages/velodom/src/events.ts";
 import { mount } from "../../../packages/velodom/src/mount.ts";
 import { createPageRouter } from "../../../packages/velodom/src/page-router.ts";
 import { createState } from "../../../packages/velodom/src/reactive.ts";
+import { createDevtoolsRuntimeSession } from "../../../packages/velodom/src/devtools/runtime.ts";
+import {
+  connectDevtoolsState,
+  disconnectDevtoolsState
+} from "../../../packages/velodom/src/devtools/hook.ts";
 import {
   renderPageDataTransfer
 } from "../../../packages/velodom/src/page-data.ts";
@@ -1485,6 +1490,9 @@ test("request directives update state, emit success, and abort on cleanup", asyn
     postId: 7,
     result: null
   });
+  const devtoolsApp = {};
+  const devtools = createDevtoolsRuntimeSession(devtoolsApp);
+  connectDevtoolsState(state, devtools);
   const cleanup = await applyDirectives(root, state);
 
   root.querySelector("button").click();
@@ -1501,6 +1509,15 @@ test("request directives update state, emit success, and abort on cleanup", asyn
   });
   assert.equal(state.loading, false);
   assert.equal(successes.length, 1);
+  const requestEvents = devtools.inspect().events.filter(event => (
+    event.type.startsWith("request:")
+  ));
+  assert.deepEqual(requestEvents.map(event => event.type), [
+    "request:start",
+    "request:end"
+  ]);
+  assert.equal(requestEvents[0].payload.requestId, requestEvents[1].payload.requestId);
+  assert.equal(typeof requestEvents[0].payload.requestId, "number");
 
   const firstSignal = requestSignal;
   state.result = null;
@@ -1515,4 +1532,6 @@ test("request directives update state, emit success, and abort on cleanup", asyn
   resolveRequest();
   await new Promise(resolve => setTimeout(resolve, 0));
   assert.equal(state.result, null);
+  disconnectDevtoolsState(state, devtools);
+  devtools.destroy();
 });

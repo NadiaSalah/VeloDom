@@ -4356,9 +4356,11 @@ vd lab
 When enabled, the Vite plugin injects a development-only bootstrap and a
 local, read-only compiler-metadata endpoint. `mountVeloDom()` then installs
 the same explicit bridge produced by `createDevtoolsPlugin()`. The isolated
-panel shows the active route, mounted page/component tree, bounded safe state
-snapshots, directive/DOM bindings, route/request/event/update timeline, and
-compiler diagnostics. It supports search, element highlighting, light/dark/
+panel shows the active route, a nested page/component ownership tree, bounded
+safe state snapshots and recent shallow diffs, directive/DOM bindings, a
+payload-free request waterfall, correlated route transitions, the complete
+bounded event stream, and compiler directive/source diagnostics with copyable
+local `vd explain` commands. It supports search, element highlighting, light/dark/
 system themes, keyboard focus with <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+<kbd>K</kbd>,
 responsive sizing, and compiler refresh after Vite hot updates.
 

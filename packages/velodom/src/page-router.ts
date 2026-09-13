@@ -184,6 +184,7 @@ export function createPageRouter(
 
     devtools?.emit("route:navigate:start", {
       from: currentRoute?.path || null,
+      navigationId,
       path: route.path,
       requestedPath: path
     });
@@ -214,6 +215,7 @@ export function createPageRouter(
         devtools?.emit("route:navigate:end", {
           durationMs: readPerformanceTime() - navigationStartedAt,
           hashOnly: true,
+          navigationId,
           page: currentRoute.page,
           path: currentRoute.path
         });
@@ -441,6 +443,7 @@ export function createPageRouter(
       devtools?.emit("route:navigate:end", {
         durationMs: readPerformanceTime() - navigationStartedAt,
         hashOnly: false,
+        navigationId,
         page: route.page,
         path: route.path
       });
@@ -452,6 +455,7 @@ export function createPageRouter(
       pageScopeCleanup = null;
       devtools?.emit("route:navigate:error", {
         message: err instanceof Error ? err.message : String(err),
+        navigationId,
         page,
         path: route.path
       });

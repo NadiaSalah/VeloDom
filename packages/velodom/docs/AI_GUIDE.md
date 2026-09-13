@@ -95,6 +95,8 @@ fields from `vd doctor --json` over parsing human messages. Use
 `vd lab --check` before `vd lab` when a visual, read-only view of mounted
 routes, components, state, bindings, events, requests, or compiler metadata
 would help. Lab is optional; do not add it to production code or assume it can
+mutate application state or source. Its ownership, diff, request, route, and
+compiler/source views are read-only and deliberately omit network payloads.
 mutate application state.
 
 ## Use Public Package Exports

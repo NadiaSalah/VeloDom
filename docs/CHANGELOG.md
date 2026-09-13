@@ -73,6 +73,9 @@ or claim that a matching package is available from a registry.
 - Idempotent `vd add i18n|tests|lab` installation with preflight conflict
   checks, explicit dependency installation, and a hashed generated-file /
   controlled-modification manifest at `.velodom/features.json`.
+- Read-only Lab ownership hierarchy, recent state diffs, payload-free request
+  waterfall, ID-correlated route timeline, directive/source inspection, and
+  Clipboard-backed local diagnostic commands.
 - An enforced first TypeScript `strict` slice for stable/shared contracts and
   low-dependency Core utilities, wired into normal checks and package builds.
 

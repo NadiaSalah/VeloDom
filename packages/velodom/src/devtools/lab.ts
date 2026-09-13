@@ -41,7 +41,7 @@ export interface VeloDomLabHandle {
   refresh(): Promise<void>;
 }
 
-type LabTab = "compiler" | "components" | "overview" | "state" | "timeline";
+type LabTab = "compiler" | "components" | "overview" | "requests" | "state" | "timeline";
 type LabTheme = "dark" | "light" | "system";
 
 interface LabViewState {
@@ -61,6 +61,7 @@ const TABS: Array<{ id: LabTab; label: string }> = [
   { id: "overview", label: "Overview" },
   { id: "components", label: "Components" },
   { id: "state", label: "State" },
+  { id: "requests", label: "Requests" },
   { id: "timeline", label: "Timeline" },
   { id: "compiler", label: "Compiler" }
 ];
@@ -198,8 +199,16 @@ export function mountVeloDomLab(
     renderLab(shadow, view);
   });
   requireShadowElement(shadow, ".vd-lab-content").addEventListener("click", event => {
-    const button = event.target instanceof Element
-      ? event.target.closest<HTMLButtonElement>("[data-highlight]")
+    const target = event.target instanceof Element ? event.target : null;
+    const copyButton = target?.closest<HTMLButtonElement>("[data-copy]");
+
+    if (copyButton) {
+      void copyDiagnosticCommand(copyButton);
+      return;
+    }
+
+    const button = target
+      ? target.closest<HTMLButtonElement>("[data-highlight]")
       : null;
 
     if (!button) return;
@@ -272,7 +281,13 @@ function renderActiveView(view: LabViewState) {
     case "components":
       return renderComponents(view.snapshot.scopes, view.filter);
     case "state":
-      return renderState(view.snapshot.scopes, view.filter);
+      return renderState(
+        view.snapshot.scopes,
+        view.snapshot.events,
+        view.filter
+      );
+    case "requests":
+      return renderRequests(view.snapshot.events, view.filter);
     case "timeline":
       return renderTimeline(view.snapshot.events, view.filter);
     case "compiler":
@@ -315,9 +330,7 @@ function renderOverview(snapshot: DevtoolsSnapshot) {
 /** Renders the mounted page/component hierarchy. */
 function renderComponents(scopes: DevtoolsScopeSnapshot[], filter: string) {
   const fragment = document.createDocumentFragment();
-  const visible = scopes.filter(scope => (
-    scope.kind !== "shared" && matchesFilter(filter, scope.name, scope.source)
-  ));
+  const visible = orderOwnershipScopes(scopes, filter);
 
   fragment.append(createSectionHeading(
     "Mounted scopes",
@@ -330,7 +343,7 @@ function renderComponents(scopes: DevtoolsScopeSnapshot[], filter: string) {
 
   const list = createElement("ol", "vd-list");
 
-  visible.forEach(scope => {
+  visible.forEach(({ depth, scope }) => {
     const item = createElement("li", "vd-scope");
     const button = createElement("button", "vd-scope-button") as HTMLButtonElement;
     const label = createElement("span", "vd-scope-name");
@@ -340,7 +353,7 @@ function renderComponents(scopes: DevtoolsScopeSnapshot[], filter: string) {
     button.dataset.highlight = scope.id;
     label.textContent = scope.name;
     meta.textContent = `${scope.kind} · ${scope.bindings.length} bindings · ${scope.updates} updates`;
-    button.style.setProperty("--vd-depth", scope.parentId ? "1" : "0");
+    button.style.setProperty("--vd-depth", String(depth));
     button.append(label, meta);
     item.append(button);
     list.append(item);
@@ -349,8 +362,59 @@ function renderComponents(scopes: DevtoolsScopeSnapshot[], filter: string) {
   return fragment;
 }
 
+/** Orders mounted scopes as a real parent/child ownership tree. */
+function orderOwnershipScopes(
+  scopes: DevtoolsScopeSnapshot[],
+  filter: string
+) {
+  const candidates = scopes.filter(scope => scope.kind !== "shared");
+  const byId = new Map(candidates.map(scope => [scope.id, scope]));
+  const included = new Set<string>();
+
+  candidates.forEach(scope => {
+    if (!matchesFilter(filter, scope.name, scope.source)) return;
+
+    let current: DevtoolsScopeSnapshot | undefined = scope;
+    while (current && !included.has(current.id)) {
+      included.add(current.id);
+      current = current.parentId ? byId.get(current.parentId) : undefined;
+    }
+  });
+
+  const children = new Map<string, DevtoolsScopeSnapshot[]>();
+  const roots: DevtoolsScopeSnapshot[] = [];
+  candidates.filter(scope => included.has(scope.id)).forEach(scope => {
+    if (!scope.parentId || !byId.has(scope.parentId)) {
+      roots.push(scope);
+      return;
+    }
+
+    const siblings = children.get(scope.parentId) || [];
+    siblings.push(scope);
+    children.set(scope.parentId, siblings);
+  });
+  const ordered: Array<{ depth: number; scope: DevtoolsScopeSnapshot }> = [];
+  const visited = new Set<string>();
+  const visit = (scope: DevtoolsScopeSnapshot, depth: number) => {
+    if (visited.has(scope.id)) return;
+    visited.add(scope.id);
+    ordered.push({ depth, scope });
+    (children.get(scope.id) || []).forEach(child => visit(child, depth + 1));
+  };
+
+  roots.forEach(root => visit(root, 0));
+  candidates.filter(scope => included.has(scope.id) && !visited.has(scope.id))
+    .forEach(scope => visit(scope, 0));
+
+  return ordered;
+}
+
 /** Renders bounded state snapshots and their bindings. */
-function renderState(scopes: DevtoolsScopeSnapshot[], filter: string) {
+function renderState(
+  scopes: DevtoolsScopeSnapshot[],
+  events: DevtoolsEventRecord[],
+  filter: string
+) {
   const fragment = document.createDocumentFragment();
   const visible = scopes.filter(scope => matchesFilter(filter, scope.name));
 
@@ -375,6 +439,20 @@ function renderState(scopes: DevtoolsScopeSnapshot[], filter: string) {
 
     summary.textContent = `${scope.kind}: ${scope.name}`;
     details.append(summary, createCodeBlock(scope.state));
+    const diffs = events.filter(event => (
+      event.type === "state:update"
+      && readPayloadString(event, "scopeId") === scope.id
+    )).slice(-5).reverse();
+
+    if (diffs.length) {
+      const diffHeading = createElement("strong", "vd-subheading");
+      diffHeading.textContent = "Recent state diffs";
+      details.append(diffHeading);
+      diffs.forEach(event => details.append(createCodeBlock({
+        changes: event.payload.changes,
+        timestamp: new Date(event.timestamp).toISOString()
+      })));
+    }
     if (bindings.length) {
       const list = createElement("ul", "vd-binding-list");
 
@@ -395,9 +473,124 @@ function renderState(scopes: DevtoolsScopeSnapshot[], filter: string) {
   return fragment;
 }
 
+interface LabRequestRecord {
+  durationMs: number | null;
+  error: string;
+  id: string;
+  route: string;
+  startedAt: number;
+  status: string;
+  target: string;
+}
+
+/** Renders paired request lifecycle events as a compact waterfall. */
+function renderRequests(events: DevtoolsEventRecord[], filter: string) {
+  const fragment = document.createDocumentFragment();
+  const visible = createRequestRecords(events).filter(request => matchesFilter(
+    filter,
+    request.route,
+    request.status,
+    request.target,
+    request.error
+  ));
+
+  fragment.append(createSectionHeading(
+    "Request waterfall",
+    "Lifecycle timing and status only; request and response payloads are never captured."
+  ));
+  if (!visible.length) {
+    fragment.append(createEmptyState("Run a declarative request to record its lifecycle."));
+    return fragment;
+  }
+
+  const maxDuration = Math.max(
+    1,
+    ...visible.map(request => request.durationMs || 0)
+  );
+  const list = createElement("ol", "vd-timeline");
+
+  visible.slice().reverse().forEach(request => {
+    const item = document.createElement("li");
+    const heading = createElement("div", "vd-event-heading");
+    const name = document.createElement("strong");
+    const duration = document.createElement("span");
+    const bar = createElement("div", "vd-waterfall-track");
+    const fill = createElement("span", "vd-waterfall-fill");
+
+    name.textContent = `${request.route} · ${request.status}`;
+    duration.textContent = request.durationMs === null
+      ? "pending"
+      : `${request.durationMs.toFixed(1)} ms`;
+    fill.style.width = `${Math.max(3, ((request.durationMs || 0) / maxDuration) * 100)}%`;
+    bar.append(fill);
+    heading.append(name, duration);
+    item.append(heading, bar);
+    if (request.target || request.error) {
+      item.append(createCodeBlock({
+        error: request.error || undefined,
+        target: request.target || undefined
+      }));
+    }
+    list.append(item);
+  });
+  fragment.append(list);
+  return fragment;
+}
+
+/** Pairs request start/end/error events by their internal development ID. */
+function createRequestRecords(events: DevtoolsEventRecord[]) {
+  const records: LabRequestRecord[] = [];
+  const byId = new Map<string, LabRequestRecord>();
+
+  events.forEach(event => {
+    if (!event.type.startsWith("request:")) return;
+
+    const route = readPayloadString(event, "route");
+    const requestId = readPayloadString(event, "requestId")
+      || `legacy:${route}:${event.id}`;
+    let record = byId.get(requestId);
+
+    if (event.type === "request:start") {
+      record = {
+        durationMs: null,
+        error: "",
+        id: requestId,
+        route,
+        startedAt: event.timestamp,
+        status: "pending",
+        target: readPayloadString(event, "target")
+      };
+      byId.set(requestId, record);
+      records.push(record);
+      return;
+    }
+
+    if (!record) {
+      record = [...records].reverse().find(item => (
+        item.route === route && item.status === "pending"
+      ));
+    }
+    if (!record) return;
+
+    const duration = readPayloadNumber(event, "durationMs");
+    if (duration !== null) record.durationMs = duration;
+    if (event.type === "request:error") {
+      record.error = readPayloadString(event, "message");
+      record.status = "error";
+    } else {
+      record.status = readPayloadString(event, "status") || record.status;
+    }
+  });
+
+  return records;
+}
+
 /** Renders the real bounded development event stream. */
 function renderTimeline(events: DevtoolsEventRecord[], filter: string) {
   const fragment = document.createDocumentFragment();
+  const transitions = createRouteTransitionRecords(events).filter(record => (
+    matchesFilter(filter, record.path, record.status, record.from)
+  ));
   const visible = [...events]
     .reverse()
     .filter(event => matchesFilter(
@@ -407,7 +600,31 @@ function renderTimeline(events: DevtoolsEventRecord[], filter: string) {
     ));
 
   fragment.append(createSectionHeading(
-    "Update timeline",
+    "Route-transition timeline",
+    "Navigation timing is paired by ID; the complete bounded event stream follows."
+  ));
+  if (transitions.length) {
+    const routeList = createElement("ol", "vd-timeline");
+
+    transitions.slice().reverse().forEach(record => {
+      const item = document.createElement("li");
+      const heading = createElement("div", "vd-event-heading");
+      const name = document.createElement("strong");
+      const duration = document.createElement("span");
+
+      name.textContent = `${record.from || "start"} → ${record.path} · ${record.status}`;
+      duration.textContent = record.durationMs === null
+        ? "pending"
+        : `${record.durationMs.toFixed(1)} ms`;
+      heading.append(name, duration);
+      item.append(heading);
+      routeList.append(item);
+    });
+    fragment.append(routeList);
+  }
+
+  fragment.append(createSectionHeading(
+    "Complete event stream",
     "Newest first. The buffer is bounded and can be cleared safely."
   ));
   if (!visible.length) {
@@ -434,6 +651,46 @@ function renderTimeline(events: DevtoolsEventRecord[], filter: string) {
   return fragment;
 }
 
+/** Pairs route navigation events for reliable concurrent transition timing. */
+function createRouteTransitionRecords(events: DevtoolsEventRecord[]) {
+  const records: Array<{
+    durationMs: number | null;
+    from: string;
+    id: string;
+    path: string;
+    status: string;
+  }> = [];
+  const byId = new Map<string, typeof records[number]>();
+
+  events.forEach(event => {
+    if (!event.type.startsWith("route:navigate:")) return;
+
+    const id = readPayloadString(event, "navigationId") || `legacy:${event.id}`;
+    if (event.type === "route:navigate:start") {
+      const record = {
+        durationMs: null,
+        from: readPayloadString(event, "from"),
+        id,
+        path: readPayloadString(event, "path"),
+        status: "pending"
+      };
+      byId.set(id, record);
+      records.push(record);
+      return;
+    }
+
+    const record = byId.get(id)
+      || [...records].reverse().find(item => item.status === "pending");
+    if (!record) return;
+
+    record.durationMs = readPayloadNumber(event, "durationMs");
+    record.status = event.type.endsWith(":error") ? "error" : "complete";
+    record.path ||= readPayloadString(event, "path");
+  });
+
+  return records;
+}
+
 /** Renders source-derived compiler metadata supplied by the Vite endpoint. */
 function renderCompiler(records: DevtoolsCompilerRecord[], filter: string) {
   const fragment = document.createDocumentFragment();
@@ -458,16 +715,87 @@ function renderCompiler(records: DevtoolsCompilerRecord[], filter: string) {
   visible.forEach(record => {
     const details = createElement("details", "vd-details") as HTMLDetailsElement;
     const summary = document.createElement("summary");
+    const actions = createElement("div", "vd-command-row");
 
     summary.textContent = record.file;
-    details.append(summary, createCodeBlock({
-      diagnostics: record.diagnostics,
-      directives: record.directives,
-      features: record.features
-    }));
+    actions.append(createCopyButton(`vd explain ${JSON.stringify(record.file)}`));
+    details.append(summary, actions);
+
+    if (record.directives.length) {
+      const heading = createElement("strong", "vd-subheading");
+      const list = createElement("ul", "vd-binding-list");
+      heading.textContent = "Directive/source inspection";
+      record.directives.forEach(directive => {
+        const item = document.createElement("li");
+        const location = directive.line
+          ? ` · ${directive.line}:${directive.column || 1}`
+          : "";
+        item.textContent = `${directive.name}${directive.argument ? `:${directive.argument}` : ""}${location} — ${directive.expression || "marker"}`;
+        list.append(item);
+      });
+      details.append(heading, list);
+    }
+
+    if (record.diagnostics.length) {
+      const heading = createElement("strong", "vd-subheading");
+      const list = createElement("ul", "vd-binding-list");
+      heading.textContent = "Diagnostics";
+      record.diagnostics.forEach(diagnostic => {
+        const item = document.createElement("li");
+        const label = document.createElement("span");
+        label.textContent = `${diagnostic.code} · ${diagnostic.line}:${diagnostic.column} — ${diagnostic.message}`;
+        item.append(label, createCopyButton(`vd explain ${diagnostic.code}`));
+        list.append(item);
+      });
+      details.append(heading, list);
+    }
+
+    details.append(createCodeBlock({ features: record.features }));
     fragment.append(details);
   });
   return fragment;
+}
+
+/** Creates a clipboard command without rendering untrusted metadata as HTML. */
+function createCopyButton(command: string) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.dataset.copy = command;
+  button.textContent = `Copy: ${command}`;
+  return button;
+}
+
+/** Copies one deterministic local diagnostic command when Clipboard API exists. */
+async function copyDiagnosticCommand(button: HTMLButtonElement) {
+  const command = button.dataset.copy || "";
+
+  if (!command || !navigator.clipboard?.writeText) {
+    button.textContent = "Clipboard unavailable";
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(command);
+    button.textContent = "Copied";
+  } catch {
+    button.textContent = "Copy failed";
+  }
+}
+
+/** Reads a serialized event field as a display string. */
+function readPayloadString(event: DevtoolsEventRecord, key: string) {
+  const value = event.payload[key];
+
+  return typeof value === "string" || typeof value === "number"
+    ? String(value)
+    : "";
+}
+
+/** Reads a finite serialized event number without coercing arbitrary data. */
+function readPayloadNumber(event: DevtoolsEventRecord, key: string) {
+  const value = event.payload[key];
+
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 /** Fetches local compiler records and treats an unavailable endpoint as empty. */
@@ -577,6 +905,11 @@ function createLabStyle() {
     .vd-binding-list { padding: 8px; border-top: 1px solid var(--border); }
     .vd-binding-list li + li { margin-top: 5px; }
     .vd-binding-list button { width: 100%; text-align: left; overflow-wrap: anywhere; }
+    .vd-subheading { display: block; padding: 9px 12px 4px; border-top: 1px solid var(--border); }
+    .vd-command-row { display: flex; gap: 6px; padding: 8px; border-top: 1px solid var(--border); }
+    .vd-command-row button { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .vd-waterfall-track { height: 7px; margin: 0 11px 10px; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--border) 55%, transparent); }
+    .vd-waterfall-fill { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
     .vd-timeline > li { margin-bottom: 9px; overflow: hidden; }
     .vd-event-heading { display: flex; justify-content: space-between; gap: 12px; padding: 9px 11px; }
     .vd-event-heading time { color: var(--muted); }

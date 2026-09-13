@@ -162,6 +162,10 @@ test("page router publishes real route and page lifecycle data only to an instal
     assert.ok(snapshot.events.some(event => event.type === "route:navigate:start"));
     assert.ok(snapshot.events.some(event => event.type === "route:navigate:end"));
     assert.ok(snapshot.events.some(event => event.type === "page:mount"));
+    const routeEvents = snapshot.events.filter(event => (
+      event.type === "route:navigate:start" || event.type === "route:navigate:end"
+    ));
+    assert.equal(routeEvents[0].payload.navigationId, routeEvents[1].payload.navigationId);
 
     await router.destroy();
     assert.equal(session.inspect().scopes.length, 0);

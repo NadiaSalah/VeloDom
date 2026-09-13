@@ -61,7 +61,7 @@ before use.
 | Hydration | Server | Partial | explicit static-content policy | client takeover | SEO renderer | Boundary tested |
 | Asset inspection | Build | Supported | `velodom/assets` | ordinary Vite assets | public helpers | Yes |
 | Devtools inspector | DX | Supported | `velodom/devtools` | CLI inspection | public helper | Yes |
-| VeloDom Lab | DX | Experimental | `vd lab`, optional `--lab` starter choice | manual `mountVeloDomLab` host | `velodom/devtools`, Vite plugin | Yes |
+| VeloDom Lab | DX | Experimental | `vd lab`, optional `--lab` starter choice | ownership tree, state diffs, request waterfall, route timeline, source diagnostics | `velodom/devtools`, Vite plugin | Yes |
 | Deterministic explain | DX | Supported | `vd explain <file|topic|diagnostic-code>` | compiler analysis and stable diagnostic catalog | package binary | Yes |
 | Testing mounts | Testing | Stable | `velodom/testing` | browser E2E | public helpers | Yes |
 | Compiler API | Compiler | Stable | `velodom/compiler` | Vite plugin | public compiler | Yes |

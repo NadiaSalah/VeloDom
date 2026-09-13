@@ -198,7 +198,8 @@ default to unit; `--e2e` and `--all` select real Playwright layers.
 Choose `--lab` during scripted project creation or select it in Customize mode
 to add `npm run lab`. The command starts the existing Vite server with an
 experimental read-only panel for routes, mounted components, state, bindings,
-events/requests, and compiler diagnostics. Lab is development-only and absent
+recent state diffs, request waterfall, correlated route events, and compiler
+directive/source diagnostics. Lab is development-only and absent
 from normal production output; `--no-lab` adds nothing.
 
 ## Requirements

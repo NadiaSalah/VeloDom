@@ -566,6 +566,11 @@
   versioned ownership manifest only after success. This establishes the safety
   contract needed by any later remove/upgrade lifecycle without introducing a
   plugin registry, package installation side effect, or browser code.
+- Lab lifecycle correlation uses monotonically increasing request/navigation
+  IDs only inside development events. The UI derives ownership, diffs,
+  waterfalls, transitions, and diagnostic commands from the existing bounded
+  read-only protocol; it still captures no credentials, request/response bodies,
+  application source text, or mutable state controls.
 - `vd graph` exports relationships that can be proven statically today:
   pages-to-routes, templates-to-components, templates-to-requests, and
   request-to-middleware registrations. Event/ref/state graphs remain separate
