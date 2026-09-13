@@ -69,6 +69,7 @@ before use.
 | Language analysis | Editor | Supported | compiler analysis APIs | VS Code package | public APIs | Yes |
 | Feature-based project scaffolding | DX | Stable | `npm create velodom`, `vd create` | Minimal/Blog/Empty, scriptable flags | `velodom/cli`, `velodom/scaffolder` | Yes |
 | Project intelligence | DX | Supported | `vd doctor/inspect/...` | build-time Project Index and categorized source diagnostics | package binary | Yes |
+| Static check composition | DX | Supported | `vd check` | existing project diagnostics and in-memory type generation | package binary | Yes |
 | Type generation | DX | Supported | `vd types` | manual declarations | package binary | Yes |
 
 ## Compatibility Inputs

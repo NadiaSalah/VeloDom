@@ -468,6 +468,7 @@ vd help
 vd lab --check
 vd inspect
 vd doctor
+vd check
 vd explain routing
 vd explain VD_PROJECT_COMPONENT_MISSING
 vd stats
@@ -534,6 +535,12 @@ When the source relationship is statically provable, JSON output also includes
 one-based `location.line` and `location.column`. Component, request, and
 unknown-directive names receive a suggestion only when a close known name
 passes a conservative typo threshold.
+`vd check` composes these source diagnostics with in-memory generated-type
+validation and package/Vite build-entry sanity. It prints every step it actually
+ran and leaves the browser step visibly `not-run`; run the project's real E2E
+command separately when browser evidence is required. The command is
+non-destructive and does not write `src/velodom.generated.d.ts` or invoke a
+production build.
 `vd build-report` summarizes project counts, SEO coverage, compiler features,
 unused directive families, optional runtime features not requested by current
 templates, largest pages/

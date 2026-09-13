@@ -58,6 +58,12 @@
   edit-distance threshold and never rewrite source. CLI impact is
   `DEFAULT_INCLUDED`: existing `doctor` output gains structured fields and
   `vd explain` accepts IDs, with no generated-project or template changes.
+- `vd check` is a thin orchestration command, not a second analyzer. It reuses
+  the Project Index, doctor diagnostics, in-memory declaration generation, and
+  explicit package/Vite sanity checks. It never writes declarations, starts a
+  build, or reports browser success; the browser step is always `not-run` with
+  the real follow-up named. CLI impact is `DEFAULT_INCLUDED`; starters and
+  runtime exports do not change.
 - Static SEO generation runs after Vite writes the bundle rather than at its
   close hook. The renderer needs the emitted `index.html` shell, and this keeps
   the behavior stable across Vite/Rolldown lifecycle ordering.

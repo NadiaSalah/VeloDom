@@ -31,9 +31,9 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 
 `[####################] 100%`
 
-**Next-release approved scope: 7 of 15 milestones complete.**
+**Next-release approved scope: 8 of 15 milestones complete.**
 
-`[#########...........] 47%`
+`[###########.........] 53%`
 
 The repository is the local V1 source baseline. Registry availability,
 authentication, tags, and releases are external state and are deliberately not
@@ -305,10 +305,13 @@ layer, or unproven analysis.
   maintainability, request, routing, security, state, or tooling categories;
   statically located template findings report line/column data and conservative
   nearest-name suggestions.
-- [ ] Add `vd check` as a non-destructive composition of compiler diagnostics,
+- [x] Add `vd check` as a non-destructive composition of compiler diagnostics,
   generated-type validation, `doctor`, route/reference checks, accessibility,
   security, and build sanity. It must report which checks actually ran and
-  never silently substitute a production build for a browser test.
+  never silently substitute a production build for a browser test. Text and
+  JSON reports enumerate compiler, references, security, build sanity,
+  maintainability, and an explicit `browser: not-run` step; no source or build
+  artifact is written.
 - [ ] Add `vd fix` only for reviewed, syntax-preserving fixes such as preferred
   `vd-*` aliases and deprecated request-state names. It must preview changes,
   leave business logic untouched, and never delete files automatically.

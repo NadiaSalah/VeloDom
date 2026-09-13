@@ -77,6 +77,10 @@ Use `vd doctor` for static project diagnostics. Use `vd inspect`, `vd routes`,
 or `vd graph` when structure is unclear. These commands analyze local project
 files and do not add runtime features.
 
+Use `vd check --json` for one non-destructive summary of the static gates. Its
+browser step is deliberately `not-run`; execute real project E2E tests when
+browser evidence is required.
+
 Use `vd explain <file|topic|diagnostic-code>` for deterministic local
 explanations. Prefer the stable `code`, `category`, `location`, and `suggestion`
 fields from `vd doctor --json` over parsing human messages. Use

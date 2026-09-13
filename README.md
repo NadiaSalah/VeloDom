@@ -133,7 +133,7 @@ docs/
 
 The package source is version `1.0.0`. Its public contract exposes 13 package
 entry points, 63 browser/build public values, 43 preferred directive names,
-and 16 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
+and 17 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
 the automated test suite, production builds, package boundaries, an installed
 tarball consumer, the generated starter, and browser targets.
 
@@ -154,6 +154,11 @@ release commit is verified, approved, tagged, and published deliberately.
   suggestions, and offline `vd explain <diagnostic-code>` guidance to project
   diagnostics. Existing human messages remain readable and JSON output is now
   suitable for editor/CI consumers without requiring AI or network access.
+- Added `vd check` as a transparent read-only composition of compiler,
+  accessibility, relationship, security, configuration, generated-type, and
+  maintainability checks. Its report explicitly leaves browser testing as
+  `not-run`; it neither builds nor writes generated declarations behind the
+  user's back.
 - Completed the monotonic TypeScript `strict` migration. The final CLI,
   project-intelligence, and scaffolder slice was hardened, then the gate was
   extended to all 88 package source files through `src/**/*.ts` so future
@@ -293,8 +298,8 @@ maintenance gate changes neither template syntax nor generated starter choices.
 Only optional or future work belongs in [docs/TODO.md](docs/TODO.md). Near-term
 release work should stay limited to:
 
-- compose the completed Project Index and diagnostic catalog into the planned
-  non-destructive `vd check` command without adding browser runtime weight;
+- add the planned preview-first `vd fix` command for a very small allowlist of
+  syntax-preserving migrations without adding browser runtime weight;
 - run the complete package and browser gates on the final commit;
 - inspect both npm dry-run tarballs for unexpected files or size growth;
 - publish `velodom` first and `create-velodom` second only after explicit owner

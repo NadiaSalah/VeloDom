@@ -131,6 +131,13 @@ interface CliExplanation {
   summary: string;
 }
 
+interface CheckStep {
+  diagnostics: string[];
+  id: string;
+  status: "passed" | "failed" | "not-run";
+  summary: string;
+}
+
 interface ProjectGraph {
   edges: Array<{
     from: string;
@@ -151,6 +158,7 @@ Usage:
   vd inspect [--json] [--root <dir>]
   vd inspect routes|components|config|build [--json] [--root <dir>]
   vd doctor [--json] [--root <dir>]
+  vd check [--json] [--root <dir>]
   vd explain <file|topic> [--json] [--root <dir>]
   vd stats [--json] [--root <dir>]
   vd routes [--json] [--root <dir>]
@@ -189,6 +197,7 @@ Project options:
 
 Examples:
   vd lab
+  vd check
   vd explain src/pages/home/index.html
   vd explain routing
   vd inspect
@@ -263,6 +272,8 @@ export async function runVeloDomCli(
         return runLabCommand(context, parsed.flags);
       case "doctor":
         return printDoctor(context, parsed.flags.has("json"));
+      case "check":
+        return printCheck(context, parsed.flags.has("json"));
       case "explain":
         await printExplanation(
           context,
@@ -760,6 +771,191 @@ async function printDoctor(context: CliContext, json: boolean) {
   return hasErrors ? 1 : 0;
 }
 
+/** Prints one transparent, non-destructive project verification composition. */
+async function printCheck(context: CliContext, json: boolean) {
+  const report = await runProjectCheck(context.cwd);
+
+  if (json) {
+    context.stdout(JSON.stringify(report, null, 2));
+    return report.ok ? 0 : 1;
+  }
+
+  context.stdout("VeloDom check");
+  context.stdout("=============");
+  report.steps.forEach(step => {
+    const marker = step.status === "passed"
+      ? "✓"
+      : step.status === "failed"
+        ? "✗"
+        : "–";
+
+    context.stdout(`  ${marker} ${step.id}: ${step.summary}`);
+    step.diagnostics.forEach(code => context.stdout(`    ${code}`));
+  });
+  if (report.issues.length) {
+    context.stdout("Diagnostics:");
+    report.issues.forEach(issue => {
+      const location = issue.location
+        ? `:${issue.location.line}:${issue.location.column}`
+        : "";
+
+      context.stdout(
+        `  - ${issue.level.toUpperCase()} ${issue.code} ${issue.file}${location}: ${issue.message}`
+      );
+    });
+  }
+
+  return report.ok ? 0 : 1;
+}
+
+/** Composes existing static checks without building or mutating the project. */
+async function runProjectCheck(root: string) {
+  const inspection = await inspectProject(root);
+  const doctorIssues = await runDoctor(root, inspection);
+  const buildIssues = await findBuildSanityIssues(root);
+  const componentProps = await discoverComponentProps(root, inspection);
+  const declarations = createApplicationDeclarations(inspection, componentProps);
+  const typeGenerationValid = (
+    declarations.includes('declare module "velodom/app"')
+    && declarations.endsWith("export {};\n")
+  );
+  const typeIssues = typeGenerationValid
+    ? []
+    : [normalizeDoctorIssue({
+        category: "tooling",
+        code: "VD_PROJECT_TYPE_GENERATION",
+        file: "src/velodom.generated.d.ts",
+        level: "error",
+        message: "Application declarations could not be generated deterministically."
+      })];
+  const issues = dedupeDiagnostics([
+    ...doctorIssues,
+    ...buildIssues,
+    ...typeIssues
+  ]);
+  const groups: Array<{
+    categories: ProjectDiagnosticCategory[];
+    id: string;
+    summary: string;
+  }> = [
+    {
+      categories: ["compiler", "accessibility"],
+      id: "compiler",
+      summary: "template syntax and accessibility compiler diagnostics"
+    },
+    {
+      categories: ["component", "request", "routing", "state"],
+      id: "references",
+      summary: "routes, components, requests, refs, handlers, and state"
+    },
+    {
+      categories: ["security"],
+      id: "security",
+      summary: "static template security checks"
+    },
+    {
+      categories: ["configuration", "tooling"],
+      id: "build-sanity",
+      summary: "package, Vite, page config, Lab, and generated types"
+    },
+    {
+      categories: ["maintainability"],
+      id: "maintainability",
+      summary: "unused, unreachable, cyclic, and oversized source signals"
+    }
+  ];
+  const steps: CheckStep[] = groups.map(group => {
+    const matches = issues.filter(issue => group.categories.includes(issue.category));
+    const failed = matches.some(issue => issue.level === "error");
+
+    return {
+      diagnostics: [...new Set(matches.map(issue => issue.code))].sort(),
+      id: group.id,
+      status: failed ? "failed" : "passed",
+      summary: `${group.summary}; ${matches.length} finding(s)`
+    };
+  });
+
+  steps.push({
+    diagnostics: [],
+    id: "browser",
+    status: "not-run",
+    summary: "not substituted; run the project's real browser test command separately"
+  });
+
+  return {
+    ok: !issues.some(issue => issue.level === "error"),
+    issues,
+    steps
+  };
+}
+
+/** Checks whether project build entry points are present and readable. */
+async function findBuildSanityIssues(root: string): Promise<ProjectDiagnostic[]> {
+  const issues: DoctorIssue[] = [];
+  const packageSource = await readOptionalText(join(root, "package.json"));
+
+  if (!packageSource) {
+    issues.push({
+      category: "configuration",
+      code: "VD_PROJECT_BUILD_CONFIG",
+      file: "package.json",
+      level: "error",
+      message: "package.json is required for reproducible project checks."
+    });
+  } else {
+    try {
+      const manifest = JSON.parse(packageSource) as {
+        scripts?: Record<string, unknown>;
+      };
+
+      for (const script of ["dev", "build"]) {
+        if (typeof manifest.scripts?.[script] === "string") continue;
+        issues.push({
+          category: "configuration",
+          code: "VD_PROJECT_BUILD_CONFIG",
+          file: "package.json",
+          level: "warning",
+          message: `The project has no ${script} script, so vd check cannot verify its build entry point.`
+        });
+      }
+    } catch {
+      issues.push({
+        category: "configuration",
+        code: "VD_PROJECT_BUILD_CONFIG",
+        file: "package.json",
+        level: "error",
+        message: "package.json is invalid JSON."
+      });
+    }
+  }
+
+  if (!(await findViteConfig(root))) {
+    issues.push({
+      category: "configuration",
+      code: "VD_PROJECT_BUILD_CONFIG",
+      file: "vite.config",
+      level: "error",
+      message: "A Vite config using velodom/vite-plugin was not found."
+    });
+  }
+
+  return issues.map(normalizeDoctorIssue);
+}
+
+/** Deduplicates diagnostics emitted by overlapping compiler and policy checks. */
+function dedupeDiagnostics(issues: ProjectDiagnostic[]) {
+  const seen = new Set<string>();
+
+  return issues.filter(issue => {
+    const key = `${issue.code}\0${issue.file}\0${issue.location?.line || 0}\0${issue.message}`;
+
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 /** Prints the stats. */
 async function printStats(context: CliContext, json: boolean) {
   const inspection = await inspectProject(context.cwd);
@@ -981,8 +1177,11 @@ async function printGeneratedDocs(context: CliContext, json: boolean) {
 }
 
 /** Runs the doctor. */
-async function runDoctor(root: string) {
-  const inspection = await inspectProject(root);
+async function runDoctor(
+  root: string,
+  existingInspection?: ProjectInspection
+) {
+  const inspection = existingInspection || await inspectProject(root);
   const issues: DoctorIssue[] = [];
   const componentNames = new Set(
     inspection.components.map(component => component.name)

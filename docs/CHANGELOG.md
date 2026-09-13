@@ -53,6 +53,9 @@ or claim that a matching package is available from a registry.
 - Stable project diagnostic IDs and categories, source locations for statically
   located template findings, conservative component/request/directive typo
   suggestions, and deterministic `vd explain <diagnostic-code>` guidance.
+- A read-only `vd check` composition that reports compiler, accessibility,
+  relationship, security, build/configuration, generated-type, and
+  maintainability steps while explicitly marking real browser tests as not run.
 - An enforced first TypeScript `strict` slice for stable/shared contracts and
   low-dependency Core utilities, wired into normal checks and package builds.
 
@@ -142,7 +145,7 @@ or claim that a matching package is available from a registry.
 ### Documentation
 
 - Synchronized the academic showcase with the source-derived V1 contract: 13
-  package exports, 63 public values, 43 preferred directives, and 16 CLI
+  package exports, 63 public values, 43 preferred directives, and 17 CLI
   commands, including every supported package entry point.
 - Added named-function JSDoc coverage across all framework TypeScript modules
   and made the documentation gate reject undocumented function declarations.

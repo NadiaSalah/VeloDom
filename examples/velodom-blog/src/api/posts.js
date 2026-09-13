@@ -46,7 +46,7 @@ const articles = [
     takeaway: "Tooling can be ambitious while the application runtime remains conservative. That is how VeloDom improves productivity without changing authoring into a framework-specific language.",
     boundary: "AI providers, migration tools, CMS adapters, and hosted deployment integrations are research-only optional work. They are never required to build or run an application.",
     exampleLabel: "terminal",
-    example: `vd doctor\nvd graph --mermaid\nvd health\nvd build-report\nvd docs\nvd types`,
+    example: `vd doctor\nvd check\nvd graph --mermaid\nvd health\nvd build-report\nvd docs\nvd types`,
     category: "Tooling",
     readTime: "6 min",
     tags: ["CLI", "doctor", "project intelligence"]

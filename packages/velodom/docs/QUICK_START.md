@@ -117,6 +117,7 @@ Use it from a page:
 ```bash
 npm run build
 npx vd doctor
+npx vd check
 npx vd routes
 npx vd lab --check
 ```

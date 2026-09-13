@@ -408,6 +408,48 @@ test("build-time project index retains source and compiler metadata once", async
   }
 });
 
+test("CLI check composes static gates and reports browser tests as not run", async () => {
+  const root = await createFixture();
+  const output = [];
+
+  try {
+    await writeFixtureFile(root, "package.json", JSON.stringify({
+      scripts: {
+        build: "vite build",
+        dev: "vite"
+      }
+    }));
+    await writeFixtureFile(
+      root,
+      "vite.config.js",
+      'import { velodom } from "velodom/vite-plugin"; export default { plugins: [velodom()] };'
+    );
+
+    const code = await runVeloDomCli([
+      "check",
+      "--json",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+    const report = JSON.parse(output.join("\n"));
+    const browser = report.steps.find(step => step.id === "browser");
+
+    assert.equal(code, 0);
+    assert.equal(report.ok, true);
+    assert.equal(browser.status, "not-run");
+    assert.match(browser.summary, /real browser test/);
+    assert.deepEqual(
+      report.steps.slice(0, -1).map(step => step.id),
+      ["compiler", "references", "security", "build-sanity", "maintainability"]
+    );
+  } finally {
+    await rm(root, { force: true, recursive: true });
+  }
+});
+
 test("CLI create scaffolds convention-first project resources", async () => {
   const root = await mkdtemp(join(tmpdir(), "velodom-cli-"));
   const output = [];

@@ -132,6 +132,22 @@ const DIAGNOSTIC_CATALOG: Record<string, DiagnosticCatalogEntry> = {
       "Lab remains opt-in, local, and excluded from production output."
     ]
   },
+  VD_PROJECT_BUILD_CONFIG: {
+    category: "configuration",
+    summary: "The local project build entry points are incomplete or invalid.",
+    details: [
+      "Keep a valid package.json with explicit dev and build scripts.",
+      "Use a Vite config that registers velodom/vite-plugin."
+    ]
+  },
+  VD_PROJECT_TYPE_GENERATION: {
+    category: "tooling",
+    summary: "Static application declaration generation was not deterministic.",
+    details: [
+      "Run vd types after correcting project discovery diagnostics.",
+      "JavaScript authoring remains available without generated declarations."
+    ]
+  },
   VD_PROJECT_MAINTAINABILITY: {
     category: "maintainability",
     summary: "Static project analysis found a maintainability signal to review.",
