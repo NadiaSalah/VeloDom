@@ -200,6 +200,11 @@ release commit is verified, approved, tagged, and published deliberately.
   missing/extra/unused/unknown keys receive stable diagnostics. `vd i18n
   extract|check` performs static project analysis, while completion metadata is
   available to optional editors and the starter demonstrates the small API.
+- Added build-only `vd inspect css|assets` reports for stylesheet ownership,
+  repeated declaration blocks, possibly unused selectors, RTL-safe logical
+  properties, intrinsic image dimensions, local asset size/hash usage,
+  responsive variants, and possible LCP hints. All findings remain advisory
+  and no image transformer or browser runtime was added.
 - Completed the monotonic TypeScript `strict` migration. The final CLI,
   project-intelligence, and scaffolder slice was hardened, then the gate was
   extended to all 88 package source files through `src/**/*.ts` so future

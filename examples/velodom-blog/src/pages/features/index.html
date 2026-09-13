@@ -436,6 +436,11 @@ const attributes = createResponsiveImageAttributes({
 });</code></pre>
         </div>
       </div>
+      <div class="code-window">
+        <div class="code-toolbar"><span>terminal</span><span>read-only build intelligence</span></div>
+        <pre class="code-example" vd-pre><code>vd inspect css      # route ownership, duplicates, unused selectors, RTL advice
+vd inspect assets   # hashes, usage, dimensions, variants, possible LCP hints</code></pre>
+      </div>
       <div class="callout"><strong>Performance boundary:</strong> the asset helpers inspect existing files and create standard attributes; they never silently resize images or add a browser image runtime.</div>
     </section>
 
@@ -520,6 +525,8 @@ const posts = await loadContentCollection({
       <div class="code-window">
         <div class="code-toolbar"><span>terminal</span><span>local project intelligence</span></div>
         <pre class="code-example" vd-pre><code>vd inspect              # pages, components, APIs, refs, state
+vd inspect css          # route attribution and stylesheet advice
+vd inspect assets       # local asset and image advice
 vd doctor               # navigation, requests, typed props, expose, state, config
 vd check                # transparent static gate composition; browser not run
 vd fix                  # preview preferred-syntax migrations before writing
@@ -539,6 +546,7 @@ vd i18n check           # key parity, usage, and RTL/LTR validation
 vd init my-site         # complete beginner starter
 vd create page guide --demo seo</code></pre>
       </div>
+      <p class="mt-4">The CSS and asset views attribute styles to statically reachable routes, prove byte-identical files by hash, and label dynamic usage or LCP guesses as advisories for review.</p>
       <div class="grid gap-5 lg:grid-cols-2">
         <div class="feature-card">
           <h3 class="text-lg font-black text-slate-950">Testing</h3>

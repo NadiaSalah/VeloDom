@@ -365,9 +365,9 @@ These ideas fit VeloDom only as optional build/development integrations. They
 need a bounded design, a public compatibility story, and tests after the
 next-release Project Index and installer contracts are proven.
 
-**Executable later-release scope: 2 of 7 milestones complete.**
+**Executable later-release scope: 3 of 7 milestones complete.**
 
-`[######..............] 29%`
+`[#########...........] 43%`
 
 - [x] Expand the feature installer lifecycle with safe `vd remove`, `vd
   upgrade`, compatibility reporting, and shareable project presets. Removal
@@ -384,11 +384,14 @@ next-release Project Index and installer contracts are proven.
   `vd i18n extract|check` never imports project code; diagnostics cover
   missing/extra/unused/unknown/direction facts; and dictionary completions are
   exposed for optional editor integrations.
-- [ ] Add build-only CSS and asset intelligence: unused-selector and scoped-CSS
+- [x] Add build-only CSS and asset intelligence: unused-selector and scoped-CSS
   duplication reports, route CSS attribution, logical-property suggestions,
   missing dimensions, oversized/duplicate/unused assets, responsive-variant
   checks, and LCP/preload advice. Do not add a CSS framework or automatic image
-  transformation service.
+  transformation service. `vd inspect css|assets` now reuses the Project Index,
+  attributes resource styles to statically provable routes, hashes local assets,
+  and labels usage/LCP findings as conservative advisories. It never mutates
+  files or enters application bundles.
 - [ ] Evaluate an optional PWA build plugin with manifest validation, offline
   fallback, installability diagnostics, and explicit cache-strategy templates.
   It must not register a service worker or add runtime code unless enabled.

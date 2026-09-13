@@ -90,6 +90,10 @@ or claim that a matching package is available from a registry.
   interpolation, inferred/validated locale direction, typed key completions,
   stable missing/extra/unused/unknown/direction diagnostics, and static
   `vd i18n extract|check` project commands that never execute app modules.
+- Build-only `vd inspect css|assets` intelligence with route/resource CSS
+  attribution, cross-resource declaration duplication, conservative unused
+  selectors, logical-property guidance, local asset hashes and references,
+  intrinsic-dimension checks, responsive-image advice, and possible LCP hints.
 - An enforced first TypeScript `strict` slice for stable/shared contracts and
   low-dependency Core utilities, wired into normal checks and package builds.
 

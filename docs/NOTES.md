@@ -88,6 +88,12 @@
   evaluator; dynamic configs are reported as unprovable rather than imported.
   CLI impact is `DEFAULT_INCLUDED`; the optional i18n starter demonstrates the
   API, and applications without localization add nothing.
+- CSS and asset intelligence is a focused `vd inspect` view backed by the
+  existing Project Index. It treats dynamic class names and asset URLs as
+  unprovable, so unused and LCP results are advisory; byte-identical assets use
+  SHA-256 evidence, and route attribution follows static page, layout, and
+  nested component relationships. CLI impact is `DEFAULT_INCLUDED`; no
+  templates, dependencies, runtime exports, or generated files change.
 - `vd fix` is not a formatter or codemod framework. The allowlist owns only
   semantic-equivalent template aliases, previews by default, confines `.vd`
   changes to `<template>`, and compares the current file with its indexed

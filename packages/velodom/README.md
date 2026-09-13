@@ -160,6 +160,7 @@ vd doctor
 vd check
 vd fix [--write]
 vd inspect
+vd inspect css|assets
 vd explain <file|topic|diagnostic-code>
 vd routes
 vd graph
@@ -215,6 +216,11 @@ named primitive interpolation, locale-direction validation, key extraction,
 and editor completion records. `vd i18n extract|check` reads only static project
 source; it never imports localization modules or adds a browser translation
 store.
+`vd inspect css|assets` adds read-only build intelligence for stylesheet route
+ownership, duplicate declarations, possible unused selectors, logical CSS,
+asset hashes/references, image dimensions, responsive markup, and possible LCP
+candidates. Dynamic usage remains advisory, and the command never transforms
+or deletes an application file.
 
 Choose `--lab` during scripted project creation or select it in Customize mode
 to add `npm run lab`. The command starts the existing Vite server with an

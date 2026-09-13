@@ -77,6 +77,12 @@ Use `vd doctor` for static project diagnostics. Use `vd inspect`, `vd routes`,
 or `vd graph` when structure is unclear. These commands analyze local project
 files and do not add runtime features.
 
+Use `vd inspect css` for route ownership, repeated declarations, possible dead
+selectors, and logical-property advice. Use `vd inspect assets` for local file
+hashes/references, image dimensions, responsive markup, and possible LCP hints.
+Review advisory findings before editing because dynamic names, URLs, and visual
+position are not statically provable.
+
 Use `vd check --json` for one non-destructive summary of the static gates. Its
 browser step is deliberately `not-run`; execute real project E2E tests when
 browser evidence is required.

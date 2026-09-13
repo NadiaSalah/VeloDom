@@ -94,6 +94,11 @@ import {
 } from "./scaffolder/package-manager.ts";
 import { runProjectTestCommand } from "./cli/test-runner.ts";
 import { runLocalizationCommand } from "./cli/localization.ts";
+import {
+  createCssAssetIntelligence,
+  type CssAssetFinding,
+  type CssAssetIntelligenceReport
+} from "./cli/css-assets.ts";
 
 interface CliOptions {
   cwd?: string;
@@ -182,7 +187,7 @@ const HELP = `VeloDom CLI
 Usage:
   vd lab [--check] [--debug] [--root <dir>]
   vd inspect [--json] [--root <dir>]
-  vd inspect routes|components|config|build [--json] [--root <dir>]
+  vd inspect routes|components|config|css|assets|build [--json] [--root <dir>]
   vd doctor [--json] [--root <dir>]
   vd check [--json] [--root <dir>]
   vd fix [--write] [--json] [--root <dir>]
@@ -541,7 +546,10 @@ async function printInspection(
   section = ""
 ) {
   const inspection = await inspectProject(context.cwd);
-  const selected = selectInspectionSection(inspection, section);
+  const intelligence = section === "css" || section === "assets"
+    ? await createCssAssetIntelligence(context.cwd, inspection)
+    : undefined;
+  const selected = selectInspectionSection(inspection, section, intelligence);
 
   if (json) {
     context.stdout(JSON.stringify(selected, null, 2));
@@ -700,7 +708,8 @@ async function printExplanation(
 /** Selects a supported `vd inspect` view from the shared inspection result. */
 function selectInspectionSection(
   inspection: ProjectInspection,
-  section: string
+  section: string,
+  intelligence?: CssAssetIntelligenceReport
 ): unknown {
   switch (section) {
     case "":
@@ -722,9 +731,13 @@ function selectInspectionSection(
         seo: inspection.seo,
         seoConfigs: inspection.seoConfigs
       };
+    case "css":
+      return intelligence?.css;
+    case "assets":
+      return intelligence?.assets;
     default:
       throw new Error(
-        `Unknown inspection section "${section}". Use routes, components, config, or build.`
+        `Unknown inspection section "${section}". Use routes, components, config, css, assets, or build.`
       );
   }
 }
@@ -750,10 +763,78 @@ function printSelectedInspection(
     return;
   }
 
+  if (section === "css") {
+    printCssInspection(context, selected as CssAssetIntelligenceReport["css"]);
+    return;
+  }
+
+  if (section === "assets") {
+    printAssetInspection(context, selected as CssAssetIntelligenceReport["assets"]);
+    return;
+  }
+
   const config = selected as Record<string, unknown>;
 
   Object.entries(config).forEach(([name, value]) => {
     context.stdout(`  - ${name}: ${JSON.stringify(value)}`);
+  });
+}
+
+/** Prints build-only CSS ownership and advisory findings. */
+function printCssInspection(
+  context: CliContext,
+  css: CssAssetIntelligenceReport["css"]
+) {
+  printList(context, "CSS files", css.files.map(file => (
+    `${file.file}: ${formatBytes(file.bytes)}, ${file.selectorCount} selector(s)`
+  )));
+  printList(context, "Route CSS attribution", css.routeAttribution.map(item => (
+    `${item.file}: ${item.scope}; ${item.routes.join(", ") || "no static route"}`
+  )));
+  printList(context, "Duplicate declaration groups", css.duplicates.map(item => (
+    `${item.files.join(", ")} (${item.selectors.join(", ")})`
+  )));
+  printIntelligenceFindings(context, [
+    ...css.possiblyUnusedSelectors,
+    ...css.logicalProperties
+  ]);
+}
+
+/** Prints local-asset metadata and conservative optimization advice. */
+function printAssetInspection(
+  context: CliContext,
+  assets: CssAssetIntelligenceReport["assets"]
+) {
+  printList(context, "Local assets", assets.files.map(asset => {
+    const dimensions = asset.width && asset.height
+      ? `, ${asset.width}x${asset.height}`
+      : "";
+
+    return `${asset.file}: ${formatBytes(asset.bytes)}${dimensions}; ${asset.usedBy.length} reference(s)`;
+  }));
+  printList(context, "Duplicate asset groups", assets.duplicates.map(item => (
+    `${formatBytes(item.bytes)}: ${item.files.join(", ")}`
+  )));
+  printIntelligenceFindings(context, [
+    ...assets.unused,
+    ...assets.oversized,
+    ...assets.missingDimensions,
+    ...assets.responsiveAdvice,
+    ...assets.lcpAdvice
+  ]);
+}
+
+/** Prints source-located advisory findings without treating them as failures. */
+function printIntelligenceFindings(
+  context: CliContext,
+  findings: CssAssetFinding[]
+) {
+  context.stdout(`Advisories: ${findings.length}`);
+  findings.forEach(finding => {
+    context.stdout(
+      `  - ${finding.code} ${finding.file}${finding.line ? `:${finding.line}` : ""}: ${finding.message}`
+    );
+    context.stdout(`    Suggestion: ${finding.suggestion}`);
   });
 }
 

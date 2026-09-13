@@ -436,6 +436,44 @@ export const VD_RTL_CSS = Object.freeze({
   })
 });
 
+/** Build-only thresholds and stable codes for CSS and asset intelligence. */
+export const VD_CSS_ASSET_INTELLIGENCE = Object.freeze({
+  ASSET_EXTENSIONS: Object.freeze([
+    ".avif",
+    ".gif",
+    ".ico",
+    ".jpeg",
+    ".jpg",
+    ".png",
+    ".svg",
+    ".webp",
+    ".woff",
+    ".woff2"
+  ]),
+  IMAGE_EXTENSIONS: Object.freeze([
+    ".avif",
+    ".gif",
+    ".jpeg",
+    ".jpg",
+    ".png",
+    ".svg",
+    ".webp"
+  ]),
+  MAX_ASSET_BYTES: 250 * 1024,
+  LARGE_IMAGE_WIDTH: 1200,
+  LCP_CANDIDATE_BYTES: 100 * 1024,
+  CODES: Object.freeze({
+    DUPLICATE_ASSET: "VD_ASSET_DUPLICATE",
+    LARGE_ASSET: "VD_ASSET_OVERSIZED",
+    LCP_HINT: "VD_ASSET_LCP_HINT",
+    MISSING_DIMENSIONS: "VD_ASSET_DIMENSIONS",
+    RESPONSIVE_VARIANTS: "VD_ASSET_RESPONSIVE",
+    UNUSED_ASSET: "VD_ASSET_UNUSED",
+    DUPLICATE_CSS: "VD_CSS_DUPLICATE_RULE",
+    UNUSED_SELECTOR: "VD_CSS_POSSIBLY_UNUSED_SELECTOR"
+  })
+});
+
 /** HTML shell diagnostics used by build integrations. */
 export const VD_HTML_SHELL = Object.freeze({
   UTF8_CODE: "VD_HTML_SHELL_UTF8",

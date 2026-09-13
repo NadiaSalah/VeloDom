@@ -218,6 +218,11 @@ visibility are never server authorization.
   evidence; there is no localization directive or required global store.
 - `vd lab` is an optional local Vite inspector. It is read-only,
   development-only, and never required to run or build an application.
+- Use `vd inspect css` and `vd inspect assets` for static build evidence about
+  route style ownership, repeated rules, logical properties, local asset
+  usage, dimensions, variants, and possible LCP candidates. Treat unused and
+  LCP advice as conservative because dynamic source paths and visual layout are
+  outside static proof. These commands do not transform or delete files.
 - `velodom/testing` provides test-only compiler fixtures, route resolution,
   request doubles, DOM event dispatch, accessibility smoke diagnostics, and
   page/component mounts. It is not an application runtime service.

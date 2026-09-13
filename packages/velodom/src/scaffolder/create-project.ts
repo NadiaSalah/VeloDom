@@ -234,6 +234,8 @@ scripts; focused layers such as \`npx vd test unit\` never fake a passing result
 Run \`npx vd features\` before removing/upgrading managed features. A portable
 \`npx vd preset export\` contains feature choices only and may be reviewed
 before another project applies it.
+Use \`npx vd inspect css\` and \`npx vd inspect assets\` for read-only build advice
+about route styles, local asset usage, image dimensions, and responsive markup.
 `);
 }
 
