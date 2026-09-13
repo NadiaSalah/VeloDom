@@ -91,6 +91,11 @@ Run `vd fix` without flags and review the file/line preview. Use `--write` only
 for the built-in preferred-directive alias migration; it intentionally leaves
 scripts, business logic, and unknown syntax unchanged.
 
+Before changing installed optional features, run `vd features`. Use
+`vd remove` only when ownership is clean and reversible; never bypass a hash
+refusal. `vd upgrade` is for first-party generated files, while presets are
+data-only feature choices and not general code templates.
+
 Treat advanced doctor checks as proof-driven. Declare component props through a
 `ComponentInitContext<Props>` interface/type when exact prop diagnostics are
 valuable; VeloDom deliberately skips dynamic `vd-props` and control-flow guesses.

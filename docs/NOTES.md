@@ -74,6 +74,13 @@
   route, request-double, interaction, and accessibility helpers reuse public
   production semantics but remain test-only imports, preserving browser-runtime
   size and Vanilla/TypeScript authoring parity.
+- Optional-feature removal follows installation order in reverse because
+  first-party features may successively modify `package.json`. Each new
+  controlled mutation records before/after hashes and source; removal restores
+  it only when the live after-hash is exact. Older entries without reversible
+  source stay readable but non-removable. CLI impact is `DEFAULT_INCLUDED`;
+  presets are data-only allowlists and never install dependencies or execute
+  third-party code.
 - `vd fix` is not a formatter or codemod framework. The allowlist owns only
   semantic-equivalent template aliases, previews by default, confines `.vd`
   changes to `<template>`, and compares the current file with its indexed

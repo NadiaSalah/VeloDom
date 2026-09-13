@@ -8,7 +8,7 @@ export const homeMetrics = [
   { label: "Public values", value: "68" },
   { label: "Directives", value: "43" },
   { label: "Package exports", value: "13" },
-  { label: "CLI commands", value: "20" }
+  { label: "CLI commands", value: "24" }
 ];
 
 export const frameworkPrinciples = [

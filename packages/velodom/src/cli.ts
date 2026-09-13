@@ -68,6 +68,13 @@ import {
 } from "./cli/fixes.ts";
 import { installProjectFeature } from "./cli/feature-installer.ts";
 import {
+  applyFeaturePreset,
+  exportFeaturePreset,
+  inspectFeatureCompatibility,
+  removeProjectFeature,
+  upgradeProjectFeature
+} from "./cli/feature-lifecycle.ts";
+import {
   formatBytes,
   printDependencySignals,
   printList,
@@ -188,6 +195,11 @@ Usage:
   vd docs [--json] [--root <dir>]
   vd types [--out <file>] [--root <dir>]
   vd add i18n|tests|lab [--unit|--e2e|--all] [--root <dir>]
+  vd features [--json] [--root <dir>]
+  vd remove i18n|tests|lab|all [--root <dir>]
+  vd upgrade i18n|tests|lab|all [--root <dir>]
+  vd preset export [--out <file>] [--root <dir>]
+  vd preset apply <file> [--root <dir>]
   vd test [all|unit|browser|compiler|route|request|component|a11y] [--root <dir>]
   vd create [project-name] [project options]
   vd init [project-name] [project options]
@@ -228,6 +240,8 @@ Examples:
   vd create component shared/post-card --single-file
   vd add i18n
   vd add tests --unit
+  vd features
+  vd preset export
   vd test unit
   vd test --browser
   vd create feature articles --blog
@@ -336,6 +350,19 @@ export async function runVeloDomCli(
           values[0] || "",
           parsed.flags
         );
+      case "features":
+        return await runFeatureCompatibilityCommand(context, parsed.flags);
+      case "remove":
+        return await runFeatureRemoveCommand(context, values[0] || "", parsed.flags);
+      case "upgrade":
+        return await runFeatureUpgradeCommand(context, values[0] || "", parsed.flags);
+      case "preset":
+        return await runFeaturePresetCommand(
+          context,
+          values[0] || "",
+          values[1] || "",
+          parsed
+        );
       case "test":
         return await runProjectTestCommand(
           context,
@@ -371,6 +398,102 @@ export async function runVeloDomCli(
     context.stderr(error instanceof Error ? error.message : String(error));
     return 1;
   }
+}
+
+/** Prints safe ownership and reversibility facts for installed features. */
+async function runFeatureCompatibilityCommand(
+  context: CliContext,
+  flags: Set<string>
+) {
+  const report = await inspectFeatureCompatibility(context.cwd);
+
+  if (flags.has("json")) {
+    context.stdout(JSON.stringify(report, null, 2));
+    return 0;
+  }
+
+  context.stdout("VeloDom feature compatibility");
+  context.stdout("=============================");
+  context.stdout(
+    `  manifest ${report.manifestVersion}/${report.supportedManifestVersion}; ${report.frameworkRange}`
+  );
+  if (report.features.length === 0) {
+    context.stdout("  No managed optional features.");
+    return 0;
+  }
+  report.features.forEach(item => {
+    context.stdout(
+      `  ${item.state === "clean" ? "✓" : "!"} ${item.feature}: ${item.state}; ${item.reversible ? "reversible" : "legacy/non-reversible"}`
+    );
+    item.issues.forEach(issue => context.stdout(`    - ${issue}`));
+  });
+  return report.features.some(item => item.state !== "clean" || !item.reversible)
+    ? 1
+    : 0;
+}
+
+/** Removes managed feature files only when every ownership hash is safe. */
+async function runFeatureRemoveCommand(
+  context: CliContext,
+  feature: string,
+  flags: Set<string>
+) {
+  const result = await removeProjectFeature(context.cwd, feature);
+
+  if (flags.has("json")) {
+    context.stdout(JSON.stringify(result, null, 2));
+    return 0;
+  }
+  result.removedFeatures.forEach(item => context.stdout(`Removed VeloDom feature "${item}".`));
+  result.removedFiles.forEach(file => context.stdout(`  removed ${file}`));
+  result.restoredFiles.forEach(file => context.stdout(`  restored ${file}`));
+  return 0;
+}
+
+/** Refreshes clean managed features through current first-party generators. */
+async function runFeatureUpgradeCommand(
+  context: CliContext,
+  feature: string,
+  flags: Set<string>
+) {
+  const results = await upgradeProjectFeature(context.cwd, feature);
+
+  if (flags.has("json")) {
+    context.stdout(JSON.stringify(results, null, 2));
+    return 0;
+  }
+  results.forEach(result => context.stdout(`Upgraded VeloDom feature "${result.feature}".`));
+  return 0;
+}
+
+/** Exports or applies a validated data-only optional-feature preset. */
+async function runFeaturePresetCommand(
+  context: CliContext,
+  action: string,
+  input: string,
+  parsed: ParsedArgs
+) {
+  if (action === "export") {
+    const result = await exportFeaturePreset(
+      context.cwd,
+      parsed.options.out || ".velodom/preset.json"
+    );
+    if (parsed.flags.has("json")) context.stdout(JSON.stringify(result, null, 2));
+    else context.stdout(`Exported VeloDom feature preset to ${result.file}.`);
+    return 0;
+  }
+
+  if (action === "apply") {
+    if (!input) throw new Error("vd preset apply requires a project-relative JSON file.");
+    const results = await applyFeaturePreset(context.cwd, input);
+    if (parsed.flags.has("json")) context.stdout(JSON.stringify(results, null, 2));
+    else results.forEach(result => context.stdout(
+      `${result.alreadyInstalled ? "Kept" : "Applied"} VeloDom feature "${result.feature}".`
+    ));
+    return 0;
+  }
+
+  throw new Error("vd preset requires export or apply.");
 }
 
 /** Adds one existing optional first-party capability to the current project. */

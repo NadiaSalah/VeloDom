@@ -40,6 +40,10 @@ For an existing application, `vd add i18n|tests|lab` installs only those
 first-party optional features and records generated ownership in
 `.velodom/features.json`. Never invent other feature names or bypass a reported
 file/script conflict.
+Use `vd features` before `vd remove` or `vd upgrade`. Lifecycle commands trust
+only the ownership manifest, refuse user-modified or legacy non-reversible
+mutations, and never install dependencies. `vd preset export/apply` transfers
+only validated first-party feature names/options, never application source.
 Run configured tests with `vd test` or a focused layer such as `vd test unit`
 or `vd test --browser`. The command delegates to real package scripts and fails
 if that layer is not configured; never describe an absent layer as tested.

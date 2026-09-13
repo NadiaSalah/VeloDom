@@ -134,6 +134,11 @@ npx vd add lab
 The installer checks conflicts before writing and records only its generated
 files in `.velodom/features.json`; it never overwrites application-owned work.
 
+Inspect that ownership with `npx vd features`. Clean managed features can be
+removed or regenerated with `npx vd remove <feature>` and
+`npx vd upgrade <feature>`. Share only the data-only choices with
+`npx vd preset export`; review the JSON before applying it in another project.
+
 If the project selected Lab, use `npm run lab`. Otherwise `npx vd lab` can
 temporarily enable it through the existing Vite development command without
 changing production output.

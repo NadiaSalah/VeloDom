@@ -365,9 +365,17 @@ These ideas fit VeloDom only as optional build/development integrations. They
 need a bounded design, a public compatibility story, and tests after the
 next-release Project Index and installer contracts are proven.
 
-- [ ] Expand the feature installer lifecycle with safe `vd remove`, `vd
+**Executable later-release scope: 1 of 7 milestones complete.**
+
+`[###.................] 14%`
+
+- [x] Expand the feature installer lifecycle with safe `vd remove`, `vd
   upgrade`, compatibility reporting, and shareable project presets. Removal
   must use generated-file manifests and refuse to delete user-owned changes.
+  `vd features` now audits chained ownership hashes; `vd remove` restores
+  reversible controlled files and deletes only unchanged generated files;
+  `vd upgrade` transactionally reruns current first-party generators; and
+  versioned JSON presets contain only allowlisted feature names/options.
 - [ ] Extend localization with pluralization, parameter interpolation, nested
   key groups, missing/unused-key reports, extraction/check commands, editor
   completion, and per-locale RTL validation while retaining build-time,

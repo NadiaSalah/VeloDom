@@ -170,6 +170,10 @@ vd build-report
 vd docs
 vd types
 vd add i18n|tests|lab
+vd features
+vd remove i18n|tests|lab|all
+vd upgrade i18n|tests|lab|all
+vd preset export|apply
 vd test [all|unit|browser|compiler|route|request|component|a11y]
 vd version
 ```
@@ -195,6 +199,10 @@ missing production artifact is reported as unavailable rather than guessed.
 conflicting user files or scripts, records generated-file ownership in
 `.velodom/features.json`, and leaves dependency installation explicit. Tests
 default to unit; `--e2e` and `--all` select real Playwright layers.
+`vd features` reports clean, missing, modified, and reversible ownership.
+`vd remove` deletes only unchanged generated files and restores only exact
+controlled mutations; `vd upgrade` rolls back if regeneration fails. Preset
+export/apply uses versioned JSON containing allowlisted feature options only.
 `vd test` delegates to one real package script already owned by the project.
 Focused layers fail when their script is missing; browser accepts
 `test:browser` or `test:e2e`, and no filter runs `test`. The explicit

@@ -35,18 +35,22 @@ export interface FeatureInstallResult {
   nextSteps: string[];
 }
 
-interface FeatureManifestEntry {
+/** One installed feature's generated-file ownership and reversible mutations. */
+export interface FeatureManifestEntry {
   createdFiles: Array<{ hash: string; path: string }>;
   existingFiles: string[];
   modifiedFiles: Array<{
     afterHash: string;
+    afterSource?: string;
     beforeHash: string;
+    beforeSource?: string;
     path: string;
   }>;
   options: Record<string, string>;
 }
 
-interface FeatureManifest {
+/** Versioned local ownership contract used by safe feature lifecycle commands. */
+export interface FeatureManifest {
   features: Partial<Record<InstallableFeature, FeatureManifestEntry>>;
   version: number;
 }
@@ -178,7 +182,9 @@ export async function installProjectFeature(
     existingFiles: generated.existing,
     modifiedFiles: [...modifiedSources].map(([path, source]) => ({
       afterHash: hashSource(source.after),
+      afterSource: source.after,
       beforeHash: hashSource(source.before),
+      beforeSource: source.before,
       path
     })),
     options
@@ -195,7 +201,7 @@ export async function installProjectFeature(
 }
 
 /** Resolves aliases without growing a second third-party plugin registry. */
-function normalizeFeature(value: string): InstallableFeature {
+export function normalizeFeature(value: string): InstallableFeature {
   const normalized = value.trim().toLowerCase();
   const aliases: Record<string, InstallableFeature> = {
     i18n: "i18n",
@@ -359,7 +365,7 @@ function readPackageManager(value: string | undefined) {
 }
 
 /** Reads the feature ownership file or creates its initial contract. */
-async function readFeatureManifest(root: string): Promise<FeatureManifest> {
+export async function readFeatureManifest(root: string): Promise<FeatureManifest> {
   const source = await readOptionalText(
     join(root, VD_FEATURE_INSTALLER.MANIFEST_FILE)
   );
@@ -374,28 +380,71 @@ async function readFeatureManifest(root: string): Promise<FeatureManifest> {
   try {
     const value = JSON.parse(source) as Partial<FeatureManifest>;
 
-    if (
-      value.version !== VD_FEATURE_INSTALLER.MANIFEST_VERSION
-      || !value.features
-      || typeof value.features !== "object"
-    ) {
+    if (!isFeatureManifest(value)) {
       throw new Error("unsupported manifest");
     }
 
-    return value as FeatureManifest;
+    return value;
   } catch {
     throw new Error(`Invalid ${VD_FEATURE_INSTALLER.MANIFEST_FILE}.`);
   }
 }
 
+/** Validates ownership metadata before lifecycle code trusts file records. */
+function isFeatureManifest(value: Partial<FeatureManifest>): value is FeatureManifest {
+  if (
+    value.version !== VD_FEATURE_INSTALLER.MANIFEST_VERSION
+    || !value.features
+    || typeof value.features !== "object"
+    || Array.isArray(value.features)
+  ) {
+    return false;
+  }
+
+  for (const [feature, candidate] of Object.entries(value.features)) {
+    if (!VD_FEATURE_INSTALLER.FEATURES.includes(feature as InstallableFeature)) {
+      return false;
+    }
+    if (!candidate || typeof candidate !== "object") return false;
+
+    const entry = candidate as Partial<FeatureManifestEntry>;
+
+    if (
+      !Array.isArray(entry.createdFiles)
+      || !entry.createdFiles.every(file => (
+        file && typeof file.path === "string" && typeof file.hash === "string"
+      ))
+      || !Array.isArray(entry.existingFiles)
+      || !entry.existingFiles.every(file => typeof file === "string")
+      || !Array.isArray(entry.modifiedFiles)
+      || !entry.modifiedFiles.every(file => (
+        file
+        && typeof file.path === "string"
+        && typeof file.beforeHash === "string"
+        && typeof file.afterHash === "string"
+        && (file.beforeSource === undefined || typeof file.beforeSource === "string")
+        && (file.afterSource === undefined || typeof file.afterSource === "string")
+      ))
+      || !entry.options
+      || typeof entry.options !== "object"
+      || Array.isArray(entry.options)
+      || !Object.values(entry.options).every(option => typeof option === "string")
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 /** Writes a stable ownership manifest after all feature writes succeed. */
-async function writeFeatureManifest(root: string, manifest: FeatureManifest) {
+export async function writeFeatureManifest(root: string, manifest: FeatureManifest) {
   const file = join(root, VD_FEATURE_INSTALLER.MANIFEST_FILE);
   await mkdir(dirname(file), { recursive: true });
   await writeFile(file, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 }
 
 /** Creates a stable source hash used by future safe lifecycle commands. */
-function hashSource(source: string) {
+export function hashSource(source: string) {
   return createHash("sha256").update(source).digest("hex");
 }

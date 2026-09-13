@@ -483,6 +483,11 @@ vd docs
 vd types
 vd add i18n
 vd add tests --unit
+vd features
+vd remove tests
+vd upgrade all
+vd preset export
+vd preset apply .velodom/preset.json
 vd test
 vd test unit
 vd test --browser
@@ -590,6 +595,17 @@ explicitly. The installer preflights generated paths and package/Vite changes,
 refuses conflicts, writes `.velodom/features.json` with created-file hashes,
 and becomes a no-op when the same feature is already recorded. It never runs a
 package install, deletes files, or manages third-party plugins.
+`vd features` verifies generated and controlled-file hashes, including the
+reverse installation chain when features share `package.json`. New controlled
+mutations retain exact before/after sources and hashes. `vd remove` preflights
+then deletes only unchanged generated files and restores exact controlled
+sources; user changes, missing controlled files, and legacy non-reversible
+entries stop the operation. `vd upgrade` removes/reinstalls clean features
+through current generators and restores its snapshot on failure.
+`vd preset export` writes versioned JSON with only first-party feature names and
+bounded options; `vd preset apply <file>` validates that data and reuses the
+normal conflict-safe installer. Presets contain no source, credentials,
+third-party packages, or executable hooks.
 `vd test` is a thin selector for tests already owned by the application. With
 no filter (or `all`) it runs `test`; `unit`, `browser`, `compiler`, `route`,
 `request`, `component`, and `a11y` select the corresponding focused package

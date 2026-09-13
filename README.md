@@ -133,7 +133,7 @@ docs/
 
 The package source is version `1.0.0`. Its public contract exposes 13 package
 entry points, 68 browser/build public values, 43 preferred directive names,
-and 20 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
+and 24 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
 the automated test suite, production builds, package boundaries, an installed
 tarball consumer, the generated starter, and browser targets.
 
@@ -189,6 +189,11 @@ release commit is verified, approved, tagged, and published deliberately.
   pass. `velodom/testing` now also supplies compiler fixtures, route resolution,
   recorded request doubles, DOM event dispatch, and compiler-backed
   accessibility smoke checks without entering production bundles.
+- Completed the safe first-party feature lifecycle. `vd features` audits
+  ownership and reversibility, `vd remove` refuses user-modified files,
+  `vd upgrade` rolls clean features through current generators with rollback,
+  and `vd preset export/apply` shares only validated feature choices—not source
+  code, credentials, dependency installation, or third-party execution.
 - Completed the monotonic TypeScript `strict` migration. The final CLI,
   project-intelligence, and scaffolder slice was hardened, then the gate was
   extended to all 88 package source files through `src/**/*.ts` so future

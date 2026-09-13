@@ -69,6 +69,85 @@ test("vd add refuses to overwrite an existing application file", async () => {
   }
 });
 
+test("feature lifecycle reports, presets, upgrades, and removes owned files safely", async () => {
+  const root = await createProject();
+  const secondRoot = await createProject();
+  const output = [];
+  const context = {
+    stdout: message => output.push(message),
+    stderr: message => output.push(message)
+  };
+  const originalPackage = await readFile(join(root, "package.json"), "utf8");
+  const originalVite = await readFile(join(root, "vite.config.js"), "utf8");
+
+  try {
+    assert.equal(await runVeloDomCli(["add", "i18n", "--root", root], context), 0);
+    assert.equal(await runVeloDomCli(["add", "tests", "--all", "--root", root], context), 0);
+    assert.equal(await runVeloDomCli(["add", "lab", "--root", root], context), 0);
+    assert.equal(await runVeloDomCli(["features", "--root", root], context), 0);
+    assert.match(output.join("\n"), /tests: clean; reversible/);
+
+    assert.equal(await runVeloDomCli([
+      "preset", "export", "--out", "velodom-features.json", "--root", root
+    ], context), 0);
+    const preset = JSON.parse(await readFile(join(root, "velodom-features.json"), "utf8"));
+    assert.deepEqual(preset.features.map(item => item.name), ["i18n", "tests", "lab"]);
+    assert.equal(preset.features[1].options.mode, "all");
+
+    assert.equal(await runVeloDomCli(["upgrade", "all", "--root", root], context), 0);
+    assert.equal(await runVeloDomCli(["remove", "all", "--root", root], context), 0);
+    assert.equal(await readFile(join(root, "package.json"), "utf8"), originalPackage);
+    assert.equal(await readFile(join(root, "vite.config.js"), "utf8"), originalVite);
+    await assert.rejects(access(join(root, "src/i18n.js")));
+    await assert.rejects(access(join(root, "tests/unit/project.test.js")));
+    await assert.rejects(access(join(root, ".velodom/features.json")));
+
+    await writeProjectFile(
+      secondRoot,
+      "velodom-features.json",
+      `${JSON.stringify(preset, null, 2)}\n`
+    );
+    assert.equal(await runVeloDomCli([
+      "preset", "apply", "velodom-features.json", "--root", secondRoot
+    ], context), 0);
+    const secondManifest = JSON.parse(await readFile(
+      join(secondRoot, ".velodom/features.json"),
+      "utf8"
+    ));
+    assert.deepEqual(Object.keys(secondManifest.features), ["i18n", "tests", "lab"]);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+    await rm(secondRoot, { recursive: true, force: true });
+  }
+});
+
+test("feature removal refuses user-modified generated files", async () => {
+  const root = await createProject();
+  const errors = [];
+
+  try {
+    assert.equal(await runVeloDomCli(["add", "i18n", "--root", root], {
+      stdout: () => {}, stderr: message => errors.push(message)
+    }), 0);
+    await writeProjectFile(root, "src/i18n.js", "export const userChanged = true;\n");
+
+    assert.equal(await runVeloDomCli(["features", "--root", root], {
+      stdout: message => errors.push(message), stderr: message => errors.push(message)
+    }), 1);
+    assert.equal(await runVeloDomCli(["remove", "i18n", "--root", root], {
+      stdout: () => {}, stderr: message => errors.push(message)
+    }), 1);
+    assert.match(errors.join("\n"), /user changes/);
+    assert.equal(
+      await readFile(join(root, "src/i18n.js"), "utf8"),
+      "export const userChanged = true;\n"
+    );
+    await access(join(root, ".velodom/features.json"));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 async function createProject() {
   const root = await mkdtemp(join(tmpdir(), "velodom-add-"));
   await writeProjectFile(root, "package.json", `${JSON.stringify({
