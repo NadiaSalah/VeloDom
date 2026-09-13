@@ -158,6 +158,7 @@ vd create page|component|api|demo|feature|middleware|plugin <name>
 vd lab [--check]
 vd doctor
 vd check
+vd fix [--write]
 vd inspect
 vd explain <file|topic|diagnostic-code>
 vd routes
@@ -176,6 +177,8 @@ not add browser runtime weight. `vd doctor --json` emits stable diagnostic IDs,
 bounded categories, suggestions, and source locations when static analysis can
 prove them; `vd explain <code>` documents those IDs offline. `vd check` composes
 the available static gates and explicitly reports browser tests as not run.
+`vd fix` previews a small syntax-preserving alias allowlist and writes only
+after an explicit `--write` flag.
 
 Choose `--lab` during scripted project creation or select it in Customize mode
 to add `npm run lab`. The command starts the existing Vite server with an

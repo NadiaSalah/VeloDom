@@ -450,6 +450,52 @@ test("CLI check composes static gates and reports browser tests as not run", asy
   }
 });
 
+test("CLI fix previews and explicitly applies only safe template aliases", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-cli-fix-"));
+  const output = [];
+  const htmlFile = join(root, "src/pages/home/index.html");
+  const vdFile = join(root, "src/components/panel.vd");
+  const html = '<button data-vd-on-click.prevent="save()" data-vd-text="label" data-vd-request-state></button>';
+  const singleFile = `<template><p data-vd-show="open"></p></template>\n<script>const literal = "data-vd-text";</script>`;
+  const io = {
+    stdout: message => output.push(message),
+    stderr: message => output.push(message)
+  };
+
+  try {
+    await writeFixtureFile(root, "src/pages/home/index.html", html);
+    await writeFixtureFile(root, "src/components/panel.vd", singleFile);
+
+    assert.equal(await runVeloDomCli(["fix", "--json", "--root", root], io), 0);
+    const preview = JSON.parse(output.join("\n"));
+
+    assert.equal(preview.mode, "preview");
+    assert.equal(preview.fileCount, 2);
+    assert.equal(preview.editCount, 4);
+    assert.equal(await readFile(htmlFile, "utf8"), html);
+    assert.equal(await readFile(vdFile, "utf8"), singleFile);
+
+    output.length = 0;
+    assert.equal(await runVeloDomCli([
+      "fix",
+      "--write",
+      "--json",
+      "--root",
+      root
+    ], io), 0);
+    assert.equal(
+      await readFile(htmlFile, "utf8"),
+      '<button vd-on:click.prevent="save()" vd-text="label" vd-auto-state></button>'
+    );
+    assert.equal(
+      await readFile(vdFile, "utf8"),
+      `<template><p vd-show="open"></p></template>\n<script>const literal = "data-vd-text";</script>`
+    );
+  } finally {
+    await rm(root, { force: true, recursive: true });
+  }
+});
+
 test("CLI create scaffolds convention-first project resources", async () => {
   const root = await mkdtemp(join(tmpdir(), "velodom-cli-"));
   const output = [];

@@ -133,7 +133,7 @@ docs/
 
 The package source is version `1.0.0`. Its public contract exposes 13 package
 entry points, 63 browser/build public values, 43 preferred directive names,
-and 17 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
+and 18 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
 the automated test suite, production builds, package boundaries, an installed
 tarball consumer, the generated starter, and browser targets.
 
@@ -159,6 +159,10 @@ release commit is verified, approved, tagged, and published deliberately.
   maintainability checks. Its report explicitly leaves browser testing as
   `not-run`; it neither builds nor writes generated declarations behind the
   user's back.
+- Added preview-first `vd fix` for the narrow syntax-preserving migration
+  allowlist: legacy `data-vd-*`, event attributes, and `vd-request-state` to the
+  preferred forms. `--write` is explicit and guarded against changed files;
+  scripts, business logic, unknown syntax, and file deletion are out of scope.
 - Completed the monotonic TypeScript `strict` migration. The final CLI,
   project-intelligence, and scaffolder slice was hardened, then the gate was
   extended to all 88 package source files through `src/**/*.ts` so future
@@ -298,8 +302,8 @@ maintenance gate changes neither template syntax nor generated starter choices.
 Only optional or future work belongs in [docs/TODO.md](docs/TODO.md). Near-term
 release work should stay limited to:
 
-- add the planned preview-first `vd fix` command for a very small allowlist of
-  syntax-preserving migrations without adding browser runtime weight;
+- extend `vd doctor` with the remaining Project Index checks that can be proven
+  statically, without guessing control flow or adding browser runtime weight;
 - run the complete package and browser gates on the final commit;
 - inspect both npm dry-run tarballs for unexpected files or size growth;
 - publish `velodom` first and `create-velodom` second only after explicit owner

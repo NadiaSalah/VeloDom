@@ -64,6 +64,12 @@
   build, or reports browser success; the browser step is always `not-run` with
   the real follow-up named. CLI impact is `DEFAULT_INCLUDED`; starters and
   runtime exports do not change.
+- `vd fix` is not a formatter or codemod framework. The allowlist owns only
+  semantic-equivalent template aliases, previews by default, confines `.vd`
+  changes to `<template>`, and compares the current file with its indexed
+  snapshot before `--write`. Unknown directives and all JavaScript remain
+  untouched. CLI impact is `DEFAULT_INCLUDED`; generated projects already use
+  preferred syntax, so no template change is needed.
 - Static SEO generation runs after Vite writes the bundle rather than at its
   close hook. The renderer needs the emitted `index.html` shell, and this keeps
   the behavior stable across Vite/Rolldown lifecycle ordering.

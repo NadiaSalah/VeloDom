@@ -31,9 +31,9 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 
 `[####################] 100%`
 
-**Next-release approved scope: 8 of 15 milestones complete.**
+**Next-release approved scope: 9 of 15 milestones complete.**
 
-`[###########.........] 53%`
+`[############........] 60%`
 
 The repository is the local V1 source baseline. Registry availability,
 authentication, tags, and releases are external state and are deliberately not
@@ -312,9 +312,12 @@ layer, or unproven analysis.
   JSON reports enumerate compiler, references, security, build sanity,
   maintainability, and an explicit `browser: not-run` step; no source or build
   artifact is written.
-- [ ] Add `vd fix` only for reviewed, syntax-preserving fixes such as preferred
+- [x] Add `vd fix` only for reviewed, syntax-preserving fixes such as preferred
   `vd-*` aliases and deprecated request-state names. It must preview changes,
-  leave business logic untouched, and never delete files automatically.
+  leave business logic untouched, and never delete files automatically. The
+  default is a line/column preview; `--write` is explicit, verifies that source
+  still matches the Project Index snapshot, edits only HTML/`.vd` template
+  regions, and supports only legacy `data-vd-*`, event, and request-state aliases.
 - [ ] Extend `vd doctor` through the Project Index with source-provable checks:
   invalid app-relative `vd-nav` links, impossible request targets, component
   prop/ref/expose mismatches, unused shallow state, and unreachable template

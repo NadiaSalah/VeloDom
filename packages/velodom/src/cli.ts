@@ -54,6 +54,10 @@ import {
   type ProjectDiagnosticCategory
 } from "./cli/diagnostics.ts";
 import {
+  applyProjectFixPlan,
+  createProjectFixPlan
+} from "./cli/fixes.ts";
+import {
   formatBytes,
   printDependencySignals,
   printList,
@@ -159,6 +163,7 @@ Usage:
   vd inspect routes|components|config|build [--json] [--root <dir>]
   vd doctor [--json] [--root <dir>]
   vd check [--json] [--root <dir>]
+  vd fix [--write] [--json] [--root <dir>]
   vd explain <file|topic> [--json] [--root <dir>]
   vd stats [--json] [--root <dir>]
   vd routes [--json] [--root <dir>]
@@ -274,6 +279,8 @@ export async function runVeloDomCli(
         return printDoctor(context, parsed.flags.has("json"));
       case "check":
         return printCheck(context, parsed.flags.has("json"));
+      case "fix":
+        return printFix(context, parsed.flags);
       case "explain":
         await printExplanation(
           context,
@@ -806,6 +813,47 @@ async function printCheck(context: CliContext, json: boolean) {
   }
 
   return report.ok ? 0 : 1;
+}
+
+/** Previews or explicitly applies the safe template-migration allowlist. */
+async function printFix(context: CliContext, flags: Set<string>) {
+  const index = await createProjectSourceIndex(context.cwd);
+  const plan = createProjectFixPlan(index);
+  const edits = plan.flatMap(file => file.edits);
+  const write = flags.has("write");
+  const report = {
+    editCount: edits.length,
+    edits,
+    fileCount: plan.length,
+    mode: write ? "write" : "preview"
+  };
+
+  if (flags.has("json")) {
+    if (write) await applyProjectFixPlan(context.cwd, plan);
+    context.stdout(JSON.stringify(report, null, 2));
+    return 0;
+  }
+
+  context.stdout(write ? "VeloDom safe fixes" : "VeloDom safe-fix preview");
+  context.stdout("========================");
+  if (!edits.length) {
+    context.stdout("No reviewed syntax-preserving fixes are available.");
+    return 0;
+  }
+
+  edits.forEach(edit => {
+    context.stdout(
+      `  - ${edit.file}:${edit.line}:${edit.column} ${edit.before} -> ${edit.after}`
+    );
+  });
+  if (write) {
+    await applyProjectFixPlan(context.cwd, plan);
+    context.stdout(`Applied ${edits.length} edit(s) in ${plan.length} file(s).`);
+  } else {
+    context.stdout("Preview only. Re-run with --write to apply these reviewed aliases.");
+  }
+
+  return 0;
 }
 
 /** Composes existing static checks without building or mutating the project. */

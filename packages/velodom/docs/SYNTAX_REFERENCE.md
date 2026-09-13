@@ -397,6 +397,9 @@ framework topics, or stable diagnostic codes; `vd doctor --json` reports a
 category, code, suggestion, and a one-based source location when provable.
 `vd check` composes the available static gates without writing source or
 pretending that a production build replaces real browser tests.
+`vd fix` previews migration from legacy directive attributes to the preferred
+syntax and changes files only with `--write`; it does not rewrite application
+logic.
 The optional `vd lab` command opens a read-only Vite inspector. Manual Lab
 hosts may import `mountVeloDomLab` and
 `VELODOM_DEVTOOLS_PROTOCOL_VERSION` from `velodom/devtools`; normal

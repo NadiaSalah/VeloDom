@@ -469,6 +469,8 @@ vd lab --check
 vd inspect
 vd doctor
 vd check
+vd fix
+vd fix --write
 vd explain routing
 vd explain VD_PROJECT_COMPONENT_MISSING
 vd stats
@@ -541,6 +543,12 @@ ran and leaves the browser step visibly `not-run`; run the project's real E2E
 command separately when browser evidence is required. The command is
 non-destructive and does not write `src/velodom.generated.d.ts` or invoke a
 production build.
+`vd fix` is preview-only unless `--write` is supplied. Its fixed allowlist
+migrates legacy `data-vd-*` attributes, `data-vd-on-<event>` to
+`vd-on:<event>`, and `vd-request-state` to `vd-auto-state`. It reports every
+file and line/column, refuses to overwrite a file changed since indexing, edits
+only template regions, and never changes JavaScript business logic or deletes
+resources.
 `vd build-report` summarizes project counts, SEO coverage, compiler features,
 unused directive families, optional runtime features not requested by current
 templates, largest pages/

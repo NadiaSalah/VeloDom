@@ -118,6 +118,7 @@ Use it from a page:
 npm run build
 npx vd doctor
 npx vd check
+npx vd fix
 npx vd routes
 npx vd lab --check
 ```

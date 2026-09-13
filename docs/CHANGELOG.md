@@ -56,6 +56,10 @@ or claim that a matching package is available from a registry.
 - A read-only `vd check` composition that reports compiler, accessibility,
   relationship, security, build/configuration, generated-type, and
   maintainability steps while explicitly marking real browser tests as not run.
+- Preview-first `vd fix` support for a reviewed syntax-only allowlist covering
+  legacy directive/event attributes and the request-state alias, with an
+  explicit guarded `--write` mode that never edits application scripts or
+  deletes files.
 - An enforced first TypeScript `strict` slice for stable/shared contracts and
   low-dependency Core utilities, wired into normal checks and package builds.
 
@@ -145,7 +149,7 @@ or claim that a matching package is available from a registry.
 ### Documentation
 
 - Synchronized the academic showcase with the source-derived V1 contract: 13
-  package exports, 63 public values, 43 preferred directives, and 17 CLI
+  package exports, 63 public values, 43 preferred directives, and 18 CLI
   commands, including every supported package entry point.
 - Added named-function JSDoc coverage across all framework TypeScript modules
   and made the documentation gate reject undocumented function declarations.
