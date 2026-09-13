@@ -31,9 +31,9 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 
 `[####################] 100%`
 
-**Next-release approved scope: 10 of 15 milestones complete.**
+**Next-release approved scope: 11 of 15 milestones complete.**
 
-`[#############.......] 67%`
+`[###############.....] 73%`
 
 The repository is the local V1 source baseline. Registry availability,
 authentication, tags, and releases are external state and are deliberately not
@@ -324,10 +324,12 @@ layer, or unproven analysis.
   handlers. Control-flow inference remains out of scope until it is reliable.
   Prop checks require an explicit `ComponentInitContext<Props>` interface/type;
   dynamic `vd-props` and dynamic state access remain deliberately unguessed.
-- [ ] Extend generated application declarations for TypeScript consumers with
+- [x] Extend generated application declarations for TypeScript consumers with
   typed route parameters, request route names, and component-prop facts that
   can be proven statically. JavaScript users keep the same zero-configuration
-  workflow and unprovable values remain `unknown`.
+  workflow and unprovable values remain `unknown`. `vd types` now combines
+  route params and request names with individual/static-object prop usage plus
+  required/optional facts from explicit `ComponentInitContext<Props>` contracts.
 - [ ] Expand `vd build-report` using Vite/Rollup metadata to attribute initial,
   route, shared, component, and lazy-feature chunks, including duplicated
   dependency cost when it can be measured accurately.

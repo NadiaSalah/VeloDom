@@ -167,6 +167,10 @@ release commit is verified, approved, tagged, and published deliberately.
   protected/impossible request targets, explicit typed-prop mismatches,
   component-ref/expose calls, and conservatively unused exported state. Dynamic
   props, state access, and general control flow are intentionally not guessed.
+- Strengthened the existing optional `vd types` output: route params and
+  request names now combine with keys from `vd-prop-*`, static object-form
+  `vd-props`, and required/optional `ComponentInitContext<Props>` contracts.
+  Property values stay honestly `unknown`, and Vanilla projects need nothing.
 - Completed the monotonic TypeScript `strict` migration. The final CLI,
   project-intelligence, and scaffolder slice was hardened, then the gate was
   extended to all 88 package source files through `src/**/*.ts` so future
@@ -306,8 +310,8 @@ maintenance gate changes neither template syntax nor generated starter choices.
 Only optional or future work belongs in [docs/TODO.md](docs/TODO.md). Near-term
 release work should stay limited to:
 
-- strengthen the existing generated application declarations with the remaining
-  route/request/component facts that static analysis can prove;
+- attribute build output to Vite/Rollup chunks where emitted metadata can prove
+  ownership, while keeping heuristic claims out of the report;
 - run the complete package and browser gates on the final commit;
 - inspect both npm dry-run tarballs for unexpected files or size growth;
 - publish `velodom` first and `create-velodom` second only after explicit owner

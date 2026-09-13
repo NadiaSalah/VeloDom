@@ -71,7 +71,7 @@ before use.
 | Project intelligence | DX | Supported | `vd doctor/inspect/...` | build-time Project Index and categorized source diagnostics | package binary | Yes |
 | Static check composition | DX | Supported | `vd check` | existing project diagnostics and in-memory type generation | package binary | Yes |
 | Safe syntax fixes | DX | Supported | `vd fix [--write]` | Project Index and fixed alias allowlist | package binary | Yes |
-| Type generation | DX | Supported | `vd types` | manual declarations | package binary | Yes |
+| Type generation | DX | Supported | `vd types` | Project Index routes, requests, static props, and explicit Props contracts | package binary | Yes |
 
 ## Compatibility Inputs
 

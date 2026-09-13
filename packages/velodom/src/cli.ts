@@ -146,6 +146,11 @@ interface CheckStep {
   summary: string;
 }
 
+interface ComponentPropFacts {
+  all: Set<string>;
+  required: Set<string>;
+}
+
 interface ProjectGraph {
   edges: Array<{
     from: string;
@@ -2179,17 +2184,26 @@ async function discoverComponentProps(
   _root: string,
   inspection: ProjectInspection
 ) {
-  const props = new Map<string, Set<string>>();
+  const props = new Map<string, ComponentPropFacts>();
   inspection.components.forEach(component => {
-    props.set(component.name, new Set());
+    const indexed = findIndexedTemplate(inspection, component.source);
+    const contract = findExplicitComponentProps(indexed?.script || "");
+
+    props.set(component.name, contract || {
+      all: new Set(),
+      required: new Set()
+    });
   });
 
   inspection.templates.forEach(template => {
-    findComponentPropReferences(template.analysisHtml).forEach(reference => {
-      const names = props.get(reference.component) || new Set<string>();
+    findComponentUsages(template.analysisHtml).forEach(reference => {
+      const facts = props.get(reference.component) || {
+        all: new Set<string>(),
+        required: new Set<string>()
+      };
 
-      reference.props.forEach(name => names.add(name));
-      props.set(reference.component, names);
+      reference.props.forEach(name => facts.all.add(name));
+      props.set(reference.component, facts);
     });
   });
 
@@ -2209,31 +2223,6 @@ function findComponentReferences(source: string) {
   }
 
   return [...names].filter(Boolean).sort();
-}
-
-/** Finds the component prop references. */
-function findComponentPropReferences(source: string) {
-  const references: Array<{
-    component: string;
-    props: string[];
-  }> = [];
-
-  for (const match of source.matchAll(/<vd-component\b([^>]*)>/gi)) {
-    const attributes = match[1] || "";
-    const name = attributes.match(/\bname=["']([^"']+)["']/i)?.[1];
-
-    if (!name) continue;
-
-    references.push({
-      component: normalizeModuleName(name),
-      props: [...attributes.matchAll(/\b(?:data-)?vd-prop-([\w-]+)=/gi)]
-        .map(prop => prop[1] || "")
-        .filter(Boolean)
-        .sort()
-    });
-  }
-
-  return references;
 }
 
 /** Finds static navigation targets owned by elements that opt into vd-nav. */
@@ -2742,7 +2731,7 @@ function toMarkdownDocs(docs: Awaited<ReturnType<typeof createDocumentationRepor
 /** Creates the application declarations. */
 function createApplicationDeclarations(
   inspection: ProjectInspection,
-  componentProps: Map<string, Set<string>>
+  componentProps: Map<string, ComponentPropFacts>
 ) {
   const lines = [
     "/**",
@@ -2788,8 +2777,10 @@ function createApplicationDeclarations(
   [...componentProps.entries()].sort(([left], [right]) => (
     left.localeCompare(right)
   )).forEach(([name, props]) => {
-    const shape = props.size
-      ? `{ ${[...props].sort().map(prop => `${quoteTypeKey(prop)}?: unknown`).join("; ")} }`
+    const shape = props.all.size
+      ? `{ ${[...props.all].sort().map(prop => (
+          `${quoteTypeKey(prop)}${props.required.has(prop) ? "" : "?"}: unknown`
+        )).join("; ")} }`
       : "Record<string, never>";
 
     lines.push(`    ${quoteTypeKey(name)}: ${shape};`);

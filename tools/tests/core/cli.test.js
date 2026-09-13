@@ -928,12 +928,21 @@ test("CLI types generates optional project declarations from conventions", async
     await writeFixtureFile(
       root,
       "src/pages/blog/[slug]/index.html",
-      `<vd-component name="shared/card" vd-prop-title="article.title"></vd-component>`
+      `<vd-component name="shared/card" vd-props="{ title: article.title, badge: article.badge }"></vd-component>`
     );
     await writeFixtureFile(
       root,
       "src/pages/blog/[slug]/config.js",
       "export default { path: '/blog/:slug' };"
+    );
+    await writeFixtureFile(
+      root,
+      "src/components/shared/card/script.ts",
+      `
+        import type { ComponentInitContext } from "velodom";
+        interface CardProps { title: string; summary?: string }
+        export function init({ props }: ComponentInitContext<CardProps>) { return { state: props }; }
+      `
     );
 
     const code = await runVeloDomCli([
@@ -954,7 +963,10 @@ test("CLI types generates optional project declarations from conventions", async
     assert.match(declaration, /declare module "velodom\/app"/);
     assert.match(declaration, /"blog\/\[slug\]": \{ "slug": string \}/);
     assert.match(declaration, /"posts\.getAll": unknown/);
-    assert.match(declaration, /"shared\/card": \{ "title"\?: unknown \}/);
+    assert.match(
+      declaration,
+      /"shared\/card": \{ "badge"\?: unknown; "summary"\?: unknown; "title": unknown \}/
+    );
   } finally {
     await removeFixture(root);
   }

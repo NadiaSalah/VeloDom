@@ -182,6 +182,9 @@ after an explicit `--write` flag.
 Project-Index doctor checks include app-relative navigation, writable request
 targets, explicit typed prop contracts, child `expose` members, and
 conservatively unused shallow state without guessing dynamic control flow.
+`vd types` preserves route params, request names, static prop keys, and
+required/optional facts from explicit `ComponentInitContext<Props>` contracts;
+unprovable values remain `unknown` and JavaScript projects need no declarations.
 
 Choose `--lab` during scripted project creation or select it in Customize mode
 to add `npm run lab`. The command starts the existing Vite server with an

@@ -570,7 +570,10 @@ feature-selection signals into a non-blocking score. It fails only when `--min-s
 requests, middleware, plugins, refs, events, state, exposed names, slots, and
 SEO coverage where static analysis can prove the relationship.
 `vd types` generates `src/velodom.generated.d.ts` from conventional pages,
-routes, request names, and component prop names. It is optional: JavaScript
+routes, request names, individual/static-object component prop usage, and
+required/optional keys from an explicit `ComponentInitContext<Props>`
+interface/type. Prop value types remain `unknown` when they cannot be proven
+without executing application code. It is optional: JavaScript
 projects do nothing, while TypeScript projects may import the generated
 `velodom/app` module for `VeloDomPageParamsFor`, `VeloDomRequestRouteName`, and
 `VeloDomComponentPropsFor` without a runtime dependency.

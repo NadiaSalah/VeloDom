@@ -76,6 +76,12 @@
   calls are checked against explicit `expose`, request targets reject runtime
   scope/protected paths, and state warnings require no conservative usage
   signal. CLI impact is `DEFAULT_INCLUDED`; no authoring contract is added.
+- Generated component declarations merge two evidence sources: statically
+  supplied prop keys and an optional explicit `ComponentInitContext<Props>`
+  contract. The latter controls required/optional keys; values remain `unknown`
+  because parsing application TypeScript types into a second type system would
+  be brittle. CLI impact is `DEFAULT_INCLUDED`; `vd types` output improves, but
+  JavaScript projects and starters are unchanged.
 - Static SEO generation runs after Vite writes the bundle rather than at its
   close hook. The renderer needs the emitted `index.html` shell, and this keeps
   the behavior stable across Vite/Rolldown lifecycle ordering.

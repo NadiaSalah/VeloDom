@@ -63,6 +63,10 @@ or claim that a matching package is available from a registry.
 - Project-Index doctor checks for invalid app-relative navigation, unwritable
   request targets, explicit TypeScript prop-contract mismatches, missing child
   expose members, and conservatively unused shallow state.
+- Richer optional application declarations that preserve route parameters,
+  request names, static `vd-props` keys, and required/optional facts from an
+  explicit `ComponentInitContext<Props>` contract while retaining `unknown`
+  value types.
 - An enforced first TypeScript `strict` slice for stable/shared contracts and
   low-dependency Core utilities, wired into normal checks and package builds.
 
