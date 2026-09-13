@@ -80,9 +80,17 @@ or claim that a matching package is available from a registry.
   middleware, binding, and request-router dependencies used by declarative
   requests. Unknown thrown-value inspection is now shared instead of duplicated
   across compiler and request paths; public syntax and exports are unchanged.
+- Expanded the strict boundary through component mounting, page routing and
+  matching, resource-adapter validation, page data, scoped styles, runtime SEO,
+  page events, lifecycle-hook dispatch, and recoverable error boundaries. The
+  runtime contracts now narrow DOM roots, route state, component refs, lazy
+  modules, and cleanup ownership without changing application authoring.
 
 ### Fixed
 
+- Reported a missing `#app` HTML-shell mount element as one actionable router
+  diagnostic instead of allowing the optional error boundary to receive a null
+  target and trigger a secondary failure.
 - Restored `.vd` page lazy-loading parity by extracting only `<config>` as
   eager route metadata and reusing one lazy module loader for template, script,
   style, and manifest exports; production verification now rejects leakage of

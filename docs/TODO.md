@@ -279,7 +279,9 @@ layer, or unproven analysis.
   - [x] Migrate directive features and expression/runtime integration,
     including the auth, middleware, binding, and request-router dependencies
     reached by the declarative request feature.
-  - [ ] Migrate mount, router, resource adapters, and page data.
+  - [x] Migrate mount, page routing/matching, resource adapters, page data, and
+    the directly reached event, style, SEO, lifecycle-hook, and error-boundary
+    runtime dependencies.
   - [ ] Migrate CLI/project intelligence and scaffolder modules. Request
     runtime dependencies are covered by the directive integration slice above.
 - [ ] Create one internal, build-time Project Index with source locations and

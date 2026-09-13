@@ -21,11 +21,20 @@ interface NavigationGuardRunResult {
   redirect: string;
 }
 
+interface RouteRecord {
+  page: string;
+  path: string;
+  segments: string[];
+  meta: Record<string, unknown>;
+  beforeEnter: NavigationGuard | null;
+  score: number;
+}
+
 /** Builds a specificity-ranked route table from discovered page folders. */
 export function createRouteTable(
   pageNames: string[] = [],
   configs: Record<string, PageConfig> = {}
-) {
+): RouteRecord[] {
   return pageNames
     .filter(page => page !== "404")
     .map(page => {
@@ -54,7 +63,10 @@ export function createRouteTable(
 }
 
 /** Resolves a URL-like input against a route table. */
-export function resolveRouteLocation(input, routeTable) {
+export function resolveRouteLocation(
+  input: string | URL,
+  routeTable: readonly RouteRecord[]
+): RouteLocation {
   const url = new URL(
     String(input || "/"),
     "http://velodom.local"
@@ -97,7 +109,7 @@ export function resolveRouteLocation(input, routeTable) {
 }
 
 /** Normalizes the hash. */
-function normalizeHash(hash) {
+function normalizeHash(hash: string): string {
   return String(hash || "").replace(/^#/, "");
 }
 
@@ -151,7 +163,7 @@ export async function runNavigationGuards(
 }
 
 /** Performs the internal `folderToRoutePattern()` operation. */
-function folderToRoutePattern(page) {
+function folderToRoutePattern(page: string): string {
   if (page === "home") return "/";
 
   return `/${String(page || "")
@@ -160,7 +172,7 @@ function folderToRoutePattern(page) {
     .map(segment => {
       const dynamic = segment.match(/^\[([A-Za-z_$][\w$]*)\]$/);
 
-      return dynamic
+      return dynamic?.[1]
         ? `:${dynamic[1]}`
         : segment;
     })
@@ -168,7 +180,7 @@ function folderToRoutePattern(page) {
 }
 
 /** Normalizes the route pattern. */
-function normalizeRoutePattern(path) {
+function normalizeRoutePattern(path: string): string {
   const normalized = normalizePathname(path);
 
   if (normalized.includes("..")) {
@@ -179,7 +191,7 @@ function normalizeRoutePattern(path) {
 }
 
 /** Normalizes the pathname. */
-function normalizePathname(path) {
+function normalizePathname(path: string): string {
   const value = String(path || "/")
     .trim()
     .replace(/\/{2,}/g, "/");
@@ -193,30 +205,35 @@ function normalizePathname(path) {
 }
 
 /** Splits the path. */
-function splitPath(path) {
+function splitPath(path: string): string[] {
   return String(path || "")
     .split("/")
     .filter(Boolean);
 }
 
 /** Calculates the route score. */
-function calculateRouteScore(segments) {
-  return segments.reduce((score, segment) => (
+function calculateRouteScore(segments: readonly string[]): number {
+  return segments.reduce<number>((score, segment) => (
     score + (segment.startsWith(":") ? 2 : 3)
   ), 0) + segments.length;
 }
 
 /** Performs the internal `matchSegments()` operation. */
-function matchSegments(routeSegments, pathSegments) {
+function matchSegments(
+  routeSegments: readonly string[],
+  pathSegments: readonly string[]
+): Record<string, string> | null {
   if (routeSegments.length !== pathSegments.length) {
     return null;
   }
 
-  const params = {};
+  const params: Record<string, string> = {};
 
   for (let index = 0; index < routeSegments.length; index += 1) {
     const expected = routeSegments[index];
     const actual = pathSegments[index];
+
+    if (!expected || actual === undefined) return null;
 
     if (expected.startsWith(":")) {
       params[expected.slice(1)] = decodePathValue(actual);
@@ -246,7 +263,7 @@ function parseQuery(searchParams: URLSearchParams) {
 }
 
 /** Decodes the path value. */
-function decodePathValue(value) {
+function decodePathValue(value: string): string {
   try {
     return decodeURIComponent(value);
   } catch {

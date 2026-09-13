@@ -343,9 +343,9 @@ function assignOptionalText(
 
 /** Normalizes the route path. */
 function normalizeRoutePath(path: string) {
-  const normalized = String(path || "/")
+  const normalized = (String(path || "/")
     .trim()
-    .split(/[?#]/, 1)[0]
+    .split(/[?#]/, 1)[0] || "/")
     .replace(/\/{2,}/g, "/");
 
   if (normalized === "/") return normalized;

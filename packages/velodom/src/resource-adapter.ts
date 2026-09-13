@@ -333,7 +333,7 @@ function normalizeLayoutName(
   value: unknown,
   label: string,
   name: string
-) {
+): string | false | undefined {
   if (value === undefined) return undefined;
   if (value === false) return false;
   if (typeof value !== "string") {
@@ -392,9 +392,9 @@ function attachSourceToError(
 }
 
 /** Returns the resource source file. */
-function getResourceSourceFile(label: string, name: string) {
+function getResourceSourceFile(label: string, name: string): string {
   const [group, type] = label.split(".");
-  const root = getResourceRoot(group);
+  const root = getResourceRoot(group || "");
   const folder = name || VD_RESOURCE_ADAPTER.UNKNOWN_FOLDER;
 
   switch (type) {
@@ -416,7 +416,7 @@ function getResourceSourceFile(label: string, name: string) {
 }
 
 /** Returns the resource root. */
-function getResourceRoot(group: string) {
+function getResourceRoot(group: string): string {
   if (group === VD_RESOURCE_ADAPTER.GROUPS.COMPONENTS) {
     return VD_RESOURCE_ADAPTER.ROOTS.COMPONENTS;
   }

@@ -108,14 +108,20 @@
   build-time compiler cache, compiler and optimizer implementations, the safe
   expression parser/evaluator, directive registry and feature modules, the
   declarative request path's auth/middleware/binding/router dependencies,
-  language-service compiler path, and `.vd` source helpers. Both `npm run check`
-  and package builds execute it. Future slices must expand this file rather than
-  create competing strict configs or weaken checks already enabled there.
+  language-service compiler path, `.vd` source helpers, component mounting,
+  page routing/matching, resource adapters, page data, scoped styles, runtime
+  SEO, events, hook dispatch, and recoverable error boundaries. Both
+  `npm run check` and package builds execute it. Future slices must expand this
+  file rather than create competing strict configs or weaken checks already
+  enabled there.
 - Directive registration reaches request routing through the lazy declarative
   request feature. That dependency belongs to the same strict slice: hiding it
   with unchecked imports would leave the runtime boundary weaker than the
-  compiler boundary. Mount/page routing/resource adapters/page data and
-  CLI/scaffolding remain separate later slices.
+  compiler boundary. CLI/project intelligence/scaffolding remains the final
+  separate strict slice.
+- Page routing requires one real `#app` mount element. The router validates this
+  before touching layout, style, directive, or error-boundary targets and emits
+  one source-aware diagnostic when the HTML shell is invalid.
 - Unknown caught values are inspected through `shared/thrown.ts`. Compiler and
   request modules must not duplicate unsafe property access or assume every
   thrown value is an `Error`; source metadata from structured failures remains

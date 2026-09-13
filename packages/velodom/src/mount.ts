@@ -29,7 +29,9 @@ import {
   runModuleHook,
   runModuleInit
 } from "./init-runner.ts";
+import type { ModuleHookArguments } from "./init-runner.ts";
 import { createLifecycleScope } from "./lifecycle.ts";
+import type { PageEventHub } from "./events.ts";
 import { evaluateExpression } from "./expression/index.ts";
 import { isPlainObject } from "./shared/object.ts";
 import { normalizeFolderPath } from "./shared/path.ts";
@@ -74,13 +76,43 @@ interface ComponentPageContext {
   getPageState?: (pageName: string) => ComponentState;
   hasPage?: (pageName: string) => boolean;
   navigate?: (path: string) => unknown | Promise<unknown>;
-  emit?: (...args: unknown[]) => unknown;
-  on?: (...args: unknown[]) => unknown;
-  off?: (...args: unknown[]) => unknown;
-  once?: (...args: unknown[]) => unknown;
+  emit?: PageEventHub["emit"];
+  on?: PageEventHub["on"];
+  off?: PageEventHub["off"];
+  once?: PageEventHub["once"];
 }
 
-const loaded = new WeakSet();
+interface ComponentRuntimeContext extends ComponentPageContext {
+  ref: string;
+  key: string;
+  state: ComponentState;
+}
+
+interface PublicComponentApi extends UnknownRecord {
+  state: ComponentState;
+}
+
+interface ComponentGroupState {
+  all: PublicComponentApi[];
+  byKey: Record<string, PublicComponentApi>;
+}
+
+interface ComponentGroupApi extends ComponentGroupState, UnknownRecord {
+  __isComponentGroup: true;
+  __register(
+    instance: PublicComponentApi,
+    key: string
+  ): () => void;
+  __size(): number;
+}
+
+type ComponentRegistry = Record<string, ComponentGroupApi>;
+type ComponentLifecycle = ReturnType<
+  typeof createLifecycleScope<ComponentRuntimeContext>
+>;
+type SlotMap = Map<string, DocumentFragment[]>;
+
+const loaded = new WeakSet<Element>();
 
 /**
  * Mounts every component host under a DOM root.
@@ -132,13 +164,13 @@ export async function mount(
         return;
       }
 
-      let cleanup = null;
-      let state = null;
-      let unregisterInstance = null;
-      let componentModule = null;
-      let lifecycle = null;
-      let hookArgs = null;
-      let devtoolsCleanup = null;
+      let cleanup: ComponentCleanup | null = null;
+      let state: ComponentState | null = null;
+      let unregisterInstance: ComponentCleanup | null = null;
+      let componentModule: UnknownRecord | null = null;
+      let lifecycle: ComponentLifecycle | null = null;
+      let hookArgs: ModuleHookArguments | null = null;
+      let devtoolsCleanup: (() => void) | null = null;
 
       try {
 
@@ -190,7 +222,7 @@ export async function mount(
           ctx: lifecycle.context
         };
 
-        let moduleResult = null;
+        let moduleResult: unknown = null;
 
         if (loadModule) {
 
@@ -202,14 +234,14 @@ export async function mount(
           );
 
           mergeState(state, moduleResult);
-          mergeExposedMembers(state, moduleResult?.expose);
+          mergeExposedMembers(state, getModuleExpose(moduleResult));
         }
 
         unregisterInstance = registerComponentInstance(
           el,
           parentState,
           state,
-          moduleResult?.expose
+          getModuleExpose(moduleResult)
         );
 
         const directivesCleanup = await applyDirectives(el, state, {
@@ -247,7 +279,9 @@ export async function mount(
           directivesCleanup?.();
           devtoolsCleanup?.();
           devtoolsCleanup = null;
-          await runModuleHook(componentModule?.destroy, hookArgs);
+          if (hookArgs) {
+            await runModuleHook(componentModule?.destroy, hookArgs);
+          }
           await lifecycle?.dispose();
           state?._dispose?.();
         });
@@ -320,10 +354,17 @@ export async function mount(
 /** Evaluates the `shouldMountChildren()` condition for the supplied input. */
 function shouldMountChildren(
   manifest: RuntimeFeatureManifest | null | undefined
-) {
+): boolean {
   return !manifest || manifest.features.includes(
     VD_COMPILER_FEATURES.COMPONENTS
   );
+}
+
+/** Reads the optional component expose object from an init result. */
+function getModuleExpose(result: unknown): unknown {
+  return isPlainObject(result)
+    ? result.expose
+    : undefined;
 }
 
 /** Returns component props collected from object and attribute bindings. */
@@ -433,21 +474,21 @@ function parsePropsObject(
 }
 
 /** Finds the components. */
-function findComponents(root) {
+function findComponents(root: ComponentRoot): ComponentElement[] {
   const selector = VD.selector(VD.COMPONENT);
-  const components = [];
+  const components: ComponentElement[] = [];
 
-  if (root.matches?.(selector)) {
-    components.push(root);
+  if (root instanceof HTMLElement && root.matches(selector)) {
+    components.push(root as ComponentElement);
   }
 
-  components.push(...root.querySelectorAll(selector));
+  components.push(...root.querySelectorAll<ComponentElement>(selector));
 
   return components;
 }
 
 /** Returns the component name. */
-function getComponentName(el) {
+function getComponentName(el: HTMLElement): string {
   return (
     el.getAttribute(VD.COMPONENT)
     || el.getAttribute("name")
@@ -456,7 +497,7 @@ function getComponentName(el) {
 }
 
 /** Resolves the component folder. */
-function resolveComponentFolder(el, name) {
+function resolveComponentFolder(el: HTMLElement, name: string): string {
   const componentName = (name || "").trim();
 
   if (!componentName) return "";
@@ -471,12 +512,13 @@ function resolveComponentFolder(el, name) {
 }
 
 /** Collects the slots. */
-function collectSlots(el) {
+function collectSlots(el: HTMLElement): SlotMap {
   normalizeSlotSyntax(el);
 
-  const slots = new Map();
+  const slots: SlotMap = new Map();
   const slotNodes = [...el.children]
-    .filter(node => node.hasAttribute(VD.CHILD));
+    .filter(node => node.hasAttribute(VD.CHILD))
+    .map(node => node as HTMLElement);
 
   slotNodes.forEach(node => {
     const name = normalizeSlotName(
@@ -492,7 +534,7 @@ function collectSlots(el) {
 }
 
 /** Applies the slots. */
-function applySlots(el, slots) {
+function applySlots(el: HTMLElement, slots: SlotMap): void {
   const outlets = findSlotOutlets(el);
 
   outlets.forEach(outlet => {
@@ -505,35 +547,37 @@ function applySlots(el, slots) {
 
     const fragment = queue.shift();
 
-    outlet.replaceChildren(fragment);
+    if (fragment) {
+      outlet.replaceChildren(fragment);
+    }
   });
 }
 
 /** Finds the slot outlets. */
-function findSlotOutlets(root) {
+function findSlotOutlets(root: HTMLElement): HTMLElement[] {
   const selector = VD.selector(VD.GET_CHILD);
-  const outlets = [];
+  const outlets: HTMLElement[] = [];
 
   if (root.matches?.(selector)) {
     outlets.push(root);
   }
 
-  outlets.push(...root.querySelectorAll(selector));
+  outlets.push(...root.querySelectorAll<HTMLElement>(selector));
 
   return outlets;
 }
 
 /** Normalizes the slot name. */
-function normalizeSlotName(name) {
+function normalizeSlotName(name: string | null): string {
   return (name || "").trim();
 }
 
 /** Extracts the slot fragment. */
-function extractSlotFragment(node) {
+function extractSlotFragment(node: HTMLElement): DocumentFragment {
   const fragment = document.createDocumentFragment();
 
   if (node.tagName === "TEMPLATE") {
-    fragment.append(node.content.cloneNode(true));
+    fragment.append((node as HTMLTemplateElement).content.cloneNode(true));
     return fragment;
   }
 
@@ -544,7 +588,7 @@ function extractSlotFragment(node) {
     return fragment;
   }
 
-  const clone = node.cloneNode(true);
+  const clone = node.cloneNode(true) as HTMLElement;
   clone.removeAttribute(VD.CHILD);
   fragment.append(clone);
 
@@ -552,21 +596,24 @@ function extractSlotFragment(node) {
 }
 
 /** Normalizes the template syntax. */
-function normalizeTemplateSyntax(root) {
+function normalizeTemplateSyntax(root: ComponentRoot): void {
   normalizeComponentTags(root);
   normalizeSlotSyntax(root);
 }
 
 /** Normalizes the component tags. */
-function normalizeComponentTags(root) {
-  const candidates = [];
+function normalizeComponentTags(root: ComponentRoot): void {
+  const candidates: HTMLElement[] = [];
 
-  if (root.matches?.(VD.COMPONENT_TAG_SELECTOR)) {
+  if (
+    root instanceof HTMLElement
+    && root.matches(VD.COMPONENT_TAG_SELECTOR)
+  ) {
     candidates.push(root);
   }
 
   candidates.push(
-    ...root.querySelectorAll(VD.COMPONENT_TAG_SELECTOR)
+    ...root.querySelectorAll<HTMLElement>(VD.COMPONENT_TAG_SELECTOR)
   );
 
   candidates.forEach(node => {
@@ -590,9 +637,9 @@ function normalizeComponentTags(root) {
 }
 
 /** Normalizes the slot syntax. */
-function normalizeSlotSyntax(root) {
+function normalizeSlotSyntax(root: ComponentRoot | HTMLElement): void {
   const candidates = [
-    ...root.querySelectorAll(VD.SLOT_TAG_SELECTOR)
+    ...root.querySelectorAll<HTMLElement>(VD.SLOT_TAG_SELECTOR)
   ];
 
   candidates.forEach(node => {
@@ -606,12 +653,12 @@ function normalizeSlotSyntax(root) {
 }
 
 /** Evaluates the `shouldUnwrapComponent()` condition for the supplied input. */
-function shouldUnwrapComponent(el) {
+function shouldUnwrapComponent(el: HTMLElement): boolean {
   return el.getAttribute(VD.HOSTLESS) === "true";
 }
 
 /** Unwraps the component. */
-function unwrapComponent(el) {
+function unwrapComponent(el: ComponentElement): void {
   const scopeId = el.getAttribute(VD.SCOPE);
   const fragment = document.createDocumentFragment();
   const cleanup = el[VD_INTERNAL.CLEANUP_KEY];
@@ -622,13 +669,13 @@ function unwrapComponent(el) {
       if (child.tagName === "STYLE") return;
 
       child.setAttribute(VD.SCOPE, scopeId);
-      child[VD_INTERNAL.CLEANUP_KEY] = runCleanup;
+      (child as ComponentElement)[VD_INTERNAL.CLEANUP_KEY] = runCleanup;
     });
   }
 
   if (!scopeId) {
     [...el.children].forEach(child => {
-      child[VD_INTERNAL.CLEANUP_KEY] = runCleanup;
+      (child as ComponentElement)[VD_INTERNAL.CLEANUP_KEY] = runCleanup;
     });
   }
 
@@ -640,25 +687,29 @@ function unwrapComponent(el) {
 }
 
 /** Evaluates the `isCustomSlotTag()` condition for the supplied input. */
-function isCustomSlotTag(node) {
+function isCustomSlotTag(node: HTMLElement): boolean {
   return ["VD-CHILD", "CHILD", "CHILED"]
     .includes(node.tagName);
 }
 
 /** Disposes every component cleanup callback attached to a DOM subtree. */
-export async function disposeTree(root: ComponentRoot | null) {
+export async function disposeTree(root: ComponentRoot | null): Promise<void> {
   const callbacks = new Set<ComponentCleanup>();
 
-  if (typeof root?.[VD_INTERNAL.CLEANUP_KEY] === "function") {
-    callbacks.add(root[VD_INTERNAL.CLEANUP_KEY]);
+  const rootCleanup = root?.[VD_INTERNAL.CLEANUP_KEY];
+
+  if (typeof rootCleanup === "function") {
+    callbacks.add(rootCleanup);
   }
 
   root?.querySelectorAll?.("*")
     .forEach(node => {
       const owner = node as ComponentElement;
 
-      if (typeof owner[VD_INTERNAL.CLEANUP_KEY] === "function") {
-        callbacks.add(owner[VD_INTERNAL.CLEANUP_KEY]);
+      const cleanup = owner[VD_INTERNAL.CLEANUP_KEY];
+
+      if (typeof cleanup === "function") {
+        callbacks.add(cleanup);
       }
     });
 
@@ -668,7 +719,7 @@ export async function disposeTree(root: ComponentRoot | null) {
 }
 
 /** Performs the internal `once()` operation. */
-function once<TResult>(fn: () => TResult) {
+function once<TResult>(fn: () => TResult): () => TResult | undefined {
   let called = false;
 
   return () => {
@@ -680,7 +731,12 @@ function once<TResult>(fn: () => TResult) {
 }
 
 /** Registers the component instance. */
-function registerComponentInstance(el, parentState, state, expose) {
+function registerComponentInstance(
+  el: HTMLElement,
+  parentState: ComponentState | null,
+  state: ComponentState,
+  expose: unknown
+): ComponentCleanup | null {
   const refName = (el.getAttribute(VD.REF) || "").trim();
 
   if (!refName) return null;
@@ -705,19 +761,24 @@ function registerComponentInstance(el, parentState, state, expose) {
 }
 
 /** Ensures the component registry. */
-function ensureComponentRegistry(state) {
+function ensureComponentRegistry(
+  state: ComponentState | null
+): ComponentRegistry | null {
   if (!state || typeof state !== "object") return null;
 
-  if (!state.components || typeof state.components !== "object") {
+  if (!isPlainObject(state.components)) {
     state.components = {};
   }
 
-  return state.components;
+  return state.components as ComponentRegistry;
 }
 
 /** Creates the public component instance API. */
-function createPublicInstanceApi(state, expose) {
-  const api = {
+function createPublicInstanceApi(
+  state: ComponentState,
+  expose: unknown
+): PublicComponentApi {
+  const api: PublicComponentApi = {
     state
   };
   const members = isPlainObject(expose)
@@ -726,7 +787,7 @@ function createPublicInstanceApi(state, expose) {
 
   Object.entries(members).forEach(([name, value]) => {
     if (typeof value === "function") {
-      api[name] = (...args) => value.apply(state, args);
+      api[name] = (...args: unknown[]) => Reflect.apply(value, state, args);
       return;
     }
 
@@ -737,22 +798,49 @@ function createPublicInstanceApi(state, expose) {
 }
 
 /** Ensures the component group. */
-function ensureComponentGroup(registry, refName) {
+function ensureComponentGroup(
+  registry: ComponentRegistry,
+  refName: string
+): ComponentGroupApi {
   const existing = registry[refName];
 
   if (existing?.__isComponentGroup) {
     return existing;
   }
 
-  const groupState = {
+  const groupState: ComponentGroupState = {
     all: [],
     byKey: {}
   };
 
-  const groupApi = new Proxy(groupState, {
+  /** Adds one mounted instance to this component-ref group. */
+  function registerInstance(
+    instance: PublicComponentApi,
+    key: string
+  ): () => void {
+    groupState.all.push(instance);
+
+    if (key) {
+      groupState.byKey[key] = instance;
+    }
+
+    return () => {
+      const index = groupState.all.indexOf(instance);
+
+      if (index !== -1) {
+        groupState.all.splice(index, 1);
+      }
+
+      if (key && groupState.byKey[key] === instance) {
+        delete groupState.byKey[key];
+      }
+    };
+  }
+
+  const groupApi = new Proxy(groupState as ComponentGroupApi, {
     get(target, prop, receiver) {
       if (prop === "__isComponentGroup") return true;
-      if (prop === "__register") return register;
+      if (prop === "__register") return registerInstance;
       if (prop === "__size") return () => target.all.length;
       if (prop === "state") return target.all[0]?.state;
       if (prop === "length") return target.all.length;
@@ -762,14 +850,18 @@ function ensureComponentGroup(registry, refName) {
         return Reflect.get(target, prop, receiver);
       }
 
-      return (...args) => {
-        const results = [];
+      if (typeof prop !== "string") {
+        return Reflect.get(target, prop, receiver);
+      }
+
+      return (...args: unknown[]) => {
+        const results: unknown[] = [];
 
         target.all.forEach(instance => {
-          const method = instance?.[prop];
+          const method = instance[prop];
 
           if (typeof method === "function") {
-            results.push(method(...args));
+            results.push(Reflect.apply(method, instance, args));
           }
         });
 
@@ -786,39 +878,18 @@ function ensureComponentGroup(registry, refName) {
   return groupApi;
 }
 
-/** Registers the requested value. */
-function register(instance, key) {
-  this.all.push(instance);
-
-  if (key) {
-    this.byKey[key] = instance;
-  }
-
-  return () => {
-    const index = this.all.indexOf(instance);
-
-    if (index !== -1) {
-      this.all.splice(index, 1);
-    }
-
-    if (key && this.byKey[key] === instance) {
-      delete this.byKey[key];
-    }
-  };
-}
-
 /** Collects the state functions. */
-function collectStateFunctions(state) {
+function collectStateFunctions(state: ComponentState): UnknownRecord {
   return Object.keys(state)
     .filter(key => typeof state[key] === "function")
     .reduce((acc, key) => {
       acc[key] = state[key];
       return acc;
-    }, {});
+    }, {} as UnknownRecord);
 }
 
 /** Returns the component key. */
-function getComponentKey(el) {
+function getComponentKey(el: HTMLElement): string {
   const raw = el.getAttribute(VD.KEY);
 
   if (raw === null || raw === undefined) return "";
@@ -827,17 +898,21 @@ function getComponentKey(el) {
 }
 
 /** Clones the child nodes. */
-function cloneChildNodes(el) {
+function cloneChildNodes(el: HTMLElement): Node[] {
   return [...el.childNodes].map(node => node.cloneNode(true));
 }
 
 /** Resets the component host. */
-function resetComponentHost(el, children) {
+function resetComponentHost(el: HTMLElement, children: readonly Node[]): void {
   el.replaceChildren(...children.map(node => node.cloneNode(true)));
 }
 
 /** Creates the component context. */
-function createComponentContext(el, pageCtx, state) {
+function createComponentContext(
+  el: HTMLElement,
+  pageCtx: ComponentPageContext | null,
+  state: ComponentState
+): ComponentRuntimeContext {
   const ref = (el.getAttribute(VD.REF) || "").trim();
   const key = getComponentKey(el);
 
@@ -853,9 +928,15 @@ function createComponentContext(el, pageCtx, state) {
     get components() {
       return pageCtx?.components || {};
     },
-    emit: (...args) => pageCtx?.emit?.(...args),
-    on: (...args) => pageCtx?.on?.(...args),
-    off: (...args) => pageCtx?.off?.(...args),
-    once: (...args) => pageCtx?.once?.(...args)
+    emit: (eventName: string, payload?: unknown) => (
+      pageCtx?.emit?.(eventName, payload)
+    ),
+    on: (eventName: string, handler) => (
+      pageCtx?.on?.(eventName, handler) || (() => {})
+    ),
+    off: (eventName: string, handler) => pageCtx?.off?.(eventName, handler),
+    once: (eventName: string, handler) => (
+      pageCtx?.once?.(eventName, handler) || (() => {})
+    )
   };
 }

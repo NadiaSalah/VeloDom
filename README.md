@@ -146,6 +146,14 @@ release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
+- Continued the monotonic TypeScript `strict` migration through component
+  mounting, page routing, route matching, resource-adapter validation, page
+  data, scoped styles, runtime SEO, page events, lifecycle hook dispatch, and
+  recoverable error-boundary dependencies. Application JavaScript and
+  TypeScript authoring remain equivalent.
+- Added a focused missing-`#app` diagnostic so an invalid HTML shell reports
+  one actionable router error instead of causing a secondary error-boundary
+  failure.
 - Continued the staged TypeScript `strict` migration through the directive
   engine and lazy feature modules, the complete safe-expression evaluator, and
   the declarative request dependencies reached by directives: auth,
@@ -200,7 +208,7 @@ release commit is verified, approved, tagged, and published deliberately.
 - Added concise JSDoc to every named Core function and an AST-backed regression
   gate, while stripping comments only from compiled JavaScript to preserve the
   lightweight runtime budget.
-- Verified 282 tests, documentation/type/lint gates, production and package
+- Verified 283 tests, documentation/type/lint gates, production and package
   builds, the installed tarball consumer, both package dry-runs, performance
   budgets, the compiler benchmark, and Chromium browser E2E. Broader strict
   browser-matrix confirmation remains a final-release workflow responsibility.
@@ -260,9 +268,10 @@ The current strict-typing boundary specifically changes
 `packages/velodom/tsconfig.strict.json` plus focused contracts in shared Core,
 reactivity, refs, the compiler/optimizer, safe expression parser and evaluator,
 directive engine/features, declarative request dependencies, language service,
-and `.vd` source helpers. Mount/page routing/resource adapters/page data and
-CLI/project intelligence/scaffolding remain later strict slices; the parent
-roadmap item is intentionally still open.
+`.vd` source helpers, component mounting, page routing, resource adapters, page
+data, scoped styles, runtime SEO, events, and runtime error boundaries. Only
+CLI/project intelligence/scaffolding remains as the final planned strict slice;
+the parent roadmap item is intentionally still open.
 
 ## TODO
 

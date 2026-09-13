@@ -14,6 +14,7 @@ import { getRefs } from "./refs.ts";
 import { createState, mergeState } from "./reactive.ts";
 import { applyScopedFolderStyles } from "./styles.ts";
 import { createPageEventHub } from "./events.ts";
+import type { PageEventHub } from "./events.ts";
 import {
   VD,
   VD_COMPILER_FEATURES,
@@ -30,6 +31,7 @@ import {
   runModuleHook,
   runModuleInit
 } from "./init-runner.ts";
+import type { ModuleHookArguments } from "./init-runner.ts";
 import { createLifecycleScope } from "./lifecycle.ts";
 import {
   createRouteTable,
@@ -51,16 +53,52 @@ import {
   isAppRelativePath,
   normalizeFolderPath
 } from "./shared/path.ts";
+import { getThrownString } from "./shared/thrown.ts";
 import type {
   RuntimeFeatureManifest
 } from "./compiler/types.ts";
 import type {
+  DevtoolsRuntimeSession
+} from "./devtools/protocol.ts";
+import type { ReactiveStateMethods } from "./reactive.ts";
+import type {
   DirectionController,
   ErrorBoundaryHook,
   NavigationGuard,
+  PageConfig,
+  ResourceLoader,
+  RouteLocation,
   RouterOptions,
-  StateRecord
+  StateRecord,
+  UnknownRecord
 } from "./types.ts";
+
+type PageState = StateRecord & ReactiveStateMethods;
+type PageCleanup = () => unknown | Promise<unknown>;
+
+interface PageRouterRuntime {
+  availablePages: Set<string>;
+  pageConfigs: Record<string, PageConfig>;
+  pageStateRegistry: Record<string, PageState>;
+}
+
+interface PageRuntimeContext {
+  [DEVTOOLS_CONTEXT]: DevtoolsRuntimeSession | null;
+  page: string;
+  route: RouteLocation;
+  params: Record<string, string>;
+  query: Record<string, string | string[]>;
+  meta: UnknownRecord;
+  direction: unknown;
+  readonly components: UnknownRecord;
+  getPageState(pageName: string): PageState;
+  hasPage(pageName: string): boolean;
+  navigate(path: string): unknown | Promise<unknown>;
+  on: PageEventHub["on"];
+  off: PageEventHub["off"];
+  once: PageEventHub["once"];
+  emit: PageEventHub["emit"];
+}
 
 interface PageRouter {
   destroy(): Promise<void>;
@@ -99,7 +137,7 @@ export function createPageRouter(
   const layoutHtml = layoutResources.html || Object.create(null);
   const layoutStyles = layoutResources.styles || Object.create(null);
   const layoutManifests = layoutResources.manifests || Object.create(null);
-  const runtime = {
+  const runtime: PageRouterRuntime = {
     availablePages: new Set(Object.keys(pageHtml)),
     pageConfigs,
     pageStateRegistry: Object.create(null)
@@ -110,12 +148,12 @@ export function createPageRouter(
   );
   const globalGuards = normalizeGuards(options.beforeEach);
   const notFoundPage = String(options.notFoundPage || "404").trim();
-  let activePageCleanup = null;
+  let activePageCleanup: PageCleanup | null = null;
   let activeLocationPath = "";
-  let currentRoute = null;
+  let currentRoute: RouteLocation | null = null;
   let initialized = false;
   let latestNavigationId = 0;
-  let removeRouterListeners = null;
+  let removeRouterListeners: (() => void) | null = null;
   const scrollPositions = new Map<string, ScrollPosition>();
   const prefetchedPages = new Set<string>();
   const prefetchPromises = new Map<string, Promise<void>>();
@@ -151,6 +189,10 @@ export function createPageRouter(
     });
 
     try {
+      if (!app) {
+        throw new Error("VeloDom requires an #app mount element");
+      }
+
       if (
         canHandleSamePageHashNavigation(
           currentRoute,
@@ -329,8 +371,8 @@ export function createPageRouter(
 
       const refs = getRefs(app);
       const loadModule = pageModules[page];
-      let pageModule = null;
-      const hookArgs = {
+      let pageModule: UnknownRecord | null = null;
+      const hookArgs: ModuleHookArguments = {
         el: app,
         props: {},
         refs,
@@ -413,8 +455,20 @@ export function createPageRouter(
         page,
         path: route.path
       });
-      if (err?.code !== VD_INTERNAL.PAGE_NOT_FOUND_CODE) {
+
+      if (!app) {
+        reportUserActionError(err, {
+          title: "Missing Application Root",
+          file: "velodom/page-router.ts",
+          line: 144,
+          hint: "Add one element with id=\"app\" to the HTML shell."
+        });
+        return;
+      }
+
+      if (getThrownString(err, "code") !== VD_INTERNAL.PAGE_NOT_FOUND_CODE) {
         const recovered = typeof errorBoundary === "function"
+          && app
           ? await renderRecoverableErrorBoundary(err, {
             title: "Navigation Crash",
             target: app,
@@ -484,7 +538,7 @@ export function createPageRouter(
   }
 
   /** Navigates to the requested application path. */
-  function navigate(path: string, pagePath = "") {
+  function navigate(path: string | null, pagePath = "") {
     if (!path || typeof path !== "string") {
       reportUserActionError("Missing navigation path", {
         title: "Invalid Navigation Path",
@@ -512,7 +566,7 @@ export function createPageRouter(
   }
 
   /** Initializes this module instance. */
-  function init() {
+  function init(): Promise<boolean | void> {
     if (initialized) {
       return Promise.resolve();
     }
@@ -520,9 +574,9 @@ export function createPageRouter(
     initialized = true;
     setManualScrollRestoration();
 
-    const onDocumentClick = (e) => {
+    const onDocumentClick = (e: MouseEvent) => {
 
-      const link = e.target.closest(
+      const link = getClosestEventElement(e,
         VD.selector(VD.NAV)
       );
 
@@ -537,13 +591,13 @@ export function createPageRouter(
 
     };
 
-    const onPopState = () => {
+    const onPopState = (): void => {
       saveScrollPosition(scrollPositions, getCurrentScrollKey());
       load(getCurrentLocationPath(), "", VD_ROUTER.HISTORY_POP);
     };
 
-    const onPrefetchIntent = (e) => {
-      const link = e.target.closest(VD_ROUTER.PREFETCH_SELECTOR);
+    const onPrefetchIntent = (e: Event) => {
+      const link = getClosestEventElement(e, VD_ROUTER.PREFETCH_SELECTOR);
 
       if (!link) return;
 
@@ -572,7 +626,7 @@ export function createPageRouter(
   }
 
   /** Prefetches the route. */
-  function prefetchRoute(path, pagePath = "") {
+  function prefetchRoute(path: string | null, pagePath = ""): void {
     const route = resolvePrefetchRoute(path, pagePath);
 
     if (!route?.matched || route.page === currentRoute?.page) return;
@@ -606,7 +660,10 @@ export function createPageRouter(
   }
 
   /** Resolves the prefetch route. */
-  function resolvePrefetchRoute(path, pagePath = "") {
+  function resolvePrefetchRoute(
+    path: string | null,
+    pagePath = ""
+  ): RouteLocation | null {
     if (!path || typeof path !== "string" || !path.startsWith("/")) {
       return null;
     }
@@ -617,7 +674,7 @@ export function createPageRouter(
   }
 
   /** Releases resources owned by this module instance. */
-  async function destroy() {
+  async function destroy(): Promise<void> {
     removeRouterListeners?.();
     removeRouterListeners = null;
     initialized = false;
@@ -636,14 +693,19 @@ export function createPageRouter(
 }
 
 /** Evaluates the `shouldMountComponents()` condition for the supplied input. */
-function shouldMountComponents(manifest) {
+function shouldMountComponents(
+  manifest: RuntimeFeatureManifest | null | undefined
+): boolean {
   return !manifest || manifest.features.includes(
     VD_COMPILER_FEATURES.COMPONENTS
   );
 }
 
 /** Resolves the page layout name. */
-function resolvePageLayoutName(config, layouts) {
+function resolvePageLayoutName(
+  config: PageConfig | undefined,
+  layouts: Record<string, ResourceLoader<string>>
+): string {
   if (config?.layout === false) return "";
 
   const configured = normalizeFolderPath(config?.layout);
@@ -660,7 +722,7 @@ function renderPageLayout(
   layoutHtml: string,
   pageHtml: string,
   layoutName: string
-) {
+): string {
   const layoutTemplate = document.createElement("template");
 
   layoutTemplate.innerHTML = layoutHtml;
@@ -678,7 +740,7 @@ function renderPageLayout(
   const pageTemplate = document.createElement("template");
 
   pageTemplate.innerHTML = pageHtml;
-  placeholders[0].replaceWith(pageTemplate.content);
+  placeholders.item(0)?.replaceWith(pageTemplate.content);
   return layoutTemplate.innerHTML;
 }
 
@@ -690,14 +752,24 @@ function combineRuntimeManifests(
   const manifests = [
     pageManifest,
     layoutManifest
-  ].filter(manifest => manifest !== undefined);
+  ].filter(
+    (manifest): manifest is RuntimeFeatureManifest | null => (
+      manifest !== undefined
+    )
+  );
 
   if (manifests.length === 0) return undefined;
   if (manifests.some(manifest => manifest === null)) return null;
 
   return {
-    directives: uniqueManifestValues(manifests, "directives"),
-    features: uniqueManifestValues(manifests, "features")
+    directives: uniqueManifestValues(
+      manifests as RuntimeFeatureManifest[],
+      "directives"
+    ),
+    features: uniqueManifestValues(
+      manifests as RuntimeFeatureManifest[],
+      "features"
+    )
   };
 }
 
@@ -714,8 +786,10 @@ function uniqueManifestValues(
 }
 
 /** Performs the internal `onceAsync()` operation. */
-function onceAsync(callback) {
-  let promise = null;
+function onceAsync(
+  callback: () => unknown | Promise<unknown>
+): () => Promise<unknown> {
+  let promise: Promise<unknown> | null = null;
 
   return () => {
     promise ??= Promise.resolve().then(callback);
@@ -724,7 +798,7 @@ function onceAsync(callback) {
 }
 
 /** Returns the page. */
-function getPage(path) {
+function getPage(path: string): string {
 
   if (path === "/") {
     return "home";
@@ -738,7 +812,7 @@ function getPage(path) {
 }
 
 /** Resolves the page. */
-function resolvePage(path, pagePath) {
+function resolvePage(path: string, pagePath: string): string {
   const custom = normalizeFolderPath(pagePath);
   const route = getPage(path);
 
@@ -757,8 +831,21 @@ function resolvePage(path, pagePath) {
   return `${custom}/${route}`;
 }
 
+/** Returns the closest matching element for a routed DOM event. */
+function getClosestEventElement(
+  event: Event,
+  selector: string
+): HTMLElement | null {
+  return event.target instanceof Element
+    ? event.target.closest<HTMLElement>(selector)
+    : null;
+}
+
 /** Attaches the event API to page state. */
-function attachEventApiToState(state, events) {
+function attachEventApiToState(
+  state: PageState,
+  events: PageEventHub
+): void {
   state.on = events.on;
   state.off = events.off;
   state.once = events.once;
@@ -767,9 +854,9 @@ function attachEventApiToState(state, events) {
 
 /** Attaches the direction to page state. */
 function attachDirectionToPageState(
-  state,
+  state: PageState,
   direction: DirectionController | undefined
-) {
+): (() => void) | null {
   if (!direction) return null;
 
   state[VD_DIRECTION.STATE_KEY] = direction;
@@ -790,23 +877,25 @@ function attachDirectionToPageState(
 
 /** Creates the page context. */
 function createPageContext(
-  state,
-  events,
-  runtime,
-  route,
-  navigate,
-  devtools
-) {
+  state: PageState,
+  events: PageEventHub,
+  runtime: PageRouterRuntime,
+  route: RouteLocation,
+  navigate: (path: string) => unknown | Promise<unknown>,
+  devtools: DevtoolsRuntimeSession | null
+): PageRuntimeContext {
   return {
     [DEVTOOLS_CONTEXT]: devtools,
-    page: state.__vdPageName || "",
+    page: typeof state.__vdPageName === "string"
+      ? state.__vdPageName
+      : "",
     route,
     params: route.params || {},
     query: route.query || {},
     meta: route.meta || {},
     direction: state[VD_DIRECTION.STATE_KEY],
     get components() {
-      return state.components;
+      return state.components as UnknownRecord;
     },
     getPageState(pageName) {
       return getOrCreatePageState(pageName, runtime);
@@ -823,7 +912,7 @@ function createPageContext(
 }
 
 /** Reads the highest-resolution development timing source available. */
-function readPerformanceTime() {
+function readPerformanceTime(): number {
   return globalThis.performance?.now?.() ?? Date.now();
 }
 
@@ -845,7 +934,7 @@ function normalizeGuards(
 }
 
 /** Creates the legacy route. */
-function createLegacyRoute(path, pagePath) {
+function createLegacyRoute(path: string, pagePath: string): RouteLocation {
   const url = new URL(
     String(path || "/"),
     "http://velodom.local"
@@ -870,7 +959,7 @@ interface ScrollPosition {
 }
 
 /** Sets the manual scroll restoration. */
-function setManualScrollRestoration() {
+function setManualScrollRestoration(): void {
   if ("scrollRestoration" in history) {
     history.scrollRestoration = VD_ROUTER.HISTORY_MANUAL;
   }
@@ -908,7 +997,7 @@ function restoreBlockedPopStateLocation(
  * `history.pushState()` does not emit `hashchange`, so route-aware components
  * would otherwise miss successful same-page navigation.
  */
-function dispatchRouterHashChange(previousUrl: string) {
+function dispatchRouterHashChange(previousUrl: string): void {
   const currentUrl = window.location.href;
 
   if (previousUrl === currentUrl) return;
@@ -924,7 +1013,7 @@ function dispatchRouterHashChange(previousUrl: string) {
 }
 
 /** Creates the hash change fallback. */
-function createHashChangeFallback(oldURL: string, newURL: string) {
+function createHashChangeFallback(oldURL: string, newURL: string): Event {
   const event = new Event(VD_ROUTER.HASHCHANGE_EVENT);
 
   Object.defineProperties(event, {
@@ -943,11 +1032,11 @@ function createHashChangeFallback(oldURL: string, newURL: string) {
 
 /** Evaluates the `canHandleSamePageHashNavigation()` condition for the supplied input. */
 function canHandleSamePageHashNavigation(
-  route,
+  route: RouteLocation | null,
   targetUrl: URL,
   pagePath: string,
   historyMode: string
-) {
+): route is RouteLocation {
   return Boolean(
     route
     && !pagePath
@@ -960,7 +1049,7 @@ function canHandleSamePageHashNavigation(
 }
 
 /** Creates the router URL. */
-function createRouterUrl(path: string) {
+function createRouterUrl(path: string): URL {
   return new URL(
     String(path || "/"),
     "http://velodom.local"
@@ -968,12 +1057,12 @@ function createRouterUrl(path: string) {
 }
 
 /** Returns the current location path. */
-function getCurrentLocationPath() {
+function getCurrentLocationPath(): string {
   return `${location.pathname}${location.search}${location.hash}`;
 }
 
 /** Returns the current scroll key. */
-function getCurrentScrollKey() {
+function getCurrentScrollKey(): string {
   return `${location.pathname}${location.search}${location.hash}`;
 }
 
@@ -981,7 +1070,7 @@ function getCurrentScrollKey() {
 function saveScrollPosition(
   positions: Map<string, ScrollPosition>,
   key: string
-) {
+): void {
   positions.set(key, {
     x: Number(window.scrollX || 0),
     y: Number(window.scrollY || 0)
@@ -990,10 +1079,10 @@ function saveScrollPosition(
 
 /** Restores the scroll position. */
 function restoreScrollPosition(
-  route,
+  route: RouteLocation,
   positions: Map<string, ScrollPosition>,
   historyMode: string
-) {
+): void {
   if (route.hash && scrollToHashTarget(route.hash)) {
     return;
   }
@@ -1010,7 +1099,7 @@ function restoreScrollPosition(
 }
 
 /** Scrolls the to hash target. */
-function scrollToHashTarget(hash: string) {
+function scrollToHashTarget(hash: string): boolean {
   const target = findHashTarget(hash);
 
   if (!target) return false;
@@ -1028,7 +1117,10 @@ function scrollToHashTarget(hash: string) {
 }
 
 /** Moves the focus after navigation. */
-function moveFocusAfterNavigation(route, historyMode: string) {
+function moveFocusAfterNavigation(
+  route: RouteLocation,
+  historyMode: string
+): void {
   if (!shouldMoveFocusAfterNavigation(route, historyMode)) return;
 
   const target = route.hash
@@ -1049,7 +1141,10 @@ function moveFocusAfterNavigation(route, historyMode: string) {
 }
 
 /** Evaluates the `shouldMoveFocusAfterNavigation()` condition for the supplied input. */
-function shouldMoveFocusAfterNavigation(route, historyMode: string) {
+function shouldMoveFocusAfterNavigation(
+  route: RouteLocation,
+  historyMode: string
+): boolean {
   return Boolean(
     route?.hash
     || historyMode === VD_ROUTER.HISTORY_PUSH
@@ -1059,7 +1154,7 @@ function shouldMoveFocusAfterNavigation(route, historyMode: string) {
 }
 
 /** Finds the navigation focus target. */
-function findNavigationFocusTarget() {
+function findNavigationFocusTarget(): Element | null {
   for (const selector of VD_ROUTER.FOCUS_TARGET_SELECTORS) {
     const target = document.querySelector(selector);
 
@@ -1070,7 +1165,7 @@ function findNavigationFocusTarget() {
 }
 
 /** Ensures the programmatic focus target. */
-function ensureProgrammaticFocusTarget(target: HTMLElement) {
+function ensureProgrammaticFocusTarget(target: HTMLElement): void {
   if (isProgrammaticallyFocusable(target)) return;
 
   target.setAttribute(
@@ -1081,7 +1176,7 @@ function ensureProgrammaticFocusTarget(target: HTMLElement) {
 }
 
 /** Evaluates the `isProgrammaticallyFocusable()` condition for the supplied input. */
-function isProgrammaticallyFocusable(target: HTMLElement) {
+function isProgrammaticallyFocusable(target: HTMLElement): boolean {
   const tagName = target.tagName.toLowerCase();
 
   if (target.hasAttribute(VD_ROUTER.TABINDEX_ATTRIBUTE)) return true;
@@ -1104,7 +1199,7 @@ function isProgrammaticallyFocusable(target: HTMLElement) {
 }
 
 /** Finds the hash target. */
-function findHashTarget(hash: string) {
+function findHashTarget(hash: string): Element | null {
   const decoded = decodeHash(hash);
 
   return (
@@ -1115,7 +1210,7 @@ function findHashTarget(hash: string) {
 }
 
 /** Decodes the hash. */
-function decodeHash(hash: string) {
+function decodeHash(hash: string): string {
   try {
     return decodeURIComponent(hash);
   } catch {
@@ -1124,12 +1219,12 @@ function decodeHash(hash: string) {
 }
 
 /** Normalizes the hash. */
-function normalizeHash(hash) {
+function normalizeHash(hash: string): string {
   return String(hash || "").replace(/^#/, "");
 }
 
 /** Normalizes the location pathname. */
-function normalizeLocationPathname(pathname: string) {
+function normalizeLocationPathname(pathname: string): string {
   const normalized = String(pathname || "/").replace(/\/{2,}/g, "/");
 
   return normalized === ""
@@ -1138,14 +1233,17 @@ function normalizeLocationPathname(pathname: string) {
 }
 
 /** Scrolls the to position. */
-function scrollToPosition(position: ScrollPosition) {
+function scrollToPosition(position: ScrollPosition): void {
   if (typeof window.scrollTo === "function") {
     window.scrollTo(position.x, position.y);
   }
 }
 
 /** Returns the or create page state. */
-function getOrCreatePageState(pageName, runtime) {
+function getOrCreatePageState(
+  pageName: string,
+  runtime: PageRouterRuntime
+): PageState {
   const key = normalizeFolderPath(pageName) || "home";
 
   if (!runtime.pageStateRegistry[key]) {
@@ -1169,14 +1267,20 @@ function getOrCreatePageState(pageName, runtime) {
 }
 
 /** Evaluates the `hasRegisteredPage()` condition for the supplied input. */
-function hasRegisteredPage(pageName, runtime) {
+function hasRegisteredPage(
+  pageName: string,
+  runtime: PageRouterRuntime
+): boolean {
   const key = normalizeFolderPath(pageName) || "home";
 
   return runtime.availablePages.has(key);
 }
 
 /** Returns the page external write allow list. */
-function getPageExternalWriteAllowList(pageName, pageConfigs) {
+function getPageExternalWriteAllowList(
+  pageName: string,
+  pageConfigs: Record<string, PageConfig>
+): string[] | undefined {
   const config = pageConfigs[pageName];
 
   if (!config || config.allowExternalWrite === undefined) {

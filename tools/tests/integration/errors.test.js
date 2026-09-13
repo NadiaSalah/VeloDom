@@ -134,6 +134,29 @@ test("warning reports use the warning channel", async () => {
   });
 });
 
+test("router reports a missing application root without a secondary crash", async () => {
+  const app = createApp({
+    adapter: {
+      pages: {
+        html: {
+          home: async () => "<h1>Home</h1>"
+        }
+      }
+    }
+  });
+
+  await captureConsole("error", async messages => {
+    await app.mount();
+
+    assert.equal(messages.length, 1);
+    assert.match(messages[0], /\[VeloDom\] Missing Application Root/);
+    assert.match(messages[0], /VeloDom requires an #app mount element/);
+    assert.match(messages[0], /Add one element with id="app"/);
+  });
+
+  await app.destroy();
+});
+
 test("directive expression failures include directive, expression, and element", async () => {
   const root = document.createElement("div");
   root.innerHTML = '<p data-vd-text="post.title"></p>';

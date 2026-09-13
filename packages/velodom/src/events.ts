@@ -10,11 +10,22 @@
 
 import { reportUserActionError } from "./errors/error-reporter.ts";
 
-/** Creates an isolated event hub owned by one mounted page. */
-export function createPageEventHub() {
-  const listeners = new Map();
+type PageEventHandler = (payload: unknown) => unknown;
 
-  const on = (eventName, handler) => {
+/** Page-scoped event API attached to one active route. */
+export interface PageEventHub {
+  clear(): void;
+  emit(eventName: string, payload?: unknown): void;
+  off(eventName: string, handler?: PageEventHandler): void;
+  on(eventName: string, handler: PageEventHandler): () => void;
+  once(eventName: string, handler: PageEventHandler): () => void;
+}
+
+/** Creates an isolated event hub owned by one mounted page. */
+export function createPageEventHub(): PageEventHub {
+  const listeners = new Map<string, Set<PageEventHandler>>();
+
+  const on = (eventName: string, handler: PageEventHandler) => {
     if (!eventName || typeof handler !== "function") {
       reportUserActionError("Event listeners require an event name and function handler", {
         title: "Invalid Event Listener",
@@ -27,11 +38,12 @@ export function createPageEventHub() {
       return () => {};
     }
 
-    if (!listeners.has(eventName)) {
-      listeners.set(eventName, new Set());
-    }
+    let bucket = listeners.get(eventName);
 
-    const bucket = listeners.get(eventName);
+    if (!bucket) {
+      bucket = new Set<PageEventHandler>();
+      listeners.set(eventName, bucket);
+    }
 
     bucket.add(handler);
 
@@ -44,7 +56,7 @@ export function createPageEventHub() {
     };
   };
 
-  const off = (eventName, handler) => {
+  const off = (eventName: string, handler?: PageEventHandler) => {
     const bucket = listeners.get(eventName);
 
     if (!bucket) return;
@@ -61,12 +73,12 @@ export function createPageEventHub() {
     }
   };
 
-  const once = (eventName, handler) => {
+  const once = (eventName: string, handler: PageEventHandler) => {
     if (typeof handler !== "function") {
       return () => {};
     }
 
-    const unsubscribe = on(eventName, (payload) => {
+    const unsubscribe = on(eventName, (payload: unknown) => {
       unsubscribe();
       handler(payload);
     });
@@ -74,7 +86,7 @@ export function createPageEventHub() {
     return unsubscribe;
   };
 
-  const emit = (eventName, payload) => {
+  const emit = (eventName: string, payload?: unknown) => {
     if (!eventName) {
       reportUserActionError("Missing event name in emit()", {
         title: "Invalid Event Emit",

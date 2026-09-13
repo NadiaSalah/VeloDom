@@ -12,6 +12,15 @@ import { VD_PROTECTED_STATE_KEYS } from "./constants.ts";
 import { mergeState } from "./reactive.ts";
 import { isPlainObject } from "./shared/object.ts";
 
+/** Runtime arguments shared by modern and positional lifecycle hooks. */
+export interface ModuleHookArguments extends Record<string, unknown> {
+  el: unknown;
+  props: unknown;
+  refs: unknown;
+  state: Record<string, unknown>;
+  ctx: unknown;
+}
+
 /**
  * Merges an optional `export const state` module seed before lifecycle hooks.
  *
@@ -48,21 +57,29 @@ export function mergeModuleStateSeed(
 }
 
 /** Runs a page or component initialization hook. */
-export async function runModuleInit(init, args) {
+export async function runModuleInit(
+  init: unknown,
+  args: ModuleHookArguments
+): Promise<unknown> {
   return runModuleHook(init, args);
 }
 
 /** Runs any optional module lifecycle hook using its declared signature. */
-export async function runModuleHook(hook, args) {
+export async function runModuleHook(
+  hook: unknown,
+  args: ModuleHookArguments
+): Promise<unknown> {
   if (typeof hook !== "function") {
     return undefined;
   }
 
-  if (prefersObjectArgument(hook)) {
-    return hook(args);
+  const callback = hook as (...values: unknown[]) => unknown;
+
+  if (prefersObjectArgument(callback)) {
+    return callback(args);
   }
 
-  return hook(
+  return callback(
     args.el,
     args.props,
     args.refs,
@@ -72,7 +89,7 @@ export async function runModuleHook(hook, args) {
 }
 
 /** Performs the internal `prefersObjectArgument()` operation. */
-function prefersObjectArgument(hook) {
+function prefersObjectArgument(hook: (...args: unknown[]) => unknown): boolean {
   const source = Function.prototype.toString.call(hook).trim();
 
   return (

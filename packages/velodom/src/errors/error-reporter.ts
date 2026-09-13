@@ -30,6 +30,12 @@ interface VeloDomAnnotatedError extends Error {
   __vdSynthetic?: boolean;
 }
 
+interface ErrorSourceLocation {
+  file: string;
+  line: number;
+  column: number;
+}
+
 /** Formats and reports a runtime failure without hiding its original cause. */
 export function reportUserActionError(
   error: unknown,
@@ -118,7 +124,7 @@ function resolveLocation(
   stack: string | undefined,
   options: ErrorReportOptions,
   preferFallback = false
-) {
+): ErrorSourceLocation {
   const fallback = {
     file: options.file || "velodom/unknown.ts",
     line: options.line || 1,
@@ -149,11 +155,11 @@ function resolveLocation(
 }
 
 /** Parses the stack line. */
-function parseStackLine(stackLine: string) {
+function parseStackLine(stackLine: string): ErrorSourceLocation | null {
   const normalized = stackLine.replace(/\\/g, "/");
   const srcMatch = normalized.match(/(src\/[^:\s)]+\.[jt]s)(?:\?[^:\s)]*)?:(\d+):(\d+)/);
 
-  if (srcMatch) {
+  if (srcMatch?.[1] && srcMatch[2] && srcMatch[3]) {
     return {
       file: srcMatch[1],
       line: Number(srcMatch[2]),
@@ -163,7 +169,7 @@ function parseStackLine(stackLine: string) {
 
   const anonymousMatch = normalized.match(/<anonymous>:(\d+):(\d+)/);
 
-  if (anonymousMatch) {
+  if (anonymousMatch?.[1] && anonymousMatch[2]) {
     return {
       file: "template-expression",
       line: Number(anonymousMatch[1]),
