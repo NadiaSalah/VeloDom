@@ -11,6 +11,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { runVeloDomCli } from "../../../packages/velodom/src/cli.ts";
+import { createProjectSourceIndex } from "../../../packages/velodom/src/cli/project-index.ts";
 
 test("CLI inspect and stats read folder and single-file conventions", async () => {
   const root = await createFixture();
@@ -31,6 +32,8 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
 
     const inspection = JSON.parse(output.join("\n"));
 
+    assert.equal("templates" in inspection, false);
+    assert.equal("plugins" in inspection, false);
     assert.deepEqual(
       inspection.pages.map(page => [
         page.name,
@@ -378,6 +381,30 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
     assert.match(output.join("\n"), /Lab readiness/);
   } finally {
     await removeFixture(root);
+  }
+});
+
+test("build-time project index retains source and compiler metadata once", async () => {
+  const root = await createFixture();
+
+  try {
+    const index = await createProjectSourceIndex(root);
+    const home = index.templates.find(template => template.module.name === "home");
+    const about = index.templates.find(template => template.module.name === "about");
+
+    assert.ok(home);
+    assert.ok(about);
+    assert.equal(home.kind, "page");
+    assert.match(home.script, /announce/);
+    assert.match(home.configSource, /seo\s*:/);
+    assert.equal(home.configFile, "src/pages/home/config.ts");
+    assert.ok(home.compileResult.metadata.some(item => (
+      Number.isInteger(item.location?.line) && item.location.line > 0
+    )));
+    assert.equal(about.module.kind, "single-file");
+    assert.match(about.html, /vd-text="title"/);
+  } finally {
+    await rm(root, { force: true, recursive: true });
   }
 });
 

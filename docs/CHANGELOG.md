@@ -46,6 +46,10 @@ or claim that a matching package is available from a registry.
 - A repeatable compiler-cache benchmark that reports cold compilation, warm
   reuse, and an invalidated rebuild without imposing machine-specific timing
   as a release threshold.
+- An internal build-time Project Index that discovers source resources once and
+  shares cached template, companion script, page config, and compiler metadata
+  across CLI inspection, diagnostics, types, docs, graph, health, security, and
+  build reporting without becoming a browser API.
 - An enforced first TypeScript `strict` slice for stable/shared contracts and
   low-dependency Core utilities, wired into normal checks and package builds.
 
@@ -89,6 +93,8 @@ or claim that a matching package is available from a registry.
   intelligence and scaffolding, then replaced the transitional file allowlist
   with `src/**/*.ts`. All package sources, including optional public subpaths,
   adapters, and Vite build modules, now enter the same strict gate automatically.
+- Replaced repeated CLI template reads and compiler passes with the internal
+  Project Index while preserving the existing `vd inspect --json` report shape.
 
 ### Fixed
 

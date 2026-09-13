@@ -146,6 +146,10 @@ release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
+- Added one Node-only Project Index for CLI intelligence. It caches discovered
+  template, script, config, and compiler data once per command; `doctor`,
+  generated types/docs, graph, health, security, and build reports now reuse
+  that snapshot while `vd inspect --json` keeps its prior public shape.
 - Completed the monotonic TypeScript `strict` migration. The final CLI,
   project-intelligence, and scaffolder slice was hardened, then the gate was
   extended to all 88 package source files through `src/**/*.ts` so future
@@ -285,8 +289,8 @@ maintenance gate changes neither template syntax nor generated starter choices.
 Only optional or future work belongs in [docs/TODO.md](docs/TODO.md). Near-term
 release work should stay limited to:
 
-- create the shared build-time Project Index defined by the next-release
-  roadmap without adding browser runtime weight;
+- extend the completed shared build-time Project Index with stable diagnostic
+  IDs and source-aware explanations, without adding browser runtime weight;
 - run the complete package and browser gates on the final commit;
 - inspect both npm dry-run tarballs for unexpected files or size growth;
 - publish `velodom` first and `create-velodom` second only after explicit owner

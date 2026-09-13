@@ -34,7 +34,6 @@ import type {
 import { PREFERRED_DIRECTIVES } from "./shared/directives.ts";
 import {
   discoverFiles,
-  discoverModules,
   normalizeModuleName,
   pageConfigPaths,
   readOptionalText,
@@ -42,6 +41,11 @@ import {
   readStaticPath,
   toRoutePath
 } from "./cli/analyzer.ts";
+import {
+  createProjectSourceIndex,
+  findIndexedTemplate,
+  type ProjectSourceIndex
+} from "./cli/project-index.ts";
 import {
   formatBytes,
   printDependencySignals,
@@ -69,11 +73,8 @@ interface CliOptions {
   stdout?: (message: string) => void;
 }
 
-interface ProjectInspection {
-  apis: string[];
+interface ProjectInspection extends ProjectSourceIndex {
   compilerFeatures: string[];
-  components: DiscoveredModule[];
-  css: string[];
   directiveUsage: Record<string, number>;
   events: Array<{
     event: string;
@@ -87,9 +88,7 @@ interface ProjectInspection {
     owner: string;
     source: string;
   }>;
-  layouts: DiscoveredModule[];
   middleware: string[];
-  pages: DiscoveredModule[];
   refs: Array<{
     name: string;
     owner: string;
@@ -106,7 +105,6 @@ interface ProjectInspection {
     owner: string;
     source: string;
   }>;
-  tests: string[];
 }
 
 interface DoctorIssue {
@@ -968,38 +966,24 @@ async function runDoctor(root: string) {
     inspection.components.map(component => component.name)
   );
   const requestRoutes = new Set(inspection.requestRoutes);
-  const templates = [
-    ...inspection.pages,
-    ...inspection.components,
-    ...inspection.layouts
-  ];
+  await Promise.all(inspection.templates.map(async indexed => {
+    const template = indexed.module;
+    const analysisHtml = indexed.analysisHtml;
+    const script = indexed.script;
 
-  await Promise.all(templates.map(async template => {
-    const source = await readOptionalText(join(root, template.source));
-    const html = template.source.endsWith(".vd")
-      ? source.match(/<template\b[^>]*>([\s\S]*?)<\/template>/i)?.[1] || ""
-      : source;
-    const analysisHtml = maskPreservedTemplateContent(html);
-    const script = await readModuleScript(root, template.source);
-
-    try {
-      const result = compileTemplate(html, {
-        filename: template.source,
-        mode: "development"
+    if (indexed.compileError) {
+      issues.push({
+        file: template.source,
+        level: "error",
+        message: indexed.compileError
       });
-
-      result.diagnostics.forEach(diagnostic => {
+    } else {
+      indexed.compileResult?.diagnostics.forEach(diagnostic => {
         issues.push({
           file: diagnostic.filename,
           level: diagnostic.severity,
           message: diagnostic.message
         });
-      });
-    } catch (error) {
-      issues.push({
-        file: template.source,
-        level: "error",
-        message: error instanceof Error ? error.message : String(error)
       });
     }
 
@@ -1068,8 +1052,10 @@ async function runDoctor(root: string) {
   }));
 
   issues.push(...await findUnusedProjectWarnings(root, inspection));
-  issues.push(...await findComponentCycleWarnings(root, inspection));
-  issues.push(...await findLargeModuleWarnings(root, templates));
+  issues.push(...findComponentCycleWarnings(inspection));
+  issues.push(...await findLargeModuleWarnings(root, inspection.templates.map(
+    template => template.module
+  )));
   issues.push(...await findLabSetupIssues(root));
 
   return issues.sort((left, right) => (
@@ -1133,37 +1119,68 @@ async function findLabSetupIssues(root: string): Promise<DoctorIssue[]> {
 
 /** Inspects the project. */
 async function inspectProject(root: string): Promise<ProjectInspection> {
-  const pages = await discoverModules(root, "src/pages", true);
-  const components = await discoverModules(root, "src/components", false);
-  const layouts = await discoverModules(root, "src/layouts", false);
-  const apis = await discoverFiles(root, "src/api", [".js", ".ts"]);
-  const requestRoutes = await discoverRequestRoutes(root, apis);
-  const middleware = discoverMiddlewareFiles(apis);
-  const templates = [
-    ...pages,
-    ...components,
-    ...layouts
-  ];
-  const templateSources = templates.map(module => module.source);
+  const sourceIndex = await createProjectSourceIndex(root);
+  const requestRoutes = await discoverRequestRoutes(root, sourceIndex.apis);
+  const middleware = discoverMiddlewareFiles(sourceIndex.apis);
+  const compilerFeatures = new Set<string>();
+  const directiveUsage: Record<string, number> = {};
+  const refs: ProjectInspection["refs"] = [];
+  const events: ProjectInspection["events"] = [];
+  const state: ProjectInspection["state"] = [];
+  const exposes: ProjectInspection["exposes"] = [];
 
-  return {
-    apis,
-    compilerFeatures: await discoverCompilerFeatures(root, templateSources),
-    components,
-    css: await discoverFiles(root, "src", [".css"]),
-    directiveUsage: await countDirectives(root, templateSources),
-    events: await discoverTemplateEvents(root, templates),
-    exposes: await discoverTemplateExposes(root, templates),
-    layouts,
+  sourceIndex.templates.forEach(indexed => {
+    indexed.compileResult?.manifest.features.forEach(feature => {
+      compilerFeatures.add(feature);
+    });
+    indexed.compileResult?.metadata.forEach(directive => {
+      const name = directive.originalName || directive.name;
+
+      if (!/^(?:data-)?vd-[\w:-]+$/.test(name)) return;
+      directiveUsage[name] = (directiveUsage[name] || 0) + 1;
+    });
+    findRefReferences(indexed.analysisHtml).forEach(name => {
+      refs.push({ name, owner: indexed.module.name, source: indexed.module.source });
+    });
+    findEventBindings(indexed.analysisHtml).forEach(binding => {
+      events.push({ ...binding, owner: indexed.module.name, source: indexed.module.source });
+    });
+    findStateAssignments(indexed.script).forEach(name => {
+      state.push({ name, owner: indexed.module.name, source: indexed.module.source });
+    });
+    findExposeNames(indexed.script).forEach(name => {
+      exposes.push({ name, owner: indexed.module.name, source: indexed.module.source });
+    });
+  });
+  const seoConfigs = sourceIndex.templates
+    .filter(template => template.kind === "page" && /\bseo\s*:/.test(template.configSource))
+    .map(template => template.configFile || template.module.source)
+    .sort();
+
+  const inspection: ProjectInspection = {
+    ...sourceIndex,
+    compilerFeatures: [...compilerFeatures].sort(),
+    directiveUsage,
+    events: events.sort(compareInspectionItem),
+    exposes: exposes.sort(compareInspectionItem),
     middleware,
-    pages,
-    refs: await discoverTemplateRefs(root, templates),
+    refs: refs.sort(compareInspectionItem),
     requestRoutes,
-    seo: await discoverSeoCoverage(root, pages),
-    seoConfigs: await discoverSeoConfigFiles(root, pages),
-    state: await discoverTemplateState(root, templates),
-    tests: await discoverFiles(root, "test", [".js", ".ts"])
+    seo: {
+      pagesWithSeo: seoConfigs.length,
+      totalPages: sourceIndex.pages.length
+    },
+    seoConfigs,
+    state: state.sort(compareInspectionItem)
   };
+
+  // Source bodies and compiler ASTs are internal caches, not CLI report data.
+  Object.defineProperties(inspection, {
+    plugins: { enumerable: false },
+    templates: { enumerable: false }
+  });
+
+  return inspection;
 }
 
 /** Creates the build report. */
@@ -1267,16 +1284,10 @@ async function createHealthReport(
 /** Creates the documentation report. */
 async function createDocumentationReport(root: string) {
   const inspection = await inspectProject(root);
-  const plugins = await discoverFiles(root, "src/plugins", [".js", ".ts"]);
-  const pageDetails = await Promise.all(inspection.pages.map(async page => {
-    const source = await readTemplateSource(root, page.source);
-    const script = await readModuleScript(root, page.source);
-    const configSource = page.source.endsWith(".vd")
-      ? await readOptionalText(join(root, page.source))
-      : (await readPageConfigSource(
-        root,
-        dirname(page.source)
-      ))?.source || "";
+  const pageDetails = inspection.pages.map(page => {
+    const indexed = findIndexedTemplate(inspection, page.source);
+    const source = indexed?.analysisHtml || "";
+    const script = indexed?.script || "";
 
     return {
       name: page.name,
@@ -1288,13 +1299,13 @@ async function createDocumentationReport(root: string) {
       events: findEventReferences(source),
       state: findStateAssignments(script),
       exposes: findExposeNames(script),
-      hasSeo: /\bseo\s*:/.test(configSource)
+      hasSeo: /\bseo\s*:/.test(indexed?.configSource || "")
     };
-  }));
-  const componentDetails = await Promise.all(inspection.components.map(
-    async component => {
-      const source = await readTemplateSource(root, component.source);
-      const script = await readModuleScript(root, component.source);
+  });
+  const componentDetails = inspection.components.map(component => {
+      const indexed = findIndexedTemplate(inspection, component.source);
+      const source = indexed?.analysisHtml || "";
+      const script = indexed?.script || "";
 
       return {
         name: component.name,
@@ -1306,8 +1317,7 @@ async function createDocumentationReport(root: string) {
         exposes: findExposeNames(script),
         slots: findSlotReferences(source)
       };
-    }
-  ));
+    });
 
   return {
     routes: pageDetails,
@@ -1317,7 +1327,7 @@ async function createDocumentationReport(root: string) {
       source: "src/api/routes.js"
     })),
     middleware: inspection.middleware,
-    plugins,
+    plugins: inspection.plugins,
     seo: {
       pagesWithSeo: pageDetails.filter(page => page.hasSeo).length,
       totalPages: pageDetails.length
@@ -1368,10 +1378,11 @@ async function createProjectGraph(root: string): Promise<ProjectGraph> {
     addGraphNode(nodes, `middleware:${file}`, file, "middleware");
   });
 
-  await Promise.all(templates.map(async template => {
+  templates.forEach(template => {
     const ownerId = `${template.ownerType}:${template.name}`;
-    const source = await readTemplateSource(root, template.source);
-    const script = await readModuleScript(root, template.source);
+    const indexed = findIndexedTemplate(inspection, template.source);
+    const source = indexed?.analysisHtml || "";
+    const script = indexed?.script || "";
 
     findComponentReferences(source).forEach(component => {
       addGraphNode(nodes, `component:${component}`, component, "component");
@@ -1442,7 +1453,7 @@ async function createProjectGraph(root: string): Promise<ProjectGraph> {
         to: `expose:${template.name}:${name}`
       });
     });
-  }));
+  });
 
   const middlewareEdges = await discoverRequestMiddlewareEdges(root);
 
@@ -1633,175 +1644,6 @@ function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-/** Counts the directives. */
-async function countDirectives(
-  root: string,
-  files: string[]
-) {
-  const usage: Record<string, number> = {};
-
-  await Promise.all(files.map(async file => {
-    const source = await readTemplateSource(root, file);
-    const metadata = compileTemplate(source, {
-      filename: file
-    }).metadata;
-
-    for (const directive of metadata) {
-      const name = directive.originalName || directive.name;
-
-      if (!/^(?:data-)?vd-[\w:-]+$/.test(name)) continue;
-      usage[name] = (usage[name] || 0) + 1;
-    }
-  }));
-
-  return usage;
-}
-
-/** Discovers the template refs. */
-async function discoverTemplateRefs(
-  root: string,
-  modules: DiscoveredModule[]
-) {
-  const refs: ProjectInspection["refs"] = [];
-
-  await Promise.all(modules.map(async module => {
-    const source = await readTemplateSource(root, module.source);
-
-    findRefReferences(source).forEach(name => {
-      refs.push({
-        name,
-        owner: module.name,
-        source: module.source
-      });
-    });
-  }));
-
-  return refs.sort(compareInspectionItem);
-}
-
-/** Discovers the template events. */
-async function discoverTemplateEvents(
-  root: string,
-  modules: DiscoveredModule[]
-) {
-  const events: ProjectInspection["events"] = [];
-
-  await Promise.all(modules.map(async module => {
-    const source = await readTemplateSource(root, module.source);
-
-    findEventBindings(source).forEach(binding => {
-      events.push({
-        ...binding,
-        owner: module.name,
-        source: module.source
-      });
-    });
-  }));
-
-  return events.sort(compareInspectionItem);
-}
-
-/** Discovers the template state. */
-async function discoverTemplateState(
-  root: string,
-  modules: DiscoveredModule[]
-) {
-  const state: ProjectInspection["state"] = [];
-
-  await Promise.all(modules.map(async module => {
-    const source = await readModuleScript(root, module.source);
-
-    findStateAssignments(source).forEach(name => {
-      state.push({
-        name,
-        owner: module.name,
-        source: module.source
-      });
-    });
-  }));
-
-  return state.sort(compareInspectionItem);
-}
-
-/** Discovers the template exposes. */
-async function discoverTemplateExposes(
-  root: string,
-  modules: DiscoveredModule[]
-) {
-  const exposes: ProjectInspection["exposes"] = [];
-
-  await Promise.all(modules.map(async module => {
-    const source = await readModuleScript(root, module.source);
-
-    findExposeNames(source).forEach(name => {
-      exposes.push({
-        name,
-        owner: module.name,
-        source: module.source
-      });
-    });
-  }));
-
-  return exposes.sort(compareInspectionItem);
-}
-
-/** Discovers the SEO config files. */
-async function discoverSeoConfigFiles(
-  root: string,
-  pages: DiscoveredModule[]
-) {
-  const files: string[] = [];
-
-  await Promise.all(pages.map(async page => {
-    if (page.source.endsWith(".vd")) {
-      const source = await readOptionalText(join(root, page.source));
-
-      if (/<config\b[^>]*>[\s\S]*?\bseo\s*:/i.test(source)) {
-        files.push(page.source);
-      }
-
-      return;
-    }
-
-    const folder = dirname(page.source);
-    const candidates = pageConfigPaths(folder);
-
-    await Promise.all(candidates.map(async file => {
-      const source = await readOptionalText(join(root, file));
-
-      if (/\bseo\s*:/.test(source)) files.push(file);
-    }));
-  }));
-
-  return files.sort();
-}
-
-/** Discovers the compiler features. */
-async function discoverCompilerFeatures(
-  root: string,
-  files: string[]
-) {
-  const features = new Set<string>();
-
-  await Promise.all(files.map(async file => {
-    const source = await readOptionalText(join(root, file));
-    const template = file.endsWith(".vd")
-      ? source.match(/<template\b[^>]*>([\s\S]*?)<\/template>/i)?.[1] || ""
-      : source;
-
-    try {
-      compileTemplate(template, {
-        filename: file,
-        mode: "production"
-      }).manifest.features.forEach(feature => features.add(feature));
-    } catch {
-      // Inspection stays non-blocking; vd doctor can own hard diagnostics.
-    }
-  }));
-
-  return [...features].sort();
-}
-
 /** Discovers the request routes. */
 async function discoverRequestRoutes(root: string, apiFiles: string[]) {
   const routeFiles = [
@@ -1868,54 +1710,24 @@ function toFileConventionName(file: string, prefix: string) {
 
 /** Discovers the component props. */
 async function discoverComponentProps(
-  root: string,
+  _root: string,
   inspection: ProjectInspection
 ) {
   const props = new Map<string, Set<string>>();
-  const templates = [
-    ...inspection.pages,
-    ...inspection.components,
-    ...inspection.layouts
-  ];
-
   inspection.components.forEach(component => {
     props.set(component.name, new Set());
   });
 
-  await Promise.all(templates.map(async template => {
-    const source = await readTemplateSource(root, template.source);
-
-    findComponentPropReferences(source).forEach(reference => {
+  inspection.templates.forEach(template => {
+    findComponentPropReferences(template.analysisHtml).forEach(reference => {
       const names = props.get(reference.component) || new Set<string>();
 
       reference.props.forEach(name => names.add(name));
       props.set(reference.component, names);
     });
-  }));
+  });
 
   return props;
-}
-
-/** Discovers the SEO coverage. */
-async function discoverSeoCoverage(
-  root: string,
-  pages: DiscoveredModule[]
-) {
-  const results = await Promise.all(pages.map(async page => {
-    const source = page.source.endsWith(".vd")
-      ? await readOptionalText(join(root, page.source))
-      : (await readPageConfigSource(
-        root,
-        dirname(page.source)
-      ))?.source || "";
-
-    return /\bseo\s*:/.test(source);
-  }));
-
-  return {
-    pagesWithSeo: results.filter(Boolean).length,
-    totalPages: pages.length
-  };
 }
 
 /** Finds the component references. */
@@ -2423,48 +2235,6 @@ function pushNestedList(
   lines.push(`  - ${label}: ${values.map(value => `\`${value}\``).join(", ")}`);
 }
 
-/** Reads the template source. */
-async function readTemplateSource(root: string, file: string) {
-  const source = await readOptionalText(join(root, file));
-  const template = file.endsWith(".vd")
-    ? source.match(/<template\b[^>]*>([\s\S]*?)<\/template>/i)?.[1] || ""
-    : source;
-
-  return maskPreservedTemplateContent(template);
-}
-
-/**
- * Keeps `vd-pre` containers visible to analysis while masking their literal
- * descendants. Documentation examples must not look like live directives,
- * refs, events, or component references to project-intelligence commands.
- */
-function maskPreservedTemplateContent(source: string) {
-  return source.replace(
-    /(<([a-z][\w:-]*)\b[^>]*\b(?:data-)?vd-pre\b[^>]*>)([\s\S]*?)(<\/\2\s*>)/gi,
-    (_, opening, _tagName, content, closing) => (
-      `${opening}${content.replace(/[^\r\n]/g, " ")}${closing}`
-    )
-  );
-}
-
-/** Reads the module script. */
-async function readModuleScript(root: string, file: string) {
-  if (file.endsWith(".vd")) {
-    const source = await readOptionalText(join(root, file));
-
-    return source.match(/<script\b[^>]*>([\s\S]*?)<\/script>/i)?.[1] || "";
-  }
-
-  const folder = dirname(file);
-
-  return await readOptionalText(join(root, folder, "script.ts"))
-    || await readOptionalText(join(root, folder, "script.js"))
-    || await readOptionalText(join(root, folder, "page.ts"))
-    || await readOptionalText(join(root, folder, "page.js"))
-    || await readOptionalText(join(root, folder, "component.ts"))
-    || await readOptionalText(join(root, folder, "component.js"));
-}
-
 /** Compares the inspection item. */
 function compareInspectionItem(
   left: {
@@ -2532,22 +2302,14 @@ async function findUnusedProjectWarnings(
     middlewareEdges.map(edge => edge.middleware)
   );
   const declaredMiddleware = await discoverMiddlewareNames(root, inspection.middleware);
-  const templates = [
-    ...inspection.pages,
-    ...inspection.components,
-    ...inspection.layouts
-  ];
-
-  await Promise.all(templates.map(async template => {
-    const source = await readTemplateSource(root, template.source);
-
-    findComponentReferences(source).forEach(component => {
+  inspection.templates.forEach(template => {
+    findComponentReferences(template.analysisHtml).forEach(component => {
       referencedComponents.add(component);
     });
-    findRequestReferences(source).forEach(request => {
+    findRequestReferences(template.analysisHtml).forEach(request => {
       referencedRequests.add(request);
     });
-  }));
+  });
 
   inspection.components.forEach(component => {
     if (referencedComponents.has(component.name)) return;
@@ -2649,8 +2411,7 @@ async function discoverMiddlewareNames(
 }
 
 /** Finds the component cycle warnings. */
-async function findComponentCycleWarnings(
-  root: string,
+function findComponentCycleWarnings(
   inspection: ProjectInspection
 ) {
   const issues: DoctorIssue[] = [];
@@ -2662,13 +2423,13 @@ async function findComponentCycleWarnings(
   );
   const graph = new Map<string, string[]>();
 
-  await Promise.all(inspection.components.map(async component => {
-    const source = await readTemplateSource(root, component.source);
-    const dependencies = findComponentReferences(source)
+  inspection.components.forEach(component => {
+    const indexed = findIndexedTemplate(inspection, component.source);
+    const dependencies = findComponentReferences(indexed?.analysisHtml || "")
       .filter(name => componentByName.has(name));
 
     graph.set(component.name, dependencies);
-  }));
+  });
 
   findCycles(graph).forEach(cycle => {
     const firstName = cycle[0];
@@ -2838,14 +2599,9 @@ function runChild(
 async function runSecurityScan(root: string) {
   const inspection = await inspectProject(root);
   const issues: DoctorIssue[] = [];
-  const templates = [
-    ...inspection.pages,
-    ...inspection.components,
-    ...inspection.layouts
-  ];
-
-  await Promise.all(templates.map(async template => {
-    const source = await readTemplateSource(root, template.source);
+  inspection.templates.forEach(indexed => {
+    const template = indexed.module;
+    const source = indexed.analysisHtml;
 
     if (/href\s*=\s*["']javascript:/i.test(source)) {
       issues.push({
@@ -2864,7 +2620,7 @@ async function runSecurityScan(root: string) {
         });
       }
     }
-  }));
+  });
 
   return issues;
 }

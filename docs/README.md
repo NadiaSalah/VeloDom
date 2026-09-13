@@ -507,7 +507,10 @@ Git, dependency installation, and server startup. The package stores shared
 safe files in `templates/default` and starter-specific application files in
 `templates/starters`; it does not maintain a copy for every combination.
 
-The CLI is intentionally static and local. `vd inspect` and `vd stats` read
+The CLI is intentionally static and local. Its Node-only Project Index reads
+each discovered template, paired script, page config, and compiler result once
+per command, then shares that snapshot across diagnostics and reports without
+exposing source bodies or AST data in normal output. `vd inspect` and `vd stats` read
 folders, `.vd` files, API route registrations, middleware files, template
 directives, CSS files, refs, events, state keys, exposed names, compiler
 feature manifests, SEO configs, and test-file signals without adding any

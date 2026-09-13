@@ -45,6 +45,13 @@
   applications own their own `src/pages`, `src/components`, and `src/api`.
 - Build-tool discovery belongs to adapters; the runtime accepts injected
   resource maps.
+- Static project tooling now builds one Node-only Project Index in
+  `src/cli/project-index.ts`. The index owns discovery plus cached raw/template,
+  script, config, and compiler results; policy checks consume that snapshot.
+  Source bodies and AST data stay non-enumerable in `vd inspect` output, so the
+  internal optimization does not expand the public CLI report or browser bundle.
+  CLI impact is `NONE`: no new flags, templates, dependencies, or generated
+  application files are required.
 - Static SEO generation runs after Vite writes the bundle rather than at its
   close hook. The renderer needs the emitted `index.html` shell, and this keeps
   the behavior stable across Vite/Rolldown lifecycle ordering.

@@ -31,9 +31,9 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 
 `[####################] 100%`
 
-**Next-release approved scope: 5 of 15 milestones complete.**
+**Next-release approved scope: 6 of 15 milestones complete.**
 
-`[#######.............] 33%`
+`[########............] 40%`
 
 The repository is the local V1 source baseline. Registry availability,
 authentication, tags, and releases are external state and are deliberately not
@@ -287,10 +287,14 @@ layer, or unproven analysis.
     optional, adapter, and build modules cannot bypass the completed boundary.
     Request runtime dependencies are covered by the directive integration
     slice above.
-- [ ] Create one internal, build-time Project Index with source locations and
+- [x] Create one internal, build-time Project Index with source locations and
   compiler metadata. Existing CLI, language tools, generated declarations,
   documentation, graph, health, and Lab views must consume it incrementally
-  rather than each gaining a separate project parser.
+  rather than each gaining a separate project parser. The first completed slice
+  centralizes discovery, source/config/script loading, `vd-pre` masking, and
+  compiler results for CLI diagnostics, generated declarations, docs, graph,
+  health, security, and build reports; editor/Lab consumers can adopt the same
+  internal snapshot contract as their project-wide views expand.
 
 ### P1 — Diagnostics, typing, and focused developer workflows
 
