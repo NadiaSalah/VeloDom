@@ -1076,6 +1076,72 @@ test("CLI doctor reports an explicitly configured but incomplete Lab setup", asy
   }
 });
 
+test("CLI doctor proves navigation, target, typed prop, expose, and unused-state issues", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-cli-doctor-index-"));
+  const output = [];
+
+  try {
+    await writeFixtureFile(root, "src/pages/home/index.html", `
+      <main>
+        <a href="#details" vd-nav>Details</a>
+        <p vd-text="used"></p>
+        <button vd-request="posts.get" vd-target="$route.posts"></button>
+        <vd-component name="card" vd-ref="card" vd-prop-titel="Hello"></vd-component>
+        <button vd-on:click="$refs.card.opne()">Open</button>
+      </main>
+    `);
+    await writeFixtureFile(
+      root,
+      "src/pages/home/script.js",
+      'export const state = { used: "yes", unused: true };'
+    );
+    await writeFixtureFile(
+      root,
+      "src/pages/home/config.js",
+      'export default { path: "/" };'
+    );
+    await writeFixtureFile(
+      root,
+      "src/api/routes.js",
+      'export default { "posts.get": () => [] };'
+    );
+    await writeFixtureFile(root, "src/components/card/index.html", "<article></article>");
+    await writeFixtureFile(root, "src/components/card/script.ts", `
+      import type { ComponentInitContext } from "velodom";
+      interface CardProps { title: string; subtitle?: string }
+      export function init({ props }: ComponentInitContext<CardProps>) {
+        const expose = { open() {} };
+        return { expose };
+      }
+    `);
+
+    const code = await runVeloDomCli(["doctor", "--json", "--root", root], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+    const report = JSON.parse(output.join("\n"));
+    const codes = report.issues.map(issue => issue.code);
+    const propMessages = report.issues
+      .filter(issue => issue.code === "VD_PROJECT_COMPONENT_PROP")
+      .map(issue => issue.message)
+      .join("\n");
+
+    assert.equal(code, 1);
+    assert.ok(codes.includes("VD_PROJECT_NAV_TARGET"));
+    assert.ok(codes.includes("VD_PROJECT_REQUEST_TARGET"));
+    assert.ok(codes.includes("VD_PROJECT_COMPONENT_EXPOSE"));
+    assert.ok(codes.includes("VD_PROJECT_STATE_UNUSED"));
+    assert.match(propMessages, /requires prop "title"/);
+    assert.match(propMessages, /does not declare prop "titel"/);
+    assert.match(
+      report.issues.find(issue => issue.code === "VD_PROJECT_COMPONENT_EXPOSE").suggestion,
+      /open/
+    );
+  } finally {
+    await removeFixture(root);
+  }
+});
+
 test("CLI page demos generate only the files their focused examples need", async () => {
   const root = await mkdtemp(join(tmpdir(), "velodom-cli-"));
   const output = [];

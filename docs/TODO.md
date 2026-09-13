@@ -31,9 +31,9 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 
 `[####################] 100%`
 
-**Next-release approved scope: 9 of 15 milestones complete.**
+**Next-release approved scope: 10 of 15 milestones complete.**
 
-`[############........] 60%`
+`[#############.......] 67%`
 
 The repository is the local V1 source baseline. Registry availability,
 authentication, tags, and releases are external state and are deliberately not
@@ -318,10 +318,12 @@ layer, or unproven analysis.
   default is a line/column preview; `--write` is explicit, verifies that source
   still matches the Project Index snapshot, edits only HTML/`.vd` template
   regions, and supports only legacy `data-vd-*`, event, and request-state aliases.
-- [ ] Extend `vd doctor` through the Project Index with source-provable checks:
+- [x] Extend `vd doctor` through the Project Index with source-provable checks:
   invalid app-relative `vd-nav` links, impossible request targets, component
   prop/ref/expose mismatches, unused shallow state, and unreachable template
   handlers. Control-flow inference remains out of scope until it is reliable.
+  Prop checks require an explicit `ComponentInitContext<Props>` interface/type;
+  dynamic `vd-props` and dynamic state access remain deliberately unguessed.
 - [ ] Extend generated application declarations for TypeScript consumers with
   typed route parameters, request route names, and component-prop facts that
   can be proven statically. JavaScript users keep the same zero-configuration

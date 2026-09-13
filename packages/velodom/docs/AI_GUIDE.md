@@ -85,6 +85,10 @@ Run `vd fix` without flags and review the file/line preview. Use `--write` only
 for the built-in preferred-directive alias migration; it intentionally leaves
 scripts, business logic, and unknown syntax unchanged.
 
+Treat advanced doctor checks as proof-driven. Declare component props through a
+`ComponentInitContext<Props>` interface/type when exact prop diagnostics are
+valuable; VeloDom deliberately skips dynamic `vd-props` and control-flow guesses.
+
 Use `vd explain <file|topic|diagnostic-code>` for deterministic local
 explanations. Prefer the stable `code`, `category`, `location`, and `suggestion`
 fields from `vd doctor --json` over parsing human messages. Use

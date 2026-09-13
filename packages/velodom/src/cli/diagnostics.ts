@@ -108,6 +108,46 @@ const DIAGNOSTIC_CATALOG: Record<string, DiagnosticCatalogEntry> = {
       "VeloDom does not add a runtime cycle resolver."
     ]
   },
+  VD_PROJECT_NAV_TARGET: {
+    category: "routing",
+    summary: "A vd-nav link has a statically invalid application target.",
+    details: [
+      "Use a full app-relative path such as /guide or /guide#section.",
+      "Leave external links as ordinary anchors without vd-nav."
+    ]
+  },
+  VD_PROJECT_REQUEST_TARGET: {
+    category: "request",
+    summary: "A declarative request cannot safely write to its configured state target.",
+    details: [
+      "Use a plain state path such as posts or home.posts.",
+      "Framework-owned state names and computed path syntax are not valid request targets."
+    ]
+  },
+  VD_PROJECT_COMPONENT_PROP: {
+    category: "component",
+    summary: "A component usage conflicts with its explicit TypeScript Props contract.",
+    details: [
+      "Pass every required property and correct unknown vd-prop-* names.",
+      "Dynamic vd-props values are not guessed by static analysis."
+    ]
+  },
+  VD_PROJECT_COMPONENT_EXPOSE: {
+    category: "component",
+    summary: "A parent ref calls a member the child component does not expose.",
+    details: [
+      "Return the member through the child component expose object or correct the parent call.",
+      "Component internals stay private unless explicitly exposed."
+    ]
+  },
+  VD_PROJECT_STATE_UNUSED: {
+    category: "state",
+    summary: "An exported shallow state key has no statically visible consumer.",
+    details: [
+      "Remove the key when it is genuinely unused or reference it from the local template/script.",
+      "Dynamic access is intentionally not inferred."
+    ]
+  },
   VD_PROJECT_PAGE_CONFIG: {
     category: "configuration",
     summary: "A page config contains a statically invalid VeloDom option.",
@@ -224,7 +264,30 @@ export function suggestNearestName(
 
   const limit = Math.max(1, Math.floor(value.length / 3));
 
-  return closest && closest.distance <= limit ? closest.value : undefined;
+  return closest && (
+    closest.distance <= limit
+    || isAdjacentTransposition(value.toLowerCase(), closest.value.toLowerCase())
+  )
+    ? closest.value
+    : undefined;
+}
+
+/** Detects one common adjacent-character transposition without broad fuzzing. */
+function isAdjacentTransposition(left: string, right: string) {
+  if (left.length !== right.length) return false;
+  const differences: number[] = [];
+
+  for (let index = 0; index < left.length; index += 1) {
+    if (left[index] !== right[index]) differences.push(index);
+  }
+
+  if (differences.length !== 2 || differences[1] !== differences[0]! + 1) {
+    return false;
+  }
+
+  const [first, second] = differences;
+
+  return left[first!] === right[second!] && left[second!] === right[first!];
 }
 
 /** Computes bounded Levenshtein distance for small project identifiers. */

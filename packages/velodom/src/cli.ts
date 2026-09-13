@@ -33,6 +33,10 @@ import type {
 } from "./compiler/types.ts";
 import { PREFERRED_DIRECTIVES } from "./shared/directives.ts";
 import {
+  findProtectedStatePathKey,
+  isAppRelativePath
+} from "./shared/path.ts";
+import {
   discoverFiles,
   normalizeModuleName,
   pageConfigPaths,
@@ -1235,6 +1239,14 @@ async function runDoctor(
     inspection.components.map(component => component.name)
   );
   const requestRoutes = new Set(inspection.requestRoutes);
+  const componentContracts = new Map(inspection.components.map(component => {
+    const indexed = findIndexedTemplate(inspection, component.source);
+
+    return [component.name, {
+      exposes: new Set(findExposeNames(indexed?.script || "")),
+      props: findExplicitComponentProps(indexed?.script || "")
+    }] as const;
+  }));
   await Promise.all(inspection.templates.map(async indexed => {
     const template = indexed.module;
     const analysisHtml = indexed.analysisHtml;
@@ -1356,6 +1368,104 @@ async function runDoctor(
         level: "warning",
         location: locateSourceToken(indexed.html, expression.split("=").slice(1).join("=")),
         message: `Directive expression "${expression}" uses unsafe dynamic evaluation.`
+      });
+    });
+
+    findNavigationTargets(analysisHtml).forEach(target => {
+      if (isAppRelativePath(String(target.value))) return;
+
+      issues.push({
+        category: "routing",
+        code: "VD_PROJECT_NAV_TARGET",
+        file: template.source,
+        level: "error",
+        location: locateSourceToken(indexed.html, target.value),
+        message: `vd-nav target "${target.value}" is not an app-relative path.`,
+        suggestion: target.value.startsWith("#")
+          ? `Use the current route plus the hash, for example "/page${target.value}".`
+          : "Use /path for app navigation, or remove vd-nav from external links."
+      });
+    });
+
+    findRequestTargets(analysisHtml).forEach(target => {
+      const protectedKey = findProtectedStatePathKey(target);
+      const valid = /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*$/.test(target);
+      const runtimeScopeTarget = /^\$(?:refs|route)(?:\.|$)/.test(target);
+
+      if (valid && !protectedKey && !runtimeScopeTarget) return;
+      issues.push({
+        category: "request",
+        code: "VD_PROJECT_REQUEST_TARGET",
+        file: template.source,
+        level: "error",
+        location: locateSourceToken(indexed.html, target),
+        message: protectedKey
+          ? `Request target "${target}" reaches protected state key "${protectedKey}".`
+          : `Request target "${target}" is not a writable state path.`
+      });
+    });
+
+    const componentUsages = findComponentUsages(analysisHtml);
+
+    componentUsages.forEach(usage => {
+      const contract = componentContracts.get(usage.component);
+
+      if (!contract?.props || usage.dynamicProps) return;
+      const provided = new Set(usage.props);
+      contract.props.required.forEach(name => {
+        if (provided.has(name)) return;
+        issues.push({
+          category: "component",
+          code: "VD_PROJECT_COMPONENT_PROP",
+          file: template.source,
+          level: "error",
+          location: locateSourceToken(indexed.html, usage.component),
+          message: `Component "${usage.component}" requires prop "${name}".`
+        });
+      });
+      provided.forEach(name => {
+        if (contract.props?.all.has(name)) return;
+        const nearest = suggestNearestName(name, contract.props?.all || []);
+
+        issues.push({
+          category: "component",
+          code: "VD_PROJECT_COMPONENT_PROP",
+          file: template.source,
+          level: "warning",
+          location: locateSourceToken(indexed.html, `vd-prop-${name}`),
+          message: `Component "${usage.component}" does not declare prop "${name}".`,
+          suggestion: nearest ? `Did you mean "${nearest}"?` : undefined
+        });
+      });
+    });
+
+    findComponentRefMemberUsages(analysisHtml).forEach(refUsage => {
+      const componentUsage = componentUsages.find(usage => usage.ref === refUsage.ref);
+      const contract = componentUsage
+        ? componentContracts.get(componentUsage.component)
+        : undefined;
+
+      if (!componentUsage || !contract || contract.exposes.has(refUsage.member)) return;
+      issues.push({
+        category: "component",
+        code: "VD_PROJECT_COMPONENT_EXPOSE",
+        file: template.source,
+        level: "error",
+        location: locateSourceToken(indexed.html, `$refs.${refUsage.ref}.${refUsage.member}`),
+        message: `Component ref "${refUsage.ref}" calls "${refUsage.member}", but "${componentUsage.component}" does not expose it.`,
+        suggestion: suggestNearestName(refUsage.member, contract.exposes)
+          ? `Did you mean "${suggestNearestName(refUsage.member, contract.exposes)}"?`
+          : "Expose the member from the child component or correct the call."
+      });
+    });
+
+    findStaticallyUnusedState(indexed.script, analysisHtml).forEach(name => {
+      issues.push({
+        category: "state",
+        code: "VD_PROJECT_STATE_UNUSED",
+        file: template.source,
+        level: "warning",
+        message: `Exported shallow state key "${name}" has no statically visible consumer.`
       });
     });
   }));
@@ -2124,6 +2234,142 @@ function findComponentPropReferences(source: string) {
   }
 
   return references;
+}
+
+/** Finds static navigation targets owned by elements that opt into vd-nav. */
+function findNavigationTargets(source: string) {
+  const targets: Array<{ value: string }> = [];
+
+  for (const match of source.matchAll(/<[a-z][^>]*>/gi)) {
+    const tag = match[0];
+
+    if (!/\b(?:data-)?vd-nav(?:\s|=|>)/i.test(tag)) continue;
+    const value = tag.match(/\bhref=["']([^"']+)["']/i)?.[1]?.trim();
+
+    if (value) targets.push({ value });
+  }
+
+  return targets;
+}
+
+/** Finds statically writable targets on declarative request elements. */
+function findRequestTargets(source: string) {
+  const targets = new Set<string>();
+
+  for (const match of source.matchAll(/<[a-z][^>]*>/gi)) {
+    const tag = match[0];
+
+    if (!/\b(?:data-)?vd-request=["']/i.test(tag)) continue;
+    const target = tag.match(/\b(?:data-)?vd-target=["']([^"']+)["']/i)?.[1]?.trim();
+
+    if (target) targets.add(target);
+  }
+
+  return [...targets].sort();
+}
+
+/** Finds component names, refs, and statically supplied prop keys. */
+function findComponentUsages(source: string) {
+  const usages: Array<{
+    component: string;
+    dynamicProps: boolean;
+    props: string[];
+    ref?: string;
+  }> = [];
+
+  for (const match of source.matchAll(/<(?:vd-component|[a-z][\w:-]*)\b([^>]*)>/gi)) {
+    const attributes = match[1] || "";
+    const component = attributes.match(/\bname=["']([^"']+)["']/i)?.[1]
+      || attributes.match(/\b(?:data-)?vd-component=["']([^"']+)["']/i)?.[1];
+
+    if (!component) continue;
+    const props = new Set(
+      [...attributes.matchAll(/\b(?:data-)?vd-prop-([\w-]+)=/gi)]
+        .map(prop => prop[1] || "")
+        .filter(Boolean)
+    );
+    const objectSource = attributes.match(/\b(?:data-)?vd-props=["']([^"']+)["']/i)?.[1]
+      ?.trim();
+    let dynamicProps = false;
+
+    if (objectSource) {
+      if (
+        objectSource.startsWith("{")
+        && objectSource.endsWith("}")
+        && !objectSource.includes("...")
+      ) {
+        readTopLevelObjectKeys(objectSource, 0).forEach(name => props.add(name));
+      } else {
+        dynamicProps = true;
+      }
+    }
+
+    usages.push({
+      component: normalizeModuleName(component),
+      dynamicProps,
+      props: [...props].sort(),
+      ref: attributes.match(/\b(?:data-)?vd-ref=["']([^"']+)["']/i)?.[1]?.trim()
+    });
+  }
+
+  return usages;
+}
+
+/** Reads a simple explicit ComponentInitContext<Props> contract when present. */
+function findExplicitComponentProps(source: string) {
+  const typeName = source.match(/\bComponentInitContext\s*<\s*([A-Za-z_$][\w$]*)/)?.[1];
+
+  if (!typeName) return null;
+  const escaped = escapeRegExp(typeName);
+  const body = source.match(new RegExp(
+    `\\binterface\\s+${escaped}\\s*\\{([\\s\\S]*?)\\}`
+  ))?.[1] || source.match(new RegExp(
+    `\\btype\\s+${escaped}(?:\\s*=)?\\s*\\{([\\s\\S]*?)\\}`
+  ))?.[1];
+
+  if (!body) return null;
+  const all = new Set<string>();
+  const required = new Set<string>();
+
+  for (const match of body.matchAll(/(?:^|[;\r\n])\s*([A-Za-z_$][\w$]*)(\?)?\s*:/g)) {
+    const name = match[1];
+
+    if (!name) continue;
+    all.add(name);
+    if (!match[2]) required.add(name);
+  }
+
+  return all.size ? { all, required } : null;
+}
+
+/** Finds member calls made through local component refs. */
+function findComponentRefMemberUsages(source: string) {
+  const usages = new Map<string, { member: string; ref: string }>();
+
+  for (const match of source.matchAll(
+    /\$refs\.([A-Za-z_$][\w$]*)\.([A-Za-z_$][\w$]*)\s*\(/g
+  )) {
+    const ref = match[1];
+    const member = match[2];
+
+    if (ref && member) usages.set(`${ref}:${member}`, { member, ref });
+  }
+
+  return [...usages.values()].sort((left, right) => (
+    `${left.ref}:${left.member}`.localeCompare(`${right.ref}:${right.member}`)
+  ));
+}
+
+/** Finds exported state keys with no conservative static consumer signal. */
+function findStaticallyUnusedState(script: string, template: string) {
+  return findExportedStateKeys(script).filter(name => {
+    const escaped = escapeRegExp(name);
+    const templateUsesName = new RegExp(`\\b${escaped}\\b`).test(template);
+    const scriptOccurrences = [...script.matchAll(new RegExp(`\\b${escaped}\\b`, "g"))]
+      .length;
+
+    return !templateUsesName && scriptOccurrences <= 1;
+  });
 }
 
 /** Finds the request references. */

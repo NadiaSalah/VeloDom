@@ -60,6 +60,9 @@ or claim that a matching package is available from a registry.
   legacy directive/event attributes and the request-state alias, with an
   explicit guarded `--write` mode that never edits application scripts or
   deletes files.
+- Project-Index doctor checks for invalid app-relative navigation, unwritable
+  request targets, explicit TypeScript prop-contract mismatches, missing child
+  expose members, and conservatively unused shallow state.
 - An enforced first TypeScript `strict` slice for stable/shared contracts and
   low-dependency Core utilities, wired into normal checks and package builds.
 

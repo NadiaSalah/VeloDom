@@ -179,6 +179,9 @@ prove them; `vd explain <code>` documents those IDs offline. `vd check` composes
 the available static gates and explicitly reports browser tests as not run.
 `vd fix` previews a small syntax-preserving alias allowlist and writes only
 after an explicit `--write` flag.
+Project-Index doctor checks include app-relative navigation, writable request
+targets, explicit typed prop contracts, child `expose` members, and
+conservatively unused shallow state without guessing dynamic control flow.
 
 Choose `--lab` during scripted project creation or select it in Customize mode
 to add `npm run lab`. The command starts the existing Vite server with an

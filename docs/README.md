@@ -529,7 +529,11 @@ references, broken request references, broken `$refs` usage, duplicate
 declarative `vd-state` names, unknown event handlers, unsafe dynamic
 directive expressions, unused components/request routes/middleware,
 unreachable showcase files, circular component dependencies, large templates,
-and simple page config mistakes.
+simple page config mistakes, non-app-relative `vd-nav` links, unwritable request
+targets, typed component-prop contracts, child-ref/expose calls, and
+conservatively unused exported state. Prop mismatch checks require an explicit
+`ComponentInitContext<Props>` interface or type; dynamic props and control flow
+are not inferred.
 Every doctor item has a stable `code`, a bounded `category` (`compiler`,
 `accessibility`, `component`, `configuration`, `maintainability`, `request`,
 `routing`, `security`, `state`, or `tooling`), and a remediation suggestion.

@@ -70,6 +70,12 @@
   snapshot before `--write`. Unknown directives and all JavaScript remain
   untouched. CLI impact is `DEFAULT_INCLUDED`; generated projects already use
   preferred syntax, so no template change is needed.
+- Advanced doctor relationships remain proof-driven. Prop diagnostics activate
+  only when a child script explicitly uses `ComponentInitContext<Props>` with a
+  readable interface/type; dynamic prop objects are skipped. Child-ref member
+  calls are checked against explicit `expose`, request targets reject runtime
+  scope/protected paths, and state warnings require no conservative usage
+  signal. CLI impact is `DEFAULT_INCLUDED`; no authoring contract is added.
 - Static SEO generation runs after Vite writes the bundle rather than at its
   close hook. The renderer needs the emitted `index.html` shell, and this keeps
   the behavior stable across Vite/Rolldown lifecycle ordering.
