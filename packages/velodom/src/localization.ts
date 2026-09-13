@@ -36,6 +36,17 @@ export interface LocaleDefinition {
   messages: LocaleDictionary;
 }
 
+interface NormalizedLocaleDefinition {
+  lang: string;
+  messages: LocaleDictionary;
+}
+
+interface NormalizedLocalizationOptions {
+  defaultLocale: string;
+  locales: Record<string, NormalizedLocaleDefinition>;
+  prefixDefaultLocale: boolean;
+}
+
 /** Configuration used by the build-time localization helper. */
 export interface LocalizationOptions {
   /** Existing locale name used as the complete dictionary baseline. */
@@ -237,7 +248,7 @@ export function inspectLocalization(options: LocalizationOptions): LocalizationD
 }
 
 /** Normalizes the options. */
-function normalizeOptions(options: LocalizationOptions): Required<LocalizationOptions> {
+function normalizeOptions(options: LocalizationOptions): NormalizedLocalizationOptions {
   if (!options || typeof options !== "object") {
     throw new TypeError("VeloDom localization options must be an object");
   }
@@ -253,7 +264,7 @@ function normalizeOptions(options: LocalizationOptions): Required<LocalizationOp
     throw new TypeError(`VeloDom default locale "${defaultLocale}" is not defined`);
   }
 
-  const normalizedLocales: Record<string, LocaleDefinition> = {};
+  const normalizedLocales: Record<string, NormalizedLocaleDefinition> = {};
 
   for (const [rawLocale, definition] of Object.entries(locales)) {
     const locale = rawLocale.trim();
@@ -278,9 +289,17 @@ function normalizeOptions(options: LocalizationOptions): Required<LocalizationOp
 
 /** Inspects the locale dictionaries. */
 function inspectLocaleDictionaries(
-  options: Required<LocalizationOptions>
+  options: NormalizedLocalizationOptions
 ): LocalizationDiagnostic[] {
-  const baseline = flattenDictionary(options.locales[options.defaultLocale].messages);
+  const baselineDefinition = options.locales[options.defaultLocale];
+
+  if (!baselineDefinition) {
+    throw new TypeError(
+      `VeloDom default locale "${options.defaultLocale}" is not defined`
+    );
+  }
+
+  const baseline = flattenDictionary(baselineDefinition.messages);
   const diagnostics: LocalizationDiagnostic[] = [];
 
   for (const [locale, definition] of Object.entries(options.locales)) {
@@ -319,7 +338,7 @@ function inspectLocaleDictionaries(
 
 /** Resolves the message. */
 function resolveMessage(
-  options: Required<LocalizationOptions>,
+  options: NormalizedLocalizationOptions,
   locale: string,
   key: string
 ) {
@@ -343,7 +362,7 @@ function resolveMessage(
 
 /** Localizes the path. */
 function localizePath(
-  options: Required<LocalizationOptions>,
+  options: NormalizedLocalizationOptions,
   locale: string,
   path: string
 ) {
@@ -365,7 +384,7 @@ function localizePath(
 
 /** Switches the locale path. */
 function switchLocalePath(
-  options: Required<LocalizationOptions>,
+  options: NormalizedLocalizationOptions,
   locale: string,
   path: string
 ) {
@@ -389,7 +408,7 @@ function switchLocalePath(
 
 /** Creates the localized SEO entries. */
 function createLocalizedSeoEntries(
-  options: Required<LocalizationOptions>,
+  options: NormalizedLocalizationOptions,
   sources: readonly LocalizedSeoSource[]
 ) {
   return sources.flatMap(source => Object.entries(options.locales).map(([

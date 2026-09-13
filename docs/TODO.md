@@ -31,9 +31,9 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 
 `[####################] 100%`
 
-**Next-release approved scope: 4 of 15 milestones complete.**
+**Next-release approved scope: 5 of 15 milestones complete.**
 
-`[#####...............] 27%`
+`[#######.............] 33%`
 
 The repository is the local V1 source baseline. Registry availability,
 authentication, tags, and releases are external state and are deliberately not
@@ -266,7 +266,7 @@ layer, or unproven analysis.
 - [x] Add an incremental compiler/HMR cache keyed by normalized source and
   compiler options, with invalidation and cold/warm-build benchmarks. It is a
   development/build optimization, never an application runtime cache.
-- [ ] Migrate Core typing to TypeScript `strict` in small verified slices:
+- [x] Migrate Core typing to TypeScript `strict` in small verified slices:
   shared contracts and leaf modules first, then compiler, directives,
   mount/router, requests, CLI, and scaffolder. Do not change the JavaScript
   authoring API merely to satisfy the checker.
@@ -282,8 +282,11 @@ layer, or unproven analysis.
   - [x] Migrate mount, page routing/matching, resource adapters, page data, and
     the directly reached event, style, SEO, lifecycle-hook, and error-boundary
     runtime dependencies.
-  - [ ] Migrate CLI/project intelligence and scaffolder modules. Request
-    runtime dependencies are covered by the directive integration slice above.
+  - [x] Migrate CLI/project intelligence and scaffolder modules, then enforce
+    `strict` over every `packages/velodom/src/**/*.ts` source so future public,
+    optional, adapter, and build modules cannot bypass the completed boundary.
+    Request runtime dependencies are covered by the directive integration
+    slice above.
 - [ ] Create one internal, build-time Project Index with source locations and
   compiler metadata. Existing CLI, language tools, generated declarations,
   documentation, graph, health, and Lab views must consume it incrementally

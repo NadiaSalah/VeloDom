@@ -66,6 +66,6 @@ function offsetToLocation(source: string, offset: number) {
 
   return {
     line: lines.length,
-    column: lines[lines.length - 1].length + 1
+    column: (lines[lines.length - 1] || "").length + 1
   };
 }

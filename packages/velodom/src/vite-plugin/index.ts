@@ -237,9 +237,9 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
           diagnostic.severity === "error"
         ));
 
-        if (errors.length) {
-          const diagnostic = errors[0];
+        const diagnostic = errors[0];
 
+        if (diagnostic) {
           this.error({
             id,
             message: `[${diagnostic.code}] ${diagnostic.message}`,
@@ -337,9 +337,9 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
         diagnostic.severity === "error"
       ));
 
-      if (errors.length) {
-        const diagnostic = errors[0];
+      const diagnostic = errors[0];
 
+      if (diagnostic) {
         this.error({
           id: filename,
           message: `[${diagnostic.code}] ${diagnostic.message}`,
@@ -573,8 +573,8 @@ function isPageConfigFile(filename: string) {
 
 /** Evaluates the `isSingleFileModule()` condition for the supplied input. */
 function isSingleFileModule(filename: string) {
-  return filename
-    .split("?", 1)[0]
+  return (filename
+    .split("?", 1)[0] || filename)
     .endsWith(VD_SINGLE_FILE.EXTENSION);
 }
 
@@ -597,8 +597,8 @@ function isSingleFileBlockRequest(filename: string) {
 
 /** Evaluates the `isVeloDomStyleFile()` condition for the supplied input. */
 function isVeloDomStyleFile(filename: string) {
-  const normalized = filename
-    .split("?", 1)[0]
+  const normalized = (filename
+    .split("?", 1)[0] || filename)
     .replace(/\\/g, "/");
 
   return (

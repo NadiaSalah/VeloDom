@@ -97,28 +97,24 @@
   created default runtime. Otherwise custom default providers are bypassed.
 - Framework source is TypeScript and passes TypeScript plus ESLint before
   production builds.
-- TypeScript currently enforces unused-code, indexed-access, return-path,
-  side-effect-import, override, and switch-fallthrough checks. Full `strict`
-  mode is a staged hardening task because enabling it globally exposes legacy
-  implicit contracts across the compiler and request router; it must be solved
-  module-by-module with tests rather than hidden behind broad assertions.
-- `packages/velodom/tsconfig.strict.json` is the monotonic strict-migration
-  boundary. It covers shared/public contracts, low-dependency authoring,
-  lifecycle, plugin, reactive, ref, compiler/devtools protocol modules, the
-  build-time compiler cache, compiler and optimizer implementations, the safe
-  expression parser/evaluator, directive registry and feature modules, the
-  declarative request path's auth/middleware/binding/router dependencies,
-  language-service compiler path, `.vd` source helpers, component mounting,
-  page routing/matching, resource adapters, page data, scoped styles, runtime
-  SEO, events, hook dispatch, and recoverable error boundaries. Both
-  `npm run check` and package builds execute it. Future slices must expand this
-  file rather than create competing strict configs or weaken checks already
-  enabled there.
+- TypeScript enforces `strict` plus unused-code, indexed-access, return-path,
+  side-effect-import, override, and switch-fallthrough checks across every
+  package source file. The migration was intentionally completed slice by
+  slice because a one-step switch exposed implicit contracts across compiler,
+  runtime, adapters, optional integrations, CLI, and scaffolding.
+- `packages/velodom/tsconfig.strict.json` is now a permanent package-wide gate
+  over `src/**/*.ts`, not a transitional allowlist. Both `npm run check` and
+  package builds execute it, and any future source module is strict by default.
 - Directive registration reaches request routing through the lazy declarative
-  request feature. That dependency belongs to the same strict slice: hiding it
-  with unchecked imports would leave the runtime boundary weaker than the
-  compiler boundary. CLI/project intelligence/scaffolding remains the final
-  separate strict slice.
+  request feature. That dependency belongs to the same strict boundary: hiding
+  it with unchecked imports would leave runtime weaker than compiler. The final
+  pass also covered CLI/project intelligence, scaffolding, optional subpaths,
+  resource maps, and Vite integrations.
+- Strict normalization uses explicit internal locale records and typed Vite
+  glob/resource maps instead of assertions. Binary/text parsers guard missing
+  indexed values, and public/plugin navigation is wrapped once so its runtime
+  Promise behavior matches `VeloDomApp`. CLI impact is `NONE`: this hardening
+  adds no flags, prompts, generated files, dependencies, or authoring syntax.
 - Page routing requires one real `#app` mount element. The router validates this
   before touching layout, style, directive, or error-boundary targets and emits
   one source-aware diagnostic when the HTML shell is invalid.

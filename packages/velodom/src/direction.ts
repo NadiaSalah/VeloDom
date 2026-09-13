@@ -11,7 +11,6 @@
 import { VD_DIRECTION } from "./constants.ts";
 import type {
   DirectionController,
-  DirectionLocaleDefinition,
   DirectionPluginOptions,
   DirectionValue,
   PluginContext,
@@ -23,6 +22,11 @@ type DirectionSubscriber = () => void;
 
 interface DirectionState {
   locale: string;
+  lang: string;
+  direction: DirectionValue;
+}
+
+interface NormalizedDirectionLocaleDefinition {
   lang: string;
   direction: DirectionValue;
 }
@@ -129,16 +133,22 @@ function normalizeCssToken(
 
 /** Creates the direction controller. */
 function createDirectionController(
-  locales: Record<string, DirectionLocaleDefinition>,
+  locales: Record<string, NormalizedDirectionLocaleDefinition>,
   initialLocale: string
 ): DirectionController & {
   _subscribe(callback: DirectionSubscriber): () => void;
 } {
+  const initialDefinition = locales[initialLocale];
+
+  if (!initialDefinition) {
+    throw new TypeError(`Unknown VeloDom locale "${initialLocale}"`);
+  }
+
   const subscribers = new Set<DirectionSubscriber>();
   const state: DirectionState = {
     locale: initialLocale,
-    lang: locales[initialLocale].lang,
-    direction: locales[initialLocale].direction
+    lang: initialDefinition.lang,
+    direction: initialDefinition.direction
   };
   const notify = () => {
     for (const subscriber of subscribers) {
@@ -196,7 +206,7 @@ function createDirectionController(
 /** Normalizes the locales. */
 function normalizeLocales(
   value: DirectionPluginOptions["locales"]
-): Record<string, DirectionLocaleDefinition> {
+): Record<string, NormalizedDirectionLocaleDefinition> {
   const source = value || {
     [VD_DIRECTION.DEFAULT_LOCALE]: {
       lang: VD_DIRECTION.DEFAULT_LANG,
@@ -255,7 +265,7 @@ function normalizeLocales(
 /** Normalizes the default locale. */
 function normalizeDefaultLocale(
   value: string | undefined,
-  locales: Record<string, DirectionLocaleDefinition>
+  locales: Record<string, NormalizedDirectionLocaleDefinition>
 ) {
   const locale = String(
     value || Object.keys(locales)[0] || VD_DIRECTION.DEFAULT_LOCALE

@@ -25,9 +25,11 @@ import type {
 } from "../compiler/types.ts";
 import { createApp } from "../velodom.ts";
 import type {
+  PageConfig,
   RequestMiddleware,
   RequestRouteRegistry,
   ResourceAdapter,
+  UnknownRecord,
   VeloDomApp,
   VeloDomAppOptions
 } from "../types.ts";
@@ -105,7 +107,7 @@ const pageManifestFiles = mapLoaderExports<
   pageTemplateFiles,
   "__vdManifest"
 );
-const pageSingleFileModuleLoaders = import.meta.glob(
+const pageSingleFileModuleLoaders = import.meta.glob<UnknownRecord>(
   "/src/pages/**/*.vd"
 );
 const pageSingleFileHtmlFiles = mapLoaderExports<string>(
@@ -119,16 +121,16 @@ const pageSingleFileManifestFiles = mapLoaderExports<
   "__vdManifest"
 );
 
-const pageModuleFiles = import.meta.glob([
+const pageModuleFiles = import.meta.glob<UnknownRecord>([
   "/src/pages/**/script.ts",
   "/src/pages/**/script.js",
   "/src/pages/**/page.js"
 ]);
-const pageDataFiles = import.meta.glob([
+const pageDataFiles = import.meta.glob<UnknownRecord>([
   "/src/pages/**/data.ts",
   "/src/pages/**/data.js"
 ]);
-const pageConfigFiles = import.meta.glob(
+const pageConfigFiles = import.meta.glob<PageConfig>(
   [
     "/src/pages/**/config.ts",
     "/src/pages/**/config.js",
@@ -143,7 +145,7 @@ const pageConfigFiles = import.meta.glob(
 // Route discovery needs config before navigation, but templates, scripts,
 // styles, and manifests must stay in their lazy page chunk. The Vite plugin
 // extracts only the config block for this eager build-time metadata request.
-const pageSingleFileConfigs = import.meta.glob(
+const pageSingleFileConfigs = import.meta.glob<PageConfig>(
   "/src/pages/**/*.vd",
   {
     eager: true,
@@ -151,7 +153,7 @@ const pageSingleFileConfigs = import.meta.glob(
     query: "?vd-config"
   }
 );
-const pageStyleFiles = import.meta.glob(
+const pageStyleFiles = import.meta.glob<string>(
   "/src/pages/**/*.css",
   {
     query: "?inline",
@@ -192,15 +194,15 @@ const componentSingleFileManifestFiles = mapLoaderExports<
   componentSingleFileTemplateFiles,
   "__vdManifest"
 );
-const componentModuleFiles = import.meta.glob([
+const componentModuleFiles = import.meta.glob<UnknownRecord>([
   "/src/components/**/script.ts",
   "/src/components/**/script.js",
   "/src/components/**/component.js"
 ]);
-const componentSingleFileModuleFiles = import.meta.glob(
+const componentSingleFileModuleFiles = import.meta.glob<UnknownRecord>(
   "/src/components/**/*.vd"
 );
-const componentStyleFiles = import.meta.glob(
+const componentStyleFiles = import.meta.glob<string>(
   "/src/components/**/*.css",
   {
     query: "?inline",
@@ -244,7 +246,7 @@ const layoutSingleFileManifestFiles = mapLoaderExports<
   layoutSingleFileTemplateFiles,
   "__vdManifest"
 );
-const layoutStyleFiles = import.meta.glob(
+const layoutStyleFiles = import.meta.glob<string>(
   "/src/layouts/**/*.css",
   {
     query: "?inline",

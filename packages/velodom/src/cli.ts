@@ -1547,7 +1547,7 @@ async function findRepeatedHeavyDependencySignals(
     }
 
     for (const match of source.matchAll(/\bfrom\s+["'](@?[^."'/][^"']*)["']/g)) {
-      const name = normalizeDependencyName(match[1]);
+      const name = normalizeDependencyName(match[1] || "");
 
       if (name) names.add(name);
     }
@@ -1829,7 +1829,9 @@ async function discoverRequestRoutes(root: string, apiFiles: string[]) {
     const source = await readOptionalText(join(root, file));
 
     for (const match of source.matchAll(/["']([^"']+)["']\s*:/g)) {
-      routes.add(match[1]);
+      const route = match[1];
+
+      if (route) routes.add(route);
     }
   }));
 
@@ -1921,11 +1923,11 @@ function findComponentReferences(source: string) {
   const names = new Set<string>();
 
   for (const match of source.matchAll(/<vd-component\b[^>]*\bname=["']([^"']+)["'][^>]*>/gi)) {
-    names.add(normalizeModuleName(match[1]));
+    names.add(normalizeModuleName(match[1] || ""));
   }
 
   for (const match of source.matchAll(/\b(?:data-)?vd-component=["']([^"']+)["']/gi)) {
-    names.add(normalizeModuleName(match[1]));
+    names.add(normalizeModuleName(match[1] || ""));
   }
 
   return [...names].filter(Boolean).sort();
@@ -1939,7 +1941,7 @@ function findComponentPropReferences(source: string) {
   }> = [];
 
   for (const match of source.matchAll(/<vd-component\b([^>]*)>/gi)) {
-    const attributes = match[1];
+    const attributes = match[1] || "";
     const name = attributes.match(/\bname=["']([^"']+)["']/i)?.[1];
 
     if (!name) continue;
@@ -1947,7 +1949,8 @@ function findComponentPropReferences(source: string) {
     references.push({
       component: normalizeModuleName(name),
       props: [...attributes.matchAll(/\b(?:data-)?vd-prop-([\w-]+)=/gi)]
-        .map(prop => prop[1])
+        .map(prop => prop[1] || "")
+        .filter(Boolean)
         .sort()
     });
   }
@@ -1958,7 +1961,7 @@ function findComponentPropReferences(source: string) {
 /** Finds the request references. */
 function findRequestReferences(source: string) {
   return [...source.matchAll(/\b(?:data-)?vd-request=["']([^"'{]+)["']/gi)]
-    .map(match => match[1].trim())
+    .map(match => match[1]?.trim() || "")
     .filter(Boolean)
     .sort();
 }
@@ -1971,9 +1974,14 @@ function findDirectiveExpressions(source: string) {
   }> = [];
 
   for (const match of source.matchAll(/\b((?:data-)?vd-[\w:-]+)=["']([^"']+)["']/gi)) {
+    const directive = match[1];
+    const expression = match[2]?.trim();
+
+    if (!directive || !expression) continue;
+
     expressions.push({
-      directive: match[1],
-      expression: match[2].trim()
+      directive,
+      expression
     });
   }
 
@@ -1992,7 +2000,7 @@ function findUnsafeDirectiveExpressions(source: string) {
 /** Finds the ref references. */
 function findRefReferences(source: string) {
   return [...source.matchAll(/\b(?:data-)?vd-ref=["']([^"']+)["']/gi)]
-    .map(match => match[1].trim())
+    .map(match => match[1]?.trim() || "")
     .filter(Boolean)
     .sort();
 }
@@ -2002,11 +2010,15 @@ function findMissingRefUsages(source: string) {
   const refs = new Set<string>();
 
   for (const match of source.matchAll(/\$refs\.([A-Za-z_$][\w$]*)/g)) {
-    refs.add(match[1]);
+    const name = match[1];
+
+    if (name) refs.add(name);
   }
 
   for (const match of source.matchAll(/\$refs\[['"]([^'"]+)['"]\]/g)) {
-    refs.add(match[1].trim());
+    const name = match[1]?.trim();
+
+    if (name) refs.add(name);
   }
 
   return [...refs].filter(Boolean).sort();
@@ -2028,20 +2040,26 @@ function findEventBindings(source: string) {
   }>();
 
   for (const match of source.matchAll(/\bvd-on:([\w:-]+)=["']([^"']+)["']/gi)) {
-    const expression = match[2].trim();
+    const event = match[1];
+    const expression = match[2]?.trim();
 
-    events.set(`${match[1]}:${expression}`, {
-      event: match[1],
+    if (!event || !expression) continue;
+
+    events.set(`${event}:${expression}`, {
+      event,
       expression,
       handler: findHandlerName(expression)
     });
   }
 
   for (const match of source.matchAll(/\bdata-vd-on-([\w:-]+)=["']([^"']+)["']/gi)) {
-    const expression = match[2].trim();
+    const event = match[1];
+    const expression = match[2]?.trim();
 
-    events.set(`${match[1]}:${expression}`, {
-      event: match[1],
+    if (!event || !expression) continue;
+
+    events.set(`${event}:${expression}`, {
+      event,
       expression,
       handler: findHandlerName(expression)
     });
@@ -2057,7 +2075,7 @@ function findSlotReferences(source: string) {
   const slots = new Set<string>();
 
   for (const match of source.matchAll(/\b(?:data-)?vd-get-child=["']([^"']*)["']/gi)) {
-    slots.add(match[1].trim() || "default");
+    slots.add(match[1]?.trim() || "default");
   }
 
   return [...slots].sort();
@@ -2073,7 +2091,9 @@ function findStateAssignments(source: string) {
   const names = new Set(findExportedStateKeys(source));
 
   for (const match of source.matchAll(/\bstate\s*\.\s*([A-Za-z_$][\w$]*)\s*=/g)) {
-    names.add(match[1]);
+    const name = match[1];
+
+    if (name) names.add(name);
   }
 
   return [...names].sort();
@@ -2183,7 +2203,7 @@ function addTopLevelObjectKey(keys: Set<string>, segment: string) {
 /** Finds the state declaration references. */
 function findStateDeclarationReferences(source: string) {
   return [...source.matchAll(/\b(?:data-)?vd-state=["']([^"']+)["']/gi)]
-    .map(match => match[1].trim())
+    .map(match => match[1]?.trim() || "")
     .filter(Boolean)
     .sort();
 }
@@ -2194,11 +2214,15 @@ function findExposeNames(source: string) {
   const arraySource = source.match(/\bexpose\s*[:=]\s*\[([^\]]*)\]/)?.[1] || "";
 
   for (const match of arraySource.matchAll(/["']([^"']+)["']/g)) {
-    names.add(match[1].trim());
+    const name = match[1]?.trim();
+
+    if (name) names.add(name);
   }
 
   for (const match of source.matchAll(/\bexpose\s*\(\s*["']([^"']+)["']\s*\)/g)) {
-    names.add(match[1].trim());
+    const name = match[1]?.trim();
+
+    if (name) names.add(name);
   }
 
   const objectPattern = /\bexpose(?:\s*:\s*\{|(?:\s*:\s*[^=;\r\n]+)?\s*=\s*\{)/g;
@@ -2375,7 +2399,9 @@ function getRouteParameterNames(route: string) {
   const names = new Set<string>();
 
   for (const match of route.matchAll(/:([A-Za-z_$][\w$]*)/g)) {
-    names.add(match[1]);
+    const name = match[1];
+
+    if (name) names.add(name);
   }
 
   return [...names].sort();
@@ -2472,12 +2498,19 @@ async function discoverRequestMiddlewareEdges(root: string) {
     const routePattern = /["']([^"']+)["']\s*:\s*\{([\s\S]*?)\}/g;
 
     for (const match of source.matchAll(routePattern)) {
-      const middlewareSource = match[2].match(/middleware\s*:\s*\[([^\]]*)\]/)?.[1] || "";
+      const route = match[1];
+      const middlewareSource = match[2]?.match(/middleware\s*:\s*\[([^\]]*)\]/)?.[1] || "";
+
+      if (!route) continue;
 
       for (const middleware of middlewareSource.matchAll(/["']([^"']+)["']/g)) {
+        const middlewareName = middleware[1];
+
+        if (!middlewareName) continue;
+
         edges.push({
-          route: match[1],
-          middleware: middleware[1]
+          route,
+          middleware: middlewareName
         });
       }
     }
@@ -2588,19 +2621,27 @@ async function discoverMiddlewareNames(
       || "";
 
     for (const match of defaultObject.matchAll(/(?:^|,)\s*([A-Za-z_$][\w$]*)\s*:/g)) {
-      names.add(match[1]);
+      const name = match[1];
+
+      if (name) names.add(name);
     }
 
     for (const match of defaultObject.matchAll(/(?:^|,)\s*["']([^"']+)["']\s*:/g)) {
-      names.add(match[1]);
+      const name = match[1];
+
+      if (name) names.add(name);
     }
 
     for (const match of source.matchAll(/\bexport\s+(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/g)) {
-      names.add(match[1]);
+      const name = match[1];
+
+      if (name) names.add(name);
     }
 
     for (const match of source.matchAll(/\bexport\s+const\s+([A-Za-z_$][\w$]*)\b/g)) {
-      names.add(match[1]);
+      const name = match[1];
+
+      if (name) names.add(name);
     }
   }));
 
@@ -2630,7 +2671,8 @@ async function findComponentCycleWarnings(
   }));
 
   findCycles(graph).forEach(cycle => {
-    const first = componentByName.get(cycle[0]);
+    const firstName = cycle[0];
+    const first = firstName ? componentByName.get(firstName) : undefined;
 
     issues.push({
       file: first?.source || "src/components",
@@ -2873,6 +2915,9 @@ async function validatePageConfigText(
   const configFile = page.source.endsWith(".vd")
     ? page.source
     : await findConfigFile(root, dirname(page.source));
+
+  if (!configFile) return issues;
+
   const source = await readOptionalText(join(root, configFile));
 
   if (!source) return issues;
@@ -2901,7 +2946,8 @@ async function validatePageConfigText(
 /** Finds the config file. */
 async function findConfigFile(root: string, folder: string) {
   return (await readPageConfigSource(root, folder))?.file
-    || pageConfigPaths(folder)[0];
+    || pageConfigPaths(folder)[0]
+    || null;
 }
 
 /** Parses the args. */
@@ -2920,6 +2966,8 @@ function parseArgs(args: string[]): ParsedArgs {
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
+
+    if (!arg) continue;
 
     if (!arg.startsWith("--")) {
       values.push(arg);

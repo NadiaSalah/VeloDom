@@ -391,6 +391,35 @@ test("component error boundary DOM fallback can retry the component", async () =
   assert.equal(attempts, 2);
 });
 
+test("application and plugin navigation always use the public Promise contract", async () => {
+  document.body.innerHTML = '<main id="app"></main>';
+  let pluginNavigate;
+  const app = createApp({
+    adapter: {
+      pages: {
+        html: {
+          home: async () => "<h1>Home</h1>"
+        }
+      }
+    },
+    plugins: [context => {
+      pluginNavigate = context.navigate;
+    }]
+  });
+
+  await app.mount();
+  assert.equal(pluginNavigate, app.navigate);
+
+  await captureConsole("error", async () => {
+    const navigation = app.navigate("");
+
+    assert.ok(navigation instanceof Promise);
+    assert.equal(await navigation, undefined);
+  });
+
+  await app.destroy();
+});
+
 test("fatal reports replace the page once and render content as text", async () => {
   document.body.innerHTML = "<main>Application</main>";
   const error = new Error("<script>unsafe()</script>");

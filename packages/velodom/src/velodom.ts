@@ -32,12 +32,15 @@ export function createApp(options: VeloDomAppOptions): VeloDomApp {
     options.errorBoundary || null,
     app
   );
+  const navigate: VeloDomApp["navigate"] = async (path, pagePath) => (
+    router.navigate(path, pagePath)
+  );
   registerGlobalErrorHandlers();
   const plugins = createPluginManager(
     options.plugins || [],
     () => ({
       app,
-      navigate: router.navigate
+      navigate
     })
   );
 
@@ -51,7 +54,7 @@ export function createApp(options: VeloDomAppOptions): VeloDomApp {
       await router.destroy();
       await plugins.destroy();
     },
-    navigate: router.navigate
+    navigate
   });
 
   return app;

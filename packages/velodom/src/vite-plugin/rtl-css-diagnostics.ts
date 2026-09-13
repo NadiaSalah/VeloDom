@@ -55,12 +55,17 @@ function collectPropertyDiagnostic(
 
   if (!match) return;
 
-  const property = match[1].toLowerCase();
-  const value = match[2].trim().toLowerCase();
+  const propertySource = match[1];
+  const valueSource = match[2];
+
+  if (!propertySource || valueSource === undefined) return;
+
+  const property = propertySource.toLowerCase();
+  const value = valueSource.trim().toLowerCase();
   const alternatives = VD_RTL_CSS.PHYSICAL_PROPERTY_ALTERNATIVES;
   const textAlignValues = VD_RTL_CSS.TEXT_ALIGN_VALUES;
   const alternative = Object.hasOwn(alternatives, property)
-    ? alternatives[property]
+    ? alternatives[property as keyof typeof alternatives]
     : getTextAlignAlternative(property, value, textAlignValues);
 
   if (!alternative) return;
@@ -69,7 +74,7 @@ function collectPropertyDiagnostic(
     code: VD_RTL_CSS.CODE,
     filename,
     line: lineNumber,
-    column: line.indexOf(match[1]) + 1,
+    column: line.indexOf(propertySource) + 1,
     property,
     alternative,
     message: `Use "${alternative}" instead of physical CSS "${property}" for better RTL support.`
@@ -85,7 +90,7 @@ function getTextAlignAlternative(
   if (property !== "text-align") return "";
 
   return Object.hasOwn(alternatives, value)
-    ? alternatives[value]
+    ? alternatives[value as keyof typeof alternatives]
     : "";
 }
 

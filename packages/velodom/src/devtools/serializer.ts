@@ -184,6 +184,8 @@ function serializeObject(
   entries.forEach(key => {
     const descriptor = descriptors[key];
 
+    if (!descriptor) return;
+
     result[String(key)] = "value" in descriptor
       ? serialize(descriptor.value, context, depth + 1)
       : { __vdType: "Accessor" };

@@ -226,6 +226,9 @@ function readJpegDimensions(source: Uint8Array) {
 
     const marker = source[offset + 1];
     const length = readUInt16Be(source, offset + 2);
+
+    if (marker === undefined) return {};
+
     const isStartOfFrame = marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker);
 
     if (isStartOfFrame && offset + 8 < source.byteLength) {
@@ -261,7 +264,10 @@ function readWebpDimensions(source: Uint8Array) {
   }
 
   if (chunk === "VP8L" && source.byteLength >= 25) {
-    const bits = source[21] | (source[22] << 8) | (source[23] << 16) | (source[24] << 24);
+    const bits = (source[21] ?? 0)
+      | ((source[22] ?? 0) << 8)
+      | ((source[23] ?? 0) << 16)
+      | ((source[24] ?? 0) << 24);
     return {
       width: (bits & 0x3fff) + 1,
       height: ((bits >> 14) & 0x3fff) + 1
@@ -325,20 +331,25 @@ function normalizeDimension(value: number | undefined, label: string) {
 
 /** Reads the uint16 be. */
 function readUInt16Be(source: Uint8Array, offset: number) {
-  return (source[offset] << 8) | source[offset + 1];
+  return ((source[offset] ?? 0) << 8) | (source[offset + 1] ?? 0);
 }
 
 /** Reads the uint16 le. */
 function readUInt16Le(source: Uint8Array, offset: number) {
-  return source[offset] | (source[offset + 1] << 8);
+  return (source[offset] ?? 0) | ((source[offset + 1] ?? 0) << 8);
 }
 
 /** Reads the uint24 le. */
 function readUInt24Le(source: Uint8Array, offset: number) {
-  return source[offset] | (source[offset + 1] << 8) | (source[offset + 2] << 16);
+  return (source[offset] ?? 0)
+    | ((source[offset + 1] ?? 0) << 8)
+    | ((source[offset + 2] ?? 0) << 16);
 }
 
 /** Reads the uint32 be. */
 function readUInt32Be(source: Uint8Array, offset: number) {
-  return ((source[offset] * 0x1000000) + (source[offset + 1] << 16) + (source[offset + 2] << 8) + source[offset + 3]) >>> 0;
+  return (((source[offset] ?? 0) * 0x1000000)
+    + ((source[offset + 1] ?? 0) << 16)
+    + ((source[offset + 2] ?? 0) << 8)
+    + (source[offset + 3] ?? 0)) >>> 0;
 }

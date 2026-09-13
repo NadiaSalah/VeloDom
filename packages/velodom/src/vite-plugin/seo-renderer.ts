@@ -378,7 +378,7 @@ async function resolvePrerenderPages(
 /** Resolves the build SEO entries. */
 async function resolveBuildSeoEntries(
   rawSeo: PageConfig["seo"],
-  baseSeo: SeoConfig,
+  baseSeo: SeoConfig | undefined,
   context: SeoEntriesContext,
   globalHook: SeoEntriesHook | undefined
 ) {
@@ -1033,7 +1033,7 @@ function isIndexable(seo: SeoMetadata) {
 function readDocumentTitle(source: string) {
   return source.match(
     /<title\b[^>]*>([\s\S]*?)<\/title>/i
-  )?.[1].trim() || "";
+  )?.[1]?.trim() || "";
 }
 
 /** Reads the document lang. */

@@ -471,9 +471,10 @@ function parseFrontmatter(lines: string[]): ContentFrontmatter {
 
     if (arrayItem && arrayKey) {
       const current = frontmatter[arrayKey];
+      const item = arrayItem[1];
 
-      if (Array.isArray(current)) {
-        current.push(String(parseScalar(arrayItem[1])));
+      if (Array.isArray(current) && item !== undefined) {
+        current.push(String(parseScalar(item)));
       }
 
       return;
@@ -483,7 +484,10 @@ function parseFrontmatter(lines: string[]): ContentFrontmatter {
 
     if (!pair) return;
 
-    const [, key, rawValue] = pair;
+    const key = pair[1];
+    const rawValue = pair[2];
+
+    if (!key || rawValue === undefined) return;
 
     if (rawValue.trim() === "") {
       frontmatter[key] = [];
@@ -559,8 +563,13 @@ function markdownToHtml(markdown: string): string {
 
     if (heading) {
       closeList();
-      const level = heading[1].length;
-      html.push(`<h${level}>${escapeHtml(heading[2])}</h${level}>`);
+      const marker = heading[1];
+      const text = heading[2];
+
+      if (!marker || text === undefined) return;
+
+      const level = marker.length;
+      html.push(`<h${level}>${escapeHtml(text)}</h${level}>`);
       return;
     }
 
@@ -572,7 +581,7 @@ function markdownToHtml(markdown: string): string {
         inList = true;
       }
 
-      html.push(`  <li>${escapeHtml(listItem[1])}</li>`);
+      html.push(`  <li>${escapeHtml(listItem[1] || "")}</li>`);
       return;
     }
 

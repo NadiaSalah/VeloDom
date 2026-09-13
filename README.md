@@ -146,6 +146,16 @@ release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
+- Completed the monotonic TypeScript `strict` migration. The final CLI,
+  project-intelligence, and scaffolder slice was hardened, then the gate was
+  extended to all 88 package source files through `src/**/*.ts` so future
+  modules enter the strict boundary automatically.
+- Tightened resource-map generics, Vite glob contracts, binary image reads,
+  frontmatter/Markdown parsing, normalized locale definitions, CSS/SEO source
+  extraction, and static CLI captures where indexed values can be absent.
+- Aligned runtime behavior with the public `VeloDomApp.navigate()` type: direct
+  application navigation and plugin navigation now always return a Promise,
+  including invalid-path diagnostics, with a focused regression test.
 - Continued the monotonic TypeScript `strict` migration through component
   mounting, page routing, route matching, resource-adapter validation, page
   data, scoped styles, runtime SEO, page events, lifecycle hook dispatch, and
@@ -208,7 +218,7 @@ release commit is verified, approved, tagged, and published deliberately.
 - Added concise JSDoc to every named Core function and an AST-backed regression
   gate, while stripping comments only from compiled JavaScript to preserve the
   lightweight runtime budget.
-- Verified 283 tests, documentation/type/lint gates, production and package
+- Verified 284 tests, documentation/type/lint gates, production and package
   builds, the installed tarball consumer, both package dry-runs, performance
   budgets, the compiler benchmark, and Chromium browser E2E. Broader strict
   browser-matrix confirmation remains a final-release workflow responsibility.
@@ -264,22 +274,19 @@ package, AI, roadmap, changelog, decision, and consumer documentation. It does
 not change runtime syntax, public exports, generated projects, or starter
 configuration.
 
-The current strict-typing boundary specifically changes
-`packages/velodom/tsconfig.strict.json` plus focused contracts in shared Core,
-reactivity, refs, the compiler/optimizer, safe expression parser and evaluator,
-directive engine/features, declarative request dependencies, language service,
-`.vd` source helpers, component mounting, page routing, resource adapters, page
-data, scoped styles, runtime SEO, events, and runtime error boundaries. Only
-CLI/project intelligence/scaffolding remains as the final planned strict slice;
-the parent roadmap item is intentionally still open.
+The strict-typing migration now covers every TypeScript source below
+`packages/velodom/src`, including Core/runtime, compiler/Vite integration,
+optional public subpaths, adapters, CLI/project intelligence, and scaffolding.
+Application code remains free to use Vanilla JavaScript or TypeScript; this
+maintenance gate changes neither template syntax nor generated starter choices.
 
 ## TODO
 
 Only optional or future work belongs in [docs/TODO.md](docs/TODO.md). Near-term
 release work should stay limited to:
 
-- migrate Core TypeScript strictness in the small verified slices defined by
-  the next-release roadmap, without changing the Vanilla authoring API;
+- create the shared build-time Project Index defined by the next-release
+  roadmap without adding browser runtime weight;
 - run the complete package and browser gates on the final commit;
 - inspect both npm dry-run tarballs for unexpected files or size growth;
 - publish `velodom` first and `create-velodom` second only after explicit owner

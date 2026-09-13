@@ -445,7 +445,7 @@ What the main checks do:
 | --- | --- |
 | `npm test` | Runs compiler, core, request, package, and DOM integration tests. |
 | `npm run docs:check` | Enforces module headers, exported API JSDoc, named-function JSDoc, and source-derived documentation consistency. |
-| `npm run typecheck:strict` | Enforces the migrated strict boundary for shared/public contracts, compiler/optimizer, expressions, directives/requests, component mounting, page routing/data, adapters, styles, runtime SEO/events/errors, the language-service compiler path, and `.vd` source helpers; the scope grows monotonically. |
+| `npm run typecheck:strict` | Enforces TypeScript `strict` over every package source below `packages/velodom/src`, including runtime, compiler, optional subpaths, Vite integration, CLI intelligence, and scaffolding. |
 | `npm run check` | Runs documentation, baseline and migrated-slice strict TypeScript, and ESLint checks. |
 | `npm run package:check` | Builds ESM/types and tests an installed local tarball consumer. |
 | `npm run pack:check` | Runs package checks and inspects the npm tarball dry-run contents. |
@@ -4121,14 +4121,12 @@ export default {
 ```
 
 Framework implementation strictness is separate from application authoring.
-Maintainers run `npm run typecheck:strict` for the migrated Core boundary,
-currently including shared contracts, compiler/optimizer implementation, safe
-expression parsing/evaluation, directive features, declarative request runtime
-dependencies, component mounting, page routing/data, resource adapters, scoped
-styles, runtime SEO/events/errors, and related `.vd` source mapping. Only the
-CLI/project-intelligence/scaffolding slice remains in the current migration
-plan. None of this requires application authors to convert Vanilla JavaScript
-pages to TypeScript.
+Maintainers run `npm run typecheck:strict` for every package TypeScript source,
+including Core/runtime, compiler/optimizer, safe expressions, requests,
+adapters, optional public subpaths, Vite build integration, CLI/project
+intelligence, and scaffolding. New package modules are included automatically.
+None of this requires application authors to convert Vanilla JavaScript pages
+to TypeScript.
 
 `config.ts` is compiled only by build tooling and requires `typescript` as an
 application dev dependency. Keep it self-contained and use type-only imports;

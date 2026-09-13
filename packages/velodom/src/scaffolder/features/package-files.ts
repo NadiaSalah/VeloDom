@@ -92,8 +92,8 @@ function createManifest(plan: ScaffoldPlan, velodomVersion: string) {
     devDependencies["@playwright/test"] = "^1.61.1";
   }
 
-  if (plan.testing === "unit") scripts.test = scripts["test:unit"];
-  if (plan.testing === "e2e") scripts.test = scripts["test:e2e"];
+  if (plan.testing === "unit") scripts.test = "node --test tests/unit/*.test.*";
+  if (plan.testing === "e2e") scripts.test = "playwright test";
   if (plan.testing === "all") {
     scripts.test = `${scripts["test:unit"]} && ${scripts["test:e2e"]}`;
   }

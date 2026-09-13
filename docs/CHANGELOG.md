@@ -85,9 +85,15 @@ or claim that a matching package is available from a registry.
   page events, lifecycle-hook dispatch, and recoverable error boundaries. The
   runtime contracts now narrow DOM roots, route state, component refs, lazy
   modules, and cleanup ownership without changing application authoring.
+- Completed the staged TypeScript `strict` migration through CLI/project
+  intelligence and scaffolding, then replaced the transitional file allowlist
+  with `src/**/*.ts`. All package sources, including optional public subpaths,
+  adapters, and Vite build modules, now enter the same strict gate automatically.
 
 ### Fixed
 
+- Made the public application and plugin `navigate()` implementation honor its
+  declared Promise contract even when an invalid or empty target is rejected.
 - Reported a missing `#app` HTML-shell mount element as one actionable router
   diagnostic instead of allowing the optional error boundary to receive a null
   target and trigger a secondary failure.

@@ -11,8 +11,12 @@
 import { VD_SINGLE_FILE } from "../constants.ts";
 
 /** Indexes one canonical file per folder. */
-export function indexFolderFiles(files, prefix, suffix) {
-  const indexed = Object.create(null);
+export function indexFolderFiles<T>(
+  files: Record<string, T>,
+  prefix: string,
+  suffix: string
+): Record<string, T> {
+  const indexed: Record<string, T> = Object.create(null);
 
   Object.entries(files).forEach(([filePath, value]) => {
     if (!filePath.startsWith(prefix) || !filePath.endsWith(suffix)) {
@@ -32,12 +36,12 @@ export function indexFolderFiles(files, prefix, suffix) {
 }
 
 /** Indexes optional .vd single-file modules by their logical route name. */
-export function indexSingleFiles(
-  files,
-  prefix,
-  suffix = VD_SINGLE_FILE.EXTENSION
-) {
-  const indexed = Object.create(null);
+export function indexSingleFiles<T>(
+  files: Record<string, T>,
+  prefix: string,
+  suffix: string = VD_SINGLE_FILE.EXTENSION
+): Record<string, T> {
+  const indexed: Record<string, T> = Object.create(null);
 
   Object.entries(files).forEach(([filePath, value]) => {
     if (!filePath.startsWith(prefix) || !filePath.endsWith(suffix)) {
@@ -76,8 +80,11 @@ export function mapLoaderExports<T = unknown>(
 }
 
 /** Removes an adapter-specific path prefix from resource keys. */
-export function rebaseFiles(files, prefix) {
-  const rebased = Object.create(null);
+export function rebaseFiles<T>(
+  files: Record<string, T>,
+  prefix: string
+): Record<string, T> {
+  const rebased: Record<string, T> = Object.create(null);
 
   Object.entries(files).forEach(([filePath, value]) => {
     if (!filePath.startsWith(prefix)) return;
@@ -89,12 +96,12 @@ export function rebaseFiles(files, prefix) {
 }
 
 /** Rebases .vd style blocks so existing folder-scoped style loading can apply. */
-export function rebaseSingleFileStyles(
-  files,
-  prefix,
-  suffix = VD_SINGLE_FILE.EXTENSION
-) {
-  const rebased = Object.create(null);
+export function rebaseSingleFileStyles<T>(
+  files: Record<string, T>,
+  prefix: string,
+  suffix: string = VD_SINGLE_FILE.EXTENSION
+): Record<string, T> {
+  const rebased: Record<string, T> = Object.create(null);
 
   Object.entries(files).forEach(([filePath, value]) => {
     if (!filePath.startsWith(prefix) || !filePath.endsWith(suffix)) {
@@ -114,12 +121,16 @@ export function rebaseSingleFileStyles(
 }
 
 /** Selects the highest-priority filename variant for each folder. */
-export function indexFolderVariants(files, prefix, suffixes) {
-  const indexed = Object.create(null);
-  const priorities = new Map(
+export function indexFolderVariants<T>(
+  files: Record<string, T>,
+  prefix: string,
+  suffixes: readonly string[]
+): Record<string, T> {
+  const indexed: Record<string, T> = Object.create(null);
+  const priorities = new Map<string, number>(
     suffixes.map((suffix, index) => [suffix, index])
   );
-  const selectedPriorities = Object.create(null);
+  const selectedPriorities: Record<string, number> = Object.create(null);
 
   Object.entries(files).forEach(([filePath, value]) => {
     if (!filePath.startsWith(prefix)) return;
@@ -135,6 +146,7 @@ export function indexFolderVariants(files, prefix, suffixes) {
 
     if (
       !name
+      || priority === undefined
       || (
         selectedPriorities[name] !== undefined
         && selectedPriorities[name] <= priority
@@ -170,7 +182,11 @@ export function resolveConventionExport<T>(
     );
   }
 
-  const [file, value] = entries[0];
+  const entry = entries[0];
+
+  if (!entry) return undefined;
+
+  const [file, value] = entry;
 
   if (!value || typeof value !== "object") {
     throw new TypeError(

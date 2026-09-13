@@ -14,6 +14,7 @@ import {
 import { createState } from "./reactive.ts";
 import { isPlainObject } from "./shared/object.ts";
 import type {
+  PluginContext,
   SharedState,
   SharedStateHandle,
   SharedStatePluginOptions,
@@ -45,7 +46,7 @@ export function createSharedState<
     plugin: {
       setup({
         app
-      }) {
+      }: PluginContext) {
         const registry = getOrCreateSharedRegistry(app);
         const existing = registry[name];
 

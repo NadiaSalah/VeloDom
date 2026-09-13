@@ -60,7 +60,10 @@ export function createRequestCache(
     : createDefaultCacheKey;
 
   return Object.freeze({
-    async requestJson(url, requestOptions = {}) {
+    async requestJson(
+      url: RequestInfo | URL,
+      requestOptions: UnknownRecord = {}
+    ) {
       const jsonOptions = requestOptions as JsonRequestOptions;
 
       if (!isCacheableRequest(jsonOptions)) {

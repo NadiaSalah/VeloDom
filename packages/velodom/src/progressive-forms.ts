@@ -235,8 +235,8 @@ function createFetchOptions(
 function createFormBody(form: HTMLFormElement, formData: FormData) {
   const enctype = (form.getAttribute("enctype") || "application/x-www-form-urlencoded")
     .toLowerCase()
-    .split(";", 1)[0]
-    .trim();
+    .split(";", 1)[0]?.trim()
+    || "application/x-www-form-urlencoded";
 
   return enctype === "multipart/form-data"
     ? formData

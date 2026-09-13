@@ -123,7 +123,7 @@ export function parseTesting(flags: Set<string>): ScaffoldTesting {
 
 /** Rejects CLI flags whose meanings conflict. */
 export function validateScaffoldFlags(flags: Set<string>) {
-  const pairs = [
+  const pairs: Array<[string, string]> = [
     ["javascript", "typescript"],
     ["css", "tailwind"],
     ["eslint", "no-eslint"],

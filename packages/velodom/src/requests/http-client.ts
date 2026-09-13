@@ -62,7 +62,7 @@ export async function requestJson(
 ): Promise<unknown> {
   const requestUrl = getRequestUrl(url);
   const method = String(options.method || "GET").toUpperCase();
-  const headers = {
+  const headers: Record<string, string> = {
     Accept: "application/json",
     ...(options.headers || {})
   };
