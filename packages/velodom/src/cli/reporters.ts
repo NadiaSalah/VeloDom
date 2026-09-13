@@ -57,6 +57,8 @@ export function printDependencySignals(
   context: CliContext,
   values: Array<{
     chunks: string[];
+    duplicatedBytes?: number;
+    measurement?: string;
     name: string;
     totalChunkBytes: number;
   }>
@@ -64,13 +66,13 @@ export function printDependencySignals(
   context.stdout("Repeated heavy dependencies:");
 
   if (!values.length) {
-    context.stdout("  - none detected from generated chunk text");
+    context.stdout("  - none measured from Rollup module metadata");
     return;
   }
 
   values.forEach(value => {
     context.stdout(
-      `  - ${value.name}: ${formatBytes(value.totalChunkBytes)} across ${value.chunks.length} chunk(s)`
+      `  - ${value.name}: ${formatBytes(value.duplicatedBytes || 0)} duplicated, ${formatBytes(value.totalChunkBytes)} rendered across ${value.chunks.length} chunk(s)`
     );
   });
 }

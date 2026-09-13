@@ -76,6 +76,12 @@ export const VD_ADAPTER = Object.freeze({
   ])
 });
 
+/** Build-intelligence artifact names and schema versions. */
+export const VD_BUILD = Object.freeze({
+  METADATA_FILE: "velodom-build-meta.json",
+  METADATA_VERSION: 1
+});
+
 /** Build and browser markers used by optional page-data transfer. */
 export const VD_PAGE_DATA = Object.freeze({
   ATTRIBUTE: "data-vd-page-data",

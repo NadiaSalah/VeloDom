@@ -171,6 +171,10 @@ release commit is verified, approved, tagged, and published deliberately.
   request names now combine with keys from `vd-prop-*`, static object-form
   `vd-props`, and required/optional `ComponentInitContext<Props>` contracts.
   Property values stay honestly `unknown`, and Vanilla projects need nothing.
+- Rebuilt `vd build-report` around a compact versioned artifact emitted by the
+  Vite plugin. Reports now attribute initial, route, component, shared, and lazy
+  feature chunks from Rollup module metadata and measure duplicated dependency
+  bytes only when Rollup can prove them; missing metadata is reported plainly.
 - Completed the monotonic TypeScript `strict` migration. The final CLI,
   project-intelligence, and scaffolder slice was hardened, then the gate was
   extended to all 88 package source files through `src/**/*.ts` so future

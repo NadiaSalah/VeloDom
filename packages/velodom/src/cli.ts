@@ -27,6 +27,11 @@ import {
 } from "node:path";
 import { pathToFileURL } from "node:url";
 import { VD_DIRECTIVE_RUNTIME_FEATURES } from "./constants.ts";
+import {
+  readVeloDomBuildMetadata,
+  type VeloDomBuildChunkMetadata,
+  type VeloDomBuildMetadata
+} from "./build-metadata.ts";
 import { compileTemplate } from "./compiler/index.ts";
 import type {
   CompilerDiagnostic
@@ -1108,10 +1113,15 @@ async function printBuildReport(context: CliContext, json: boolean) {
   context.stdout(`Optional runtime features not requested: ${report.project.unusedRuntimeFeatures.join(", ") || "none"}`);
   context.stdout(`Dist JS total: ${formatBytes(report.dist.jsTotalBytes)}`);
   context.stdout(`Dist CSS total: ${formatBytes(report.dist.cssTotalBytes)}`);
+  context.stdout(`Rollup metadata: ${report.dist.metadata.available ? "available" : "not available"}`);
   printSizeGroup(context, "Largest pages", report.project.largestPages);
   printSizeGroup(context, "Largest components", report.project.largestComponents);
   printSizeGroup(context, "Largest JS chunks", report.dist.largestJsChunks);
-  printSizeGroup(context, "Largest route chunks", report.dist.largestRouteChunks);
+  printSizeGroup(context, "Initial chunks", report.dist.attribution.initialChunks);
+  printSizeGroup(context, "Route chunks", report.dist.attribution.routeChunks);
+  printSizeGroup(context, "Shared chunks", report.dist.attribution.sharedChunks);
+  printSizeGroup(context, "Component chunks", report.dist.attribution.componentChunks);
+  printSizeGroup(context, "Lazy feature chunks", report.dist.attribution.lazyFeatureChunks);
   printDependencySignals(context, report.dist.repeatedHeavyDependencies);
   printList(context, "Suggestions", report.suggestions);
 }
@@ -1664,10 +1674,9 @@ async function createBuildReport(root: string) {
   const jsAssets = await readAssetSizes(root, ".js");
   const cssAssets = await readAssetSizes(root, ".css");
   const unusedDirectives = findUnusedDirectives(inspection.directiveUsage);
-  const repeatedHeavyDependencies = await findRepeatedHeavyDependencySignals(
-    root,
-    jsAssets
-  );
+  const buildMetadata = await readVeloDomBuildMetadata(root);
+  const attribution = createBuildAttribution(buildMetadata);
+  const repeatedHeavyDependencies = findRepeatedHeavyDependencies(buildMetadata);
   const largestPages = await readModuleSizes(root, inspection.pages);
   const largestComponents = await readModuleSizes(root, inspection.components);
   const largestJsChunks = topSizes(jsAssets);
@@ -1690,11 +1699,18 @@ async function createBuildReport(root: string) {
       jsTotalBytes: sumSizeReports(jsAssets),
       cssTotalBytes: sumSizeReports(cssAssets),
       largestJsChunks,
-      largestRouteChunks: largestJsChunks,
+      largestRouteChunks: attribution.routeChunks,
       largestCssChunks: topSizes(cssAssets),
+      metadata: {
+        available: buildMetadata !== null,
+        source: buildMetadata ? "dist/velodom-build-meta.json" : null,
+        version: buildMetadata?.version || null
+      },
+      attribution,
       repeatedHeavyDependencies
     },
     suggestions: createBuildSuggestions({
+      hasBuildMetadata: buildMetadata !== null,
       largestComponents,
       largestJsChunks,
       largestPages
@@ -2008,57 +2024,134 @@ function findUnusedDirectives(usage: Record<string, number>) {
   });
 }
 
-/** Finds the repeated heavy dependency signals. */
-async function findRepeatedHeavyDependencySignals(
-  root: string,
-  assets: FileSizeReport[]
-) {
-  const dependencies = new Map<string, {
-    chunks: Set<string>;
-    totalChunkBytes: number;
-  }>();
+/** Attributes Rollup chunks to application concepts using recorded modules. */
+function createBuildAttribution(metadata: VeloDomBuildMetadata | null) {
+  if (!metadata) {
+    return {
+      componentChunks: [],
+      initialChunks: [],
+      lazyFeatureChunks: [],
+      routeChunks: [],
+      sharedChunks: []
+    };
+  }
 
-  await Promise.all(assets.map(async asset => {
-    const source = await readOptionalText(join(root, asset.source));
-    const names = new Set<string>();
+  const initialNames = findInitialChunkNames(metadata.chunks);
+  const importCounts = countChunkImporters(metadata.chunks);
+  const matchesModule = (
+    chunk: VeloDomBuildChunkMetadata,
+    pattern: RegExp
+  ) => chunk.modules.some(module => pattern.test(module.id));
+  const select = (predicate: (chunk: VeloDomBuildChunkMetadata) => boolean) => (
+    topSizes(metadata.chunks.filter(predicate).map(toBuildChunkSize))
+  );
 
-    for (const match of source.matchAll(/node_modules[\\/](?:\.pnpm[\\/])?(@?[^\\/@\s"']+(?:[\\/][^\\/\s"']+)?)?/g)) {
-      const name = normalizeDependencyName(match[1] || "");
+  return {
+    initialChunks: select(chunk => initialNames.has(chunk.fileName)),
+    routeChunks: select(chunk => matchesModule(chunk, /(?:^|\/)src\/pages\//)),
+    componentChunks: select(chunk => (
+      matchesModule(chunk, /(?:^|\/)src\/components\//)
+    )),
+    lazyFeatureChunks: select(chunk => (
+      matchesModule(chunk, /(?:^|\/)(?:src|lib)\/directives\/features\//)
+    )),
+    sharedChunks: select(chunk => (importCounts.get(chunk.fileName) || 0) > 1)
+  };
+}
 
-      if (name) names.add(name);
-    }
+/** Finds entry chunks and every statically imported chunk needed initially. */
+function findInitialChunkNames(chunks: VeloDomBuildChunkMetadata[]) {
+  const byName = new Map(chunks.map(chunk => [chunk.fileName, chunk]));
+  const initial = new Set<string>();
+  const visit = (name: string) => {
+    if (initial.has(name)) return;
+    initial.add(name);
+    byName.get(name)?.imports.forEach(visit);
+  };
 
-    for (const match of source.matchAll(/\bfrom\s+["'](@?[^."'/][^"']*)["']/g)) {
-      const name = normalizeDependencyName(match[1] || "");
+  chunks.filter(chunk => chunk.isEntry).forEach(chunk => visit(chunk.fileName));
 
-      if (name) names.add(name);
-    }
+  return initial;
+}
 
-    names.forEach(name => {
-      const record = dependencies.get(name) || {
-        chunks: new Set<string>(),
-        totalChunkBytes: 0
-      };
+/** Counts static and dynamic chunk importers without guessing from emitted code. */
+function countChunkImporters(chunks: VeloDomBuildChunkMetadata[]) {
+  const importers = new Map<string, Set<string>>();
 
-      record.chunks.add(asset.source);
-      record.totalChunkBytes += asset.bytes;
-      dependencies.set(name, record);
+  chunks.forEach(chunk => {
+    [...chunk.imports, ...chunk.dynamicImports].forEach(imported => {
+      const owners = importers.get(imported) || new Set<string>();
+      owners.add(chunk.fileName);
+      importers.set(imported, owners);
     });
-  }));
+  });
 
-  return [...dependencies.entries()]
-    .filter(([, record]) => record.chunks.size > 1 && record.totalChunkBytes > 10_000)
-    .map(([name, record]) => ({
-      chunks: [...record.chunks].sort(),
+  return new Map(
+    [...importers].map(([name, owners]) => [name, owners.size])
+  );
+}
+
+/** Measures duplicated dependency bytes from Rollup module contributions. */
+function findRepeatedHeavyDependencies(metadata: VeloDomBuildMetadata | null) {
+  if (!metadata) return [];
+
+  const dependencies = new Map<string, Map<string, number>>();
+
+  metadata.chunks.forEach(chunk => {
+    chunk.modules.forEach(module => {
+      const name = readDependencyName(module.id);
+
+      if (!name || module.renderedBytes <= 0) return;
+
+      const chunks = dependencies.get(name) || new Map<string, number>();
+      chunks.set(
+        chunk.fileName,
+        (chunks.get(chunk.fileName) || 0) + module.renderedBytes
+      );
+      dependencies.set(name, chunks);
+    });
+  });
+
+  return [...dependencies.entries()].map(([name, chunks]) => {
+    const chunkBytes = [...chunks.values()];
+    const totalChunkBytes = chunkBytes.reduce((total, bytes) => total + bytes, 0);
+    const duplicatedBytes = totalChunkBytes - Math.max(...chunkBytes);
+
+    return {
+      chunks: [...chunks.keys()].sort(),
+      duplicatedBytes,
+      measurement: "rollup-rendered-module-bytes" as const,
       name,
-      totalChunkBytes: record.totalChunkBytes
-    }))
-    .sort((left, right) => right.totalChunkBytes - left.totalChunkBytes)
+      totalChunkBytes
+    };
+  }).filter(record => (
+    record.chunks.length > 1 && record.duplicatedBytes > 10_000
+  )).sort((left, right) => right.duplicatedBytes - left.duplicatedBytes)
     .slice(0, 10);
+}
+
+/** Converts one metadata chunk into the common CLI size shape. */
+function toBuildChunkSize(chunk: VeloDomBuildChunkMetadata): FileSizeReport {
+  return {
+    bytes: chunk.bytes,
+    name: chunk.fileName.split("/").at(-1) || chunk.fileName,
+    source: `dist/${chunk.fileName}`
+  };
+}
+
+/** Reads a package name from one normalized node_modules module ID. */
+function readDependencyName(id: string) {
+  const marker = "node_modules/";
+  const index = id.lastIndexOf(marker);
+
+  if (index < 0) return "";
+
+  return normalizeDependencyName(id.slice(index + marker.length));
 }
 
 /** Creates the build suggestions. */
 function createBuildSuggestions(input: {
+  hasBuildMetadata: boolean;
   largestComponents: FileSizeReport[];
   largestJsChunks: FileSizeReport[];
   largestPages: FileSizeReport[];
@@ -2069,6 +2162,12 @@ function createBuildSuggestions(input: {
     component.bytes > 20_000
   ));
   const largeChunk = input.largestJsChunks.find(chunk => chunk.bytes > 120_000);
+
+  if (!input.hasBuildMetadata) {
+    suggestions.push(
+      "Run a production build with velodom/vite-plugin before requesting chunk attribution."
+    );
+  }
 
   if (largePage) {
     suggestions.push(

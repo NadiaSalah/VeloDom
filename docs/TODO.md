@@ -31,9 +31,9 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 
 `[####################] 100%`
 
-**Next-release approved scope: 11 of 15 milestones complete.**
+**Next-release approved scope: 12 of 15 milestones complete.**
 
-`[###############.....] 73%`
+`[################....] 80%`
 
 The repository is the local V1 source baseline. Registry availability,
 authentication, tags, and releases are external state and are deliberately not
@@ -330,9 +330,12 @@ layer, or unproven analysis.
   workflow and unprovable values remain `unknown`. `vd types` now combines
   route params and request names with individual/static-object prop usage plus
   required/optional facts from explicit `ComponentInitContext<Props>` contracts.
-- [ ] Expand `vd build-report` using Vite/Rollup metadata to attribute initial,
+- [x] Expand `vd build-report` using Vite/Rollup metadata to attribute initial,
   route, shared, component, and lazy-feature chunks, including duplicated
-  dependency cost when it can be measured accurately.
+  dependency cost when it can be measured accurately. The Vite plugin now emits
+  a versioned, source-free `dist/velodom-build-meta.json`; the report derives
+  chunk ownership and Rollup rendered-module duplication from that artifact and
+  states when metadata is unavailable instead of guessing from minified text.
 - [ ] Add a narrowly scoped `vd add <feature>` installer for existing optional
   first-party capabilities (for example i18n, tests, or Lab). Start with an
   idempotent feature-installer contract and a generated-file manifest before

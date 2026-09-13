@@ -67,6 +67,9 @@ or claim that a matching package is available from a registry.
   request names, static `vd-props` keys, and required/optional facts from an
   explicit `ComponentInitContext<Props>` contract while retaining `unknown`
   value types.
+- Versioned, source-free Rollup build metadata emitted by the Vite plugin and
+  consumed by `vd build-report` for initial/route/component/shared/lazy-feature
+  attribution plus measured rendered-module dependency duplication.
 - An enforced first TypeScript `strict` slice for stable/shared contracts and
   low-dependency Core utilities, wired into normal checks and package builds.
 

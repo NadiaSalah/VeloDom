@@ -555,10 +555,12 @@
   and simple project references first; deeper semantic checks such as full
   state/control-flow analysis should remain future DX work until they can stay
   deterministic and lightweight.
-- `vd build-report` is the first machine-readable build intelligence surface.
-  It intentionally reports what can be proven from folders, compiler manifests,
-  SEO config presence, and generated assets; dependency-level bundle attribution
-  should wait for a more precise Vite/Rollup metadata design.
+- `vd build-report` is a machine-readable build intelligence surface. The Vite
+  plugin emits a compact `dist/velodom-build-meta.json` with normalized module
+  paths and byte counts but no source. Chunk ownership comes from those module
+  paths, while duplicated dependency cost is reported only from Rollup's
+  rendered-module lengths. Missing or incompatible metadata is an explicit
+  unavailable state, never a minified-code heuristic.
 - `vd graph` exports relationships that can be proven statically today:
   pages-to-routes, templates-to-components, templates-to-requests, and
   request-to-middleware registrations. Event/ref/state graphs remain separate

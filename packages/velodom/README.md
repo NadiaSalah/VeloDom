@@ -185,6 +185,10 @@ conservatively unused shallow state without guessing dynamic control flow.
 `vd types` preserves route params, request names, static prop keys, and
 required/optional facts from explicit `ComponentInitContext<Props>` contracts;
 unprovable values remain `unknown` and JavaScript projects need no declarations.
+`vd build-report` reads the versioned metadata emitted by the Vite plugin to
+attribute initial, route, component, shared, and lazy-feature chunks. Duplicate
+dependency cost is shown only from Rollup rendered-module measurements; a
+missing production artifact is reported as unavailable rather than guessed.
 
 Choose `--lab` during scripted project creation or select it in Customize mode
 to add `npm run lab`. The command starts the existing Vite server with an

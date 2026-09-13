@@ -555,10 +555,12 @@ only template regions, and never changes JavaScript business logic or deletes
 resources.
 `vd build-report` summarizes project counts, SEO coverage, compiler features,
 unused directive families, optional runtime features not requested by current
-templates, largest pages/
-components, largest route chunks, repeated heavy-dependency signals visible in
-generated chunk text, generated JavaScript/CSS chunks, and optimization
-suggestions in text or JSON for CI dashboards.
+templates, largest pages/components, and generated JavaScript/CSS chunks. A
+production build using `velodom/vite-plugin` emits the source-free, versioned
+`dist/velodom-build-meta.json`; with it, the command attributes initial, route,
+component, shared, and lazy-feature chunks and measures duplicated dependencies
+from Rollup rendered-module bytes. Without the artifact it reports attribution
+as unavailable instead of inferring ownership from minified output.
 `vd graph` exports page-route, page/component dependency, request, and
 middleware relationships plus statically provable refs, events, state keys, and
 exposed names as text, JSON, or Mermaid.

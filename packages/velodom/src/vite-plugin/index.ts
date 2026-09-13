@@ -37,9 +37,11 @@ import {
   createIncrementalCompilerCache
 } from "./compiler-cache.ts";
 import {
+  VD_BUILD,
   VD_DEVTOOLS,
   VD_SINGLE_FILE
 } from "../constants.ts";
+import { createVeloDomBuildMetadata } from "../build-metadata.ts";
 import { inspectLocalization } from "../localization.ts";
 import type { LocalizationOptions } from "../localization.ts";
 import type {
@@ -198,6 +200,19 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
           this.warn(message);
         }
       }
+    },
+
+    generateBundle(_outputOptions, bundle) {
+      const metadata = createVeloDomBuildMetadata(
+        bundle as Record<string, unknown>,
+        resolvedConfig?.root || process.cwd()
+      );
+
+      this.emitFile({
+        type: "asset",
+        fileName: VD_BUILD.METADATA_FILE,
+        source: `${JSON.stringify(metadata, null, 2)}\n`
+      });
     },
 
     transformIndexHtml(html, context) {

@@ -200,6 +200,13 @@ test("CLI inspect and stats read folder and single-file conventions", async () =
     assert.equal(report.dist.jsTotalBytes, Buffer.byteLength("console.log('app');"));
     assert.equal(report.dist.cssTotalBytes, Buffer.byteLength("body { color: red; }"));
     assert.ok(Array.isArray(report.dist.largestRouteChunks));
+    assert.equal(report.dist.metadata.available, true);
+    assert.equal(report.dist.attribution.initialChunks.length, 2);
+    assert.equal(report.dist.attribution.routeChunks.length, 1);
+    assert.equal(report.dist.attribution.componentChunks.length, 1);
+    assert.equal(report.dist.attribution.sharedChunks.length, 1);
+    assert.equal(report.dist.repeatedHeavyDependencies[0].name, "heavy-lib");
+    assert.equal(report.dist.repeatedHeavyDependencies[0].duplicatedBytes, 12_000);
     assert.ok(Array.isArray(report.dist.repeatedHeavyDependencies));
     assert.ok(Array.isArray(report.suggestions));
 
@@ -1331,6 +1338,49 @@ async function createFixture() {
     root,
     "dist/assets/main.css",
     "body { color: red; }"
+  );
+  await writeFixtureFile(
+    root,
+    "dist/velodom-build-meta.json",
+    JSON.stringify({
+      version: 1,
+      generator: "velodom/vite-plugin",
+      chunks: [
+        {
+          bytes: 19,
+          dynamicImports: ["assets/card.js"],
+          fileName: "assets/main.js",
+          imports: ["assets/shared.js"],
+          isDynamicEntry: false,
+          isEntry: true,
+          modules: [
+            { id: "src/pages/home/script.ts", originalBytes: 20, renderedBytes: 18 },
+            { id: "node_modules/heavy-lib/index.js", originalBytes: 16_000, renderedBytes: 15_000 }
+          ]
+        },
+        {
+          bytes: 8_000,
+          dynamicImports: [],
+          fileName: "assets/card.js",
+          imports: ["assets/shared.js"],
+          isDynamicEntry: true,
+          isEntry: false,
+          modules: [
+            { id: "src/components/shared/card/script.ts", originalBytes: 40, renderedBytes: 32 },
+            { id: "node_modules/heavy-lib/index.js", originalBytes: 13_000, renderedBytes: 12_000 }
+          ]
+        },
+        {
+          bytes: 4_000,
+          dynamicImports: [],
+          fileName: "assets/shared.js",
+          imports: [],
+          isDynamicEntry: false,
+          isEntry: false,
+          modules: []
+        }
+      ]
+    })
   );
 
   return root;
