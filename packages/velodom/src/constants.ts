@@ -379,6 +379,38 @@ export const VD_DIRECTION = Object.freeze({
   ])
 });
 
+/** Static localization diagnostics, plural categories, and script directions. */
+export const VD_LOCALIZATION = Object.freeze({
+  CODES: Object.freeze({
+    DIRECTION: "VD_I18N_DIRECTION",
+    EXTRA_KEY: "VD_I18N_EXTRA_KEY",
+    MISSING_KEY: "VD_I18N_MISSING_KEY",
+    UNKNOWN_KEY: "VD_I18N_UNKNOWN_KEY",
+    UNUSED_KEY: "VD_I18N_UNUSED_KEY"
+  }),
+  PLURAL_CATEGORIES: Object.freeze([
+    "zero",
+    "one",
+    "two",
+    "few",
+    "many",
+    "other"
+  ]),
+  RTL_LANGUAGES: Object.freeze([
+    "ar",
+    "ckb",
+    "dv",
+    "fa",
+    "he",
+    "ku",
+    "ps",
+    "sd",
+    "ug",
+    "ur",
+    "yi"
+  ])
+});
+
 /** CSS diagnostics that guide applications toward RTL-safe logical properties. */
 export const VD_RTL_CSS = Object.freeze({
   CODE: "VD_RTL_PHYSICAL_CSS",

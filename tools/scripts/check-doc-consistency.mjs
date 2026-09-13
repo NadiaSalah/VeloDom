@@ -318,7 +318,7 @@ function collectDocumentedCliCommands(source) {
   const commands = new Set();
 
   for (const block of source.matchAll(/```(?:bash|text)\s*\n([\s\S]*?)```/g)) {
-    for (const match of block[1].matchAll(/^\s*vd\s+([a-z][a-z-]*)\b/gm)) {
+    for (const match of block[1].matchAll(/^\s*vd\s+([a-z][a-z0-9-]*)\b/gm)) {
       commands.add(match[1]);
     }
   }
@@ -339,7 +339,7 @@ function collectImplementedCliCommands(source) {
   )?.[1] || "";
 
   return new Set(
-    [...dispatcher.matchAll(/case "([a-z-]+)":/g)]
+    [...dispatcher.matchAll(/case "([a-z][a-z0-9-]*)":/g)]
       .map(match => match[1])
       .filter(command => !command.startsWith("-"))
   );

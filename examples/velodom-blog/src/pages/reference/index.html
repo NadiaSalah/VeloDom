@@ -23,10 +23,10 @@
         source tree.
       </p>
       <div class="mt-7 flex flex-wrap gap-2">
-        <span class="badge badge-primary badge-outline">68 public values</span>
+        <span class="badge badge-primary badge-outline">71 public values</span>
         <span class="badge badge-primary badge-outline">13 package exports</span>
         <span class="badge badge-primary badge-outline">43 preferred directives</span>
-        <span class="badge badge-primary badge-outline">24 CLI commands</span>
+        <span class="badge badge-primary badge-outline">25 CLI commands</span>
       </div>
     </header>
 
@@ -155,19 +155,27 @@ const rss = createContentRssFeed(posts.entries, {
         <div class="code-toolbar"><span>src/localization.js</span><span>velodom/localization</span></div>
         <pre class="code-example" vd-pre><code>import {
   createLocaleFormatter, createLocalization, defineLocaleDictionary,
-  generateLocaleKeyDeclaration, inspectLocalization
+  definePluralMessage, getLocaleKeyCompletions, inspectLocalization
 } from "velodom/localization";
 
 const options = {
   defaultLocale: "en",
   locales: {
-    en: { lang: "en", messages: defineLocaleDictionary({ hello: "Hello" }) },
-    ar: { lang: "ar", messages: defineLocaleDictionary({ hello: "مرحبا" }) }
+    en: { lang: "en", direction: "ltr", messages: defineLocaleDictionary({
+      hello: "Hello {name}",
+      items: definePluralMessage({ one: "{count} item", other: "{count} items" })
+    }) },
+    ar: { lang: "ar", direction: "rtl", messages: defineLocaleDictionary({
+      hello: "مرحبا {name}",
+      items: definePluralMessage({ one: "عنصر واحد", other: "{count} عناصر" })
+    }) }
   }
 };
 
 const i18n = createLocalization(options);
-i18n.t("ar", "hello");
+i18n.t("ar", "hello", { name: "Nadia" });
+i18n.plural("en", "items", 3);
+getLocaleKeyCompletions(options.locales.en.messages);
 createLocaleFormatter("ar-EG").formatCurrency(1200, "EGP");
 inspectLocalization(options);</code></pre>
       </div>
@@ -288,11 +296,12 @@ vd upgrade all         # current generators with rollback
 vd preset export       # reviewed data-only feature choices
 vd test unit           # run the project's real test:unit script
 vd test --browser      # run test:browser or test:e2e
+vd i18n check          # missing/unused keys and locale direction
 vd init my-site
 vd create page account --ts
 vd version</code></pre>
       </div>
-      <p class="mt-4">Inspection detects invalid directives, dead references, unused resources, cycles, large templates, SEO gaps, accessibility signals, and bundle opportunities without adding AI or browser runtime weight. <code>vd types</code> derives route params, request names, and statically provable component props while leaving unknown values honest. After a production build, <code>vd build-report</code> uses Rollup metadata to distinguish initial, route, component, shared, and lazy-feature chunks without guessing from minified code. <code>vd add i18n|tests|lab</code> adds an existing optional capability safely and records its generated files. <code>vd features/remove/upgrade</code> honors those hashes, while data-only presets share reviewed choices. <code>vd test</code> delegates to real application package scripts and fails if a selected test layer is not configured. Scaffolding writes visible conventional files and never requires a central registry.</p>
+      <p class="mt-4">Inspection detects invalid directives, dead references, unused resources, cycles, large templates, SEO gaps, accessibility signals, and bundle opportunities without adding AI or browser runtime weight. <code>vd types</code> derives route params, request names, and statically provable component props while leaving unknown values honest. After a production build, <code>vd build-report</code> uses Rollup metadata to distinguish initial, route, component, shared, and lazy-feature chunks without guessing from minified code. <code>vd add i18n|tests|lab</code> adds an existing optional capability safely and records its generated files. <code>vd features/remove/upgrade</code> honors those hashes, while data-only presets share reviewed choices. <code>vd test</code> delegates to real application package scripts; <code>vd i18n extract|check</code> verifies statically quoted localization usage without executing app modules. Scaffolding writes visible conventional files and never requires a central registry.</p>
       <div class="mt-7 flex flex-wrap gap-3">
         <a href="/features" vd-nav class="btn btn-primary rounded-xl">Read guided lessons</a>
         <a href="/single-file" vd-nav class="btn btn-outline rounded-xl">Open the .vd example</a>

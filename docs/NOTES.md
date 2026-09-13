@@ -81,6 +81,13 @@
   source stay readable but non-removable. CLI impact is `DEFAULT_INCLUDED`;
   presets are data-only allowlists and never install dependencies or execute
   third-party code.
+- Localization pluralization is an explicit dictionary leaf, not a template
+  language or full ICU parser. Native `Intl.PluralRules` chooses a category and
+  named primitive interpolation returns text. Static CLI analysis evaluates
+  only a balanced literal options object through VeloDom's safe expression
+  evaluator; dynamic configs are reported as unprovable rather than imported.
+  CLI impact is `DEFAULT_INCLUDED`; the optional i18n starter demonstrates the
+  API, and applications without localization add nothing.
 - `vd fix` is not a formatter or codemod framework. The allowlist owns only
   semantic-equivalent template aliases, previews by default, confines `.vd`
   changes to `<template>`, and compares the current file with its indexed

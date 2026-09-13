@@ -198,7 +198,7 @@ marketing list.
 | `velodom` | `createApp`, `computed`, `effect`, `watch`, `definePageConfig`, `definePlugin`, `defineRequestRoute`, `defineResourceAdapter`, `assertResourceAdapterConformance`, `createDirectionPlugin`, `createRtlFlipStyles`, `createSharedState`, `createDevtoolsPlugin`, `createRequestCache`, `withRequestRetry`, `createValidationPlugin`, `createProgressiveFormsPlugin`, `assertPluginConformance`, `createPluginManager`, `ApiError`, `createAuthRuntime`, `createLocalStorageAuthProvider`, `createServerSessionAuthProvider`, `defineRequestMiddleware`, `normalizeAuthSession`, `requestJson`, `VD_AUTH`, `VD_MIDDLEWARE`, `VD_REQUEST` |
 | `velodom/compiler` | `analyzeVeloDomDocument`, `compileTemplate`, `createRuntimeFeatureManifest`, `defineTemplateOptimizer`, `getVeloDomDirectiveCompletions`, `runTemplateOptimizers` |
 | `velodom/content` | `loadContentCollection`, `loadExternalContentCollection`, `createContentCollection`, `createContentIndex`, `parseMarkdownContent`, `createContentSeoEntries`, `createContentSitemap`, `createContentSearchIndex`, `createContentRssFeed` |
-| `velodom/localization` | `defineLocaleDictionary`, `createLocalization`, `generateLocaleKeyDeclaration`, `createLocaleFormatter`, `inspectLocalization` |
+| `velodom/localization` | `defineLocaleDictionary`, `definePluralMessage`, `createLocalization`, `generateLocaleKeyDeclaration`, `getLocaleKeyCompletions`, `extractLocaleKeyUsage`, `createLocaleFormatter`, `inspectLocalization` |
 | `velodom/assets` | `inspectImageAsset`, `inspectImageDirectory`, `createResponsiveImageAttributes` |
 | `velodom/node` | `createNodeRequestAdapter` |
 | `velodom/devtools` | `mountDevtoolsInspector`, `mountVeloDomLab`, `VELODOM_DEVTOOLS_PROTOCOL_VERSION` |
@@ -491,6 +491,8 @@ vd preset apply .velodom/preset.json
 vd test
 vd test unit
 vd test --browser
+vd i18n extract
+vd i18n check
 vd version
 vd create my-site --recommended
 vd init my-site --recommended
@@ -3207,31 +3209,41 @@ before a production build:
 // src/localization.js
 import {
   createLocalization,
-  defineLocaleDictionary
+  defineLocaleDictionary,
+  definePluralMessage
 } from "velodom/localization";
 
-const options = {
+export const localizationOptions = {
   defaultLocale: "en",
   locales: {
     en: {
       lang: "en",
+      direction: "ltr",
       messages: defineLocaleDictionary({
-        nav: { home: "Home" },
+        nav: { home: "Hello {name}" },
+        results: definePluralMessage({
+          one: "{count} result",
+          other: "{count} results"
+        }),
         seo: { title: "VeloDom" }
       })
     },
     ar: {
       lang: "ar",
+      direction: "rtl",
       messages: defineLocaleDictionary({
-        nav: { home: "الرئيسية" },
+        nav: { home: "مرحبًا {name}" },
+        results: definePluralMessage({
+          one: "نتيجة واحدة",
+          other: "{count} نتائج"
+        }),
         seo: { title: "فيلو دوم" }
       })
     }
   }
 };
 
-export const i18n = createLocalization(options);
-export { options as localizationOptions };
+export const i18n = createLocalization(localizationOptions);
 ```
 
 Pass the same options to the Vite plugin. Missing default keys fail the build by
@@ -3255,7 +3267,7 @@ export default defineConfig({
             path: "/",
             seo: ({ t }) => ({
               title: t("seo.title"),
-              description: t("nav.home")
+              description: t("nav.home", { name: "visitor" })
             })
           }
         ])
@@ -3269,9 +3281,25 @@ This emits `/` for the default locale and `/ar` for Arabic by default; set
 `prefixDefaultLocale: true` when every locale should have a prefix. Generated
 SEO entries include each locale's `lang`, localized canonical URL, and
 `hreflang` alternate links, so they work with VeloDom's static SEO and sitemap
-generation. `i18n.t("ar", "nav.home")` is available for build hooks and
+generation. `i18n.t("ar", "nav.home", { name: "Nadia" })` is available for build hooks and
 application scripts, but it is deliberately not a template directive or a
 required runtime locale system.
+
+Pass named primitive values as the third argument and call `plural()` only for
+an explicit plural leaf. The platform chooses the locale category; VeloDom
+falls back to the required `other` form:
+
+```js
+i18n.t("en", "nav.home", { name: "Nadia" });
+i18n.plural("en", "results", 1);  // 1 result
+i18n.plural("en", "results", 12); // 12 results
+i18n.direction("ar");              // rtl
+```
+
+Placeholders use `{name}` and accept strings, finite numbers, or booleans as
+plain text. Double braces in a dictionary string (`{{` and `}}`) render literal
+braces. This is intentionally not a general expression or HTML interpolation
+engine.
 
 In TypeScript, `createLocalization()` infers the default dictionary's leaf
 keys, so an unknown `i18n.t("ar", "nav.missing")` is a type error. For code
@@ -3316,12 +3344,32 @@ reported without creating the localization controller:
 import { inspectLocalization } from "velodom/localization";
 import { localizationOptions } from "./src/localization.js";
 
-const diagnostics = inspectLocalization(localizationOptions);
+const diagnostics = inspectLocalization(localizationOptions, [
+  "nav.home",
+  "results",
+  "seo.title"
+]);
 
 for (const diagnostic of diagnostics) {
   console.warn(`${diagnostic.severity}: ${diagnostic.message}`);
 }
 ```
+
+The optional second argument activates unused- and unknown-key checks in
+addition to missing/extra dictionaries and RTL/LTR validation. The CLI extracts
+only statically quoted calls, then checks a static `localizationOptions` object
+without importing it:
+
+```bash
+vd i18n extract
+vd i18n check
+vd i18n check --json
+```
+
+Dynamic config remains valid for application code, but the static command says
+it cannot prove it. Editor integrations can call
+`getLocaleKeyCompletions(dictionary)`; build scripts can use
+`extractLocaleKeyUsage(sources)` directly.
 
 `localizePath()` preserves a query string and hash. For an accessible language
 switcher, use ordinary links and the explicit `switchLocalePath()` helper:
@@ -3335,8 +3383,8 @@ languageLink.hreflang = "ar";
 ```
 
 Use a normal `<nav aria-label="Language">` and visible language names; the
-framework does not inject a picker or decide the visitor's locale. ICU-style
-messages, locale negotiation, cookies, domains, CMS loading, and server
+framework does not inject a picker or decide the visitor's locale. Full ICU
+message parsing, locale negotiation, cookies, domains, CMS loading, and server
 rendering remain adapter or application concerns. Their deferred request-time
 policy is recorded in the [Rendering, Localization and Server Boundaries](#rendering-localization-and-server-boundaries)
 section below.

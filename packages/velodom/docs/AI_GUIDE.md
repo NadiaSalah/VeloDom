@@ -87,6 +87,11 @@ Select `unit`, `browser`, `compiler`, `route`, `request`, `component`, or
 For small fixtures, import compiler, route, request-mock, interaction,
 accessibility-smoke, and mount helpers from `velodom/testing`.
 
+For localized apps, keep dictionaries in application source and use
+`definePluralMessage()` only for plural leaves. Pass primitive `{name}` values
+to `t()` and counts to `plural()`; do not invent an i18n directive or full ICU
+syntax. `vd i18n extract|check` is static and cannot prove dynamic configs.
+
 Run `vd fix` without flags and review the file/line preview. Use `--write` only
 for the built-in preferred-directive alias migration; it intentionally leaves
 scripts, business logic, and unknown syntax unchanged.

@@ -23,7 +23,11 @@ export function createLocalizationFeatureFiles(
   const stateLocale = language === "typescript" ? ' as "en" | "ar"' : "";
 
   return {
-    [`src/i18n.${extension}`]: `import { createLocalization, defineLocaleDictionary } from "velodom/localization";
+    [`src/i18n.${extension}`]: `import {
+  createLocalization,
+  defineLocaleDictionary,
+  definePluralMessage,
+} from "velodom/localization";
 
 /** Application-owned dictionaries consumed by VeloDom build integration. */
 export const localizationOptions = {
@@ -31,11 +35,25 @@ export const localizationOptions = {
   locales: {
     en: {
       lang: "en",
-      messages: defineLocaleDictionary({ greeting: "Hello from VeloDom" }),
+      direction: "ltr",
+      messages: defineLocaleDictionary({
+        greeting: "Hello {name}",
+        itemCount: definePluralMessage({
+          one: "{count} item",
+          other: "{count} items",
+        }),
+      }),
     },
     ar: {
       lang: "ar",
-      messages: defineLocaleDictionary({ greeting: "مرحبًا من VeloDom" }),
+      direction: "rtl",
+      messages: defineLocaleDictionary({
+        greeting: "مرحبًا {name}",
+        itemCount: definePluralMessage({
+          one: "عنصر واحد",
+          other: "{count} عناصر",
+        }),
+      }),
     },
   },
 }${language === "typescript" ? " as const" : ""};
@@ -46,15 +64,17 @@ export const i18n = createLocalization(localizationOptions);
 /** Applies one explicit locale and writing direction to the current document. */
 export function applyLocale(locale${type}) {
   document.documentElement.lang = locale;
-  document.documentElement.dir = locale === "ar" ? "rtl" : "ltr";
+  document.documentElement.dir = i18n.direction(locale);
 }
 `,
     "src/pages/localization/index.html": `<main class="shell hero">
   <p>Optional localization</p>
   <h1 vd-text="greeting"></h1>
+  <p vd-text="itemLabel"></p>
   <div>
     <button class="button" type="button" vd-on:click="setLocale('en')">English</button>
     <button class="button" type="button" vd-on:click="setLocale('ar')">العربية</button>
+    <button class="button" type="button" vd-on:click="increment()">Add item</button>
   </div>
 </main>
 `,
@@ -63,11 +83,18 @@ export function applyLocale(locale${type}) {
 /** Shallow page state for the generated locale-switching example. */
 export const state = {
   locale: "en"${stateLocale},
-  greeting: i18n.t("en", "greeting"),
+  count: 1,
+  greeting: i18n.t("en", "greeting", { name: "VeloDom" }),
+  itemLabel: i18n.plural("en", "itemCount", 1),
   setLocale(locale${localeType}) {
     this.locale = locale;
-    this.greeting = i18n.t(locale, "greeting");
+    this.greeting = i18n.t(locale, "greeting", { name: "VeloDom" });
+    this.itemLabel = i18n.plural(locale, "itemCount", this.count);
     applyLocale(locale);
+  },
+  increment() {
+    this.count += 1;
+    this.itemLabel = i18n.plural(this.locale, "itemCount", this.count);
   },
 };
 `,

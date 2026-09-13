@@ -54,7 +54,7 @@ before use.
 | Static SEO route output | Build | Stable | SEO entries/prerender | summary shell | Vite plugin | Yes |
 | Sitemap/robots output | Build | Stable | SEO build config | custom hosting files | Vite plugin | Yes |
 | Content collections | Build | Supported | `velodom/content` | external loader | content APIs | Yes |
-| Localization helpers | i18n | Supported | `velodom/localization` | app dictionaries | localization APIs | Yes |
+| Localization helpers | i18n | Supported | `velodom/localization` | nested keys, explicit plurals, parameters, locale paths/SEO, static key checks | localization APIs + `vd i18n` | Yes |
 | Direction/RTL helpers | i18n | Supported | direction plugin, `vd-rtl-flip` | project CSS | public helpers | Yes |
 | Node Request adapter | Server | Supported | `velodom/node` | custom server adapter | `createNodeRequestAdapter` | Yes |
 | Full automatic SSR | Server | Partial | page-owned static renderer | Node request adapter | no universal SSR runtime | Boundary tested |

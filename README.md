@@ -132,8 +132,8 @@ docs/
 ## Current Status
 
 The package source is version `1.0.0`. Its public contract exposes 13 package
-entry points, 68 browser/build public values, 43 preferred directive names,
-and 24 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
+entry points, 71 browser/build public values, 43 preferred directive names,
+and 25 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
 the automated test suite, production builds, package boundaries, an installed
 tarball consumer, the generated starter, and browser targets.
 
@@ -194,6 +194,12 @@ release commit is verified, approved, tagged, and published deliberately.
   `vd upgrade` rolls clean features through current generators with rollback,
   and `vd preset export/apply` shares only validated feature choices—not source
   code, credentials, dependency installation, or third-party execution.
+- Extended optional localization without a mandatory client service: typed
+  explicit plural leaves use native `Intl.PluralRules`, named primitive
+  placeholders stay text-only, locale directions are checked, and
+  missing/extra/unused/unknown keys receive stable diagnostics. `vd i18n
+  extract|check` performs static project analysis, while completion metadata is
+  available to optional editors and the starter demonstrates the small API.
 - Completed the monotonic TypeScript `strict` migration. The final CLI,
   project-intelligence, and scaffolder slice was hardened, then the gate was
   extended to all 88 package source files through `src/**/*.ts` so future

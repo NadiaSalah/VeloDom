@@ -361,6 +361,13 @@ server/native feedback locations.
 `vd-rtl-flip` marks directional artwork for project CSS. Direction and
 localization helpers are opt-in and never require a global locale runtime.
 
+Localization dictionaries may use nested string groups and explicit
+`definePluralMessage({ one, other })` leaves. Resolve text with
+`i18n.t(locale, key, { name })` and counts with
+`i18n.plural(locale, key, count)`. Placeholders use `{name}`; doubled braces are
+literal. `vd i18n extract|check` analyzes statically quoted keys and static
+options without introducing a localization directive or executing project code.
+
 ## Directive Index
 
 Every preferred compiler directive family is listed here:

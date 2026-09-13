@@ -193,7 +193,10 @@ export function velodom(options: VeloDomVitePluginOptions = {}): Plugin {
 
         if (
           diagnostic.severity === "error"
-          && options.localization.failOnMissing !== false
+          && (
+            diagnostic.kind !== "missing"
+            || options.localization.failOnMissing !== false
+          )
         ) {
           this.error(message);
         } else {

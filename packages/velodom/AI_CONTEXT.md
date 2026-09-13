@@ -212,6 +212,10 @@ visibility are never server authorization.
 - Page SEO belongs in `config.js`/`config.ts` or the `.vd` `<config>` block.
 - Static SEO, content, localization, RTL, validation, progressive forms,
   plugins, devtools, and Node integration are optional public capabilities.
+- Localization stays application-owned: nested typed dictionaries may use
+  `definePluralMessage`, `{name}` primitive interpolation, native plural rules,
+  and explicit/inferred direction. Use `vd i18n extract|check` for static key
+  evidence; there is no localization directive or required global store.
 - `vd lab` is an optional local Vite inspector. It is read-only,
   development-only, and never required to run or build an application.
 - `velodom/testing` provides test-only compiler fixtures, route resolution,

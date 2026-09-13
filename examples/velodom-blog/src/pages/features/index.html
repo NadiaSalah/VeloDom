@@ -472,18 +472,26 @@ const attributes = createResponsiveImageAttributes({
           <pre class="code-example" vd-pre><code>import {
   createLocaleFormatter,
   createLocalization,
-  defineLocaleDictionary
+  defineLocaleDictionary,
+  definePluralMessage
 } from "velodom/localization";
 
 const i18n = createLocalization({
   defaultLocale: "en",
   locales: {
-    en: { lang: "en", messages: defineLocaleDictionary({ welcome: "Welcome" }) },
-    ar: { lang: "ar", messages: defineLocaleDictionary({ welcome: "مرحبًا" }) }
+    en: { lang: "en", messages: defineLocaleDictionary({
+      welcome: "Welcome {name}",
+      posts: definePluralMessage({ one: "{count} post", other: "{count} posts" })
+    }) },
+    ar: { lang: "ar", messages: defineLocaleDictionary({
+      welcome: "مرحبًا {name}",
+      posts: definePluralMessage({ one: "مقال واحد", other: "{count} مقالات" })
+    }) }
   }
 });
 
-i18n.t("ar", "welcome");
+i18n.t("ar", "welcome", { name: "Nadia" });
+i18n.plural("en", "posts", 4);
 createLocaleFormatter("ar-EG").formatCurrency(1200, "EGP");</code></pre>
         </div>
         <div class="code-window">
@@ -527,6 +535,7 @@ vd remove tests         # refuses user-modified ownership
 vd preset export        # data-only reusable choices
 vd test unit            # real project script; no placeholder pass
 vd test --browser       # test:browser or test:e2e
+vd i18n check           # key parity, usage, and RTL/LTR validation
 vd init my-site         # complete beginner starter
 vd create page guide --demo seo</code></pre>
       </div>

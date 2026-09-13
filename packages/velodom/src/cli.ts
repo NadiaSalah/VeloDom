@@ -93,6 +93,7 @@ import {
   runPackageScript
 } from "./scaffolder/package-manager.ts";
 import { runProjectTestCommand } from "./cli/test-runner.ts";
+import { runLocalizationCommand } from "./cli/localization.ts";
 
 interface CliOptions {
   cwd?: string;
@@ -201,6 +202,7 @@ Usage:
   vd preset export [--out <file>] [--root <dir>]
   vd preset apply <file> [--root <dir>]
   vd test [all|unit|browser|compiler|route|request|component|a11y] [--root <dir>]
+  vd i18n extract|check [--json] [--root <dir>]
   vd create [project-name] [project options]
   vd init [project-name] [project options]
   vd create page <name> [--ts] [--single-file] [--demo <kind>] [--root <dir>]
@@ -244,6 +246,7 @@ Examples:
   vd preset export
   vd test unit
   vd test --browser
+  vd i18n check
   vd create feature articles --blog
   vd create my-site --recommended
   npx create-velodom@latest my-site --template minimal --typescript
@@ -368,6 +371,12 @@ export async function runVeloDomCli(
           context,
           values[0] || "",
           parsed.flags
+        );
+      case "i18n":
+        return await runLocalizationCommand(
+          context,
+          values[0] || "",
+          parsed.flags.has("json")
         );
       case "init":
         await createResource(

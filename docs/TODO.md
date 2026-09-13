@@ -365,9 +365,9 @@ These ideas fit VeloDom only as optional build/development integrations. They
 need a bounded design, a public compatibility story, and tests after the
 next-release Project Index and installer contracts are proven.
 
-**Executable later-release scope: 1 of 7 milestones complete.**
+**Executable later-release scope: 2 of 7 milestones complete.**
 
-`[###.................] 14%`
+`[######..............] 29%`
 
 - [x] Expand the feature installer lifecycle with safe `vd remove`, `vd
   upgrade`, compatibility reporting, and shareable project presets. Removal
@@ -376,10 +376,14 @@ next-release Project Index and installer contracts are proven.
   reversible controlled files and deletes only unchanged generated files;
   `vd upgrade` transactionally reruns current first-party generators; and
   versioned JSON presets contain only allowlisted feature names/options.
-- [ ] Extend localization with pluralization, parameter interpolation, nested
+- [x] Extend localization with pluralization, parameter interpolation, nested
   key groups, missing/unused-key reports, extraction/check commands, editor
   completion, and per-locale RTL validation while retaining build-time,
-  application-owned dictionaries.
+  application-owned dictionaries. Explicit `definePluralMessage()` leaves use
+  native `Intl.PluralRules`; `{name}` interpolation stays text-only; static
+  `vd i18n extract|check` never imports project code; diagnostics cover
+  missing/extra/unused/unknown/direction facts; and dictionary completions are
+  exposed for optional editor integrations.
 - [ ] Add build-only CSS and asset intelligence: unused-selector and scoped-CSS
   duplication reports, route CSS attribution, logical-property suggestions,
   missing dimensions, oversized/duplicate/unused assets, responsive-variant

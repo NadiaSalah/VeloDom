@@ -175,6 +175,7 @@ vd remove i18n|tests|lab|all
 vd upgrade i18n|tests|lab|all
 vd preset export|apply
 vd test [all|unit|browser|compiler|route|request|component|a11y]
+vd i18n extract|check
 vd version
 ```
 
@@ -209,6 +210,11 @@ Focused layers fail when their script is missing; browser accepts
 `velodom/testing` subpath provides compiler fixtures, route resolution,
 recorded request doubles, DOM event dispatch, accessibility smoke diagnostics,
 and page/component mounts without adding production runtime code.
+`velodom/localization` supports nested typed keys, explicit plural leaves,
+named primitive interpolation, locale-direction validation, key extraction,
+and editor completion records. `vd i18n extract|check` reads only static project
+source; it never imports localization modules or adds a browser translation
+store.
 
 Choose `--lab` during scripted project creation or select it in Customize mode
 to add `npm run lab`. The command starts the existing Vite server with an

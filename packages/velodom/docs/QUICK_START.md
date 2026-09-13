@@ -131,6 +131,10 @@ npx vd add tests --unit
 npx vd add lab
 ```
 
+After adding localization, `npx vd i18n extract` lists statically quoted keys
+and `npx vd i18n check` verifies dictionary parity, usage, and locale direction.
+The generated page demonstrates named parameters and native plural rules.
+
 The installer checks conflicts before writing and records only its generated
 files in `.velodom/features.json`; it never overwrites application-owned work.
 

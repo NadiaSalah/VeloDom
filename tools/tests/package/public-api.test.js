@@ -219,12 +219,17 @@ test("localization remains an explicit build-time subpath", () => {
     "createLocaleFormatter",
     "createLocalization",
     "defineLocaleDictionary",
+    "definePluralMessage",
+    "extractLocaleKeyUsage",
     "generateLocaleKeyDeclaration",
+    "getLocaleKeyCompletions",
     "inspectLocalization"
   ]);
   assert.deepEqual(readInterfaceExportNames(localizationEntrySource), [
     "LocaleDefinition",
     "LocaleFormatter",
+    "LocaleKeyCompletion",
+    "LocalePluralMessage",
     "Localization",
     "LocalizationDiagnostic",
     "LocalizationOptions",
@@ -233,6 +238,7 @@ test("localization remains an explicit build-time subpath", () => {
   ]);
   assert.deepEqual(readTypeExportNames(localizationEntrySource, "local"), [
     "LocaleDictionary",
+    "LocaleInterpolationValue",
     "LocaleMessageKey"
   ]);
 });

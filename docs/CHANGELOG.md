@@ -86,6 +86,10 @@ or claim that a matching package is available from a registry.
   `vd remove`, transactional `vd upgrade`, and versioned data-only
   `vd preset export/apply`. Controlled files carry reversible source snapshots;
   legacy or user-modified ownership entries are reported and never deleted.
+- Optional localization plurals through `Intl.PluralRules`, named primitive
+  interpolation, inferred/validated locale direction, typed key completions,
+  stable missing/extra/unused/unknown/direction diagnostics, and static
+  `vd i18n extract|check` project commands that never execute app modules.
 - An enforced first TypeScript `strict` slice for stable/shared contracts and
   low-dependency Core utilities, wired into normal checks and package builds.
 
@@ -175,7 +179,7 @@ or claim that a matching package is available from a registry.
 ### Documentation
 
 - Synchronized the academic showcase with the source-derived V1 contract: 13
-  package exports, 68 public values, 43 preferred directives, and 24 CLI
+  package exports, 71 public values, 43 preferred directives, and 25 CLI
   commands, including every supported package entry point.
 - Added named-function JSDoc coverage across all framework TypeScript modules
   and made the documentation gate reject undocumented function declarations.
