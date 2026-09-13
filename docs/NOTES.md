@@ -52,6 +52,12 @@
   internal optimization does not expand the public CLI report or browser bundle.
   CLI impact is `NONE`: no new flags, templates, dependencies, or generated
   application files are required.
+- Project diagnostics have stable machine-readable IDs and one of ten bounded
+  categories. Compiler IDs remain their source of truth; CLI relationship
+  findings use the `VD_PROJECT_*` namespace. Suggestions use a conservative
+  edit-distance threshold and never rewrite source. CLI impact is
+  `DEFAULT_INCLUDED`: existing `doctor` output gains structured fields and
+  `vd explain` accepts IDs, with no generated-project or template changes.
 - Static SEO generation runs after Vite writes the bundle rather than at its
   close hook. The renderer needs the emitted `index.html` shell, and this keeps
   the behavior stable across Vite/Rolldown lifecycle ordering.

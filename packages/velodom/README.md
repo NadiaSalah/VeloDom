@@ -158,7 +158,7 @@ vd create page|component|api|demo|feature|middleware|plugin <name>
 vd lab [--check]
 vd doctor
 vd inspect
-vd explain <file|topic>
+vd explain <file|topic|diagnostic-code>
 vd routes
 vd graph
 vd health
@@ -171,7 +171,9 @@ vd version
 ```
 
 Use `vd help` for the current options. CLI analysis is local and static; it does
-not add browser runtime weight.
+not add browser runtime weight. `vd doctor --json` emits stable diagnostic IDs,
+bounded categories, suggestions, and source locations when static analysis can
+prove them; `vd explain <code>` documents those IDs offline.
 
 Choose `--lab` during scripted project creation or select it in Customize mode
 to add `npm run lab`. The command starts the existing Vite server with an

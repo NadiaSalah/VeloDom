@@ -31,9 +31,9 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 
 `[####################] 100%`
 
-**Next-release approved scope: 6 of 15 milestones complete.**
+**Next-release approved scope: 7 of 15 milestones complete.**
 
-`[########............] 40%`
+`[#########...........] 47%`
 
 The repository is the local V1 source baseline. Registry availability,
 authentication, tags, and releases are external state and are deliberately not
@@ -298,9 +298,13 @@ layer, or unproven analysis.
 
 ### P1 — Diagnostics, typing, and focused developer workflows
 
-- [ ] Add stable diagnostic IDs, documented categories, source locations, and
+- [x] Add stable diagnostic IDs, documented categories, source locations, and
   typo suggestions for compiler/route/component/request findings; extend
-  `vd explain <code>` without changing deterministic offline behavior.
+  `vd explain <code>` without changing deterministic offline behavior. Project
+  diagnostics now use compiler, accessibility, component, configuration,
+  maintainability, request, routing, security, state, or tooling categories;
+  statically located template findings report line/column data and conservative
+  nearest-name suggestions.
 - [ ] Add `vd check` as a non-destructive composition of compiler diagnostics,
   generated-type validation, `doctor`, route/reference checks, accessibility,
   security, and build sanity. It must report which checks actually ran and

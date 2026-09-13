@@ -898,6 +898,11 @@ test("CLI doctor reports static project problems", async () => {
       "src/api/routes.js",
       "export default { \"posts.getAll\": () => [] };"
     );
+    await writeFixtureFile(
+      root,
+      "src/components/missing-cards/index.html",
+      "<article>Known component</article>"
+    );
 
     const code = await runVeloDomCli([
       "doctor",
@@ -917,6 +922,36 @@ test("CLI doctor reports static project problems", async () => {
     assert.match(messages, /Request "posts.missing"/);
     assert.match(messages, /Expected an expression/);
     assert.match(messages, /path should start/);
+    const componentIssue = report.issues.find(issue => (
+      issue.code === "VD_PROJECT_COMPONENT_MISSING"
+    ));
+    const requestIssue = report.issues.find(issue => (
+      issue.code === "VD_PROJECT_REQUEST_MISSING"
+    ));
+
+    assert.equal(componentIssue.category, "component");
+    assert.deepEqual(componentIssue.location, { line: 3, column: 31 });
+    assert.match(componentIssue.suggestion, /missing-cards/);
+    assert.equal(requestIssue.category, "request");
+    assert.equal(requestIssue.location.line, 5);
+    assert.ok(report.issues.every(issue => issue.code && issue.category));
+
+    output.length = 0;
+    const explainCode = await runVeloDomCli([
+      "explain",
+      "VD_PROJECT_COMPONENT_MISSING",
+      "--json",
+      "--root",
+      root
+    ], {
+      stdout: message => output.push(message),
+      stderr: message => output.push(message)
+    });
+    const explanation = JSON.parse(output.join("\n"));
+
+    assert.equal(explainCode, 0);
+    assert.equal(explanation.subject, "VD_PROJECT_COMPONENT_MISSING");
+    assert.match(explanation.summary, /component/);
   } finally {
     await removeFixture(root);
   }

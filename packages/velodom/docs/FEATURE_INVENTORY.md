@@ -62,13 +62,13 @@ before use.
 | Asset inspection | Build | Supported | `velodom/assets` | ordinary Vite assets | public helpers | Yes |
 | Devtools inspector | DX | Supported | `velodom/devtools` | CLI inspection | public helper | Yes |
 | VeloDom Lab | DX | Experimental | `vd lab`, optional `--lab` starter choice | manual `mountVeloDomLab` host | `velodom/devtools`, Vite plugin | Yes |
-| Deterministic explain | DX | Supported | `vd explain <file|topic>` | compiler analysis | package binary | Yes |
+| Deterministic explain | DX | Supported | `vd explain <file|topic|diagnostic-code>` | compiler analysis and stable diagnostic catalog | package binary | Yes |
 | Testing mounts | Testing | Stable | `velodom/testing` | browser E2E | public helpers | Yes |
 | Compiler API | Compiler | Stable | `velodom/compiler` | Vite plugin | public compiler | Yes |
 | Incremental compiler cache | Build | Supported | automatic Vite plugin behavior | source/HMR invalidation, bounded LRU | Vite plugin | Yes |
 | Language analysis | Editor | Supported | compiler analysis APIs | VS Code package | public APIs | Yes |
 | Feature-based project scaffolding | DX | Stable | `npm create velodom`, `vd create` | Minimal/Blog/Empty, scriptable flags | `velodom/cli`, `velodom/scaffolder` | Yes |
-| Project intelligence | DX | Supported | `vd doctor/inspect/...` | none | package binary | Yes |
+| Project intelligence | DX | Supported | `vd doctor/inspect/...` | build-time Project Index and categorized source diagnostics | package binary | Yes |
 | Type generation | DX | Supported | `vd types` | manual declarations | package binary | Yes |
 
 ## Compatibility Inputs

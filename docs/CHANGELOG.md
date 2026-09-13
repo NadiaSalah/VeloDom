@@ -50,6 +50,9 @@ or claim that a matching package is available from a registry.
   shares cached template, companion script, page config, and compiler metadata
   across CLI inspection, diagnostics, types, docs, graph, health, security, and
   build reporting without becoming a browser API.
+- Stable project diagnostic IDs and categories, source locations for statically
+  located template findings, conservative component/request/directive typo
+  suggestions, and deterministic `vd explain <diagnostic-code>` guidance.
 - An enforced first TypeScript `strict` slice for stable/shared contracts and
   low-dependency Core utilities, wired into normal checks and package builds.
 

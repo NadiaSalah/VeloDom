@@ -469,6 +469,7 @@ vd lab --check
 vd inspect
 vd doctor
 vd explain routing
+vd explain VD_PROJECT_COMPONENT_MISSING
 vd stats
 vd routes
 vd graph --mermaid
@@ -516,7 +517,7 @@ directives, CSS files, refs, events, state keys, exposed names, compiler
 feature manifests, SEO configs, and test-file signals without adding any
 browser runtime behavior.
 `vd inspect routes|components|config|build` narrows that same source-derived
-report without introducing parallel analyzers. `vd explain <file|topic>` uses
+report without introducing parallel analyzers. `vd explain <file|topic|code>` uses
 the compiler and maintained framework facts to explain a template, state,
 routing, requests, components, compiler behavior, or Lab locally; it does not
 require AI, a network request, or an API key.
@@ -526,6 +527,13 @@ declarative `vd-state` names, unknown event handlers, unsafe dynamic
 directive expressions, unused components/request routes/middleware,
 unreachable showcase files, circular component dependencies, large templates,
 and simple page config mistakes.
+Every doctor item has a stable `code`, a bounded `category` (`compiler`,
+`accessibility`, `component`, `configuration`, `maintainability`, `request`,
+`routing`, `security`, `state`, or `tooling`), and a remediation suggestion.
+When the source relationship is statically provable, JSON output also includes
+one-based `location.line` and `location.column`. Component, request, and
+unknown-directive names receive a suggestion only when a close known name
+passes a conservative typo threshold.
 `vd build-report` summarizes project counts, SEO coverage, compiler features,
 unused directive families, optional runtime features not requested by current
 templates, largest pages/

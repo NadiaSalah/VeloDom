@@ -150,6 +150,10 @@ release commit is verified, approved, tagged, and published deliberately.
   template, script, config, and compiler data once per command; `doctor`,
   generated types/docs, graph, health, security, and build reports now reuse
   that snapshot while `vd inspect --json` keeps its prior public shape.
+- Added stable categorized IDs, template source locations, conservative typo
+  suggestions, and offline `vd explain <diagnostic-code>` guidance to project
+  diagnostics. Existing human messages remain readable and JSON output is now
+  suitable for editor/CI consumers without requiring AI or network access.
 - Completed the monotonic TypeScript `strict` migration. The final CLI,
   project-intelligence, and scaffolder slice was hardened, then the gate was
   extended to all 88 package source files through `src/**/*.ts` so future
@@ -289,8 +293,8 @@ maintenance gate changes neither template syntax nor generated starter choices.
 Only optional or future work belongs in [docs/TODO.md](docs/TODO.md). Near-term
 release work should stay limited to:
 
-- extend the completed shared build-time Project Index with stable diagnostic
-  IDs and source-aware explanations, without adding browser runtime weight;
+- compose the completed Project Index and diagnostic catalog into the planned
+  non-destructive `vd check` command without adding browser runtime weight;
 - run the complete package and browser gates on the final commit;
 - inspect both npm dry-run tarballs for unexpected files or size growth;
 - publish `velodom` first and `create-velodom` second only after explicit owner

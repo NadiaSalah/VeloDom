@@ -47,6 +47,13 @@ import {
   type ProjectSourceIndex
 } from "./cli/project-index.ts";
 import {
+  explainDiagnostic,
+  locateSourceToken,
+  suggestNearestName,
+  type ProjectDiagnostic,
+  type ProjectDiagnosticCategory
+} from "./cli/diagnostics.ts";
+import {
   formatBytes,
   printDependencySignals,
   printList,
@@ -108,9 +115,13 @@ interface ProjectInspection extends ProjectSourceIndex {
 }
 
 interface DoctorIssue {
+  category?: ProjectDiagnosticCategory;
+  code?: string;
   file: string;
   level: "error" | "warning";
+  location?: CompilerDiagnostic["location"];
   message: string;
+  suggestion?: string;
 }
 
 interface CliExplanation {
@@ -470,9 +481,16 @@ async function printExplanation(
   }
 
   const file = await resolveExplanationFile(context.cwd, subject);
+  const diagnostic = explainDiagnostic(subject);
   const explanation = file
     ? await explainTemplateFile(context.cwd, file)
-    : explainFrameworkTopic(subject);
+    : diagnostic
+      ? {
+          details: diagnostic.details,
+          subject: diagnostic.code,
+          summary: `${diagnostic.summary} Category: ${diagnostic.category}.`
+        }
+      : explainFrameworkTopic(subject);
 
   if (!explanation) {
     throw new Error(
@@ -730,9 +748,13 @@ async function printDoctor(context: CliContext, json: boolean) {
   }
 
   issues.forEach(issue => {
+    const location = issue.location
+      ? `:${issue.location.line}:${issue.location.column}`
+      : "";
     context.stdout(
-      `  - ${issue.level.toUpperCase()} ${issue.file}: ${issue.message}`
+      `  - ${issue.level.toUpperCase()} ${issue.code} ${issue.file}${location}: ${issue.message}`
     );
+    if (issue.suggestion) context.stdout(`    Suggestion: ${issue.suggestion}`);
   });
 
   return hasErrors ? 1 : 0;
@@ -979,30 +1001,63 @@ async function runDoctor(root: string) {
       });
     } else {
       indexed.compileResult?.diagnostics.forEach(diagnostic => {
+        const unknownDirective = diagnostic.code === "VD_COMPILER_UNKNOWN_DIRECTIVE"
+          ? diagnostic.message.match(/"(vd-[^"]+)"/)?.[1]
+          : undefined;
+        const nearestDirective = unknownDirective
+          ? suggestNearestName(unknownDirective.slice(3), PREFERRED_DIRECTIVES)
+          : undefined;
+
         issues.push({
+          category: diagnostic.code.startsWith("VD_A11Y_")
+            ? "accessibility"
+            : diagnostic.code.startsWith("VD_SECURITY_")
+              ? "security"
+              : "compiler",
+          code: diagnostic.code,
           file: diagnostic.filename,
           level: diagnostic.severity,
-          message: diagnostic.message
+          location: diagnostic.location,
+          message: diagnostic.message,
+          suggestion: nearestDirective
+            ? `Did you mean "vd-${nearestDirective}"?`
+            : undefined
         });
       });
     }
 
     findComponentReferences(analysisHtml).forEach(component => {
       if (!componentNames.has(component)) {
+        const nearest = suggestNearestName(component, componentNames);
+
         issues.push({
+          category: "component",
+          code: "VD_PROJECT_COMPONENT_MISSING",
           file: template.source,
           level: "error",
-          message: `Component "${component}" was referenced but not discovered.`
+          location: locateSourceToken(indexed.html, component),
+          message: `Component "${component}" was referenced but not discovered.`,
+          suggestion: nearest
+            ? `Did you mean "${nearest}"?`
+            : "Create the component or correct its src/components-relative name."
         });
       }
     });
 
     findRequestReferences(analysisHtml).forEach(request => {
       if (!requestRoutes.has(request)) {
+        const nearest = suggestNearestName(request, requestRoutes);
+
         issues.push({
+          category: "request",
+          code: "VD_PROJECT_REQUEST_MISSING",
           file: template.source,
           level: "error",
-          message: `Request "${request}" was referenced but not registered in src/api/routes.`
+          location: locateSourceToken(indexed.html, request),
+          message: `Request "${request}" was referenced but not registered in src/api/routes.`,
+          suggestion: nearest
+            ? `Did you mean "${nearest}"?`
+            : "Register the route or correct the vd-request name."
         });
       }
     });
@@ -1010,8 +1065,12 @@ async function runDoctor(root: string) {
     findMissingRefUsages(analysisHtml).forEach(ref => {
       if (!findRefReferences(analysisHtml).includes(ref)) {
         issues.push({
+          category: "component",
+          code: "VD_PROJECT_REF_MISSING",
           file: template.source,
           level: "warning",
+          location: locateSourceToken(indexed.html, `$refs.${ref}`)
+            || locateSourceToken(indexed.html, ref),
           message: `Ref "${ref}" is used in an expression but no matching vd-ref was found in this template.`
         });
       }
@@ -1022,24 +1081,33 @@ async function runDoctor(root: string) {
       if (hasScriptSymbol(script, binding.handler)) return;
 
       issues.push({
+        category: "component",
+        code: "VD_PROJECT_HANDLER_MISSING",
         file: template.source,
         level: "warning",
+        location: locateSourceToken(indexed.html, binding.handler),
         message: `Event handler "${binding.handler}" used by "${binding.event}" was not found in the paired script.`
       });
     });
 
     findDuplicateValues(findStateDeclarationReferences(analysisHtml)).forEach(name => {
       issues.push({
+        category: "state",
+        code: "VD_PROJECT_STATE_DUPLICATE",
         file: template.source,
         level: "warning",
+        location: locateSourceToken(indexed.html, name),
         message: `State key "${name}" is declared more than once in the same template scope.`
       });
     });
 
     findUnsafeDirectiveExpressions(analysisHtml).forEach(expression => {
       issues.push({
+        category: "security",
+        code: "VD_PROJECT_UNSAFE_EXPRESSION",
         file: template.source,
         level: "warning",
+        location: locateSourceToken(indexed.html, expression.split("=").slice(1).join("=")),
         message: `Directive expression "${expression}" uses unsafe dynamic evaluation.`
       });
     });
@@ -1058,10 +1126,51 @@ async function runDoctor(root: string) {
   )));
   issues.push(...await findLabSetupIssues(root));
 
-  return issues.sort((left, right) => (
+  return issues.map(normalizeDoctorIssue).sort((left, right) => (
     `${left.level}:${left.file}:${left.message}`
       .localeCompare(`${right.level}:${right.file}:${right.message}`)
   ));
+}
+
+/** Completes legacy/static issue records with stable diagnostic metadata. */
+function normalizeDoctorIssue(issue: DoctorIssue): ProjectDiagnostic {
+  const inferred = inferDoctorDiagnostic(issue);
+  const code = issue.code || inferred.code;
+  const explanation = explainDiagnostic(code);
+
+  return {
+    category: issue.category || explanation?.category || inferred.category,
+    code,
+    file: issue.file,
+    level: issue.level,
+    location: issue.location,
+    message: issue.message,
+    suggestion: issue.suggestion || explanation?.details[0]
+  };
+}
+
+/** Assigns stable fallback identities to established doctor checks. */
+function inferDoctorDiagnostic(issue: DoctorIssue): {
+  category: ProjectDiagnosticCategory;
+  code: string;
+} {
+  if (/\bLab\b|\blab script\b|Vite config/.test(issue.message)) {
+    return { category: "tooling", code: "VD_PROJECT_LAB_CONFIG" };
+  }
+  if (/Circular component/.test(issue.message)) {
+    return { category: "component", code: "VD_PROJECT_COMPONENT_CYCLE" };
+  }
+  if (/config|path|layout|prerender|SEO/i.test(issue.message)) {
+    return { category: "configuration", code: "VD_PROJECT_PAGE_CONFIG" };
+  }
+  if (/javascript:|target="_blank"|noopener/i.test(issue.message)) {
+    return { category: "security", code: "VD_PROJECT_SECURITY_LINK" };
+  }
+
+  return {
+    category: "maintainability",
+    code: "VD_PROJECT_MAINTAINABILITY"
+  };
 }
 
 /** Diagnoses only projects that explicitly expose a VeloDom Lab script. */
@@ -2622,7 +2731,7 @@ async function runSecurityScan(root: string) {
     }
   });
 
-  return issues;
+  return issues.map(normalizeDoctorIssue);
 }
 
 /** Resolves the health threshold. */
