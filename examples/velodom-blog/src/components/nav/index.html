@@ -1,9 +1,9 @@
 <nav class="site-nav">
   <div class="navbar site-frame min-h-16 px-0">
-    <div class="navbar-start">
+    <div class="navbar-start w-auto flex-1 lg:w-1/2 lg:flex-none">
       <a href="/" vd-nav class="flex items-center gap-3 font-black tracking-tight text-slate-950">
         <img
-          src="/src/assets/favicon.png"
+          vd-src="brandLogo"
           alt=""
           width="36"
           height="36"
@@ -11,7 +11,6 @@
         >
         <span class="text-xl">VeloDom</span>
       </a>
-      <span vd-text="title || 'Documentation'" class="ml-3 hidden border-l border-slate-200 pl-3 text-sm text-slate-500 md:inline"></span>
     </div>
 
     <div class="navbar-center hidden lg:flex">
@@ -24,7 +23,7 @@
       </div>
     </div>
 
-    <div class="navbar-end gap-2">
+    <div class="navbar-end w-auto gap-2 lg:w-1/2">
       <details class="dropdown dropdown-end lg:hidden">
         <summary
           class="site-menu-toggle btn btn-sm btn-square"
@@ -52,7 +51,7 @@
           <li><a class="site-primary-link" href="/single-file" vd-nav>Single-file</a></li>
         </ul>
       </details>
-      <a href="/features" vd-nav class="btn btn-primary btn-sm rounded-xl">
+      <a href="/features" vd-nav class="btn btn-primary btn-sm hidden rounded-xl sm:inline-flex">
         Start learning
       </a>
     </div>

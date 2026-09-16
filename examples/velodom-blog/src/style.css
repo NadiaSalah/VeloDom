@@ -86,6 +86,15 @@ pre {
   @apply self-start rounded-3xl border border-slate-200 bg-white p-4 shadow-sm lg:sticky lg:top-24;
 }
 
+@media (min-width: 1024px) {
+  .docs-sidebar {
+    max-height: calc(100dvh - 7rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+  }
+}
+
 .docs-sidebar a {
   @apply block rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-indigo-50 hover:text-indigo-700;
 }
@@ -141,7 +150,7 @@ pre {
 }
 
 .code-toolbar {
-  @apply flex items-center justify-between border-b border-white/10 bg-slate-900 px-4 py-3 text-xs text-slate-300;
+  @apply flex flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-slate-900 px-4 py-3 text-xs text-slate-300;
 }
 
 pre.code-example {
@@ -158,7 +167,7 @@ pre.code-example code {
 }
 
 .feature-lab {
-  @apply mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm;
+  @apply mt-6 min-w-0 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm;
 }
 
 .feature-lab-header {
@@ -184,5 +193,14 @@ pre.code-example code {
 
   .docs-sidebar a {
     @apply shrink-0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

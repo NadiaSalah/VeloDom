@@ -21,6 +21,31 @@
       </div>
     </section>
 
+    <section id="bindings" class="feature-lab scroll-mt-28">
+      <div class="feature-lab-header"><strong>Accessible attributes and styles</strong><span class="feature-lab-label">Bindings</span></div>
+      <p class="mt-4 text-sm leading-7 text-slate-600">Toggle a boolean directly into <code>aria-pressed</code>. CSS variables keep their exact spelling, and old bound styles disappear when their value is replaced.</p>
+      <button type="button" data-demo-action="binding-toggle" class="btn btn-outline mt-4 rounded-xl"
+        vd-on:click="toggleBinding()" vd-attr="{ 'aria-pressed': bindingActive }">
+        {{ bindingActive ? 'Accent on' : 'Accent off' }}
+      </button>
+      <p data-demo-binding-preview class="mt-4 rounded-xl p-4" vd-style="bindingActive ? { '--BrandColor': '#047857', color: 'var(--BrandColor)', backgroundColor: '#ecfdf5' } : { color: '#475569' }">Ordinary HTML, reactive presentation.</p>
+      <div class="code-window">
+        <div class="code-toolbar"><span>attributes + styles</span><span>no custom helper</span></div>
+        <pre class="code-example" vd-pre><code>&lt;button vd-on:click="toggleBinding()"
+  vd-attr="{ 'aria-pressed': bindingActive }"&gt;Toggle&lt;/button&gt;
+&lt;p vd-style="{ '--BrandColor': accent, color: 'var(--BrandColor)' }"&gt;
+  Reactive presentation
+&lt;/p&gt;
+
+// script.js
+export function init({ state }) {
+  state.toggleBinding = () =&gt; {
+    state.bindingActive = !state.bindingActive;
+  };
+}</code></pre>
+      </div>
+    </section>
+
     <section id="component" class="feature-lab scroll-mt-28">
       <div class="feature-lab-header"><strong>Props, slot, ref, and expose</strong><span class="feature-lab-label">Component</span></div>
       <div class="mt-5 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">

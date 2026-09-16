@@ -139,7 +139,7 @@ export function reportUserActionError(
   return report;
 }
 
-/** Normalizes the error. */
+/** Preserves real errors and marks synthesized errors so their stack is not blamed. */
 function normalizeError(error: unknown): VeloDomAnnotatedError {
   if (error instanceof Error) {
     return error as VeloDomAnnotatedError;
@@ -304,11 +304,20 @@ function formatSourceFrame(frame: ErrorSourceFrame) {
   return frame.functionName ? `${frame.functionName} (${location})` : location;
 }
 
-/** Returns the element snippet. */
+/** Captures bounded markup without copying form values into diagnostic subscribers. */
 function getElementSnippet(el: Element | null | undefined) {
   if (!el?.outerHTML) return "";
 
-  return el.outerHTML
+  const snapshot = el.cloneNode(true) as Element;
+  const controls = [snapshot, ...snapshot.querySelectorAll("input, textarea, option")];
+  controls.forEach(control => {
+    if (control.matches("input, textarea, option")) {
+      control.removeAttribute("value");
+      if (control.matches("textarea")) control.textContent = "[redacted]";
+    }
+  });
+
+  return snapshot.outerHTML
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 220);
@@ -325,11 +334,15 @@ function notifySubscribers(report: VeloDomErrorReport) {
   });
 }
 
-/** Performs the internal `safeStringify()` operation. */
+/** Handles non-Error throws, including undefined, symbols, cycles, and hostile coercion. */
 function safeStringify(value: unknown) {
   try {
-    return JSON.stringify(value);
+    return JSON.stringify(value) ?? String(value);
   } catch {
-    return String(value);
+    try {
+      return String(value);
+    } catch {
+      return "Unserializable thrown value.";
+    }
   }
 }

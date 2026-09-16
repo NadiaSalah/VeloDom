@@ -2,6 +2,11 @@
  * Keeps the shared application navigation aligned with the current route.
  * The router still owns navigation; this component only presents its state.
  */
+import brandLogo from "@/assets/favicon.png";
+
+/** Vite owns the production URL; templates must not point at the source folder. */
+export const state = { brandLogo };
+
 export function mounted({ ctx }) {
   const links = [...document.querySelectorAll(".site-primary-link")];
 

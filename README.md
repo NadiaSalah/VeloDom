@@ -99,7 +99,8 @@ From a globally/locally available VeloDom CLI, the same engine is used by:
 vd create my-app
 ```
 
-`vd help` includes a small colored VeloDom wordmark for interactive terminals.
+`vd help` includes a large colored VeloDom wordmark for interactive terminals
+(a compact title is used below 64 columns).
 Use `--no-logo` or `--no-color` in scripts; JSON and version output stay clean.
 
 Choose Minimal, Blog, or Empty, then use Recommended defaults or customize
@@ -150,6 +151,33 @@ surviving V1 capabilities remain under `Unreleased` until the exact first
 release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
+
+### Source and documentation consistency audit
+
+- Fixed CLI argument/async error handling, side-effect-free `--help`/`-h`, and
+  presentation flags during creation in `packages/velodom/src/cli.ts`.
+- Replaced regex-based navigation diagnosis with the existing compiler AST:
+  `vd-bind:href` expressions are no longer mistaken for literal invalid URLs.
+- Fixed ARIA boolean serialization, CSS variable casing, and stale styles when
+  switching binding formats in `src/directives/features/bindings.ts`.
+- Hardened `src/errors/error-reporter.ts` for non-Error throws and redacted form
+  values from diagnostic element snapshots. Application messages and arbitrary
+  markup still require application-owned secret handling.
+- Improved generated starter CSS (responsive navigation, focus outlines, code
+  contrast, reduced motion), CLI narrow-terminal branding, and blog sidebar
+  scrolling. Existing applications are not overwritten.
+- Synchronized package syntax/AI guides, the repository handbook/roadmap, and
+  the executable binding lesson in `examples/velodom-blog`.
+- No public exports, dependencies, versions, or supported aliases were removed.
+- Production visual checks exposed broken source-folder logo URLs and mobile
+  code-card overflow in the blog. Components now import the logo through Vite,
+  and code cards shrink within their grid, including the `.vd` lesson on Mobile
+  WebKit. Browser coverage checks loaded logos and page overflow on every journey.
+- Verification: 320 tests, docs/strict types/lint, production build, six installed
+  starter builds, tarball checks, and performance budgets passed. Chromium and
+  WebKit desktop/mobile journeys passed. Local Firefox failed before navigation
+  with a graphics startup error; the strict Linux CI gate remains required.
+  The guide's approximately 35 kB template has one advisory size warning.
 
 - Closed the executable later-release roadmap with release-gate coverage for
   desktop/mobile Chromium, Firefox, desktop/mobile WebKit, unexpected browser
@@ -373,8 +401,7 @@ maintenance gate changes neither template syntax nor generated starter choices.
 Only optional or future work belongs in [docs/TODO.md](docs/TODO.md). Near-term
 release work should stay limited to:
 
-- attribute build output to Vite/Rollup chunks where emitted metadata can prove
-  ownership, while keeping heuristic claims out of the report;
+- preserve source-backed Vite/Rollup chunk attribution and regression coverage;
 - run the complete package and browser gates on the final commit;
 - inspect both npm dry-run tarballs for unexpected files or size growth;
 - publish `velodom` first and `create-velodom` second only after explicit owner

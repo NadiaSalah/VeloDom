@@ -41,6 +41,7 @@ export async function createVeloDomProject(
   const plan = await resolveScaffoldPlan(request);
   const destinationState = await inspectDestination(plan.destination);
   let generated = false;
+  let gitInitialized = false;
 
   try {
     if (!destinationState.exists) {
@@ -57,8 +58,8 @@ export async function createVeloDomProject(
     await writeProjectReadme(plan);
 
     if (plan.git) {
-      const initialized = await initializeGit(plan.destination);
-      if (!initialized) {
+      gitInitialized = await initializeGit(plan.destination);
+      if (!gitInitialized) {
         request.context.stdout("! Git was not available; project creation continued.");
       }
     }
@@ -86,7 +87,7 @@ export async function createVeloDomProject(
     }
   }
 
-  printEnabledFeatures(request, plan);
+  printEnabledFeatures(request, plan, gitInitialized);
 
   if (plan.start && dependenciesInstalled) {
     request.context.stdout("Starting the VeloDom development server…");
@@ -169,7 +170,7 @@ async function readFrameworkVersion() {
   return manifest.version;
 }
 
-/** Initializes the git. */
+/** Attempts optional Git setup without making Git a prerequisite for creation. */
 async function initializeGit(cwd: string) {
   return new Promise<boolean>(resolvePromise => {
     const child = spawn("git", ["init"], {
@@ -237,11 +238,18 @@ Run \`npx vd features\` before removing/upgrading managed features. A portable
 before another project applies it.
 Use \`npx vd inspect css\` and \`npx vd inspect assets\` for read-only build advice
 about route styles, local asset usage, image dimensions, and responsive markup.
+Use \`npx vd create --help\` to inspect options without creating files; presentation
+flags \`--no-logo\` and \`--no-color\` also work during creation. Generated styles
+include visible keyboard focus, wrapping navigation, and reduced-motion rules.
 `);
 }
 
 /** Prints the enabled features. */
-function printEnabledFeatures(request: ScaffoldRequest, plan: ScaffoldPlan) {
+function printEnabledFeatures(
+  request: ScaffoldRequest,
+  plan: ScaffoldPlan,
+  gitInitialized: boolean
+) {
   const features = [
     plan.eslint ? "ESLint configured" : null,
     plan.prettier ? "Prettier configured" : null,
@@ -251,7 +259,7 @@ function printEnabledFeatures(request: ScaffoldRequest, plan: ScaffoldPlan) {
     plan.lab ? "VeloDom Lab command configured" : null,
     plan.pwa ? "VeloDom PWA build configured" : null,
     plan.testing !== "none" ? `${plan.testing} testing configured` : null,
-    plan.git ? "Git initialized" : null
+    gitInitialized ? "Git initialized" : null
   ].filter((feature): feature is string => feature !== null);
 
   features.forEach(feature => request.context.stdout(`✓ ${feature}`));

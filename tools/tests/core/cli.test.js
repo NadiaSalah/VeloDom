@@ -28,6 +28,66 @@ test("CLI branding has a readable plain logo and an opt-in colored logo", () => 
   assert.match(colored, /\u001B\[/);
   assert.match(colored, /VeloDom/);
   assert.equal(shouldUseCliColor(new Set(["no-color"])), false);
+  assert.equal(formatVeloDomLogo({ columns: 40 }), "VeloDom CLI");
+  assert.match(formatVeloDomLogo({ columns: 80 }), /██╗/);
+});
+
+test("CLI catches argument and asynchronous command errors without rejecting", async () => {
+  const errors = [];
+  const io = { stdout: () => {}, stderr: message => errors.push(message) };
+  assert.equal(await runVeloDomCli(["inspect", "--root"], io), 1);
+  assert.deepEqual(errors, ["--root requires a value."]);
+  errors.length = 0;
+  assert.equal(await runVeloDomCli(["health", "--min-score", "invalid"], io), 1);
+  assert.equal(errors.length, 1);
+  assert.match(errors[0], /min-score/);
+});
+
+test("help is side-effect free for create, init, and mutating commands", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-help-"));
+  try {
+    for (const args of [
+      ["init", "accidental", "--help"],
+      ["create", "accidental", "-h"],
+      ["remove", "all", "--help"],
+      ["fix", "--write", "-h"]
+    ]) {
+      const output = [];
+      assert.equal(await runVeloDomCli([...args, "--no-logo"], {
+        cwd: root,
+        stdout: message => output.push(message),
+        stderr: message => assert.fail(message)
+      }), 0);
+      assert.match(output.join("\n"), /Usage:/);
+      assert.doesNotMatch(output.join("\n"), /██╗/);
+    }
+    await assert.rejects(access(join(root, "accidental")), { code: "ENOENT" });
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("project creation accepts presentation flags without changing scaffold options", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-display-"));
+  try {
+    const output = [];
+    assert.equal(await runVeloDomCli([
+      "create", "site", "--template", "empty", "--javascript",
+      "--no-git", "--no-install", "--no-logo", "--no-color"
+    ], {
+      cwd: root,
+      stdout: message => output.push(message),
+      stderr: message => assert.fail(message)
+    }), 0);
+    await access(join(root, "site", "src/pages/home/index.html"));
+    assert.doesNotMatch(output.join("\n"), /██╗|\u001B\[/);
+    const css = await readFile(join(root, "site", "src/style.css"), "utf8");
+    assert.match(css, /:focus-visible/);
+    assert.match(css, /prefers-reduced-motion/);
+    assert.match(css, /flex-wrap: wrap/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
 
 test("CLI inspect and stats read folder and single-file conventions", async () => {
@@ -1099,6 +1159,33 @@ test("CLI doctor reports static project problems", async () => {
     assert.match(explanation.summary, /component/);
   } finally {
     await removeFixture(root);
+  }
+});
+
+test("navigation diagnostics use compiler attributes, not bound expressions or quoted text", async () => {
+  const root = await mkdtemp(join(tmpdir(), "velodom-nav-analysis-"));
+  try {
+    await writeFixtureFile(root, "src/pages/home/index.html", `
+      <a vd-nav vd-bind:href="destination">Bound</a>
+      <a vd-nav vd-href="destination">Shorthand</a>
+      <a data-vd-nav data-vd-href="destination">Legacy</a>
+      <a vd-nav href="fallback" vd-attr="{ href: destination }">Map</a>
+      <a vd-nav href="/" title="href='not-a-route'">Home</a>
+      <div vd-pre><a vd-nav href="invalid-example">Literal</a></div>
+      <a vd-nav href = "relative-path">Invalid static</a>
+    `);
+    const output = [];
+    await runVeloDomCli(["doctor", "--json"], {
+      cwd: root,
+      stdout: message => output.push(message),
+      stderr: message => assert.fail(message)
+    });
+    const navigation = JSON.parse(output.join("\n")).issues
+      .filter(issue => issue.code === "VD_PROJECT_NAV_TARGET");
+    assert.equal(navigation.length, 1);
+    assert.match(navigation[0].message, /relative-path/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
   }
 });
 

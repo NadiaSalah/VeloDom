@@ -167,6 +167,22 @@ or claim that a matching package is available from a registry.
 
 ### Fixed
 
+- Fixed production blog logos by importing assets through Vite rather than
+  referencing `/src` from runtime templates; constrained playground grid cards
+  and single-file lesson grids so wide code samples scroll internally on phones.
+
+- Unified CLI parse and asynchronous error handling; made command help
+  side-effect free; accepted branding flags during scaffolding and added
+  narrow-terminal fallback. Git completion output now reflects actual setup.
+- Removed false navigation errors for bound href expressions by reusing the
+  compiler AST instead of a second regular-expression attribute parser.
+- Corrected ARIA boolean tokens, case-sensitive CSS variables, and stale
+  string-to-object style bindings. Existing generic HTML booleans are unchanged.
+- Preserved readable diagnostics for unusual thrown values and excluded form
+  values from diagnostic markup snapshots without touching the live DOM.
+- Improved starter keyboard focus/responsive styles and documentation sidebar
+  reachability/reduced motion. Corrected stale roadmap and SSR/hydration labels.
+
 - Made the public application and plugin `navigate()` implementation honor its
   declared Promise contract even when an invalid or empty target is rejected.
 - Reported a missing `#app` HTML-shell mount element as one actionable router

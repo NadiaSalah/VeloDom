@@ -80,6 +80,7 @@ input {
 }
 .site-nav {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   align-items: center;
   padding-block: 1.25rem;
@@ -120,7 +121,7 @@ input {
 }
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
   gap: 1rem;
 }
 .card {
@@ -131,6 +132,27 @@ input {
 }
 [dir="rtl"] {
   text-align: start;
+}
+:focus-visible {
+  outline: 3px solid #5445ee;
+  outline-offset: 4px;
+}
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 1rem;
+  border-radius: 0.8rem;
+  background: #111827;
+  color: #e0f2fe;
+  line-height: 1.7;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
 `);
 }

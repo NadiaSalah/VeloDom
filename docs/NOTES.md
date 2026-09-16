@@ -2,6 +2,50 @@
 
 ## Architectural Decisions
 
+### Audit verification — 2026-09-17
+
+- Passed: 320 Node tests (eight new regressions), documentation consistency,
+  JSDoc/header checks, normal/strict type checks, ESLint, production build,
+  package contracts, both package tarball checks, six installed starter builds,
+  compiler/render benchmarks, and runtime/bundle budgets.
+- Contract coverage remains 14 package exports, 80 public values, 43 preferred
+  directives, and 25 CLI commands. The roadmap export list now participates in
+  the documentation gate, including the previously omitted `velodom/pwa`.
+- Browser journeys passed for desktop/mobile Chromium and desktop/mobile
+  WebKit, including ARIA/CSS binding updates, loaded production logos, navigation,
+  and horizontal-overflow checks. Visual inspection also covered a 319px-wide
+  page and a 1280x540 desktop sidebar (scrollable and contained in the viewport).
+- The full five-target attempt was not green: local Firefox timed out during
+  launch with `RenderCompositorSWGL failed mapping default framebuffer`, before
+  any application page opened. Do not infer Firefox compatibility from the
+  other engines; run the unchanged strict Linux CI workflow on the release commit.
+- `vd check --root examples/velodom-blog --json` passes with one non-blocking
+  large-template advisory for the approximately 35 kB static feature guide.
+  No threshold was raised and no warning was suppressed to obtain that result.
+- Source cleanup was evidence-based. Compatibility aliases and unrelated user
+  files were preserved; package versions/dependencies/exports did not change.
+  These local results are not publication approval or proof of registry state.
+
+### Consistency audit decisions
+
+- CLI impact: `DEFAULT_INCLUDED`. Help/error/presentation fixes need no new
+  project option. Starter CSS is generated once by the shared scaffolder for
+  Minimal/Blog/Empty, JS/TS and CSS/Tailwind combinations; no copied template
+  matrix is introduced. Existing generated applications remain user-owned.
+- Navigation analysis reuses compiler attributes to distinguish literal
+  `href` values from `vd-bind:href`, aliases, and attribute maps. It does not
+  execute user expressions to guess a destination.
+- ARIA boolean attributes use string tokens; generic HTML boolean attributes
+  retain their established presence/removal semantics. Both preferred syntax
+  and compatibility syntax reach the same binding runtime.
+- Diagnostic snapshots omit input/option values and textarea content. This is
+  not a general secret scrubber: application error messages, expressions, and
+  other markup can still contain sensitive data. Do not put secrets there or
+  forward raw diagnostics to telemetry without application-owned filtering.
+- Cleanup replaces the incorrect navigation regex, duplicate scaffolder flag
+  allowlist, and local stale-style bookkeeping; no unknown module or compatibility API is removed. TypeScript
+  declarations and public exports require no new application-facing API.
+
 - VeloDom is compiler-first, HTML-first, and folder-first.
 - Consumer and AI documentation ships from `packages/velodom`: the syntax
   reference and feature inventory are authoritative package-local contracts,

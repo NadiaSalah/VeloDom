@@ -115,9 +115,11 @@ export const state = {
           <pre class="code-example" vd-pre><code>&lt;input vd-model="draft.title" aria-label="Title"&gt;
 &lt;a vd-bind:href="post.url" vd-nav&gt;Read post&lt;/a&gt;
 &lt;div vd-class="{ active: isActive }"&gt;&lt;/div&gt;
-&lt;div vd-style="{ color: accent }"&gt;&lt;/div&gt;</code></pre>
+&lt;div vd-style="{ '--BrandColor': accent, color: 'var(--BrandColor)' }"&gt;&lt;/div&gt;
+&lt;button vd-attr="{ 'aria-pressed': isActive }"&gt;Toggle&lt;/button&gt;</code></pre>
         </div>
       </div>
+      <p class="mt-4">ARIA booleans become <code>"true"</code> or <code>"false"</code>; use <code>null</code> to remove an attribute. CSS variables retain their case. <a href="/playground#bindings" vd-nav class="link link-primary">Try the accessible binding example.</a></p>
       <div class="callout"><strong>Expression boundary:</strong> VeloDom parses expressions into an AST instead of using <code>eval</code> or <code>new Function</code>. Keep complex business logic in the page or component script.</div>
     </section>
 
@@ -589,7 +591,7 @@ vd create page guide --demo seo</code></pre>
     </section>
 
     <section id="lab" class="doc-section">
-      <p class="eyebrow">14 · optional visual inspection</p>
+      <p class="eyebrow">15 · optional visual inspection</p>
       <h2>VeloDom Lab explains a running app without becoming part of it.</h2>
       <p class="mt-3">
         Lab is an experimental, read-only Vite development layer. It displays
@@ -625,7 +627,7 @@ await lab.refresh();</code></pre>
     </section>
 
     <section id="quality" class="doc-section">
-      <p class="eyebrow">15 · reliability</p>
+      <p class="eyebrow">16 · reliability</p>
       <h2>Data, recovery, and browser safety stay explicit.</h2>
       <p class="mt-3">
         A page data module owns initial public data before a page initializes.
@@ -695,7 +697,7 @@ export const cache = {
     </section>
 
     <section id="architecture" class="doc-section">
-      <p class="eyebrow">16 · architecture</p>
+      <p class="eyebrow">17 · architecture</p>
       <h2>A small runtime is an architectural decision.</h2>
       <p class="mt-3">
         VeloDom Core receives resources from adapters. It does not discover your

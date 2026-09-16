@@ -1,5 +1,6 @@
-/** Owns only the state used by the three interactive playground examples. */
+/** Owns the state used by the application-level interactive lessons. */
 export const state = {
+  bindingActive: false,
   componentDemos: [
     { id: "first", title: "Loop scope: First" },
     { id: "second", title: "Loop scope: Second" }
@@ -11,6 +12,9 @@ export const state = {
 };
 
 export function init({ state }) {
+  state.toggleBinding = () => {
+    state.bindingActive = !state.bindingActive;
+  };
   state.increment = () => {
     state.count += 1;
   };

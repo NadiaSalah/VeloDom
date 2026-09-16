@@ -157,6 +157,15 @@ container of literal examples. Expressions are intentionally smaller than
 JavaScript; move statements, declarations, arrow functions, and complex logic
 into a script module.
 
+For `vd-attr`, ARIA booleans become `"true"`/`"false"`; `null`/`undefined`
+remove them. Other generic booleans retain presence/removal semantics.
+`vd-style` preserves CSS custom-property casing and clears stale bound styles
+when changing between strings and objects. Bound navigation expressions are
+validated at runtime, not treated as literal URLs by `vd doctor`.
+Import bundled images in scripts and bind their URLs with `vd-src`; runtime
+HTML strings do not receive Vite entry-HTML rewriting of `/src/assets/...`.
+Public-directory asset URLs are another supported option.
+
 ## Components and Layouts
 
 ```html

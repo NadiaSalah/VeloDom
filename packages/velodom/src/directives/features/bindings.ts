@@ -225,7 +225,9 @@ function applyStyleBinding(runtime: DirectiveFeatureRuntime) {
         if (style.cssText !== value) {
           style.cssText = value;
         }
-        appliedKeys = [];
+        // Remember string-owned declarations so switching to an object removes
+        // stale styles, just as switching between two object values does.
+        appliedKeys = Array.from({ length: style.length }, (_, index) => style.item(index));
         return;
       }
 
@@ -339,8 +341,13 @@ function addClassNames(classes: Set<string>, value: string) {
     .forEach(name => classes.add(name));
 }
 
-/** Sets the attribute value. */
+/** Serializes ARIA booleans as tokens while preserving HTML presence flags. */
 function setAttributeValue(el: Element, key: string, value: unknown) {
+  if (key.toLowerCase().startsWith("aria-") && typeof value === "boolean") {
+    setAttributeIfChanged(el, key, String(value));
+    return;
+  }
+
   if (value === null || value === undefined || value === false) {
     removeAttributeIfPresent(el, key);
     return;
@@ -354,9 +361,11 @@ function setAttributeValue(el: Element, key: string, value: unknown) {
   setAttributeIfChanged(el, key, String(value));
 }
 
-/** Performs the internal `toCssProperty()` operation. */
+/** Converts JS-style property names without altering case-sensitive CSS variables. */
 function toCssProperty(key: string) {
-  return key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
+  return key.startsWith("--")
+    ? key
+    : key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
 }
 
 /** Sets the attribute if changed. */

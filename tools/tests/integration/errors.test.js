@@ -26,6 +26,27 @@ test.beforeEach(() => {
   document.body.innerHTML = "";
 });
 
+test("non-Error throws remain readable even when serialization is unsafe", async () => {
+  await captureConsole("error", () => {
+    assert.equal(reportUserActionError(undefined).rawMessage, "undefined");
+    assert.equal(reportUserActionError(Symbol("failure")).rawMessage, "Symbol(failure)");
+    const hostile = { toJSON() { throw new Error("json"); }, toString() { throw new Error("text"); } };
+    assert.equal(reportUserActionError(hostile).rawMessage, "Unserializable thrown value.");
+  });
+});
+
+test("element diagnostics redact form values without modifying the application DOM", async () => {
+  const form = document.createElement("form");
+  form.innerHTML = '<input type="password" value="private-secret"><textarea>private-message</textarea>';
+  await captureConsole("error", () => {
+    const report = reportUserActionError("Invalid form", { el: form });
+    assert.doesNotMatch(report.element, /private-secret|private-message/);
+    assert.match(report.element, /redacted/);
+    assert.equal(form.querySelector("input").getAttribute("value"), "private-secret");
+    assert.equal(form.querySelector("textarea").textContent, "private-message");
+  });
+});
+
 test("error reporter formats fallback location and directive context", async () => {
   const element = document.createElement("button");
   element.setAttribute("data-vd-on-click", "save()");

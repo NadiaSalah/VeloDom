@@ -33,6 +33,12 @@ When information disagrees, use this order:
 
 Never promote a TODO or issue into an implemented feature.
 
+For accessible bindings, use `vd-attr="{ 'aria-busy': loading }"` directly:
+booleans serialize as ARIA tokens. Preserve CSS variable casing in `vd-style`
+maps. Static CLI navigation diagnostics inspect literal `href` attributes;
+dynamic binding results still need runtime tests. Inspect CLI options safely
+with `vd <command> --help` or `-h` before invoking a mutating command.
+
 ## Create VeloDom Code
 
 1. Inspect the existing project shape and language choice.

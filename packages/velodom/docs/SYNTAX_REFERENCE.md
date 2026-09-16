@@ -196,7 +196,30 @@ For class, style, and arbitrary attribute maps:
 ```
 
 `false`, `null`, and `undefined` remove a generic attribute. `true` creates an
-empty boolean attribute.
+empty presence attribute. For `aria-*`, booleans serialize as `"true"`/`"false"`;
+only `null`/`undefined` remove the attribute. This preserves accessible state.
+
+Styles accept strings or objects. Switching formats removes prior bound
+declarations. CSS variables preserve their spelling:
+`vd-style="{ '--BrandColor': accent, fontSize: size }"`.
+
+## Production Asset URLs
+
+Runtime templates are loaded as HTML strings, not Vite HTML entry points.
+Import bundled assets in a script and bind the resulting URL:
+
+```js
+import logo from "../../assets/logo.svg";
+export const state = { logo };
+```
+
+```html
+<img vd-src="logo" alt="Site name" width="48" height="48">
+```
+
+Alternatively keep a file in `public/` and use its public URL. Do not point
+runtime template images at `/src/assets/...`; development availability does
+not make that source path a production asset URL.
 
 ## Events
 

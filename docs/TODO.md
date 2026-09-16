@@ -20,9 +20,9 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 | Public package source | V1 — Implemented | Local `1.0.0` manifests, exports, package docs, starters, and consumer checks |
 | Browser release gate | V1 — Current | Strict CI workflow exists; rerun it on the exact initial-release commit |
 | npm registry state | External verification | No official release is represented; verify name/version state before first publication |
-| Next-release authoring and rendering maturity | Next release — Planned | Resolve looped components, keyed updates, `.vd` lazy parity, and compiler development speed |
-| Next-release developer intelligence | Next release — Planned | One project index, diagnostic quality, safe fixes, generated types, and thin CLI composition |
-| Later-release extensions | Later release — Deferred | Optional integrations and tooling only after next-release contracts are proven |
+| Approved authoring and rendering maturity | Implemented locally | Looped components, keyed updates, `.vd` lazy parity, and compiler cache; release verification remains separate |
+| Approved developer intelligence | Implemented locally | Shared project index, diagnostics, safe fixes, generated types, and CLI composition |
+| Approved optional extensions | Implemented locally | Seven bounded tooling/integration milestones complete; research remains excluded |
 | Hybrid rendering, AI, migration, CMS, and Edge | Research / Experimental | External or high-risk capabilities; never required by Core |
 
 ### Progress counter
@@ -54,6 +54,14 @@ state.
 - **Rejected:** conflicts with VeloDom's identity or adds mandatory complexity.
 
 ## V1 Core — Implemented
+
+- [x] Audit runtime bindings, CLI errors/creation flags, diagnostic privacy,
+  static navigation analysis, starter accessibility, and documentation parity.
+  Add regressions for ARIA booleans, CSS variable casing/style replacement,
+  dynamic href diagnostics, safe help, and non-Error throws. Keep aliases intact.
+  Production visual checks also fixed source-folder logo URLs, narrow navigation,
+  and code-card overflow in the playground and `.vd` lesson. See `NOTES.md`
+  for passed gates and the remaining local Firefox launch limitation.
 
 - [x] TypeScript framework source with generated public declarations and ESLint.
 - [x] HTML parser, source-aware diagnostics, safe expression AST/evaluator, and
@@ -218,6 +226,7 @@ velodom/content
 velodom/localization
 velodom/node
 velodom/assets
+velodom/pwa
 velodom/devtools
 velodom/vite
 velodom/vite-plugin
@@ -364,9 +373,9 @@ layer, or unproven analysis.
 
 ## Later Releases — Deferred Extensions
 
-These ideas fit VeloDom only as optional build/development integrations. They
-need a bounded design, a public compatibility story, and tests after the
-next-release Project Index and installer contracts are proven.
+These implemented extensions remain optional build/development integrations.
+Their bounded contracts and tests use the shared Project Index and installers;
+completed local work does not imply publication or replace release gates.
 
 **Executable later-release scope: 7 of 7 milestones complete.**
 

@@ -340,6 +340,23 @@ async function runInteractiveStep(context, target, name, callback) {
   try {
     await callback(page);
 
+    await page.waitForFunction(() => {
+      const logos = [...document.querySelectorAll("img.site-brand-mark")];
+      return logos.length > 0 && logos.every(logo => logo.complete && logo.naturalWidth > 0);
+    });
+    const overflow = await page.evaluate(() => {
+      if (document.documentElement.scrollWidth <= window.innerWidth + 2) return null;
+      return {
+        viewport: window.innerWidth,
+        document: document.documentElement.scrollWidth,
+        elements: [...document.querySelectorAll("main, section, article, aside, pre")]
+          .filter(element => element.getBoundingClientRect().right > window.innerWidth + 2)
+          .slice(0, 6)
+          .map(element => ({ tag: element.tagName, id: element.id, width: element.clientWidth }))
+      };
+    });
+    if (overflow) throw new Error(`Page content overflows the viewport horizontally: ${JSON.stringify(overflow)}`);
+
     if (browserProblems.length > 0) {
       throw new Error([
         "Unexpected browser errors:",
@@ -447,6 +464,22 @@ async function assertSingleFilePage(page, origin) {
 async function assertRequestExamples(page, origin) {
   await page.goto(`${origin}/playground`);
   await waitForPageText(page, "Read the HTML, then use the feature.");
+
+  const bindingToggle = page.locator('[data-demo-action="binding-toggle"]');
+  await page.waitForFunction(() => (
+    document.querySelector('[data-demo-action="binding-toggle"]')?.getAttribute("aria-pressed") === "false"
+  ));
+  await bindingToggle.click();
+  await page.waitForFunction(() => (
+    document.querySelector('[data-demo-action="binding-toggle"]')?.getAttribute("aria-pressed") === "true"
+    && document.querySelector('[data-demo-binding-preview]')?.style.getPropertyValue("--BrandColor") === "#047857"
+  ));
+  await bindingToggle.click();
+  await page.waitForFunction(() => (
+    document.querySelector('[data-demo-action="binding-toggle"]')?.getAttribute("aria-pressed") === "false"
+    && document.querySelector('[data-demo-binding-preview]')?.style.backgroundColor === ""
+    && document.querySelector('[data-demo-binding-preview]')?.style.getPropertyValue("--BrandColor") === ""
+  ));
 
   await page.locator('[data-demo-action="state-increment"]').click();
   await page.waitForFunction(() => (

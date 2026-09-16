@@ -34,6 +34,44 @@ test.beforeEach(() => {
   configureRequestRuntime();
 });
 
+test("compiled bindings serialize ARIA booleans without changing HTML presence flags", async () => {
+  const root = document.createElement("main");
+  root.innerHTML = compileTemplate(`<button vd-attr="attributes">Save</button>`).html;
+  const state = createState({ attributes: { "aria-busy": true, disabled: true } });
+  const cleanup = await applyDirectives(root, state);
+  const button = root.querySelector("button");
+  try {
+    assert.equal(button.getAttribute("aria-busy"), "true");
+    assert.equal(button.getAttribute("disabled"), "");
+    state.attributes = { "aria-busy": false, disabled: false };
+    assert.equal(button.getAttribute("aria-busy"), "false");
+    assert.equal(button.hasAttribute("disabled"), false);
+    state.attributes = { "aria-busy": null };
+    assert.equal(button.hasAttribute("aria-busy"), false);
+  } finally { cleanup(); }
+});
+
+test("style bindings remove stale strings and preserve case-sensitive CSS variables", async () => {
+  const root = document.createElement("main");
+  root.innerHTML = compileTemplate(`<p vd-style="styles">Preview</p>`).html;
+  const state = createState({ styles: "color: red; font-size: 12px; --BrandColor: blue;" });
+  const cleanup = await applyDirectives(root, state);
+  const style = root.querySelector("p").style;
+  try {
+    state.styles = { backgroundColor: "black", "--BrandColor": "green" };
+    assert.equal(style.color, "");
+    assert.equal(style.fontSize, "");
+    assert.equal(style.backgroundColor, "black");
+    assert.equal(style.getPropertyValue("--BrandColor"), "green");
+    assert.equal(style.getPropertyValue("--brand-color"), "");
+    state.styles = { color: "blue" };
+    assert.equal(style.backgroundColor, "");
+    assert.equal(style.getPropertyValue("--BrandColor"), "");
+    state.styles = null;
+    assert.equal(root.querySelector("p").hasAttribute("style"), false);
+  } finally { cleanup(); }
+});
+
 test("directives react through a real DOM tree", async () => {
   const root = document.createElement("main");
   root.innerHTML = `

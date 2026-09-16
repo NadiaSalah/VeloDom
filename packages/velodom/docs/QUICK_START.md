@@ -71,7 +71,8 @@ export default {
 
 For a quick orientation, run `npx vd help`. The interactive help includes the
 large VeloDom CLI wordmark; use `--no-logo` in scripts or `--no-color` for plain
-terminal output.
+terminal output. On narrow terminals the logo becomes a compact title.
+Use `npx vd create --help` (or `-h`) to inspect choices without generating files.
 
 Use the CLI:
 

@@ -3,7 +3,8 @@
 Status reflects package version 1.0.0 implementation, public exports, and the
 repository test suite. `Stable` is a public V1 contract; `Supported` is
 implemented but optional/specialized; `Partial` names a deliberate boundary;
-`Legacy` exists for compatibility. A feature not listed here must be verified
+`Not provided` explicitly excludes a capability; `Legacy` exists for compatibility.
+A feature not listed here must be verified
 before use.
 
 | Feature | Category | Status | Primary syntax or import | Alternatives | Public API | Tested |
@@ -59,8 +60,8 @@ before use.
 | Localization helpers | i18n | Supported | `velodom/localization` | nested keys, explicit plurals, parameters, locale paths/SEO, static key checks | localization APIs + `vd i18n` | Yes |
 | Direction/RTL helpers | i18n | Supported | direction plugin, `vd-rtl-flip` | project CSS | public helpers | Yes |
 | Node Request adapter | Server | Supported | `velodom/node` | custom server adapter | `createNodeRequestAdapter` | Yes |
-| Full automatic SSR | Server | Partial | page-owned static renderer | Node request adapter | no universal SSR runtime | Boundary tested |
-| Hydration | Server | Partial | explicit static-content policy | client takeover | SEO renderer | Boundary tested |
+| Full automatic SSR | Server | Not provided | use explicit build-time static rendering instead | Node request adapter handles HTTP only | no universal SSR runtime | Boundary tested |
+| Hydration | Server | Not provided | client takeover of static output instead | explicit static-content policy | no DOM reconciliation/hydration API | Boundary tested |
 | Asset inspection | Build | Supported | `velodom/assets`, `vd inspect assets` | metadata helpers plus duplicate/usage/dimension/responsive/LCP advice | public helpers + package binary | Yes |
 | CSS build intelligence | DX | Supported | `vd inspect css` | route attribution, repeated declarations, possible unused selectors, logical-property advice | package binary | Yes |
 | Optional PWA build | Build | Supported | `velodom/pwa`, `--pwa`, `vd add pwa` | static manifest validation, bounded cache policies, explicit offline fallback/registration | public build API + scaffolder | Yes |

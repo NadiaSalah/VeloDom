@@ -20,6 +20,7 @@ const packageManifest = JSON.parse(await readWorkspaceFile(
   "packages/velodom/package.json"
 ));
 const releaseGuide = await readWorkspaceFile("docs/RELEASING.md");
+const roadmap = await readWorkspaceFile("docs/TODO.md");
 const repositoryGuide = await readWorkspaceFile("docs/README.md");
 const syntaxReference = await readWorkspaceFile(
   "packages/velodom/docs/SYNTAX_REFERENCE.md"
@@ -130,6 +131,9 @@ if (packageManifest.private === true) {
 }
 
 for (const publicImport of publicImports) {
+  if (!roadmap.split(/\r?\n/).includes(publicImport)) {
+    violations.push(`docs/TODO.md must list current public export "${publicImport}"`);
+  }
   if (!releaseGuide.includes(`\`${publicImport}\``)) {
     violations.push(
       `docs/RELEASING.md must document public export "${publicImport}"`

@@ -3,7 +3,7 @@
  * Module: VeloDom CLI Branding
  * ----------------------------------------
  *
- * Provides the small, dependency-free VeloDom wordmark used by interactive
+ * Provides the dependency-free VeloDom wordmark used by interactive
  * CLI help and scaffolding output. Branding stays outside command logic so
  * JSON reports, piped output, and CI logs remain stable and machine-readable.
  * ----------------------------------------
@@ -11,6 +11,7 @@
 
 interface CliLogoOptions {
   color?: boolean;
+  columns?: number;
 }
 
 const ANSI = Object.freeze({
@@ -35,9 +36,14 @@ const LOGO_TAGLINE = "◇  VeloDom CLI  ·  HTML-first · compiler-first · vani
  * Formats the VeloDom CLI wordmark for an interactive terminal.
  *
  * @param {CliLogoOptions} options
- * @returns {string} A four-line logo with optional ANSI color sequences.
+ * @returns {string} A large wordmark, or compact title on narrow terminals.
  */
 export function formatVeloDomLogo(options: CliLogoOptions = {}): string {
+  if (options.columns !== undefined && options.columns < 64) {
+    return options.color
+      ? `${ANSI.strong}${ANSI.brand}VeloDom CLI${ANSI.reset}`
+      : "VeloDom CLI";
+  }
   if (options.color !== true) return `${LOGO_LINES}\n${LOGO_TAGLINE}`;
 
   const { accent, brand, dim, reset, strong } = ANSI;
@@ -51,8 +57,8 @@ export function formatVeloDomLogo(options: CliLogoOptions = {}): string {
 /**
  * Resolves whether CLI branding should use ANSI colors.
  *
- * `NO_COLOR` and dumb terminals always win; `FORCE_COLOR` is useful for
- * supported CI snapshots and interactive shells that wrap stdout.
+ * Explicit no-color settings win. Explicit color can override a dumb terminal
+ * or CI detection; otherwise only interactive, non-CI output receives color.
  *
  * @param {Set<string>} flags Parsed CLI flags.
  * @returns {boolean} Whether ANSI color output is safe and requested.
@@ -63,5 +69,5 @@ export function shouldUseCliColor(flags: Set<string>): boolean {
   if (process.env.FORCE_COLOR && process.env.FORCE_COLOR !== "0") return true;
   if (process.env.FORCE_COLOR === "0" || process.env.TERM === "dumb") return false;
 
-  return Boolean(process.stdout.isTTY);
+  return !process.env.CI && Boolean(process.stdout.isTTY);
 }

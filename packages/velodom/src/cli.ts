@@ -34,7 +34,8 @@ import {
 } from "./build-metadata.ts";
 import { compileTemplate } from "./compiler/index.ts";
 import type {
-  CompilerDiagnostic
+  CompilerDiagnostic,
+  TemplateAst
 } from "./compiler/types.ts";
 import { PREFERRED_DIRECTIVES } from "./shared/directives.ts";
 import {
@@ -282,16 +283,22 @@ export async function runVeloDomCli(
   args: string[],
   options: CliOptions = {}
 ): Promise<number> {
-  const parsed = parseArgs(args);
-  const root = resolve(options.cwd || process.cwd(), parsed.options.root || ".");
   const context: CliContext = {
-    cwd: root,
+    cwd: options.cwd || process.cwd(),
     stderr: options.stderr || (message => console.error(message)),
     stdout: options.stdout || (message => console.log(message))
   };
-  const [command, ...values] = parsed.values;
-
   try {
+    const parsed = parseArgs(args);
+    context.cwd = resolve(context.cwd, parsed.options.root || ".");
+    const [command, ...values] = parsed.values;
+
+    // Help must never create files, prompt, install packages, or start a server.
+    if (parsed.flags.has("help")) {
+      printCliBranding(context, parsed.flags);
+      context.stdout(HELP.trimEnd());
+      return 0;
+    }
     if (
       command === undefined
       && (parsed.flags.has("version") || parsed.flags.has("v"))
@@ -325,13 +332,13 @@ export async function runVeloDomCli(
         }
         return 0;
       case "lab":
-        return runLabCommand(context, parsed.flags);
+        return await runLabCommand(context, parsed.flags);
       case "doctor":
-        return printDoctor(context, parsed.flags.has("json"));
+        return await printDoctor(context, parsed.flags.has("json"));
       case "check":
-        return printCheck(context, parsed.flags.has("json"));
+        return await printCheck(context, parsed.flags.has("json"));
       case "fix":
-        return printFix(context, parsed.flags);
+        return await printFix(context, parsed.flags);
       case "explain":
         await printExplanation(
           context,
@@ -349,9 +356,9 @@ export async function runVeloDomCli(
         await printGraph(context, parsed.flags);
         return 0;
       case "health":
-        return printHealth(context, parsed);
+        return await printHealth(context, parsed);
       case "benchmark":
-        return runBenchmarkCommand(context);
+        return await runBenchmarkCommand(context);
       case "build-report":
         await printBuildReport(context, parsed.flags.has("json"));
         return 0;
@@ -397,21 +404,16 @@ export async function runVeloDomCli(
         await createResource(
           context,
           ["init", values[0] || ""],
-          parsed.flags,
+          scaffoldFlags(parsed.flags),
           parsed.options
         );
         return 0;
       case "create":
-        if (parsed.flags.has("help")) {
-          printCliBranding(context, parsed.flags);
-          context.stdout(HELP.trimEnd());
-          return 0;
-        }
         printCliBranding(context, parsed.flags);
         await createResource(
           context,
           RESOURCE_TYPES.has(values[0] || "") ? values : ["project", values[0] || ""],
-          parsed.flags,
+          scaffoldFlags(parsed.flags),
           parsed.options
         );
         return 0;
@@ -426,12 +428,20 @@ export async function runVeloDomCli(
   }
 }
 
+/** Keeps terminal presentation options out of project configuration validation. */
+function scaffoldFlags(flags: Set<string>): Set<string> {
+  return new Set([...flags].filter(flag => (
+    flag !== "color" && flag !== "no-color" && flag !== "no-logo"
+  )));
+}
+
 /** Prints the interactive wordmark without contaminating JSON output. */
 function printCliBranding(context: CliContext, flags: Set<string>): void {
   if (flags.has("no-logo") || flags.has("json")) return;
 
   context.stdout(formatVeloDomLogo({
-    color: shouldUseCliColor(flags)
+    color: shouldUseCliColor(flags),
+    columns: process.stdout.columns
   }));
 }
 
@@ -1636,7 +1646,7 @@ async function runDoctor(
       });
     });
 
-    findNavigationTargets(analysisHtml).forEach(target => {
+    findNavigationTargets(indexed.compileResult?.ast).forEach(target => {
       if (isAppRelativePath(String(target.value))) return;
 
       issues.push({
@@ -2574,17 +2584,24 @@ function findComponentReferences(source: string) {
   return [...names].filter(Boolean).sort();
 }
 
-/** Finds static navigation targets owned by elements that opt into vd-nav. */
-function findNavigationTargets(source: string) {
+/** Uses compiler attributes so bound expressions and literal examples are not URLs. */
+function findNavigationTargets(ast: TemplateAst | undefined) {
   const targets: Array<{ value: string }> = [];
 
-  for (const match of source.matchAll(/<[a-z][^>]*>/gi)) {
-    const tag = match[0];
-
-    if (!/\b(?:data-)?vd-nav(?:\s|=|>)/i.test(tag)) continue;
-    const value = tag.match(/\bhref=["']([^"']+)["']/i)?.[1]?.trim();
-
-    if (value) targets.push({ value });
+  for (const node of ast?.children || []) {
+    if (node.type !== "ElementStart" || node.preserveText || !Array.isArray(node.attributes)) continue;
+    const attributes = new Map<string, string>();
+    for (const attribute of node.attributes as Array<Record<string, unknown>>) {
+      if (typeof attribute.name === "string" && typeof attribute.value === "string") {
+        attributes.set(attribute.name.toLowerCase(), attribute.value);
+      }
+    }
+    if (!attributes.has("vd-nav") && !attributes.has("data-vd-nav")) continue;
+    // Bindings override fallback href values. Runtime validation owns their result.
+    if (["vd-href", "vd-bind:href", "data-vd-href", "vd-attr", "vd-bind:attr", "data-vd-attr"]
+      .some(name => attributes.has(name))) continue;
+    const value = attributes.get("href")?.trim();
+    if (value !== undefined) targets.push({ value });
   }
 
   return targets;
@@ -3648,7 +3665,7 @@ async function findConfigFile(root: string, folder: string) {
     || null;
 }
 
-/** Parses the args. */
+/** Separates positional arguments, value options, and supported short aliases. */
 function parseArgs(args: string[]): ParsedArgs {
   const flags = new Set<string>();
   const options: Record<string, string> = {};
@@ -3666,6 +3683,11 @@ function parseArgs(args: string[]): ParsedArgs {
     const arg = args[index];
 
     if (!arg) continue;
+
+    if (arg === "-h" || arg === "-v") {
+      flags.add(arg === "-h" ? "help" : "version");
+      continue;
+    }
 
     if (!arg.startsWith("--")) {
       values.push(arg);

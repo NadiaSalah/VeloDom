@@ -23,14 +23,6 @@ import {
   validateScaffoldFlags
 } from "./validation.ts";
 
-const CONFIGURATION_FLAGS = new Set([
-  "yes", "recommended", "custom", "javascript", "typescript", "css",
-  "tailwind", "eslint", "no-eslint", "prettier", "no-prettier", "router",
-  "no-router", "i18n", "no-i18n", "testing", "test-unit", "test-e2e",
-  "test-all", "no-testing", "git", "no-git", "install", "no-install",
-  "lab", "no-lab", "pwa", "no-pwa", "start", "no-start"
-]);
-
 /** Resolves interactive and scriptable input into a validated scaffold plan. */
 export async function resolveScaffoldPlan(request: ScaffoldRequest): Promise<ScaffoldPlan> {
   validateScaffoldFlags(request.flags);
@@ -45,7 +37,9 @@ export async function resolveScaffoldPlan(request: ScaffoldRequest): Promise<Sca
     && !request.flags.has("yes")
     && (
       request.flags.has("custom")
-      || ![...request.flags].some(flag => CONFIGURATION_FLAGS.has(flag))
+      // Validation above already guarantees every remaining flag configures
+      // the project; keep one allowlist rather than duplicating it here.
+      || request.flags.size === 0
     );
   const answers = canPrompt
     ? await promptForScaffold(initial, packageManager)

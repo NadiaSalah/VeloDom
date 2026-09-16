@@ -522,7 +522,7 @@ resolution after it is published. The existing `velodom` package binaries and
 
 ### CLI identity and output
 
-`vd help` and `vd create --help` show a compact colored VeloDom wordmark in an
+`vd help` and `vd create --help` show a large colored VeloDom wordmark in an
 interactive terminal:
 
 ```text
@@ -534,10 +534,14 @@ interactive terminal:
 ◇  VeloDom CLI · HTML-first · compiler-first · vanilla-friendly
 ```
 
-The wordmark is plain in piped output and CI, never appears in JSON or version
-responses, and supports `--color`, `--no-color`, and `--no-logo`. This keeps
-the CLI recognizable for beginners without making scripts parse decorative
-output.
+The wordmark uses plain text in piped output and CI unless color is explicitly
+requested. `--no-color` and `NO_COLOR` take precedence; `--no-logo` hides the
+wordmark entirely. Below 64 terminal columns a compact title avoids wrapping.
+JSON and version responses never include branding. Presentation flags are
+accepted during project creation without becoming project settings.
+`vd <command> --help` (or `-h`) displays help without performing the command.
+Malformed arguments and rejected asynchronous commands return exit code 1
+through the same concise error channel.
 
 The flow selects Minimal, Blog, or Empty, then Recommended or Customize.
 Optional feature installers compose JavaScript/TypeScript, CSS/Tailwind,
@@ -1690,8 +1694,13 @@ The shorthand forms `vd-src`, `vd-href`, `vd-alt`, `vd-value`,
 ```
 
 Class bindings accept a string, array, or truthy object map. Style bindings
-accept a CSS string or object. Attribute values of `false`, `null`, or
-`undefined` remove the attribute; `true` creates an empty boolean attribute.
+accept a CSS string or object; switching formats removes declarations owned by
+the previous binding. Object keys support camelCase and case-sensitive CSS
+variables such as `'--BrandColor'`. Generic attribute values of `false`, `null`,
+or `undefined` remove the attribute; `true` creates an empty presence attribute.
+ARIA attributes are different: `vd-attr="{ 'aria-busy': loading }"` writes the
+literal tokens `"true"` and `"false"`. Use `null` or `undefined` to remove an ARIA
+attribute. No extra application helper or compiler option is required.
 
 ### Event Directives
 
@@ -4346,6 +4355,12 @@ VeloDom provides:
 - a single fatal-screen guard
 - automatic cleanup of listeners, subscriptions, and request abort controllers
 
+Diagnostic element snapshots remove input/option values and textarea content
+without mutating the application DOM. Unusual thrown values (including
+`undefined`, symbols, or cyclic objects) remain reportable. This is not general
+secret redaction: application messages, expressions, and other markup still
+need application-owned filtering before being sent to a logging service.
+
 Security invariants:
 
 - template expressions do not use dynamic JavaScript compilation
@@ -4893,6 +4908,12 @@ cookies, and ICU parsing remain application or adapter concerns.
 - `ViteAppOptions`
 
 ### `velodom/assets`
+
+Runtime templates do not receive Vite entry-HTML URL rewriting. For bundled
+images, import the file in a page/component script, expose it through `state`,
+and use `<img vd-src="logo" alt="Site name">`. Vite then owns the hashed URL.
+Files in `public/` can use their public URLs instead. Avoid `/src/assets/...`
+in runtime markup: it may work in development and break after deployment.
 
 - `inspectImageAsset`
 - `inspectImageDirectory`

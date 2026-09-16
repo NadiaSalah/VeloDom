@@ -198,7 +198,11 @@ Interactive help and project creation include a large VeloDom wordmark. The
 logo uses ANSI colors only in a TTY (or with `--color`/`FORCE_COLOR`) and stays
 plain in CI and piped output. Use `--no-logo` to hide it or `--no-color` to keep
 the wordmark while removing ANSI sequences; JSON and version output remain
-machine-readable and never include the logo.
+machine-readable and never include the logo. Below 64 columns the wordmark
+becomes a compact title. `--no-color`/`NO_COLOR` override explicit color.
+`vd <command> --help` or `-h` is read-only, including create/init/remove/fix.
+Presentation flags work during creation; invalid arguments and asynchronous
+failures use a concise error message and exit code 1.
 `vd build-report` reads the versioned metadata emitted by the Vite plugin to
 attribute initial, route, component, shared, and lazy-feature chunks. Duplicate
 dependency cost is shown only from Rollup rendered-module measurements; a
