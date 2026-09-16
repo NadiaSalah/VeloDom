@@ -526,10 +526,12 @@ resolution after it is published. The existing `velodom` package binaries and
 interactive terminal:
 
 ```text
-╭──────────────────────────────────────────────╮
-│  ◇  VeloDom CLI                              │
-│     HTML-first · compiler-first · vanilla    │
-╰──────────────────────────────────────────────╯
+██╗   ██╗███████╗██╗      ██████╗ ██████╗  ██████╗ ███╗   ███╗
+╚██╗ ██╔╝██╔════╝██║     ██╔═══██╗██╔══██╗██╔═══██╗████╗ ████║
+ ╚████╔╝ █████╗  ██║     ██║   ██║██║  ██║██║   ██║██╔████╔██║
+  ╚██╔╝  ██╔══╝  ██║     ██║   ██║██║  ██║██║   ██║██║╚██╔╝██║
+   ╚═╝   ███████╗███████╗╚██████╔╝██████╔╝╚██████╔╝██║ ╚═╝ ██║
+◇  VeloDom CLI · HTML-first · compiler-first · vanilla-friendly
 ```
 
 The wordmark is plain in piped output and CI, never appears in JSON or version

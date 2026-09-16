@@ -23,6 +23,7 @@ test("CLI branding has a readable plain logo and an opt-in colored logo", () => 
 
   assert.match(plain, /VeloDom CLI/);
   assert.match(plain, /HTML-first/);
+  assert.match(plain, /██╗/);
   assert.doesNotMatch(plain, /\u001B\[/);
   assert.match(colored, /\u001B\[/);
   assert.match(colored, /VeloDom/);

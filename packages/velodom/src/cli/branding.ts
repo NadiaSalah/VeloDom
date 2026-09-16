@@ -21,12 +21,15 @@ const ANSI = Object.freeze({
   strong: "\u001B[1m"
 });
 
-const PLAIN_LOGO = [
-  "╭──────────────────────────────────────────────╮",
-  "│  ◇  VeloDom CLI                              │",
-  "│     HTML-first · compiler-first · vanilla    │",
-  "╰──────────────────────────────────────────────╯"
+const LOGO_LINES = [
+  "██╗   ██╗███████╗██╗      ██████╗ ██████╗  ██████╗ ███╗   ███╗",
+  "╚██╗ ██╔╝██╔════╝██║     ██╔═══██╗██╔══██╗██╔═══██╗████╗ ████║",
+  " ╚████╔╝ █████╗  ██║     ██║   ██║██║  ██║██║   ██║██╔████╔██║",
+  "  ╚██╔╝  ██╔══╝  ██║     ██║   ██║██║  ██║██║   ██║██║╚██╔╝██║",
+  "   ╚═╝   ███████╗███████╗╚██████╔╝██████╔╝╚██████╔╝██║ ╚═╝ ██║"
 ].join("\n");
+
+const LOGO_TAGLINE = "◇  VeloDom CLI  ·  HTML-first · compiler-first · vanilla-friendly";
 
 /**
  * Formats the VeloDom CLI wordmark for an interactive terminal.
@@ -35,15 +38,13 @@ const PLAIN_LOGO = [
  * @returns {string} A four-line logo with optional ANSI color sequences.
  */
 export function formatVeloDomLogo(options: CliLogoOptions = {}): string {
-  if (options.color !== true) return PLAIN_LOGO;
+  if (options.color !== true) return `${LOGO_LINES}\n${LOGO_TAGLINE}`;
 
   const { accent, brand, dim, reset, strong } = ANSI;
 
   return [
-    `${accent}╭──────────────────────────────────────────────╮${reset}`,
-    `│  ${accent}◇${reset}  ${strong}${brand}VeloDom${reset} ${dim}CLI${reset}                              │`,
-    `│     ${dim}HTML-first · compiler-first · vanilla${reset}    │`,
-    `${accent}╰──────────────────────────────────────────────╯${reset}`
+    `${accent}${LOGO_LINES}${reset}`,
+    `${accent}◇${reset}  ${strong}${brand}VeloDom CLI${reset}  ${dim}· HTML-first · compiler-first · vanilla-friendly${reset}`
   ].join("\n");
 }
 

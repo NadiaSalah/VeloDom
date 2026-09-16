@@ -194,7 +194,7 @@ conservatively unused shallow state without guessing dynamic control flow.
 `vd types` preserves route params, request names, static prop keys, and
 required/optional facts from explicit `ComponentInitContext<Props>` contracts;
 unprovable values remain `unknown` and JavaScript projects need no declarations.
-Interactive help and project creation include a compact VeloDom wordmark. The
+Interactive help and project creation include a large VeloDom wordmark. The
 logo uses ANSI colors only in a TTY (or with `--color`/`FORCE_COLOR`) and stays
 plain in CI and piped output. Use `--no-logo` to hide it or `--no-color` to keep
 the wordmark while removing ANSI sequences; JSON and version output remain

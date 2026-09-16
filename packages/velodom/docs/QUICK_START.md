@@ -70,7 +70,7 @@ export default {
 ## 3. Add a Page
 
 For a quick orientation, run `npx vd help`. The interactive help includes the
-VeloDom CLI wordmark; use `--no-logo` in scripts or `--no-color` for plain
+large VeloDom CLI wordmark; use `--no-logo` in scripts or `--no-color` for plain
 terminal output.
 
 Use the CLI:
