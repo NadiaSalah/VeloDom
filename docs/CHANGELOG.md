@@ -79,6 +79,9 @@ or claim that a matching package is available from a registry.
 - A thin `vd test` command that runs existing application package scripts for
   all, unit, browser, compiler, route, request, component, or accessibility
   layers and fails honestly when the selected layer is not configured.
+- A dependency-free VeloDom CLI wordmark for interactive help and scaffolding,
+  with ANSI colors only when requested/safe and explicit `--no-logo` and
+  `--no-color` controls that keep JSON, version, CI, and piped output stable.
 - Public `velodom/testing` compiler-fixture, route-resolution, recorded request
   mock, DOM-event, and compiler-backed accessibility-smoke helpers alongside
   the existing page and component mounts.

@@ -81,6 +81,10 @@ import {
   printModuleGroup,
   printSizeGroup
 } from "./cli/reporters.ts";
+import {
+  formatVeloDomLogo,
+  shouldUseCliColor
+} from "./cli/branding.ts";
 import { createResource } from "./cli/scaffolds.ts";
 import type {
   CliContext,
@@ -235,6 +239,8 @@ Project options:
   --install | --no-install
   --start | --no-start
   --package-manager npm|pnpm|yarn|bun
+  --color | --no-color
+  --no-logo
 
 Examples:
   vd lab
@@ -299,6 +305,7 @@ export async function runVeloDomCli(
       case "help":
       case "--help":
       case "-h":
+        printCliBranding(context, parsed.flags);
         context.stdout(HELP.trimEnd());
         return 0;
       case "version":
@@ -386,6 +393,7 @@ export async function runVeloDomCli(
           parsed.flags.has("json")
         );
       case "init":
+        printCliBranding(context, parsed.flags);
         await createResource(
           context,
           ["init", values[0] || ""],
@@ -395,9 +403,11 @@ export async function runVeloDomCli(
         return 0;
       case "create":
         if (parsed.flags.has("help")) {
+          printCliBranding(context, parsed.flags);
           context.stdout(HELP.trimEnd());
           return 0;
         }
+        printCliBranding(context, parsed.flags);
         await createResource(
           context,
           RESOURCE_TYPES.has(values[0] || "") ? values : ["project", values[0] || ""],
@@ -414,6 +424,15 @@ export async function runVeloDomCli(
     context.stderr(error instanceof Error ? error.message : String(error));
     return 1;
   }
+}
+
+/** Prints the interactive wordmark without contaminating JSON output. */
+function printCliBranding(context: CliContext, flags: Set<string>): void {
+  if (flags.has("no-logo") || flags.has("json")) return;
+
+  context.stdout(formatVeloDomLogo({
+    color: shouldUseCliColor(flags)
+  }));
 }
 
 /** Prints safe ownership and reversibility facts for installed features. */

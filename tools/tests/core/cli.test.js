@@ -11,7 +11,23 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { runVeloDomCli } from "../../../packages/velodom/src/cli.ts";
+import {
+  formatVeloDomLogo,
+  shouldUseCliColor
+} from "../../../packages/velodom/src/cli/branding.ts";
 import { createProjectSourceIndex } from "../../../packages/velodom/src/cli/project-index.ts";
+
+test("CLI branding has a readable plain logo and an opt-in colored logo", () => {
+  const plain = formatVeloDomLogo();
+  const colored = formatVeloDomLogo({ color: true });
+
+  assert.match(plain, /VeloDom CLI/);
+  assert.match(plain, /HTML-first/);
+  assert.doesNotMatch(plain, /\u001B\[/);
+  assert.match(colored, /\u001B\[/);
+  assert.match(colored, /VeloDom/);
+  assert.equal(shouldUseCliColor(new Set(["no-color"])), false);
+});
 
 test("CLI inspect and stats read folder and single-file conventions", async () => {
   const root = await createFixture();
@@ -936,6 +952,7 @@ test("CLI exposes help and version without starting project prompts", async () =
   };
 
   assert.equal(await runVeloDomCli(["create", "--help"], io), 0);
+  assert.match(output.join("\n"), /VeloDom CLI/);
   assert.match(output.join("\n"), /--template minimal\|blog\|empty/);
   assert.match(output.join("\n"), /--lab \| --no-lab/);
   assert.match(output.join("\n"), /--pwa \| --no-pwa/);

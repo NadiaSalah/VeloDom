@@ -74,6 +74,7 @@ before use.
 | Incremental compiler cache | Build | Supported | automatic Vite plugin behavior | source/HMR invalidation, bounded LRU | Vite plugin | Yes |
 | Language analysis | Editor | Supported | compiler analysis APIs | VS Code package | public APIs | Yes |
 | Feature-based project scaffolding | DX | Stable | `npm create velodom`, `vd create` | Minimal/Blog/Empty, scriptable flags | `velodom/cli`, `velodom/scaffolder` | Yes |
+| CLI wordmark and output controls | DX | Stable | `vd help`, `vd create --help` | dependency-free ANSI-safe branding, plain CI/pipeline output, `--no-logo`/`--color`/`--no-color` | package binary | Yes |
 | Project intelligence | DX | Supported | `vd doctor/inspect/...` | build-time Project Index, categorized source diagnostics, and Rollup-metadata build attribution | package binary | Yes |
 | Static check composition | DX | Supported | `vd check` | existing project diagnostics and in-memory type generation | package binary | Yes |
 | Safe syntax fixes | DX | Supported | `vd fix [--write]` | Project Index and fixed alias allowlist | package binary | Yes |

@@ -520,6 +520,23 @@ Every creation entry point calls one Node-only scaffolder. The dedicated
 resolution after it is published. The existing `velodom` package binaries and
 `vd create` remain compatible interfaces to the same engine.
 
+### CLI identity and output
+
+`vd help` and `vd create --help` show a compact colored VeloDom wordmark in an
+interactive terminal:
+
+```text
+╭──────────────────────────────────────────────╮
+│  ◇  VeloDom CLI                              │
+│     HTML-first · compiler-first · vanilla    │
+╰──────────────────────────────────────────────╯
+```
+
+The wordmark is plain in piped output and CI, never appears in JSON or version
+responses, and supports `--color`, `--no-color`, and `--no-logo`. This keeps
+the CLI recognizable for beginners without making scripts parse decorative
+output.
+
 The flow selects Minimal, Blog, or Empty, then Recommended or Customize.
 Optional feature installers compose JavaScript/TypeScript, CSS/Tailwind,
 ESLint, Prettier, route examples, English/Arabic localization, unit/E2E tests,

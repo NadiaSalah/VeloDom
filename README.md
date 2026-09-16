@@ -99,6 +99,9 @@ From a globally/locally available VeloDom CLI, the same engine is used by:
 vd create my-app
 ```
 
+`vd help` includes a small colored VeloDom wordmark for interactive terminals.
+Use `--no-logo` or `--no-color` in scripts; JSON and version output stay clean.
+
 Choose Minimal, Blog, or Empty, then use Recommended defaults or customize
 JavaScript/TypeScript, CSS/Tailwind, ESLint, Prettier, route examples, i18n,
 the opt-in PWA build, testing, Git, installation, and server startup. Every entry point delegates to

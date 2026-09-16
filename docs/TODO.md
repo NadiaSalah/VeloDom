@@ -152,6 +152,9 @@ application browser runtime weight:
 - [x] `vd lab`, `vd explain`, focused `vd inspect` views, Lab setup diagnostics,
   optional scaffolder selection, package-manager-aware startup, HMR compiler
   refresh, and a production-artifact leakage gate.
+- [x] Add a dependency-free VeloDom CLI wordmark with safe ANSI color detection,
+  plain CI/pipeline output, and `--no-logo`/`--color`/`--no-color` controls;
+  JSON and version responses remain machine-readable.
 - [x] Documentation checks for public exports, documented CLI commands, private
   imports, legacy roadmap labels, and removed-guide links.
 - [x] Named-function JSDoc across all Core TypeScript modules, enforced by an
