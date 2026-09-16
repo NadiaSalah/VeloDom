@@ -418,6 +418,11 @@ hosts may import `mountVeloDomLab` and
 `VELODOM_DEVTOOLS_PROTOCOL_VERSION` from `velodom/devtools`; normal
 applications do not need either import.
 
+Application error boundaries receive `context.diagnostic` with stable `code`,
+`group`, `sourceStack`, and `ownership` fields. The optional
+`mountVeloDomErrorOverlay()` export from `velodom/devtools` groups these reports
+for development only; it never replaces the application fallback or retry UI.
+
 ## Legacy and Compatibility Syntax
 
 - `data-vd-*` is accepted for compatibility; author `vd-*` in new templates.

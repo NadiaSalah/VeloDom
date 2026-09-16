@@ -19,6 +19,7 @@ import {
   VD,
   VD_COMPILER_FEATURES,
   VD_DIRECTION,
+  VD_ERROR,
   VD_INTERNAL,
   VD_LAYOUT,
   VD_PAGE_DATA,
@@ -462,10 +463,13 @@ export function createPageRouter(
 
       if (!app) {
         reportUserActionError(err, {
+          code: VD_ERROR.CODES.NAVIGATION_CRASH,
+          group: "router",
           title: "Missing Application Root",
           file: "velodom/page-router.ts",
           line: 144,
-          hint: "Add one element with id=\"app\" to the HTML shell."
+          hint: "Add one element with id=\"app\" to the HTML shell.",
+          ownership: [{ kind: "application", name: "#app" }]
         });
         return;
       }
@@ -474,6 +478,8 @@ export function createPageRouter(
         const recovered = typeof errorBoundary === "function"
           && app
           ? await renderRecoverableErrorBoundary(err, {
+            code: VD_ERROR.CODES.NAVIGATION_CRASH,
+            group: "router",
             title: "Navigation Crash",
             target: app,
             phase: "navigation",
@@ -481,6 +487,10 @@ export function createPageRouter(
             file: "velodom/page-router.ts",
             line: 28,
             page,
+            ownership: [
+              { kind: "application", name: "#app" },
+              { kind: "page", name: page }
+            ],
             hint: "Check page path, page module exports, and directive expressions used on the page.",
             retry: () => load(path, pagePath, VD_ROUTER.HISTORY_REPLACE),
             navigate: targetPath => load(
@@ -493,10 +503,16 @@ export function createPageRouter(
 
         if (!recovered) {
           reportUserActionError(err, {
+            code: VD_ERROR.CODES.NAVIGATION_CRASH,
+            group: "router",
             title: "Navigation Crash",
             file: "velodom/page-router.ts",
             line: 28,
             hint: "Check page path, page module exports, and directive expressions used on the page.",
+            ownership: [
+              { kind: "application", name: "#app" },
+              { kind: "page", name: page }
+            ],
             fatal: true
           });
         }
@@ -545,10 +561,13 @@ export function createPageRouter(
   function navigate(path: string | null, pagePath = "") {
     if (!path || typeof path !== "string") {
       reportUserActionError("Missing navigation path", {
+        code: VD_ERROR.CODES.NAVIGATION_PATH,
+        group: "router",
         title: "Invalid Navigation Path",
         file: "velodom/page-router.ts",
         line: 95,
-        hint: "Set a valid href on links with vd-nav."
+        hint: "Set a valid href on links with vd-nav.",
+        ownership: [{ kind: "application", name: "router" }]
       });
 
       return undefined;
@@ -556,10 +575,13 @@ export function createPageRouter(
 
     if (!isAppRelativePath(path)) {
       reportUserActionError(`Unsupported path "${path}"`, {
+        code: VD_ERROR.CODES.NAVIGATION_PATH,
+        group: "router",
         title: "Unsupported Navigation Target",
         file: "velodom/page-router.ts",
         line: 95,
-        hint: "Use app-relative paths such as /profile or /posts/create-post."
+        hint: "Use app-relative paths such as /profile or /posts/create-post.",
+        ownership: [{ kind: "application", name: "router" }]
       });
 
       return undefined;

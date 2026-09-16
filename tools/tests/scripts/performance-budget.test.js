@@ -36,6 +36,7 @@ test("performance budgets keep CSS unconstrained until an app opts in", async ()
     const defaultResult = await runBudgetCheck(root);
 
     assert.match(defaultResult.stdout, /dist total CSS: not enforced/);
+    assert.match(defaultResult.stdout, /ok dist initial JavaScript/);
     assert.match(defaultResult.stdout, /ok package runtime JavaScript/);
 
     await assert.rejects(

@@ -127,6 +127,13 @@ would help. Lab is optional; do not add it to production code or assume it can
 mutate application state or source. Its ownership, diff, request, route, and
 compiler/source views are read-only and deliberately omit network payloads.
 
+Application `errorBoundary` callbacks receive `context.diagnostic`, a
+`VeloDomErrorReport` with a stable ID, owner group, bounded normalized source
+stack, and hierarchical ownership. Use this record for logging or display, but
+keep fallback/retry decisions in the application. A custom development host
+may explicitly mount `mountVeloDomErrorOverlay` from `velodom/devtools`; never
+add it to a production entry or treat it as the recovery boundary.
+
 ## Use Public Package Exports
 
 Allowed imports are documented in the package README. Common forms:

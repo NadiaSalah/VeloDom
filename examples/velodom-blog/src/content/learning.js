@@ -5,7 +5,7 @@
  */
 
 export const homeMetrics = [
-  { label: "Public values", value: "77" },
+  { label: "Public values", value: "79" },
   { label: "Directives", value: "43" },
   { label: "Package exports", value: "14" },
   { label: "CLI commands", value: "25" }

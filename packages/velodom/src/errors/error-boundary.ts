@@ -8,8 +8,14 @@
  * ----------------------------------------
  */
 
-import { VD_ERROR_BOUNDARY } from "../constants.ts";
-import { reportUserActionError } from "./error-reporter.ts";
+import {
+  VD_ERROR,
+  VD_ERROR_BOUNDARY
+} from "../constants.ts";
+import {
+  reportUserActionError,
+  type ErrorReportOptions
+} from "./error-reporter.ts";
 import type {
   ErrorBoundaryContext,
   ErrorBoundaryFallback,
@@ -28,6 +34,9 @@ export interface RecoverableErrorBoundaryOptions {
   column?: number;
   page?: string;
   component?: string;
+  ownership?: ErrorReportOptions["ownership"];
+  code?: string;
+  group?: ErrorReportOptions["group"];
   retry?: () => unknown | Promise<unknown>;
   navigate?: (path: string) => unknown | Promise<unknown>;
 }
@@ -41,11 +50,14 @@ export async function renderRecoverableErrorBoundary(
   options: RecoverableErrorBoundaryOptions
 ) {
   const reported = reportUserActionError(error, {
+    code: options.code,
     title: options.title,
+    group: options.group,
     file: options.file,
     line: options.line,
     column: options.column,
-    hint: options.hint
+    hint: options.hint,
+    ownership: options.ownership
   });
 
   if (typeof options.hook !== "function") {
@@ -54,8 +66,9 @@ export async function renderRecoverableErrorBoundary(
 
   const context: ErrorBoundaryContext = {
     error,
+    diagnostic: reported,
     title: options.title,
-    message: reported.message,
+    message: reported.formatted,
     location: reported.location,
     phase: options.phase,
     target: options.target,
@@ -76,6 +89,8 @@ export async function renderRecoverableErrorBoundary(
     return true;
   } catch (boundaryError) {
     reportUserActionError(boundaryError, {
+      code: VD_ERROR.CODES.BOUNDARY_CRASH,
+      group: "runtime",
       title: "Error Boundary Crash",
       file: "velodom/errors/error-boundary.ts",
       line: 53,

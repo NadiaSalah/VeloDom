@@ -10,6 +10,7 @@
 
 import {
   VD,
+  VD_ERROR,
   VD_PROTECTED_STATE_KEYS
 } from "../constants.ts";
 import { reportUserActionError } from "../errors/error-reporter.ts";
@@ -102,12 +103,15 @@ export function evaluate(
     });
   } catch (error) {
     reportUserActionError(error, {
+      code: VD_ERROR.CODES.EXPRESSION,
+      group: "runtime",
       title: "Expression Evaluation Error",
       directive: meta.directive || "expression",
       expression,
       file: "velodom/directives/expression.ts",
       el,
-      hint: "Check expression syntax and make sure referenced variables exist."
+      hint: "Check expression syntax and make sure referenced variables exist.",
+      ownership: [{ kind: "directive", name: meta.directive || "expression" }]
     });
 
     return "";

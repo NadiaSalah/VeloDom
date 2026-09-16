@@ -24,7 +24,7 @@
         source tree.
       </p>
       <div class="mt-7 flex flex-wrap gap-2">
-        <span class="badge badge-primary badge-outline">77 public values</span>
+        <span class="badge badge-primary badge-outline">79 public values</span>
         <span class="badge badge-primary badge-outline">14 package exports</span>
         <span class="badge badge-primary badge-outline">43 preferred directives</span>
         <span class="badge badge-primary badge-outline">25 CLI commands</span>
@@ -263,7 +263,8 @@ export default {
         <div class="code-toolbar"><span>tests and boundaries</span><span>public optional subpaths</span></div>
         <pre class="code-example" vd-pre><code>import { createNodeRequestAdapter } from "velodom/node";
 import {
-  mountDevtoolsInspector, mountVeloDomLab,
+  groupVeloDomErrorReports, mountDevtoolsInspector,
+  mountVeloDomErrorOverlay, mountVeloDomLab,
   VELODOM_DEVTOOLS_PROTOCOL_VERSION
 } from "velodom/devtools";
 import {
@@ -279,7 +280,7 @@ await request.handler(route.params);
 const a11y = inspectAccessibilitySmoke(pageResource);
 await mounted.cleanup();</code></pre>
       </div>
-      <p class="mt-4">The Node adapter converts Node HTTP to Fetch request/response semantics; it is not automatic SSR. The devtools inspector is read-only and development-only. Test mounts use browser-like DOM environments and preserve normal lifecycle cleanup.</p>
+      <p class="mt-4">The Node adapter converts Node HTTP to Fetch request/response semantics; it is not automatic SSR. The devtools inspector, Lab, and structured-error overlay are explicit development tools. The overlay only groups bounded reports; application error boundaries still own recovery. Test mounts use browser-like DOM environments and preserve normal lifecycle cleanup.</p>
     </section>
 
     <section id="syntax" class="doc-section">

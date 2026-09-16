@@ -11,6 +11,7 @@
 import {
   VD,
   VD_COMPILER_FEATURES,
+  VD_ERROR,
   VD_INTERNAL
 } from "./constants.ts";
 import { getRefs } from "./refs.ts";
@@ -149,11 +150,17 @@ export async function mount(
       if (!folder) return;
       if (recursive) {
         reportUserActionError(`Recursive component "${folder}" blocked`, {
+          code: VD_ERROR.CODES.COMPONENT_RECURSION,
+          group: "component",
           title: "Recursive Component Usage",
           file: "velodom/mount.ts",
           line: 49,
           el,
-          hint: "Avoid rendering the same component inside itself without a stop condition."
+          hint: "Avoid rendering the same component inside itself without a stop condition.",
+          ownership: [
+            ...ancestry.map(item => ({ kind: "component" as const, name: item })),
+            { kind: "component", name: folder }
+          ]
         });
 
         el.innerHTML = `
@@ -306,6 +313,8 @@ export async function mount(
 
         const recovered = typeof errorBoundary === "function"
           ? await renderRecoverableErrorBoundary(err, {
+            code: VD_ERROR.CODES.COMPONENT_CRASH,
+            group: "component",
             title: `Component Crash: ${name || "Unknown"}`,
             target: el,
             phase: "component",
@@ -314,6 +323,10 @@ export async function mount(
             line: 62,
             page: pageCtx?.page,
             component: folder || name || "unknown",
+            ownership: [
+              ...(pageCtx?.page ? [{ kind: "page" as const, name: pageCtx.page }] : []),
+              { kind: "component", name: folder || name || "unknown" }
+            ],
             hint: "Verify the component folder, script.js/script.ts exports, and template expressions.",
             retry: () => {
               resetComponentHost(el, originalChildren);
@@ -333,10 +346,16 @@ export async function mount(
 
         if (!recovered) {
           reportUserActionError(err, {
+            code: VD_ERROR.CODES.COMPONENT_CRASH,
+            group: "component",
             title: `Component Crash: ${name || "Unknown"}`,
             file: "velodom/mount.ts",
             line: 62,
             hint: "Verify the component folder, script.js/script.ts exports, and template expressions.",
+            ownership: [
+              ...(pageCtx?.page ? [{ kind: "page" as const, name: pageCtx.page }] : []),
+              { kind: "component", name: folder || name || "unknown" }
+            ],
             fatal: true
           });
         }

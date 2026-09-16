@@ -197,6 +197,9 @@ test("application error boundary renders a recoverable page fallback", async () 
     },
     errorBoundary(context) {
       contexts.push({
+        code: context.diagnostic.code,
+        group: context.diagnostic.group,
+        ownership: context.diagnostic.ownership.map(item => `${item.kind}:${item.name}`),
         page: context.page,
         phase: context.phase,
         title: context.title,
@@ -221,6 +224,9 @@ test("application error boundary renders a recoverable page fallback", async () 
   assert.equal(fallback?.textContent, "Recovered home page");
   assert.deepEqual(contexts, [
     {
+      code: "VD_ROUTER_NAVIGATION_CRASH",
+      group: "router",
+      ownership: ["application:#app", "page:home"],
       page: "home",
       phase: "navigation",
       title: "Navigation Crash",
@@ -306,6 +312,9 @@ test("component error boundary isolates a failing component", async () => {
     },
     errorBoundary(context) {
       contexts.push({
+        code: context.diagnostic.code,
+        group: context.diagnostic.group,
+        ownership: context.diagnostic.ownership.map(item => `${item.kind}:${item.name}`),
         component: context.component,
         page: context.page,
         phase: context.phase,
@@ -330,6 +339,9 @@ test("component error boundary isolates a failing component", async () => {
   );
   assert.deepEqual(contexts, [
     {
+      code: "VD_COMPONENT_CRASH",
+      group: "component",
+      ownership: ["page:home", "component:broken-widget"],
       component: "broken-widget",
       page: "home",
       phase: "component",

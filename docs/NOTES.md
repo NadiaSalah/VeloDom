@@ -839,6 +839,19 @@
   third-party/application callbacks. Navigation defaults to network-only and
   API/auth caching remains application-owned.
 
+- Runtime diagnostics use stable `VD_*` identities, five bounded owner groups,
+  normalized source frames, and explicit application/page/component/request
+  ownership. The reporter retains no history; only an explicitly mounted
+  `velodom/devtools` overlay keeps a bounded development list. That overlay is
+  observational and intentionally provides no retry or recovery controls, so
+  the existing application `errorBoundary` remains the sole recovery owner.
+
+- The showcase performance gate distinguishes the initial entry graph from all
+  lazy documentation routes using emitted VeloDom build metadata. Initial code
+  stays under a tighter 130 KiB cap; total lazy JavaScript keeps a 256 KiB
+  repository ceiling. This prevents educational content from being mistaken
+  for startup cost without removing the aggregate regression guard.
+
 ## Handoff Guidance
 
 1. Read `README.md`, then `TODO.md`, before changing framework APIs.

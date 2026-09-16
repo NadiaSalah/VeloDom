@@ -17,6 +17,12 @@ export {
   mountVeloDomLab
 } from "./devtools/lab.ts";
 
+/** Optional development-only structured error overlay and grouping helper. */
+export {
+  groupVeloDomErrorReports,
+  mountVeloDomErrorOverlay
+} from "./devtools/error-overlay.ts";
+
 /** Current version of the internal development-tools message contract. */
 export {
   VELODOM_DEVTOOLS_PROTOCOL_VERSION
@@ -38,6 +44,20 @@ export type {
   VeloDomLabHandle,
   VeloDomLabOptions
 } from "./devtools/lab.ts";
+
+/** Public options and handle for the opt-in development error overlay. */
+export type {
+  VeloDomErrorOverlayHandle,
+  VeloDomErrorOverlayOptions
+} from "./devtools/error-overlay.ts";
+
+/** Structured error records shared with development hosts. */
+export type {
+  ErrorDiagnosticGroup,
+  ErrorOwnershipFrame,
+  ErrorSourceFrame,
+  VeloDomErrorReport
+} from "./types.ts";
 
 /** Options for mounting the standalone, opt-in browser inspector. */
 export interface DevtoolsInspectorOptions {

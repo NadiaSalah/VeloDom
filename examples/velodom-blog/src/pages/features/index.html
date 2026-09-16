@@ -611,11 +611,13 @@ npm run lab</code></pre>
         <div class="code-window">
           <div class="code-toolbar"><span>custom host</span><span>velodom/devtools</span></div>
           <pre class="code-example" vd-pre><code>import {
+  mountVeloDomErrorOverlay,
   mountVeloDomLab,
   VELODOM_DEVTOOLS_PROTOCOL_VERSION
 } from "velodom/devtools";
 
 const lab = mountVeloDomLab({ open: true });
+const errors = mountVeloDomErrorOverlay({ limit: 25 });
 await lab.refresh();</code></pre>
         </div>
       </div>
@@ -653,7 +655,9 @@ export const cache = {
         <div class="code-window">
           <div class="code-toolbar"><span>src/main.js</span><span>recoverable boundary</span></div>
           <pre class="code-example" vd-pre><code>await mountVeloDom({
-  errorBoundary({ title, message, retry }) {
+  errorBoundary({ title, message, diagnostic, retry }) {
+    console.error(diagnostic.code, diagnostic.ownership);
+
     const fallback = document.createElement("section");
     fallback.setAttribute("role", "alert");
     fallback.textContent = `${title}: ${message}`;
@@ -667,6 +671,12 @@ export const cache = {
 });</code></pre>
         </div>
       </div>
+      <p class="mt-4">
+        Runtime failures carry a stable diagnostic ID, a compiler/router/
+        request/component/runtime group, a bounded normalized source stack, and
+        an ownership trail. The optional development overlay observes the same
+        reports; it never chooses the fallback or performs the retry.
+      </p>
       <div class="code-window mt-5">
         <div class="code-toolbar"><span>safe navigation and assets</span><span>compiler + browser defaults</span></div>
         <pre class="code-example" vd-pre><code>&lt;a href="/blog/posts/html-first" vd-nav vd-prefetch&gt;

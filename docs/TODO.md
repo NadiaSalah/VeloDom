@@ -365,9 +365,9 @@ These ideas fit VeloDom only as optional build/development integrations. They
 need a bounded design, a public compatibility story, and tests after the
 next-release Project Index and installer contracts are proven.
 
-**Executable later-release scope: 4 of 7 milestones complete.**
+**Executable later-release scope: 5 of 7 milestones complete.**
 
-`[###########.........] 57%`
+`[##############......] 71%`
 
 - [x] Expand the feature installer lifecycle with safe `vd remove`, `vd
   upgrade`, compatibility reporting, and shareable project presets. Removal
@@ -399,10 +399,13 @@ next-release Project Index and installer contracts are proven.
   generate visible application-owned policy and assets. Cache matchers and
   algorithms are allowlisted, navigation defaults to network-only, and normal
   framework imports gain no runtime code.
-- [ ] Improve error diagnosis with hierarchical ownership reporting, error IDs,
+- [x] Improve error diagnosis with hierarchical ownership reporting, error IDs,
   richer source stacks, grouped compiler/router/request errors, and a
   development-only overlay. Preserve the existing application-owned recovery
-  boundary rather than imposing an error UI.
+  boundary rather than imposing an error UI. Runtime reports now carry stable
+  IDs, normalized bounded frames, subsystem groups, and page/component/request
+  ownership; the opt-in `velodom/devtools` overlay only observes and groups
+  those reports, while application hooks continue to own retry and fallback UI.
 - [ ] Formalize plugin manifests with compatibility ranges, declared build,
   browser, and Node capabilities, conflict diagnostics, and conformance tests.
   Do not create an official marketplace or execute third-party plugins while

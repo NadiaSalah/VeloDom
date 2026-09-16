@@ -140,7 +140,7 @@ are intentionally not included in the npm tarball.
 | `velodom/node` | Optional Node request adapter |
 | `velodom/assets` | Build-time image inspection helpers |
 | `velodom/pwa` | Opt-in manifest validation and service-worker generation |
-| `velodom/devtools` | Optional local inspector and VeloDom Lab UI |
+| `velodom/devtools` | Optional local inspector, grouped error overlay, and VeloDom Lab UI |
 | `velodom/testing` | DOM-oriented page/component test mounts |
 | `velodom/cli` | Node-only CLI dispatcher used by package binaries |
 | `velodom/scaffolder` | Node-only reusable project creation engine |
@@ -229,6 +229,22 @@ manifest and—only when `serviceWorker` is explicitly configured—a generated
 worker, offline fallback, and external registration module. Cache rules use a
 small declarative matcher/strategy allowlist; application request/auth data is
 never cached implicitly. Use `--pwa` during creation or `vd add pwa` later.
+
+Runtime failures expose a stable `VeloDomErrorReport` to an application
+`errorBoundary`. It contains an error ID, subsystem group, normalized bounded
+source frames, and application ownership such as page/component/request.
+Recovery stays application-owned. For a custom development host only, mount an
+observational overlay explicitly:
+
+```js
+import { mountVeloDomErrorOverlay } from "velodom/devtools";
+
+const errors = mountVeloDomErrorOverlay({ limit: 25 });
+// errors.clear(); errors.destroy();
+```
+
+The overlay is not mounted by normal runtime imports, retains no network
+payloads, and provides no retry or state-mutation controls.
 
 Choose `--lab` during scripted project creation or select it in Customize mode
 to add `npm run lab`. The command starts the existing Vite server with an

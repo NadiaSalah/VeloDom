@@ -9,6 +9,7 @@
  */
 
 import { createPageRouter } from "./page-router.ts";
+import { VD_ERROR } from "./constants.ts";
 import { reportUserActionError } from "./errors/error-reporter.ts";
 import { configureRequestRuntime } from "./requests/request-router.ts";
 import { createPluginManager } from "./plugins.ts";
@@ -70,6 +71,8 @@ function registerGlobalErrorHandlers() {
 
   window.addEventListener("error", (event) => {
     reportUserActionError(event?.error || event, {
+      code: VD_ERROR.CODES.RUNTIME,
+      group: "runtime",
       title: "Unexpected Runtime Error",
       hint: "Inspect the stack location and fix the failing expression or handler.",
       fatal: true
@@ -80,6 +83,8 @@ function registerGlobalErrorHandlers() {
     event.preventDefault();
 
     reportUserActionError(event?.reason || event, {
+      code: VD_ERROR.CODES.RUNTIME,
+      group: "runtime",
       title: "Unhandled Promise Rejection",
       hint: "Await promises in handlers and add try/catch around async logic.",
       fatal: true

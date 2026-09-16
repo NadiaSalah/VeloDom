@@ -321,6 +321,33 @@ export const VD_ERROR_BOUNDARY = Object.freeze({
   ATTRIBUTE: "data-vd-error-boundary"
 });
 
+/** Stable runtime diagnostic identities and opt-in overlay limits. */
+export const VD_ERROR = Object.freeze({
+  DEFAULT_CODE: "VD_RUNTIME_ERROR",
+  DEFAULT_GROUP: "runtime",
+  MAX_SOURCE_FRAMES: 8,
+  OVERLAY_ATTRIBUTE: "data-vd-error-overlay",
+  OVERLAY_LIMIT: 50,
+  GROUPS: Object.freeze([
+    "compiler",
+    "router",
+    "request",
+    "component",
+    "runtime"
+  ]),
+  CODES: Object.freeze({
+    BOUNDARY_CRASH: "VD_RUNTIME_BOUNDARY_CRASH",
+    COMPONENT_CRASH: "VD_COMPONENT_CRASH",
+    COMPONENT_RECURSION: "VD_COMPONENT_RECURSION",
+    EXPRESSION: "VD_RUNTIME_EXPRESSION",
+    NAVIGATION_CRASH: "VD_ROUTER_NAVIGATION_CRASH",
+    NAVIGATION_PATH: "VD_ROUTER_NAVIGATION_PATH",
+    REQUEST_CONFIG: "VD_REQUEST_CONFIG",
+    REQUEST_FAILED: "VD_REQUEST_FAILED",
+    RUNTIME: "VD_RUNTIME_ERROR"
+  })
+});
+
 /** Request event names, stages, and public error codes. */
 export const VD_REQUEST = Object.freeze({
   DEBOUNCE_KEYS: Object.freeze([

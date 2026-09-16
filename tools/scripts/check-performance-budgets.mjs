@@ -8,13 +8,17 @@ import path from "node:path";
 import { gzipSync } from "node:zlib";
 
 const workspaceRoot = process.cwd();
-const distAssetsRoot = path.join(
+const distRoot = path.join(
   workspaceRoot,
   "examples",
   "velodom-blog",
-  "dist",
+  "dist"
+);
+const distAssetsRoot = path.join(
+  distRoot,
   "assets"
 );
+const distMetadataFile = path.join(distRoot, "velodom-build-meta.json");
 const packageLibRoot = path.join(
   workspaceRoot,
   "packages",
@@ -22,7 +26,8 @@ const packageLibRoot = path.join(
   "lib"
 );
 const budgets = Object.freeze({
-  distTotalJsBytes: 220 * 1024,
+  distInitialJsBytes: 130 * 1024,
+  distTotalJsBytes: 256 * 1024,
   distLargestJsChunkBytes: 120 * 1024,
   distLargestJsChunkGzipBytes: 45 * 1024,
   packageTotalJsBytes: 450 * 1024,
@@ -58,6 +63,7 @@ const packageFiles = existsSync(packageLibRoot)
   : [];
 
 const distStats = await readStats(distFiles);
+const distInitialStats = await readInitialDistStats(distStats);
 const distCssFiles = existsSync(distAssetsRoot)
   ? await collectFiles(distAssetsRoot, file => file.endsWith(".css"))
   : [];
@@ -70,6 +76,11 @@ const packageRuntimeStats = packageStats.filter(item => (
 await assertDevelopmentToolsAbsent(distFiles);
 await assertSingleFilePageIsLazy(distFiles);
 
+checkBudget(
+  "dist initial JavaScript",
+  sumBytes(distInitialStats),
+  budgets.distInitialJsBytes
+);
 checkBudget(
   "dist total JavaScript",
   sumBytes(distStats),
@@ -147,6 +158,39 @@ async function readStats(files) {
       gzipBytes: gzipSync(await readFile(file)).length
     };
   }));
+}
+
+/** Resolves the entry chunk and its static imports from VeloDom build metadata. */
+async function readInitialDistStats(stats) {
+  if (!existsSync(distMetadataFile)) return stats;
+
+  try {
+    const metadata = JSON.parse(await readFile(distMetadataFile, "utf8"));
+    const chunks = Array.isArray(metadata?.chunks) ? metadata.chunks : [];
+    const byFile = new Map(chunks.map(chunk => [chunk.fileName, chunk]));
+    const initialFiles = new Set();
+    const visit = fileName => {
+      if (initialFiles.has(fileName)) return;
+      initialFiles.add(fileName);
+      const chunk = byFile.get(fileName);
+
+      if (!chunk || !Array.isArray(chunk.imports)) return;
+      chunk.imports.forEach(visit);
+    };
+
+    chunks.filter(chunk => chunk.isEntry === true).forEach(chunk => {
+      visit(chunk.fileName);
+    });
+
+    if (initialFiles.size === 0) return stats;
+
+    return stats.filter(item => initialFiles.has(
+      path.relative(distRoot, item.file).replaceAll("\\", "/")
+    ));
+  } catch {
+    // An unreadable report must not make the budget silently less strict.
+    return stats;
+  }
 }
 
 function checkBudget(name, actual, limit) {

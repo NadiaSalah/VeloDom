@@ -262,9 +262,56 @@ export type ErrorBoundaryFallback =
   | undefined
   | false;
 
+/** Subsystem that owns one structured runtime or compiler diagnostic. */
+export type ErrorDiagnosticGroup =
+  | "compiler"
+  | "router"
+  | "request"
+  | "component"
+  | "runtime";
+
+/** One application/framework ownership level associated with an error. */
+export interface ErrorOwnershipFrame {
+  file?: string;
+  kind: "application" | "page" | "layout" | "component" | "directive" | "request" | "middleware" | "auth";
+  name: string;
+}
+
+/** One normalized source frame retained from an error stack. */
+export interface ErrorSourceFrame {
+  column: number;
+  file: string;
+  functionName?: string;
+  internal: boolean;
+  line: number;
+}
+
+/** Stable structured report emitted by VeloDom runtime error boundaries. */
+export interface VeloDomErrorReport {
+  code: string;
+  directive?: string;
+  element?: string;
+  expression?: string;
+  formatted: string;
+  group: ErrorDiagnosticGroup;
+  hint?: string;
+  location: {
+    file: string;
+    line: number;
+    column: number;
+  };
+  message: string;
+  rawMessage: string;
+  ownership: ErrorOwnershipFrame[];
+  severity: "error" | "warning";
+  sourceStack: ErrorSourceFrame[];
+  title: string;
+}
+
 /** Context supplied when VeloDom offers an application recoverable fallback. */
 export interface ErrorBoundaryContext {
   error: unknown;
+  diagnostic: VeloDomErrorReport;
   title: string;
   message: string;
   location: {

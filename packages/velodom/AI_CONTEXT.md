@@ -226,6 +226,10 @@ visibility are never server authorization.
   evidence; there is no localization directive or required global store.
 - `vd lab` is an optional local Vite inspector. It is read-only,
   development-only, and never required to run or build an application.
+- Error boundaries receive `diagnostic` with stable `code`, `group`,
+  `sourceStack`, and `ownership`. Keep fallback/retry UI application-owned.
+  `mountVeloDomErrorOverlay` from `velodom/devtools` is an explicit
+  development-only observer, not a production default or recovery mechanism.
 - Use `vd inspect css` and `vd inspect assets` for static build evidence about
   route style ownership, repeated rules, logical properties, local asset
   usage, dimensions, variants, and possible LCP candidates. Treat unused and

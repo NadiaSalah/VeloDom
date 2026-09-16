@@ -99,6 +99,11 @@ or claim that a matching package is available from a registry.
   external registration asset, plus reversible `--pwa`/`vd add pwa`
   scaffolding. Projects that do not enable it receive no service worker or
   registration runtime.
+- Structured runtime diagnostics with stable error IDs, bounded normalized
+  source frames, compiler/router/request/component/runtime grouping, and
+  hierarchical application ownership. Recoverable error hooks receive the
+  structured report, while the opt-in `velodom/devtools` overlay observes and
+  groups reports without taking over application fallback or retry behavior.
 - An enforced first TypeScript `strict` slice for stable/shared contracts and
   low-dependency Core utilities, wired into normal checks and package builds.
 
@@ -188,7 +193,7 @@ or claim that a matching package is available from a registry.
 ### Documentation
 
 - Synchronized the academic showcase with the source-derived V1 contract: 14
-  package exports, 77 public values, 43 preferred directives, and 25 CLI
+  package exports, 79 public values, 43 preferred directives, and 25 CLI
   commands, including every supported package entry point.
 - Added named-function JSDoc coverage across all framework TypeScript modules
   and made the documentation gate reject undocumented function declarations.

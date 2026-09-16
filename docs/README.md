@@ -202,7 +202,7 @@ marketing list.
 | `velodom/assets` | `inspectImageAsset`, `inspectImageDirectory`, `createResponsiveImageAttributes` |
 | `velodom/pwa` | `definePwaManifest`, `inspectPwaManifest`, `definePwaCacheStrategies`, `createPwaServiceWorker`, `createPwaRegistrationScript`, `velodomPwa` |
 | `velodom/node` | `createNodeRequestAdapter` |
-| `velodom/devtools` | `mountDevtoolsInspector`, `mountVeloDomLab`, `VELODOM_DEVTOOLS_PROTOCOL_VERSION` |
+| `velodom/devtools` | `mountDevtoolsInspector`, `mountVeloDomLab`, `mountVeloDomErrorOverlay`, `groupVeloDomErrorReports`, `VELODOM_DEVTOOLS_PROTOCOL_VERSION` |
 | `velodom/vite` | `createViteAdapter`, `createViteApp`, `mountVeloDom` |
 | `velodom/vite-plugin` | `createTemplateModule`, `velodom` |
 | `velodom/testing` | compiler/route/request/event/a11y fixtures plus page/component mounts |
@@ -452,7 +452,7 @@ What the main checks do:
 | `npm run pack:check` | Runs package checks and inspects the npm tarball dry-run contents. |
 | `npm run benchmark:rendering` | Runs local happy-dom page-binding and loop-rendering benchmarks. |
 | `npm run benchmark:compiler` | Reports cold template compilation, warm incremental-cache reuse, and one explicitly invalidated rebuild. Timings are diagnostic rather than a machine-specific release threshold. |
-| `npm run performance:check` | Enforces JavaScript size budgets for generated chunks and browser-runtime package modules after build artifacts exist; Node/build-only PWA, CLI, scaffolder, testing, and devtools modules are excluded. Set `VELODOM_CSS_BUDGET_KB` to optionally enforce a project-owned total CSS budget too. |
+| `npm run performance:check` | Enforces separate initial-entry, total lazy-route, largest-chunk, and browser-runtime package JavaScript budgets after build artifacts exist; Node/build-only PWA, CLI, scaffolder, testing, and devtools modules are excluded. Set `VELODOM_CSS_BUDGET_KB` to optionally enforce a project-owned total CSS budget too. |
 | `npm run test:browser` | Builds the showcase and runs the Playwright browser matrix. Chromium/Chrome/Edge is required; Firefox, WebKit, and mobile WebKit run when installed. |
 | `npm run build` | Runs all quality/package gates, builds the showcase, then checks performance budgets. |
 
@@ -4055,6 +4055,31 @@ explicitly import `mountDevtoolsInspector` from `velodom/devtools`. It renders a
 small read-only inspector and fails if the bridge is absent, so it cannot add a
 hidden production panel.
 
+Runtime reports use stable `VD_*` IDs and one of five owner groups:
+`compiler`, `router`, `request`, `component`, or `runtime`. Page/component/
+request failures attach a bounded ownership trail and normalized source stack.
+The application error-boundary callback receives this record as
+`context.diagnostic` and remains responsible for fallback, retry, navigation,
+and user-facing recovery.
+
+Custom development hosts may explicitly observe those reports without taking
+over recovery:
+
+```js
+import {
+  groupVeloDomErrorReports,
+  mountVeloDomErrorOverlay
+} from "velodom/devtools";
+
+const overlay = mountVeloDomErrorOverlay({ limit: 25 });
+const grouped = groupVeloDomErrorReports(overlay.reports);
+// overlay.clear(); overlay.destroy();
+```
+
+The reporter stores no history. Only the explicitly mounted overlay keeps a
+bounded local list, and the normal `velodom` import neither mounts nor styles
+it. The overlay has no state mutation, retry, or recovery controls.
+
 Plugins set up in registration order and clean up in reverse order. Future
 devtools should remain optional plugins rather than mandatory runtime behavior.
 
@@ -4826,6 +4851,8 @@ cookies, and ICU parsing remain application or adapter concerns.
 
 - `mountDevtoolsInspector`
 - `mountVeloDomLab`
+- `mountVeloDomErrorOverlay`
+- `groupVeloDomErrorReports`
 - `VELODOM_DEVTOOLS_PROTOCOL_VERSION`
 
 ### `velodom/vite-plugin`

@@ -49,7 +49,8 @@ before use.
 | Shared state | State | Supported | `createSharedState` | page-local state | public helper | Yes |
 | Computed/effect/watch | State | Supported | functions from `velodom` | direct state | public helpers | Yes |
 | Plugin system | Extension | Stable | `definePlugin` / `createPluginManager` | function plugin | public APIs | Yes |
-| Error boundary hook | Resilience | Stable | app error handler | built-in error UI | public types | Yes |
+| Structured error diagnosis | Resilience | Stable | app error handler, optional `velodom/devtools` overlay | stable IDs, grouped bounded source stacks, hierarchical ownership | public types + devtools helper | Yes |
+| Error boundary hook | Resilience | Stable | app error handler | application-owned fallback/retry UI | public types | Yes |
 | SEO metadata | Build | Stable | page `seo` config | dynamic entries | Vite plugin | Yes |
 | Static SEO route output | Build | Stable | SEO entries/prerender | summary shell | Vite plugin | Yes |
 | Sitemap/robots output | Build | Stable | SEO build config | custom hosting files | Vite plugin | Yes |
@@ -62,7 +63,7 @@ before use.
 | Asset inspection | Build | Supported | `velodom/assets`, `vd inspect assets` | metadata helpers plus duplicate/usage/dimension/responsive/LCP advice | public helpers + package binary | Yes |
 | CSS build intelligence | DX | Supported | `vd inspect css` | route attribution, repeated declarations, possible unused selectors, logical-property advice | package binary | Yes |
 | Optional PWA build | Build | Supported | `velodom/pwa`, `--pwa`, `vd add pwa` | static manifest validation, bounded cache policies, explicit offline fallback/registration | public build API + scaffolder | Yes |
-| Devtools inspector | DX | Supported | `velodom/devtools` | CLI inspection | public helper | Yes |
+| Devtools inspector | DX | Supported | `velodom/devtools` | read-only inspector and grouped error overlay | public helper | Yes |
 | VeloDom Lab | DX | Experimental | `vd lab`, optional `--lab` starter choice | ownership tree, state diffs, request waterfall, route timeline, source diagnostics | `velodom/devtools`, Vite plugin | Yes |
 | Deterministic explain | DX | Supported | `vd explain <file|topic|diagnostic-code>` | compiler analysis and stable diagnostic catalog | package binary | Yes |
 | Testing helpers | Testing | Stable | `velodom/testing` | compiler/route/request/event/a11y fixtures plus page/component mounts | public helpers | Yes |

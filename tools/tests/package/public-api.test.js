@@ -78,6 +78,9 @@ test("runtime public type exports are frozen for application authors", () => {
     "ErrorBoundaryContext",
     "ErrorBoundaryFallback",
     "ErrorBoundaryHook",
+    "ErrorDiagnosticGroup",
+    "ErrorOwnershipFrame",
+    "ErrorSourceFrame",
     "LifecycleContext",
     "NavigationGuard",
     "PageConfig",
@@ -126,6 +129,7 @@ test("runtime public type exports are frozen for application authors", () => {
     "StateRecord",
     "UnknownRecord",
     "ValidationPluginOptions",
+    "VeloDomErrorReport",
     "VeloDomApp",
     "VeloDomAppOptions",
     "VeloDomPlugin",
@@ -285,7 +289,9 @@ test("PWA integration remains an explicit opt-in build subpath", () => {
 test("optional devtools inspector remains an explicit subpath", () => {
   assert.deepEqual(Object.keys(devtoolsApi).sort(), [
     "VELODOM_DEVTOOLS_PROTOCOL_VERSION",
+    "groupVeloDomErrorReports",
     "mountDevtoolsInspector",
+    "mountVeloDomErrorOverlay",
     "mountVeloDomLab"
   ]);
   assert.deepEqual(readInterfaceExportNames(devtoolsEntrySource), [

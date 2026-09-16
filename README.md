@@ -132,7 +132,7 @@ docs/
 ## Current Status
 
 The package source is version `1.0.0`. Its public contract exposes 14 package
-entry points, 77 browser/build public values, 43 preferred directive names,
+entry points, 79 browser/build public values, 43 preferred directive names,
 and 25 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
 the automated test suite, production builds, package boundaries, an installed
 tarball consumer, the generated starter, and browser targets.
@@ -146,6 +146,12 @@ release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
+- Added stable runtime error IDs, compiler/router/request/component/runtime
+  grouping, bounded normalized source stacks, and page/component ownership
+  trails. Error boundaries now receive the structured diagnostic while keeping
+  recovery UI application-owned; an explicitly imported development overlay
+  from `velodom/devtools` can observe and group reports without entering normal
+  application bundles.
 - Added one Node-only Project Index for CLI intelligence. It caches discovered
   template, script, config, and compiler data once per command; `doctor`,
   generated types/docs, graph, health, security, and build reports now reuse

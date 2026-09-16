@@ -10,6 +10,7 @@
 
 import {
   VD,
+  VD_ERROR,
   VD_INTERNAL,
   VD_REQUEST
 } from "../constants.ts";
@@ -600,6 +601,8 @@ async function runRequestDirective(
     }
 
     const reported = reportUserActionError(err, {
+      code: VD_ERROR.CODES.REQUEST_FAILED,
+      group: "request",
       title: getRequestErrorTitle(err),
       directive: VD.REQUEST,
       expression: routeName,
@@ -610,7 +613,15 @@ async function runRequestDirective(
         err,
         "__vdHint",
         "Verify the route config, auth mode, application middleware, and request params."
-      )
+      ),
+      ownership: [
+        { kind: "request", name: routeName },
+        ...(stage === VD_REQUEST.STAGES.AUTH
+          ? [{ kind: "auth" as const, name: stage }]
+          : stage === VD_REQUEST.STAGES.MIDDLEWARE
+            ? [{ kind: "middleware" as const, name: stage }]
+            : [])
+      ]
     });
 
     devtools?.emit("request:error", {
@@ -1706,13 +1717,18 @@ function reportRequestDirectiveProblem(
   }
 
   const reported = reportUserActionError(problem, {
+    code: VD_ERROR.CODES.REQUEST_CONFIG,
+    group: "request",
     title: options.title || "Invalid Request Configuration",
     directive: options.directive || VD.REQUEST,
     expression: options.expression || routeName,
     file: "velodom/requests/request-router.ts",
     line: options.line || 48,
     el,
-    hint: options.hint || "Check request route, target page, and state bindings."
+    hint: options.hint || "Check request route, target page, and state bindings.",
+    ownership: routeName
+      ? [{ kind: "request", name: routeName }]
+      : [{ kind: "application", name: "request-runtime" }]
   });
 
   state?.emit?.(VD_REQUEST.EVENTS.ERROR, {
