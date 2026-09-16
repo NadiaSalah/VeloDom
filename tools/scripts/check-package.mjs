@@ -53,6 +53,10 @@ const expectedExports = {
     "./lib/assets.js",
     "./types/assets.d.ts"
   ],
+  "./pwa": [
+    "./lib/pwa.js",
+    "./types/pwa.d.ts"
+  ],
   "./devtools": [
     "./lib/devtools.js",
     "./types/devtools.d.ts"

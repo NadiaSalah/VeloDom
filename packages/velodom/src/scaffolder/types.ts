@@ -33,6 +33,7 @@ export interface ScaffoldPlan {
   language: ScaffoldLanguage;
   packageManager: ScaffoldPackageManager;
   prettier: boolean;
+  pwa: boolean;
   projectName: string;
   router: boolean;
   start: boolean;

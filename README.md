@@ -99,7 +99,7 @@ vd create my-app
 
 Choose Minimal, Blog, or Empty, then use Recommended defaults or customize
 JavaScript/TypeScript, CSS/Tailwind, ESLint, Prettier, route examples, i18n,
-testing, Git, installation, and server startup. Every entry point delegates to
+the opt-in PWA build, testing, Git, installation, and server startup. Every entry point delegates to
 one Node-only scaffolder; no creation code enters the browser runtime.
 Customize mode can also add the optional local VeloDom Lab command without
 adding a separate dependency or changing production output.
@@ -131,8 +131,8 @@ docs/
 
 ## Current Status
 
-The package source is version `1.0.0`. Its public contract exposes 13 package
-entry points, 71 browser/build public values, 43 preferred directive names,
+The package source is version `1.0.0`. Its public contract exposes 14 package
+entry points, 77 browser/build public values, 43 preferred directive names,
 and 25 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
 the automated test suite, production builds, package boundaries, an installed
 tarball consumer, the generated starter, and browser targets.
@@ -175,7 +175,7 @@ release commit is verified, approved, tagged, and published deliberately.
   Vite plugin. Reports now attribute initial, route, component, shared, and lazy
   feature chunks from Rollup module metadata and measure duplicated dependency
   bytes only when Rollup can prove them; missing metadata is reported plainly.
-- Added idempotent `vd add i18n|tests|lab` for existing applications. It
+- Added idempotent `vd add i18n|pwa|tests|lab` for existing applications. It
   preflights conflicts, never overwrites user files, records generated hashes
   and controlled config changes in `.velodom/features.json`, and leaves package
   installation explicit.
@@ -205,6 +205,11 @@ release commit is verified, approved, tagged, and published deliberately.
   properties, intrinsic image dimensions, local asset size/hash usage,
   responsive variants, and possible LCP hints. All findings remain advisory
   and no image transformer or browser runtime was added.
+- Added the explicit `velodom/pwa` build subpath. It validates an
+  application-owned manifest and bounded cache policies, emits an offline
+  fallback and external registration module only when enabled, and is
+  available through `--pwa` or `vd add pwa`; normal VeloDom imports never
+  register a service worker.
 - Completed the monotonic TypeScript `strict` migration. The final CLI,
   project-intelligence, and scaffolder slice was hardened, then the gate was
   extended to all 88 package source files through `src/**/*.ts` so future

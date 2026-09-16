@@ -7,6 +7,7 @@
     <a class="docs-sidebar-link" href="/reference#content" vd-nav>Content</a>
     <a class="docs-sidebar-link" href="/reference#localization" vd-nav>Localization</a>
     <a class="docs-sidebar-link" href="/reference#assets" vd-nav>Assets</a>
+    <a class="docs-sidebar-link" href="/reference#pwa" vd-nav>PWA</a>
     <a class="docs-sidebar-link" href="/reference#integrations" vd-nav>Integrations</a>
     <a class="docs-sidebar-link" href="/reference#syntax" vd-nav>Syntax index</a>
     <a class="docs-sidebar-link" href="/reference#cli" vd-nav>CLI</a>
@@ -23,8 +24,8 @@
         source tree.
       </p>
       <div class="mt-7 flex flex-wrap gap-2">
-        <span class="badge badge-primary badge-outline">71 public values</span>
-        <span class="badge badge-primary badge-outline">13 package exports</span>
+        <span class="badge badge-primary badge-outline">77 public values</span>
+        <span class="badge badge-primary badge-outline">14 package exports</span>
         <span class="badge badge-primary badge-outline">43 preferred directives</span>
         <span class="badge badge-primary badge-outline">25 CLI commands</span>
       </div>
@@ -44,6 +45,7 @@
             <tr><td class="p-4"><code>velodom/content</code></td><td class="p-4">Markdown, indexes, SEO, sitemap, RSS</td><td class="p-4">Node/build</td></tr>
             <tr><td class="p-4"><code>velodom/localization</code></td><td class="p-4">Typed dictionaries, locale routes, Intl</td><td class="p-4">Build or app choice</td></tr>
             <tr><td class="p-4"><code>velodom/assets</code></td><td class="p-4">Image inspection and responsive attributes</td><td class="p-4">Node/build</td></tr>
+            <tr><td class="p-4"><code>velodom/pwa</code></td><td class="p-4">Manifest diagnostics and opt-in service-worker generation</td><td class="p-4">Build only</td></tr>
             <tr><td class="p-4"><code>velodom/node</code></td><td class="p-4">Fetch-style application response bridge</td><td class="p-4">Server only</td></tr>
             <tr><td class="p-4"><code>velodom/testing</code></td><td class="p-4">Page and component mount helpers</td><td class="p-4">Tests only</td></tr>
             <tr><td class="p-4"><code>velodom/vite-plugin</code></td><td class="p-4">Compiler integration and runtime manifests</td><td class="p-4">Build only</td></tr>
@@ -210,8 +212,28 @@ const image = createResponsiveImageAttributes({
       <p class="mt-4"><code class="inline-code">inspectImageAsset</code> reads one file; directory inspection reports oversized assets. <code>vd inspect css|assets</code> adds route ownership, duplicate hashes/rules, static usage, intrinsic dimensions, responsive markup, logical-property, and possible LCP advice. VeloDom generates standard attributes and evidence, while the application's chosen image pipeline owns resizing and compression.</p>
     </section>
 
+    <section id="pwa" class="doc-section">
+      <p class="eyebrow">08 · optional PWA build</p>
+      <h2>Offline behavior is explicit build policy, never a runtime surprise.</h2>
+      <div class="code-window">
+        <div class="code-toolbar"><span>vite.config.js</span><span>velodom/pwa</span></div>
+        <pre class="code-example" vd-pre><code>import { defineConfig } from "vite";
+import { velodomPwa } from "velodom/pwa";
+import { pwaManifest, pwaServiceWorker } from "./src/pwa.js";
+
+export default defineConfig({
+  plugins: [velodomPwa({
+    manifest: pwaManifest,
+    serviceWorker: pwaServiceWorker
+  })]
+});</code></pre>
+      </div>
+      <p class="mt-4"><code>definePwaManifest</code> validates installability fields. <code>definePwaCacheStrategies</code> accepts only bounded same-origin matchers and known cache algorithms. Supplying only a manifest emits no service worker or registration script; use <code>--pwa</code> or <code>vd add pwa</code> to create a complete reviewable application-owned policy.</p>
+      <div class="callout"><strong>Security default:</strong> navigation is network-only and authenticated/API responses are never cached implicitly. The generated worker exists only in an opted-in production build.</div>
+    </section>
+
     <section id="integrations" class="doc-section">
-      <p class="eyebrow">08 · explicit integrations</p>
+      <p class="eyebrow">09 · explicit integrations</p>
       <h2>Vite is convenient; Node, devtools, and testing remain optional.</h2>
       <div class="grid gap-5 lg:grid-cols-2">
         <div class="code-window">
@@ -261,7 +283,7 @@ await mounted.cleanup();</code></pre>
     </section>
 
     <section id="syntax" class="doc-section">
-      <p class="eyebrow">09 · template syntax index</p>
+      <p class="eyebrow">10 · template syntax index</p>
       <h2>The preferred vocabulary stays close to HTML.</h2>
       <div class="mt-6 grid gap-4 md:grid-cols-2">
         <div class="rounded-2xl border border-slate-200 bg-white p-5"><h3>Content and flow</h3><p class="mt-2 text-sm leading-7"><code>vd-text</code>, <code>vd-if</code>, <code>vd-elseif</code>, <code>vd-else</code>, <code>vd-show</code>, <code>vd-for</code>, <code>vd-key</code>, <code>vd-pre</code></p></div>
@@ -273,7 +295,7 @@ await mounted.cleanup();</code></pre>
     </section>
 
     <section id="cli" class="doc-section">
-      <p class="eyebrow">10 · project intelligence</p>
+      <p class="eyebrow">11 · project intelligence</p>
       <h2>Static tooling lives outside application runtime.</h2>
       <div class="code-window">
         <div class="code-toolbar"><span>terminal</span><span>vd CLI</span></div>
@@ -296,6 +318,7 @@ vd build-report --json
 vd docs
 vd types
 vd add i18n            # safe existing-project feature install
+vd add pwa             # explicit manifest/offline build policy
 vd features            # verify ownership and reversibility
 vd remove tests        # only unchanged generated files
 vd upgrade all         # current generators with rollback
@@ -307,7 +330,7 @@ vd init my-site
 vd create page account --ts
 vd version</code></pre>
       </div>
-      <p class="mt-4">Inspection detects invalid directives, dead references, unused resources, cycles, large templates, SEO gaps, accessibility signals, and bundle opportunities without adding AI or browser runtime weight. Focused CSS and asset views add static route ownership, duplicate content, dimensions, responsive markup, and possible LCP evidence while keeping dynamic findings advisory. <code>vd types</code> derives route params, request names, and statically provable component props while leaving unknown values honest. After a production build, <code>vd build-report</code> uses Rollup metadata to distinguish initial, route, component, shared, and lazy-feature chunks without guessing from minified code. <code>vd add i18n|tests|lab</code> adds an existing optional capability safely and records its generated files. <code>vd features/remove/upgrade</code> honors those hashes, while data-only presets share reviewed choices. <code>vd test</code> delegates to real application package scripts; <code>vd i18n extract|check</code> verifies statically quoted localization usage without executing app modules. Scaffolding writes visible conventional files and never requires a central registry.</p>
+      <p class="mt-4">Inspection detects invalid directives, dead references, unused resources, cycles, large templates, SEO gaps, accessibility signals, and bundle opportunities without adding AI or browser runtime weight. Focused CSS and asset views add static route ownership, duplicate content, dimensions, responsive markup, and possible LCP evidence while keeping dynamic findings advisory. <code>vd types</code> derives route params, request names, and statically provable component props while leaving unknown values honest. After a production build, <code>vd build-report</code> uses Rollup metadata to distinguish initial, route, component, shared, and lazy-feature chunks without guessing from minified code. <code>vd add i18n|pwa|tests|lab</code> adds an existing optional capability safely and records its generated files. <code>vd features/remove/upgrade</code> honors those hashes, while data-only presets share reviewed choices. <code>vd test</code> delegates to real application package scripts; <code>vd i18n extract|check</code> verifies statically quoted localization usage without executing app modules. Scaffolding writes visible conventional files and never requires a central registry.</p>
       <div class="mt-7 flex flex-wrap gap-3">
         <a href="/features" vd-nav class="btn btn-primary rounded-xl">Read guided lessons</a>
         <a href="/single-file" vd-nav class="btn btn-outline rounded-xl">Open the .vd example</a>

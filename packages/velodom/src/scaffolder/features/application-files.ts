@@ -13,6 +13,7 @@ import { dirname, extname, join } from "node:path";
 import type { ScaffoldPlan } from "../types.ts";
 import {
   createLocalizationFeatureFiles,
+  createPwaFeatureFiles,
   createTestingFeatureFiles
 } from "./optional-files.ts";
 
@@ -27,7 +28,16 @@ export async function installApplicationFeatures(plan: ScaffoldPlan) {
 
   if (plan.router) await writeRouterExample(plan);
   if (plan.i18n) await writeLocalizationExample(plan);
+  if (plan.pwa) await writePwaFiles(plan);
   if (plan.testing !== "none") await writeTests(plan);
+}
+
+/** Writes the optional PWA policy, fallback, and application-owned icon. */
+async function writePwaFiles(plan: ScaffoldPlan) {
+  await writeGeneratedFiles(
+    plan.destination,
+    createPwaFeatureFiles(plan.language)
+  );
 }
 
 /** Writes the main entry. */

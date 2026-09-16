@@ -5,7 +5,7 @@
  *
  * Responsibilities:
  * - Verify optional CSS build-budget behavior.
- * - Exclude Node-only scaffolder code from browser runtime budgets.
+ * - Exclude Node/build-only scaffolder and PWA code from browser budgets.
  * - Keep the default design-system-neutral path unblocked.
  * ----------------------------------------
  */
@@ -68,6 +68,10 @@ async function createBuildFixture(root) {
   await writeFile(join(assets, "app.js"), "export {};\n");
   await writeFile(join(assets, "app.css"), "a".repeat(2 * 1024));
   await writeFile(join(packageLib, "index.js"), "export {};\n");
+  await writeFile(
+    join(packageLib, "pwa.js"),
+    `// Build-only fixture\n${"a".repeat(500 * 1024)}`
+  );
   await writeFile(
     join(scaffolderLib, "index.js"),
     `// Node-only fixture\n${"a".repeat(500 * 1024)}`

@@ -211,11 +211,14 @@ try {
     {
       args: [
         "--template", "blog", "--typescript", "--tailwind", "--i18n",
-        "--test-all"
+        "--pwa", "--test-all"
       ],
       expectedFiles: [
         "src/i18n.ts",
+        "src/pwa.ts",
         "src/pages/localization/index.html",
+        "public/offline.html",
+        "public/velodom-pwa-icon.svg",
         "tests/e2e/home.spec.ts",
         "tests/unit/project.test.js",
         "playwright.config.js"
@@ -285,6 +288,16 @@ try {
       cwd: starterRoot
     });
     await access(join(starterRoot, "dist", "index.html"));
+    if (starterCase.args.includes("--pwa")) {
+      for (const file of [
+        "manifest.webmanifest",
+        "offline.html",
+        "velodom-pwa-register.js",
+        "velodom-sw.js"
+      ]) {
+        await access(join(starterRoot, "dist", file));
+      }
+    }
   }
 
   console.log(

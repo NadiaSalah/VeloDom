@@ -5,9 +5,9 @@
  */
 
 export const homeMetrics = [
-  { label: "Public values", value: "71" },
+  { label: "Public values", value: "77" },
   { label: "Directives", value: "43" },
-  { label: "Package exports", value: "13" },
+  { label: "Package exports", value: "14" },
   { label: "CLI commands", value: "25" }
 ];
 
@@ -40,6 +40,7 @@ export const learningPath = [
   { level: "International", duration: "11 min", title: "RTL and direction", description: "Set language direction through an optional plugin and author layouts with logical CSS.", href: "/features#rtl" },
   { level: "Performance", duration: "9 min", title: "Assets and lazy loading", description: "Use native loading, explicit responsive variants, and build-only CSS/asset inspection.", href: "/features#assets" },
   { level: "Production", duration: "14 min", title: "SEO and content", description: "Generate route metadata, static content, sitemaps, content records, and locale-aware URLs.", href: "/features#production" },
+  { level: "Offline", duration: "10 min", title: "Optional PWA build", description: "Validate a manifest and opt into reviewable offline/cache policy without changing the normal runtime.", href: "/features#pwa" },
   { level: "Tooling", duration: "12 min", title: "CLI and verification", description: "Inspect projects, generate types, test components, and keep package boundaries explicit.", href: "/features#tooling" },
   { level: "Lab", duration: "10 min", title: "Optional visual inspection", description: "Inspect mounted routes, components, state, bindings, events, requests, and compiler metadata locally.", href: "/features#lab" },
   { level: "Quality", duration: "12 min", title: "Data, recovery, and safety", description: "Load public route data, create recoverable boundaries, prefetch deliberately, and act on compiler diagnostics.", href: "/features#quality" },

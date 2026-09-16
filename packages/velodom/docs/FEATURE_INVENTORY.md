@@ -61,6 +61,7 @@ before use.
 | Hydration | Server | Partial | explicit static-content policy | client takeover | SEO renderer | Boundary tested |
 | Asset inspection | Build | Supported | `velodom/assets`, `vd inspect assets` | metadata helpers plus duplicate/usage/dimension/responsive/LCP advice | public helpers + package binary | Yes |
 | CSS build intelligence | DX | Supported | `vd inspect css` | route attribution, repeated declarations, possible unused selectors, logical-property advice | package binary | Yes |
+| Optional PWA build | Build | Supported | `velodom/pwa`, `--pwa`, `vd add pwa` | static manifest validation, bounded cache policies, explicit offline fallback/registration | public build API + scaffolder | Yes |
 | Devtools inspector | DX | Supported | `velodom/devtools` | CLI inspection | public helper | Yes |
 | VeloDom Lab | DX | Experimental | `vd lab`, optional `--lab` starter choice | ownership tree, state diffs, request waterfall, route timeline, source diagnostics | `velodom/devtools`, Vite plugin | Yes |
 | Deterministic explain | DX | Supported | `vd explain <file|topic|diagnostic-code>` | compiler analysis and stable diagnostic catalog | package binary | Yes |

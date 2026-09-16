@@ -107,6 +107,13 @@ Before changing installed optional features, run `vd features`. Use
 refusal. `vd upgrade` is for first-party generated files, while presets are
 data-only feature choices and not general code templates.
 
+Treat PWA support as an explicit build choice. Import it from `velodom/pwa`,
+keep the manifest, offline page, and cache policy application-owned, and never
+add a service worker to an unrequested project. Prefer network-only navigation
+and same-origin asset caching; do not cache API/auth responses without a
+reviewed application policy. Use `--pwa` or `vd add pwa` for the supported
+starter shape.
+
 Treat advanced doctor checks as proof-driven. Declare component props through a
 `ComponentInitContext<Props>` interface/type when exact prop diagnostics are
 valuable; VeloDom deliberately skips dynamic `vd-props` and control-flow guesses.

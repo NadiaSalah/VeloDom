@@ -93,6 +93,11 @@
       "import": "./lib/assets.js",
       "default": "./lib/assets.js"
     },
+    "./pwa": {
+      "types": "./types/pwa.d.ts",
+      "import": "./lib/pwa.js",
+      "default": "./lib/pwa.js"
+    },
     "./devtools": {
       "types": "./types/devtools.d.ts",
       "import": "./lib/devtools.js",

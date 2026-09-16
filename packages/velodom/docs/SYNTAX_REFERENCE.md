@@ -399,6 +399,12 @@ Additional public functionality is separated into the documented package
 subpaths. See `FEATURE_INVENTORY.md` for exact capability status and
 `README.md` for the supported import map.
 
+The optional build-only `velodom/pwa` subpath provides
+`definePwaManifest`, `inspectPwaManifest`, `definePwaCacheStrategies`,
+`createPwaServiceWorker`, `createPwaRegistrationScript`, and `velodomPwa`.
+This adds no directive or default browser behavior. A worker is emitted and
+registered only when `serviceWorker` is explicitly enabled in the Vite plugin.
+
 Development tooling does not add template syntax. `vd explain` analyzes files,
 framework topics, or stable diagnostic codes; `vd doctor --json` reports a
 category, code, suggestion, and a one-based source location when provable.

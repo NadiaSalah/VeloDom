@@ -12,6 +12,7 @@
     <a class="docs-sidebar-link" href="/features#rtl" vd-nav>RTL and direction</a>
     <a class="docs-sidebar-link" href="/features#assets" vd-nav>Assets and lazy loading</a>
     <a class="docs-sidebar-link" href="/features#production" vd-nav>SEO and production</a>
+    <a class="docs-sidebar-link" href="/features#pwa" vd-nav>Optional PWA</a>
     <a class="docs-sidebar-link" href="/features#tooling" vd-nav>Tooling and testing</a>
     <a class="docs-sidebar-link" href="/features#lab" vd-nav>VeloDom Lab</a>
     <a class="docs-sidebar-link" href="/features#quality" vd-nav>Quality and recovery</a>
@@ -513,8 +514,36 @@ const posts = await loadContentCollection({
       <div class="callout"><strong>Terminology matters:</strong> static SEO HTML and prerender output are not request-time SSR. Client takeover is not hydration. <code>velodom/node</code> adapts Node HTTP to Fetch-style application handlers; it does not render templates or manage sessions automatically.</div>
     </section>
 
+    <section id="pwa" class="doc-section">
+      <p class="eyebrow">13 · optional PWA</p>
+      <h2>Choose offline behavior explicitly at build time.</h2>
+      <p class="mt-3">The normal VeloDom runtime never installs a service worker. Projects that need installability can add a static manifest, application-owned offline page, and bounded cache policy through the separate <code class="inline-code">velodom/pwa</code> entry point.</p>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <div class="code-window">
+          <div class="code-toolbar"><span>terminal</span><span>optional setup</span></div>
+          <pre class="code-example" vd-pre><code>vd add pwa
+
+# Or while creating a project:
+npm create velodom@latest -- --pwa</code></pre>
+        </div>
+        <div class="code-window">
+          <div class="code-toolbar"><span>src/pwa.js</span><span>bounded cache policy</span></div>
+          <pre class="code-example" vd-pre><code>export const pwaServiceWorker = {
+  offlineFallback: "/offline.html",
+  version: "v1",
+  strategies: definePwaCacheStrategies([
+    { cacheName: "pages", match: "navigation", strategy: "network-only" },
+    { cacheName: "assets", match: "same-origin-assets",
+      strategy: "stale-while-revalidate" }
+  ])
+};</code></pre>
+        </div>
+      </div>
+      <div class="callout"><strong>Opt-in means opt-in:</strong> a manifest-only configuration emits no registration module. Authentication and API caching remain application policy, never a hidden framework default.</div>
+    </section>
+
     <section id="tooling" class="doc-section">
-      <p class="eyebrow">13 · developer experience</p>
+      <p class="eyebrow">14 · developer experience</p>
       <h2>Project intelligence is development tooling, not browser weight.</h2>
       <p class="mt-3">
         The <code class="inline-code">vd</code> CLI reads the visible project

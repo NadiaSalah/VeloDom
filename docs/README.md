@@ -200,6 +200,7 @@ marketing list.
 | `velodom/content` | `loadContentCollection`, `loadExternalContentCollection`, `createContentCollection`, `createContentIndex`, `parseMarkdownContent`, `createContentSeoEntries`, `createContentSitemap`, `createContentSearchIndex`, `createContentRssFeed` |
 | `velodom/localization` | `defineLocaleDictionary`, `definePluralMessage`, `createLocalization`, `generateLocaleKeyDeclaration`, `getLocaleKeyCompletions`, `extractLocaleKeyUsage`, `createLocaleFormatter`, `inspectLocalization` |
 | `velodom/assets` | `inspectImageAsset`, `inspectImageDirectory`, `createResponsiveImageAttributes` |
+| `velodom/pwa` | `definePwaManifest`, `inspectPwaManifest`, `definePwaCacheStrategies`, `createPwaServiceWorker`, `createPwaRegistrationScript`, `velodomPwa` |
 | `velodom/node` | `createNodeRequestAdapter` |
 | `velodom/devtools` | `mountDevtoolsInspector`, `mountVeloDomLab`, `VELODOM_DEVTOOLS_PROTOCOL_VERSION` |
 | `velodom/vite` | `createViteAdapter`, `createViteApp`, `mountVeloDom` |
@@ -451,7 +452,7 @@ What the main checks do:
 | `npm run pack:check` | Runs package checks and inspects the npm tarball dry-run contents. |
 | `npm run benchmark:rendering` | Runs local happy-dom page-binding and loop-rendering benchmarks. |
 | `npm run benchmark:compiler` | Reports cold template compilation, warm incremental-cache reuse, and one explicitly invalidated rebuild. Timings are diagnostic rather than a machine-specific release threshold. |
-| `npm run performance:check` | Enforces JavaScript size budgets for generated chunks and package runtime modules after build artifacts exist. Set `VELODOM_CSS_BUDGET_KB` to optionally enforce a project-owned total CSS budget too. |
+| `npm run performance:check` | Enforces JavaScript size budgets for generated chunks and browser-runtime package modules after build artifacts exist; Node/build-only PWA, CLI, scaffolder, testing, and devtools modules are excluded. Set `VELODOM_CSS_BUDGET_KB` to optionally enforce a project-owned total CSS budget too. |
 | `npm run test:browser` | Builds the showcase and runs the Playwright browser matrix. Chromium/Chrome/Edge is required; Firefox, WebKit, and mobile WebKit run when installed. |
 | `npm run build` | Runs all quality/package gates, builds the showcase, then checks performance budgets. |
 
@@ -600,7 +601,7 @@ without executing application code. It is optional: JavaScript
 projects do nothing, while TypeScript projects may import the generated
 `velodom/app` module for `VeloDomPageParamsFor`, `VeloDomRequestRouteName`, and
 `VeloDomComponentPropsFor` without a runtime dependency.
-`vd add i18n|tests|lab` installs only existing first-party optional capabilities
+`vd add i18n|pwa|tests|lab` installs only existing first-party optional capabilities
 into an application. Unit tests are the small default; use `--e2e` or `--all`
 explicitly. The installer preflights generated paths and package/Vite changes,
 refuses conflicts, writes `.velodom/features.json` with created-file hashes,
@@ -4611,6 +4612,7 @@ SEO contracts, application options, and HTTP options.
 | `velodom/localization` | dictionaries, typed keys, `Intl`, locale paths, and locale SEO |
 | `velodom/content` | Markdown collections and external content normalization |
 | `velodom/assets` | Node image inspection and responsive attributes |
+| `velodom/pwa` | opt-in manifest validation and bounded service-worker generation |
 | `velodom/node` | explicit Node HTTP-to-Fetch request bridge |
 | `velodom/devtools` | opt-in inspector, Lab host, and versioned protocol constant |
 | `velodom/testing` | browser-like page/component test mounting |
@@ -4697,6 +4699,69 @@ Possible unused files, responsive variants, and LCP/preload opportunities need
 developer review whenever paths or layout are dynamic. Resizing, compression,
 preload insertion, and file deletion remain application/build-pipeline work.
 
+## Optional PWA Build
+
+PWA support is a separate build-only capability. Importing `velodom`,
+`velodom/vite`, or the normal Vite plugin never registers a service worker.
+Enable it during project creation with `--pwa`, or add it later with
+`vd add pwa`.
+
+```js
+// src/pwa.js
+import {
+  definePwaCacheStrategies,
+  definePwaManifest
+} from "velodom/pwa";
+
+export const pwaManifest = definePwaManifest({
+  name: "My VeloDom App",
+  short_name: "My App",
+  start_url: "/",
+  scope: "/",
+  display: "standalone",
+  theme_color: "#5445ee",
+  background_color: "#f7f8fc",
+  icons: [{ src: "/app-icon.svg", sizes: "any", type: "image/svg+xml" }]
+});
+
+export const pwaServiceWorker = {
+  offlineFallback: "/offline.html",
+  version: "v1",
+  strategies: definePwaCacheStrategies([
+    { cacheName: "pages", match: "navigation", strategy: "network-only" },
+    {
+      cacheName: "assets",
+      match: "same-origin-assets",
+      strategy: "stale-while-revalidate"
+    }
+  ])
+};
+```
+
+```js
+// vite.config.js
+import { defineConfig } from "vite";
+import { velodomPwa } from "velodom/pwa";
+import { velodom } from "velodom/vite-plugin";
+import { pwaManifest, pwaServiceWorker } from "./src/pwa.js";
+
+export default defineConfig({
+  plugins: [
+    velodomPwa({ manifest: pwaManifest, serviceWorker: pwaServiceWorker }),
+    velodom()
+  ]
+});
+```
+
+`definePwaManifest()` returns stable installability diagnostics for names,
+same-origin paths, display mode, scope, and icon sizes.
+`definePwaCacheStrategies()` accepts only known matchers and algorithms; no
+user function is serialized into the worker. A manifest-only configuration
+emits no worker or registration. Supplying `serviceWorker` explicitly emits
+the external worker/registration and declared fallback. Navigation defaults
+to network-only, and application API/auth responses are never cached
+implicitly.
+
 ## Editor Intelligence
 
 `velodom/compiler` includes optional language-service helpers for editor
@@ -4747,6 +4812,15 @@ cookies, and ICU parsing remain application or adapter concerns.
 - `inspectImageAsset`
 - `inspectImageDirectory`
 - `createResponsiveImageAttributes`
+
+### `velodom/pwa`
+
+- `definePwaManifest`
+- `inspectPwaManifest`
+- `definePwaCacheStrategies`
+- `createPwaServiceWorker`
+- `createPwaRegistrationScript`
+- `velodomPwa`
 
 ### `velodom/devtools`
 

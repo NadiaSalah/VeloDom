@@ -7,6 +7,7 @@ import * as devtoolsApi from "../../../packages/velodom/src/devtools.ts";
 import * as contentApi from "../../../packages/velodom/src/content.ts";
 import * as localizationApi from "../../../packages/velodom/src/localization.ts";
 import * as nodeApi from "../../../packages/velodom/src/node.ts";
+import * as pwaApi from "../../../packages/velodom/src/pwa.ts";
 import * as runtimeApi from "../../../packages/velodom/src/index.ts";
 import * as testingApi from "../../../packages/velodom/src/testing.ts";
 import * as vitePluginApi from "../../../packages/velodom/src/vite-plugin/index.ts";
@@ -19,6 +20,7 @@ const compilerEntrySource = await readSource("../../../packages/velodom/src/comp
 const contentEntrySource = await readSource("../../../packages/velodom/src/content.ts");
 const localizationEntrySource = await readSource("../../../packages/velodom/src/localization.ts");
 const nodeEntrySource = await readSource("../../../packages/velodom/src/node.ts");
+const pwaEntrySource = await readSource("../../../packages/velodom/src/pwa.ts");
 const testingEntrySource = await readSource("../../../packages/velodom/src/testing.ts");
 const vitePluginEntrySource = await readSource("../../../packages/velodom/src/vite-plugin/index.ts");
 const manifest = JSON.parse(await readSource("../../../packages/velodom/package.json"));
@@ -255,6 +257,31 @@ test("Node request adapter remains an explicit server-only subpath", () => {
   ]);
 });
 
+test("PWA integration remains an explicit opt-in build subpath", () => {
+  assert.deepEqual(Object.keys(pwaApi).sort(), [
+    "createPwaRegistrationScript",
+    "createPwaServiceWorker",
+    "definePwaCacheStrategies",
+    "definePwaManifest",
+    "inspectPwaManifest",
+    "velodomPwa"
+  ]);
+  assert.deepEqual(readInterfaceExportNames(pwaEntrySource), [
+    "PwaCacheStrategy",
+    "PwaDiagnostic",
+    "PwaManifest",
+    "PwaManifestIcon",
+    "PwaRegistrationOptions",
+    "PwaServiceWorkerBuildOptions",
+    "PwaServiceWorkerOptions",
+    "VeloDomPwaOptions"
+  ]);
+  assert.deepEqual(readTypeExportNames(pwaEntrySource, "local"), [
+    "PwaCacheMatch",
+    "PwaCacheStrategyName"
+  ]);
+});
+
 test("optional devtools inspector remains an explicit subpath", () => {
   assert.deepEqual(Object.keys(devtoolsApi).sort(), [
     "VELODOM_DEVTOOLS_PROTOCOL_VERSION",
@@ -319,6 +346,7 @@ test("package subpath exports are frozen", () => {
     "./localization",
     "./node",
     "./package.json",
+    "./pwa",
     "./scaffolder",
     "./testing",
     "./vite",

@@ -9,6 +9,7 @@ VeloDom follows Semantic Versioning for the public package entry points:
 - `velodom/devtools`
 - `velodom/localization`
 - `velodom/node`
+- `velodom/pwa`
 - `velodom/testing`
 - `velodom/cli`
 - `velodom/scaffolder`
@@ -119,6 +120,7 @@ The checks must confirm:
   - `velodom/devtools`
   - `velodom/localization`
   - `velodom/node`
+  - `velodom/pwa`
   - `velodom/scaffolder`
   - `velodom/testing`
   - `velodom/vite`

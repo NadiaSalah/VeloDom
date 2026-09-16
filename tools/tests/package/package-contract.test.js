@@ -46,6 +46,7 @@ test("published package boundaries use built allowlisted artifacts", () => {
     "./content",
     "./cli",
     "./devtools",
+    "./pwa",
     "./scaffolder",
     "./testing",
     "./vite",

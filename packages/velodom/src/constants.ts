@@ -84,7 +84,7 @@ export const VD_BUILD = Object.freeze({
 
 /** Idempotent optional-feature installer manifest contract. */
 export const VD_FEATURE_INSTALLER = Object.freeze({
-  FEATURES: Object.freeze(["i18n", "lab", "tests"]),
+  FEATURES: Object.freeze(["i18n", "lab", "pwa", "tests"]),
   MANIFEST_FILE: ".velodom/features.json",
   MANIFEST_VERSION: 1
 });
@@ -471,6 +471,56 @@ export const VD_CSS_ASSET_INTELLIGENCE = Object.freeze({
     UNUSED_ASSET: "VD_ASSET_UNUSED",
     DUPLICATE_CSS: "VD_CSS_DUPLICATE_RULE",
     UNUSED_SELECTOR: "VD_CSS_POSSIBLY_UNUSED_SELECTOR"
+  })
+});
+
+/** Stable names, defaults, and diagnostics for the opt-in PWA build plugin. */
+export const VD_PWA = Object.freeze({
+  CACHE_PREFIX: "velodom-pwa",
+  MANIFEST_FILE: "manifest.webmanifest",
+  OFFLINE_FILE: "offline.html",
+  REGISTRATION_FILE: "velodom-pwa-register.js",
+  SERVICE_WORKER_FILE: "velodom-sw.js",
+  DEFAULT_STRATEGIES: Object.freeze([
+    Object.freeze({
+      cacheName: "pages",
+      match: "navigation",
+      strategy: "network-only"
+    }),
+    Object.freeze({
+      cacheName: "assets",
+      match: "same-origin-assets",
+      strategy: "stale-while-revalidate"
+    })
+  ]),
+  DISPLAY_MODES: Object.freeze([
+    "browser",
+    "fullscreen",
+    "minimal-ui",
+    "standalone",
+    "window-controls-overlay"
+  ]),
+  MATCHERS: Object.freeze([
+    "navigation",
+    "same-origin",
+    "same-origin-assets",
+    "path-prefix"
+  ]),
+  STRATEGIES: Object.freeze([
+    "cache-first",
+    "cache-only",
+    "network-first",
+    "network-only",
+    "stale-while-revalidate"
+  ]),
+  CODES: Object.freeze({
+    ICONS: "VD_PWA_ICONS",
+    ICON_SIZE: "VD_PWA_ICON_SIZE",
+    MANIFEST: "VD_PWA_MANIFEST",
+    NAME: "VD_PWA_NAME",
+    PATH: "VD_PWA_PATH",
+    SCOPE: "VD_PWA_SCOPE",
+    START_URL: "VD_PWA_START_URL"
   })
 });
 

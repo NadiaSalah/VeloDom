@@ -200,10 +200,10 @@ Usage:
   vd build-report [--json] [--root <dir>]
   vd docs [--json] [--root <dir>]
   vd types [--out <file>] [--root <dir>]
-  vd add i18n|tests|lab [--unit|--e2e|--all] [--root <dir>]
+  vd add i18n|pwa|tests|lab [--unit|--e2e|--all] [--root <dir>]
   vd features [--json] [--root <dir>]
-  vd remove i18n|tests|lab|all [--root <dir>]
-  vd upgrade i18n|tests|lab|all [--root <dir>]
+  vd remove i18n|pwa|tests|lab|all [--root <dir>]
+  vd upgrade i18n|pwa|tests|lab|all [--root <dir>]
   vd preset export [--out <file>] [--root <dir>]
   vd preset apply <file> [--root <dir>]
   vd test [all|unit|browser|compiler|route|request|component|a11y] [--root <dir>]
@@ -229,6 +229,7 @@ Project options:
   --router | --no-router
   --i18n | --no-i18n
   --lab | --no-lab
+  --pwa | --no-pwa
   --testing | --test-unit | --test-e2e | --test-all | --no-testing
   --git | --no-git
   --install | --no-install
@@ -246,6 +247,7 @@ Examples:
   vd create page counter --demo counter
   vd create component shared/post-card --single-file
   vd add i18n
+  vd add pwa
   vd add tests --unit
   vd features
   vd preset export
@@ -517,7 +519,7 @@ async function runAddFeatureCommand(
   flags: Set<string>
 ) {
   if (!feature) {
-    throw new Error("vd add requires one feature: i18n, tests, or lab.");
+    throw new Error("vd add requires one feature: i18n, pwa, tests, or lab.");
   }
 
   const result = await installProjectFeature(context.cwd, feature, flags);

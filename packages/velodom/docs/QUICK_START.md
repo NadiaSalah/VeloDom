@@ -24,8 +24,8 @@ npm run dev
 
 The generator refuses non-empty destinations and composes Minimal, Blog, or
 Empty with optional JavaScript/TypeScript, Tailwind, ESLint, Prettier, route
-examples, English/Arabic localization, testing, Git, install, and startup.
-Customize mode can also add the optional local VeloDom Lab command; selecting
+examples, English/Arabic localization, an optional PWA build, testing, Git,
+install, and startup. Customize mode can also add the optional local VeloDom Lab command; selecting
 No leaves the project unchanged.
 
 Scriptable example:
@@ -129,6 +129,7 @@ Add an existing optional first-party feature without recreating the project:
 
 ```bash
 npx vd add i18n
+npx vd add pwa
 npx vd add tests --unit
 npx vd add lab
 ```
@@ -139,6 +140,9 @@ The generated page demonstrates named parameters and native plural rules.
 
 The installer checks conflicts before writing and records only its generated
 files in `.velodom/features.json`; it never overwrites application-owned work.
+PWA setup writes `src/pwa.js|ts` plus visible public icon/offline files and
+updates the Vite plugin list. No worker is registered in projects that do not
+opt in.
 
 Inspect that ownership with `npx vd features`. Clean managed features can be
 removed or regenerated with `npx vd remove <feature>` and

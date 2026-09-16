@@ -45,12 +45,12 @@ The interactive flow asks for Minimal, Blog, or Empty and then Recommended or
 Customize mode. Scripted automation can pass options such as:
 
 ```bash
-create-velodom my-blog --template blog --typescript --tailwind --i18n --no-install
+create-velodom my-blog --template blog --typescript --tailwind --i18n --pwa --no-install
 ```
 
 Optional layers include ESLint, Prettier, official route examples, localization,
-unit/E2E testing, the local VeloDom Lab command, Git, dependency installation,
-and dev-server startup. The generator refuses non-empty destinations and never
+an explicit installable PWA build, unit/E2E testing, the local VeloDom Lab
+command, Git, dependency installation, and dev-server startup. The generator refuses non-empty destinations and never
 edits `node_modules`.
 
 ## Smallest Authoring Example
@@ -139,6 +139,7 @@ are intentionally not included in the npm tarball.
 | `velodom/localization` | Optional typed localization helpers |
 | `velodom/node` | Optional Node request adapter |
 | `velodom/assets` | Build-time image inspection helpers |
+| `velodom/pwa` | Opt-in manifest validation and service-worker generation |
 | `velodom/devtools` | Optional local inspector and VeloDom Lab UI |
 | `velodom/testing` | DOM-oriented page/component test mounts |
 | `velodom/cli` | Node-only CLI dispatcher used by package binaries |
@@ -170,10 +171,10 @@ vd benchmark
 vd build-report
 vd docs
 vd types
-vd add i18n|tests|lab
+vd add i18n|tests|lab|pwa
 vd features
-vd remove i18n|tests|lab|all
-vd upgrade i18n|tests|lab|all
+vd remove i18n|tests|lab|pwa|all
+vd upgrade i18n|tests|lab|pwa|all
 vd preset export|apply
 vd test [all|unit|browser|compiler|route|request|component|a11y]
 vd i18n extract|check
@@ -197,7 +198,7 @@ unprovable values remain `unknown` and JavaScript projects need no declarations.
 attribute initial, route, component, shared, and lazy-feature chunks. Duplicate
 dependency cost is shown only from Rollup rendered-module measurements; a
 missing production artifact is reported as unavailable rather than guessed.
-`vd add i18n|tests|lab` is an idempotent existing-project installer. It refuses
+`vd add i18n|tests|lab|pwa` is an idempotent existing-project installer. It refuses
 conflicting user files or scripts, records generated-file ownership in
 `.velodom/features.json`, and leaves dependency installation explicit. Tests
 default to unit; `--e2e` and `--all` select real Playwright layers.
@@ -221,6 +222,13 @@ ownership, duplicate declarations, possible unused selectors, logical CSS,
 asset hashes/references, image dimensions, responsive markup, and possible LCP
 candidates. Dynamic usage remains advisory, and the command never transforms
 or deletes an application file.
+
+`velodom/pwa` is an optional build-only entry point. `definePwaManifest()`
+reports stable installability diagnostics, while `velodomPwa()` emits a web
+manifest and—only when `serviceWorker` is explicitly configured—a generated
+worker, offline fallback, and external registration module. Cache rules use a
+small declarative matcher/strategy allowlist; application request/auth data is
+never cached implicitly. Use `--pwa` during creation or `vd add pwa` later.
 
 Choose `--lab` during scripted project creation or select it in Customize mode
 to add `npm run lab`. The command starts the existing Vite server with an

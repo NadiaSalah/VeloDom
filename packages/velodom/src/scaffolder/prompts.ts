@@ -28,6 +28,7 @@ export interface InteractiveScaffoldAnswers {
   language?: ScaffoldLanguage;
   mode?: "recommended" | "custom";
   prettier?: boolean;
+  pwa?: boolean;
   projectName?: string;
   router?: boolean;
   start?: boolean;
@@ -100,6 +101,12 @@ export async function promptForScaffold(
       answers.lab ??= await askConfirm(
         prompt,
         "Add the optional local VeloDom Lab command",
+        false,
+        controller.signal
+      );
+      answers.pwa ??= await askConfirm(
+        prompt,
+        "Add the optional installable PWA build",
         false,
         controller.signal
       );

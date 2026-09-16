@@ -70,7 +70,7 @@ or claim that a matching package is available from a registry.
 - Versioned, source-free Rollup build metadata emitted by the Vite plugin and
   consumed by `vd build-report` for initial/route/component/shared/lazy-feature
   attribution plus measured rendered-module dependency duplication.
-- Idempotent `vd add i18n|tests|lab` installation with preflight conflict
+- Idempotent `vd add i18n|pwa|tests|lab` installation with preflight conflict
   checks, explicit dependency installation, and a hashed generated-file /
   controlled-modification manifest at `.velodom/features.json`.
 - Read-only Lab ownership hierarchy, recent state diffs, payload-free request
@@ -94,6 +94,11 @@ or claim that a matching package is available from a registry.
   attribution, cross-resource declaration duplication, conservative unused
   selectors, logical-property guidance, local asset hashes and references,
   intrinsic-dimension checks, responsive-image advice, and possible LCP hints.
+- Optional `velodom/pwa` build integration with static manifest diagnostics,
+  bounded declarative cache strategies, an explicit offline fallback and
+  external registration asset, plus reversible `--pwa`/`vd add pwa`
+  scaffolding. Projects that do not enable it receive no service worker or
+  registration runtime.
 - An enforced first TypeScript `strict` slice for stable/shared contracts and
   low-dependency Core utilities, wired into normal checks and package builds.
 
@@ -182,8 +187,8 @@ or claim that a matching package is available from a registry.
 
 ### Documentation
 
-- Synchronized the academic showcase with the source-derived V1 contract: 13
-  package exports, 71 public values, 43 preferred directives, and 25 CLI
+- Synchronized the academic showcase with the source-derived V1 contract: 14
+  package exports, 77 public values, 43 preferred directives, and 25 CLI
   commands, including every supported package entry point.
 - Added named-function JSDoc coverage across all framework TypeScript modules
   and made the documentation gate reject undocumented function declarations.

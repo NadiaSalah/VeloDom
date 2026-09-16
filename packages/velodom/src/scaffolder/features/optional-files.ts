@@ -109,6 +109,87 @@ export const state = {
   };
 }
 
+/** Creates the explicit config and public fallback for optional PWA builds. */
+export function createPwaFeatureFiles(
+  language: ScaffoldLanguage
+): Record<string, string> {
+  const extension = language === "typescript" ? "ts" : "js";
+
+  return {
+    [`src/pwa.${extension}`]: `/** Application-owned optional PWA build policy. */
+import {
+  definePwaCacheStrategies,
+  definePwaManifest,
+} from "velodom/pwa";
+
+/** Static manifest owned by this application. */
+export const pwaManifest = definePwaManifest({
+  name: "VeloDom App",
+  short_name: "VeloDom",
+  description: "An installable application built with VeloDom.",
+  start_url: "/",
+  scope: "/",
+  display: "standalone",
+  background_color: "#f7f8fc",
+  theme_color: "#5445ee",
+  icons: [
+    {
+      src: "/velodom-pwa-icon.svg",
+      sizes: "any",
+      type: "image/svg+xml",
+      purpose: "any",
+    },
+  ],
+});
+
+/** Explicit caching policy used only by production builds. */
+export const pwaServiceWorker = {
+  offlineFallback: "/offline.html",
+  scope: "/",
+  version: "v1",
+  strategies: definePwaCacheStrategies([
+    {
+      cacheName: "pages",
+      match: "navigation",
+      strategy: "network-only",
+    },
+    {
+      cacheName: "assets",
+      match: "same-origin-assets",
+      strategy: "stale-while-revalidate",
+    },
+  ]),
+};
+`,
+    "public/offline.html": `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline · VeloDom</title>
+    <style>
+      body { margin: 0; font: 1rem/1.6 system-ui, sans-serif; color: #172033; background: #f7f8fc; }
+      main { width: min(38rem, calc(100% - 2rem)); margin: 15vh auto; padding: 2rem; border: 1px solid #dce2ee; border-radius: 1rem; background: white; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>You are offline</h1>
+      <p>This application needs a connection for content that has not been cached.</p>
+      <p><a href="/">Try again</a></p>
+    </main>
+  </body>
+</html>
+`,
+    "public/velodom-pwa-icon.svg": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="VeloDom">
+  <rect width="512" height="512" rx="112" fill="#111827"/>
+  <path d="M96 144h72l88 156 88-156h72L256 416 96 144Z" fill="#38bdf8"/>
+  <path d="M256 96h160v64H320v64h80v64h-80v128h-64V96Z" fill="#f8fafc"/>
+</svg>
+`
+  };
+}
+
 /** Creates real unit and/or browser test files for an existing project. */
 export function createTestingFeatureFiles(
   language: ScaffoldLanguage,

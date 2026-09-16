@@ -24,6 +24,7 @@ import {
 import { VD_FEATURE_INSTALLER } from "../constants.ts";
 import {
   hashSource,
+  hasValidFeatureOptions,
   installProjectFeature,
   normalizeFeature,
   readFeatureManifest,
@@ -428,9 +429,7 @@ function parseFeaturePreset(source: string): FeaturePreset {
         ]))
         : {};
 
-      if (name === "tests" && options.mode && !["unit", "e2e", "all"].includes(options.mode)) {
-        throw new Error("invalid tests mode");
-      }
+      if (!hasValidFeatureOptions(name, options)) throw new Error(`invalid ${name} options`);
       return { name, options };
     });
 

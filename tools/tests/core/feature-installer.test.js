@@ -24,20 +24,24 @@ test("vd add installs first-party features idempotently with ownership metadata"
     assert.equal(await runVeloDomCli(["add", "i18n", "--root", root], context), 0);
     assert.equal(await runVeloDomCli(["add", "tests", "--all", "--root", root], context), 0);
     assert.equal(await runVeloDomCli(["add", "lab", "--root", root], context), 0);
+    assert.equal(await runVeloDomCli(["add", "pwa", "--root", root], context), 0);
     assert.equal(await runVeloDomCli(["add", "i18n", "--root", root], context), 0);
 
     const manifest = JSON.parse(await readFile(join(root, ".velodom/features.json"), "utf8"));
     const packageJson = JSON.parse(await readFile(join(root, "package.json"), "utf8"));
     const viteConfig = await readFile(join(root, "vite.config.js"), "utf8");
 
-    assert.deepEqual(Object.keys(manifest.features).sort(), ["i18n", "lab", "tests"]);
+    assert.deepEqual(Object.keys(manifest.features).sort(), ["i18n", "lab", "pwa", "tests"]);
     assert.ok(manifest.features.i18n.createdFiles.some(file => file.path === "src/i18n.js"));
     assert.equal(packageJson.scripts.lab, "vd lab");
     assert.equal(packageJson.scripts["test:unit"], "node --test tests/unit/*.test.*");
     assert.equal(packageJson.scripts["test:e2e"], "playwright test");
     assert.equal(packageJson.devDependencies["@playwright/test"], "^1.61.1");
     assert.match(viteConfig, /localization:\s*localizationOptions/);
+    assert.match(viteConfig, /velodomPwa\(\{ manifest: pwaManifest/);
     await access(join(root, "src/pages/localization/index.html"));
+    await access(join(root, "src/pwa.js"));
+    await access(join(root, "public/offline.html"));
     await access(join(root, "tests/unit/project.test.js"));
     await access(join(root, "tests/e2e/home.spec.js"));
     assert.ok(output.some(line => line.includes("already installed")));
@@ -84,6 +88,7 @@ test("feature lifecycle reports, presets, upgrades, and removes owned files safe
     assert.equal(await runVeloDomCli(["add", "i18n", "--root", root], context), 0);
     assert.equal(await runVeloDomCli(["add", "tests", "--all", "--root", root], context), 0);
     assert.equal(await runVeloDomCli(["add", "lab", "--root", root], context), 0);
+    assert.equal(await runVeloDomCli(["add", "pwa", "--root", root], context), 0);
     assert.equal(await runVeloDomCli(["features", "--root", root], context), 0);
     assert.match(output.join("\n"), /tests: clean; reversible/);
 
@@ -91,7 +96,7 @@ test("feature lifecycle reports, presets, upgrades, and removes owned files safe
       "preset", "export", "--out", "velodom-features.json", "--root", root
     ], context), 0);
     const preset = JSON.parse(await readFile(join(root, "velodom-features.json"), "utf8"));
-    assert.deepEqual(preset.features.map(item => item.name), ["i18n", "tests", "lab"]);
+    assert.deepEqual(preset.features.map(item => item.name), ["i18n", "tests", "lab", "pwa"]);
     assert.equal(preset.features[1].options.mode, "all");
 
     assert.equal(await runVeloDomCli(["upgrade", "all", "--root", root], context), 0);
@@ -100,6 +105,7 @@ test("feature lifecycle reports, presets, upgrades, and removes owned files safe
     assert.equal(await readFile(join(root, "vite.config.js"), "utf8"), originalVite);
     await assert.rejects(access(join(root, "src/i18n.js")));
     await assert.rejects(access(join(root, "tests/unit/project.test.js")));
+    await assert.rejects(access(join(root, "src/pwa.js")));
     await assert.rejects(access(join(root, ".velodom/features.json")));
 
     await writeProjectFile(
@@ -114,7 +120,7 @@ test("feature lifecycle reports, presets, upgrades, and removes owned files safe
       join(secondRoot, ".velodom/features.json"),
       "utf8"
     ));
-    assert.deepEqual(Object.keys(secondManifest.features), ["i18n", "tests", "lab"]);
+    assert.deepEqual(Object.keys(secondManifest.features), ["i18n", "tests", "lab", "pwa"]);
   } finally {
     await rm(root, { recursive: true, force: true });
     await rm(secondRoot, { recursive: true, force: true });
@@ -143,6 +149,30 @@ test("feature removal refuses user-modified generated files", async () => {
       "export const userChanged = true;\n"
     );
     await access(join(root, ".velodom/features.json"));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("feature presets reject options outside each first-party allowlist", async () => {
+  const root = await createProject();
+  const errors = [];
+
+  try {
+    await writeProjectFile(root, "unsafe-preset.json", `${JSON.stringify({
+      features: [{ name: "pwa", options: { hook: "./execute.js" } }],
+      version: 1
+    }, null, 2)}\n`);
+    const code = await runVeloDomCli([
+      "preset", "apply", "unsafe-preset.json", "--root", root
+    ], {
+      stdout: () => {},
+      stderr: message => errors.push(message)
+    });
+
+    assert.equal(code, 1);
+    assert.match(errors.join("\n"), /invalid pwa options/);
+    await assert.rejects(access(join(root, ".velodom/features.json")));
   } finally {
     await rm(root, { recursive: true, force: true });
   }

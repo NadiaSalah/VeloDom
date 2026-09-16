@@ -571,6 +571,7 @@ test("CLI create scaffolds convention-first project resources", async () => {
       "minimal",
       "--javascript",
       "--lab",
+      "--pwa",
       "--no-eslint",
       "--no-prettier",
       "--no-git",
@@ -754,6 +755,7 @@ test("CLI composes Blog, TypeScript, Tailwind, localization, and tests", async (
       "--tailwind",
       "--i18n",
       "--lab",
+      "--pwa",
       "--test-all",
       "--no-eslint",
       "--no-prettier",
@@ -770,6 +772,9 @@ test("CLI composes Blog, TypeScript, Tailwind, localization, and tests", async (
     await assertFile(join(root, "my-blog/src/main.ts"));
     await assertFile(join(root, "my-blog/src/pages/posts/script.ts"));
     await assertFile(join(root, "my-blog/src/pages/localization/script.ts"));
+    await assertFile(join(root, "my-blog/src/pwa.ts"));
+    await assertFile(join(root, "my-blog/public/offline.html"));
+    await assertFile(join(root, "my-blog/public/velodom-pwa-icon.svg"));
     await assertFile(join(root, "my-blog/src/components/site-nav/index.html"));
     await assertFile(join(root, "my-blog/tests/unit/project.test.js"));
     await assertFile(join(root, "my-blog/tests/e2e/home.spec.ts"));
@@ -782,8 +787,10 @@ test("CLI composes Blog, TypeScript, Tailwind, localization, and tests", async (
     assert.equal(manifest.scripts.lab, "vd lab");
     assert.match(viteConfig, /tailwindcss\(\)/);
     assert.match(viteConfig, /localizationOptions/);
+    assert.match(viteConfig, /velodomPwa/);
     assert.match(await readFile(join(root, "my-blog/README.md"), "utf8"), /npm run lab/);
     assert.match(output.join("\n"), /VeloDom Lab command configured/);
+    assert.match(output.join("\n"), /VeloDom PWA build configured/);
     assert.match(output.join("\n"), /Tailwind CSS configured/);
   } finally {
     await removeFixture(root);
@@ -861,6 +868,18 @@ test("CLI reports project option conflicts without stack traces", async () => {
     output.length = 0;
     assert.equal(await runVeloDomCli([
       "create",
+      "broken-pwa",
+      "--pwa",
+      "--no-pwa",
+      "--no-install",
+      "--root",
+      root
+    ], io), 1);
+    assert.match(output.join("\n"), /Cannot use --pwa and --no-pwa together/);
+
+    output.length = 0;
+    assert.equal(await runVeloDomCli([
+      "create",
       "broken",
       "--template",
       "unknown",
@@ -919,6 +938,7 @@ test("CLI exposes help and version without starting project prompts", async () =
   assert.equal(await runVeloDomCli(["create", "--help"], io), 0);
   assert.match(output.join("\n"), /--template minimal\|blog\|empty/);
   assert.match(output.join("\n"), /--lab \| --no-lab/);
+  assert.match(output.join("\n"), /--pwa \| --no-pwa/);
   output.length = 0;
   assert.equal(await runVeloDomCli(["--version"], io), 0);
   assert.match(output.join("\n"), /^1\.0\.0$/);

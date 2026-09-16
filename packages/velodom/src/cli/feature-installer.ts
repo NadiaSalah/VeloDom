@@ -16,6 +16,7 @@ import { VD_FEATURE_INSTALLER } from "../constants.ts";
 import { readOptionalText } from "./analyzer.ts";
 import {
   createLocalizationFeatureFiles,
+  createPwaFeatureFiles,
   createTestingFeatureFiles
 } from "../scaffolder/features/optional-files.ts";
 import type {
@@ -24,7 +25,7 @@ import type {
 } from "../scaffolder/types.ts";
 
 /** Optional first-party capabilities accepted by `vd add`. */
-export type InstallableFeature = "i18n" | "lab" | "tests";
+export type InstallableFeature = "i18n" | "lab" | "pwa" | "tests";
 
 /** Result returned after an idempotent project feature installation. */
 export interface FeatureInstallResult {
@@ -155,6 +156,30 @@ export async function installProjectFeature(
     nextSteps.push("Add an app-relative /localization link to your navigation if desired.");
   }
 
+  if (feature === "pwa") {
+    Object.assign(generatedFiles, createPwaFeatureFiles(language));
+    const viteFile = await findViteConfig(root);
+    const viteSource = await readOptionalText(join(root, viteFile));
+
+    if (!viteSource) {
+      throw new Error("vd add pwa requires vite.config.js or vite.config.ts.");
+    }
+    const nextViteSource = configurePwaVite(
+      viteSource,
+      language === "typescript" ? "ts" : "js"
+    );
+
+    if (nextViteSource !== viteSource) {
+      modifiedSources.set(viteFile, {
+        before: viteSource,
+        after: nextViteSource
+      });
+    }
+    nextSteps.push(
+      "Review src/pwa.* cache routes before the first production deployment."
+    );
+  }
+
   const generated = await preflightGeneratedFiles(root, generatedFiles);
   const nextPackageSource = `${JSON.stringify(packageJson, null, 2)}\n`;
 
@@ -207,6 +232,7 @@ export function normalizeFeature(value: string): InstallableFeature {
     i18n: "i18n",
     lab: "lab",
     localization: "i18n",
+    pwa: "pwa",
     test: "tests",
     testing: "tests",
     tests: "tests"
@@ -220,6 +246,76 @@ export function normalizeFeature(value: string): InstallableFeature {
   }
 
   return feature;
+}
+
+/** Validates data-only options accepted by one first-party feature generator. */
+export function hasValidFeatureOptions(
+  feature: InstallableFeature,
+  options: Record<string, string>
+) {
+  const keys = Object.keys(options);
+
+  if (feature !== "tests") return keys.length === 0;
+  return keys.every(key => key === "mode")
+    && (!options.mode || ["unit", "e2e", "all"].includes(options.mode));
+}
+
+/** Adds the explicit PWA plugin and application-owned policy to Vite config. */
+function configurePwaVite(source: string, extension: "js" | "ts") {
+  let result = ensureNamedImport(
+    source,
+    "velodom/pwa",
+    ["velodomPwa"],
+    /import\s+\{[^}]*\bvelodom\b[^}]*\}\s+from\s+["']velodom\/vite-plugin["'];?/
+  );
+  result = ensureNamedImport(
+    result,
+    `./src/pwa.${extension}`,
+    ["pwaManifest", "pwaServiceWorker"],
+    /import\s+\{[^}]*\bvelodomPwa\b[^}]*\}\s+from\s+["']velodom\/pwa["'];?/
+  );
+  if (/\bvelodomPwa\s*\(/.test(result)) return result;
+  if (/\bplugins\s*:\s*\[/.test(result)) {
+    return result.replace(
+      /\bplugins\s*:\s*\[/,
+      "plugins: [velodomPwa({ manifest: pwaManifest, serviceWorker: pwaServiceWorker }), "
+    );
+  }
+  throw new Error("Could not safely update the plugins array in the Vite config.");
+}
+
+/** Adds missing names to one static named import after a required anchor. */
+function ensureNamedImport(
+  source: string,
+  moduleName: string,
+  requiredNames: string[],
+  anchor: RegExp
+) {
+  const modulePattern = moduleName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const importPattern = new RegExp(
+    `import\\s*\\{([^}]*)\\}\\s*from\\s*["']${modulePattern}["'];?`
+  );
+  const existing = importPattern.exec(source);
+
+  if (existing) {
+    const names = (existing[1] || "").split(",").map(name => name.trim()).filter(Boolean);
+    const additions = requiredNames.filter(name => !names.includes(name));
+
+    if (!additions.length) return source;
+    return source.replace(
+      importPattern,
+      `import { ${[...names, ...additions].join(", ")} } from "${moduleName}";`
+    );
+  }
+
+  const match = anchor.exec(source);
+
+  if (!match) {
+    throw new Error(`vite.config needs a static import anchor before adding ${moduleName}.`);
+  }
+  const importLine = `import { ${requiredNames.join(", ")} } from "${moduleName}";`;
+
+  return source.replace(anchor, value => `${value}\n${importLine}`);
 }
 
 /** Selects a real test layer; unit is the small default. */
@@ -429,6 +525,7 @@ function isFeatureManifest(value: Partial<FeatureManifest>): value is FeatureMan
       || typeof entry.options !== "object"
       || Array.isArray(entry.options)
       || !Object.values(entry.options).every(option => typeof option === "string")
+      || !hasValidFeatureOptions(feature as InstallableFeature, entry.options)
     ) {
       return false;
     }

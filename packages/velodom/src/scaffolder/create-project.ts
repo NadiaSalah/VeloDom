@@ -193,6 +193,7 @@ async function writeProjectReadme(plan: ScaffoldPlan) {
     plan.router ? "route examples" : null,
     plan.i18n ? "English/Arabic localization" : null,
     plan.lab ? "the optional local VeloDom Lab command" : null,
+    plan.pwa ? "an explicit installable PWA build" : null,
     plan.testing !== "none" ? `${plan.testing} testing` : null
   ].filter(Boolean).join(", ");
 
@@ -227,7 +228,7 @@ Package-local AI guidance is available after installation at
 \`node_modules/velodom/AI_CONTEXT.md\`.
 
 Add an optional first-party capability later with \`npx vd add i18n\`,
-\`npx vd add tests --unit\`, or \`npx vd add lab\`. The installer refuses
+\`npx vd add pwa\`, \`npx vd add tests --unit\`, or \`npx vd add lab\`. The installer refuses
 conflicts and records generated-file ownership in \`.velodom/features.json\`.
 When tests are configured, \`npx vd test\` delegates to the generated package
 scripts; focused layers such as \`npx vd test unit\` never fake a passing result.
@@ -248,6 +249,7 @@ function printEnabledFeatures(request: ScaffoldRequest, plan: ScaffoldPlan) {
     plan.router ? "VeloDom route examples configured" : null,
     plan.i18n ? "English/Arabic localization configured" : null,
     plan.lab ? "VeloDom Lab command configured" : null,
+    plan.pwa ? "VeloDom PWA build configured" : null,
     plan.testing !== "none" ? `${plan.testing} testing configured` : null,
     plan.git ? "Git initialized" : null
   ].filter((feature): feature is string => feature !== null);

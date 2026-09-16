@@ -50,6 +50,7 @@ const publicApiSources = await Promise.all([
   "packages/velodom/src/localization.ts",
   "packages/velodom/src/node.ts",
   "packages/velodom/src/assets.ts",
+  "packages/velodom/src/pwa.ts",
   "packages/velodom/src/devtools.ts",
   "packages/velodom/src/adapters/vite.ts",
   "packages/velodom/src/vite-plugin/index.ts",

@@ -28,7 +28,7 @@ const CONFIGURATION_FLAGS = new Set([
   "tailwind", "eslint", "no-eslint", "prettier", "no-prettier", "router",
   "no-router", "i18n", "no-i18n", "testing", "test-unit", "test-e2e",
   "test-all", "no-testing", "git", "no-git", "install", "no-install",
-  "lab", "no-lab", "start", "no-start"
+  "lab", "no-lab", "pwa", "no-pwa", "start", "no-start"
 ]);
 
 /** Resolves interactive and scriptable input into a validated scaffold plan. */
@@ -80,6 +80,7 @@ export async function resolveScaffoldPlan(request: ScaffoldRequest): Promise<Sca
     language: answers.language || (request.flags.has("javascript") ? "javascript" : "typescript"),
     packageManager,
     prettier: answers.prettier ?? enabled(request.flags, "prettier", true),
+    pwa: answers.pwa ?? enabled(request.flags, "pwa", false),
     projectName: normalizeProjectPackageName(rawProjectName),
     router: requiresRouteExamples
       ? true
@@ -118,6 +119,7 @@ function initialAnswers(request: ScaffoldRequest): InteractiveScaffoldAnswers {
     git: explicitBoolean(flags, "git"),
     install: explicitBoolean(flags, "install"),
     lab: explicitBoolean(flags, "lab"),
+    pwa: explicitBoolean(flags, "pwa"),
     start: explicitBoolean(flags, "start")
   };
 }

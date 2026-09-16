@@ -573,8 +573,8 @@
   exist. CSS is intentionally not budgeted yet because the showcase's
   Tailwind/daisyUI output is application-owned and needs a separate design
   decision before strict limits are useful.
-- Package runtime totals exclude `cli`, `scaffolder`, and testing modules. They
-  are explicit Node/development-only entry points and cannot enter the browser
+- Package runtime totals exclude `cli`, `scaffolder`, testing, and the
+  build-only `pwa` integration. They are explicit Node/development/build entry points and cannot enter the browser
   through the main package export; counting them as client runtime would hide
   the metric the budget is intended to protect.
 - The first VeloDom CLI is static/offline developer tooling. `vd inspect`,
@@ -830,6 +830,14 @@
   infrastructure is intentionally deferred because V1 has no real framework
   migration to perform; exposing a placeholder command would violate the
   no-fake-features rule.
+
+- PWA support is an opt-in build integration under `velodom/pwa`, not a Core
+  runtime service. CLI impact is `OPTIONAL_PROMPT` plus `CONFIG_GENERATED`:
+  `--pwa` or `vd add pwa` creates the manifest policy and public fallback/icon,
+  then adds the explicit Vite plugin. Manifest-only use never emits a service
+  worker; cache rules are data-only and allowlisted so validation never runs
+  third-party/application callbacks. Navigation defaults to network-only and
+  API/auth caching remains application-owned.
 
 ## Handoff Guidance
 

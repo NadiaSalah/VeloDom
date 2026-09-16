@@ -32,11 +32,11 @@ Do not infer registry availability from this repository. In a source checkout,
 build the package and run
 `node packages/velodom/bin/create-velodom.js my-app --no-install`. Project
 creation offers Minimal, Blog, and Empty with optional JS/TS, Tailwind, quality
-tools, routing examples, localization, tests, local Lab, Git, install, and
+tools, routing examples, localization, an optional PWA build, tests, local Lab, Git, install, and
 server start.
 
 The generated project is user-owned. Never edit `node_modules/velodom`.
-For an existing application, `vd add i18n|tests|lab` installs only those
+For an existing application, `vd add i18n|tests|lab|pwa` installs only those
 first-party optional features and records generated ownership in
 `.velodom/features.json`. Never invent other feature names or bypass a reported
 file/script conflict.
@@ -72,6 +72,7 @@ the application. Import public package paths only.
 - `velodom/localization`
 - `velodom/node`
 - `velodom/assets`
+- `velodom/pwa`
 - `velodom/devtools`
 - `velodom/testing`
 - `velodom/cli` (Node tooling only)
@@ -79,6 +80,13 @@ the application. Import public package paths only.
 - `velodom/package.json` (package metadata only)
 
 Never import `velodom/lib/*`, `packages/velodom/src/*`, or other internals.
+
+`velodom/pwa` is build-only and opt-in. A manifest alone never registers a
+service worker. Generate one only through an explicit `serviceWorker` option,
+use bounded declarative cache routes, and keep authenticated/API responses out
+of caches unless the application deliberately owns that policy. `--pwa` and
+`vd add pwa` create reviewable application files rather than hidden runtime
+behavior.
 
 ## Pages
 

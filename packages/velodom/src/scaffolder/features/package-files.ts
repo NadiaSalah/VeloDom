@@ -117,11 +117,14 @@ function createViteConfig(plan: ScaffoldPlan) {
     'import { defineConfig } from "vite";',
     ...(plan.tailwind ? ['import tailwindcss from "@tailwindcss/vite";'] : []),
     'import { velodom } from "velodom/vite-plugin";',
+    ...(plan.pwa ? ['import { velodomPwa } from "velodom/pwa";'] : []),
+    ...(plan.pwa ? [`import { pwaManifest, pwaServiceWorker } from "./src/pwa.${extension}";`] : []),
     ...(plan.i18n ? [`import { localizationOptions } from "./src/i18n.${extension}";`] : [])
   ];
   const pluginOptions = plan.i18n ? "{ localization: localizationOptions }" : "";
   const plugins = [
     `velodom(${pluginOptions})`,
+    ...(plan.pwa ? ["velodomPwa({ manifest: pwaManifest, serviceWorker: pwaServiceWorker })"] : []),
     ...(plan.tailwind ? ["tailwindcss()"] : [])
   ];
 

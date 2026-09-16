@@ -339,7 +339,7 @@ layer, or unproven analysis.
 - [x] Add a narrowly scoped `vd add <feature>` installer for existing optional
   first-party capabilities (for example i18n, tests, or Lab). Start with an
   idempotent feature-installer contract and a generated-file manifest before
-  considering removal or third-party packages. `vd add i18n|tests|lab` now
+  considering removal or third-party packages. `vd add i18n|pwa|tests|lab` now
   preflights every write, refuses user-file/script conflicts, records created
   file hashes and controlled modifications in `.velodom/features.json`, and is
   idempotent without installing packages or creating a plugin marketplace.
@@ -365,9 +365,9 @@ These ideas fit VeloDom only as optional build/development integrations. They
 need a bounded design, a public compatibility story, and tests after the
 next-release Project Index and installer contracts are proven.
 
-**Executable later-release scope: 3 of 7 milestones complete.**
+**Executable later-release scope: 4 of 7 milestones complete.**
 
-`[#########...........] 43%`
+`[###########.........] 57%`
 
 - [x] Expand the feature installer lifecycle with safe `vd remove`, `vd
   upgrade`, compatibility reporting, and shareable project presets. Removal
@@ -392,9 +392,13 @@ next-release Project Index and installer contracts are proven.
   attributes resource styles to statically provable routes, hashes local assets,
   and labels usage/LCP findings as conservative advisories. It never mutates
   files or enters application bundles.
-- [ ] Evaluate an optional PWA build plugin with manifest validation, offline
+- [x] Add an optional PWA build plugin with manifest validation, offline
   fallback, installability diagnostics, and explicit cache-strategy templates.
-  It must not register a service worker or add runtime code unless enabled.
+  `velodom/pwa` remains a separate build subpath; a manifest alone emits no
+  service worker or registration module, while `--pwa` and `vd add pwa`
+  generate visible application-owned policy and assets. Cache matchers and
+  algorithms are allowlisted, navigation defaults to network-only, and normal
+  framework imports gain no runtime code.
 - [ ] Improve error diagnosis with hierarchical ownership reporting, error IDs,
   richer source stacks, grouped compiler/router/request errors, and a
   development-only overlay. Preserve the existing application-owned recovery
