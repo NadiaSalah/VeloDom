@@ -69,6 +69,7 @@ before use.
 | Deterministic explain | DX | Supported | `vd explain <file|topic|diagnostic-code>` | compiler analysis and stable diagnostic catalog | package binary | Yes |
 | Testing helpers | Testing | Stable | `velodom/testing` | compiler/route/request/event/a11y fixtures plus page/component mounts | public helpers | Yes |
 | Project test dispatcher | DX | Supported | `vd test [layer]` | existing application package scripts only | package binary | Yes |
+| Release compatibility matrix | Testing | Stable | repository gates | six starter/language builds, bundle ceilings, desktop/mobile browser engines | package consumer + Playwright | Yes |
 | Compiler API | Compiler | Stable | `velodom/compiler` | Vite plugin | public compiler | Yes |
 | Incremental compiler cache | Build | Supported | automatic Vite plugin behavior | source/HMR invalidation, bounded LRU | Vite plugin | Yes |
 | Language analysis | Editor | Supported | compiler analysis APIs | VS Code package | public APIs | Yes |

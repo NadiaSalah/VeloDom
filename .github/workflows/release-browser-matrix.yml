@@ -39,5 +39,5 @@ jobs:
         env:
           VELODOM_BROWSER_STRICT: "1"
           VELODOM_BROWSER_E2E_DEBUG: "1"
-          VELODOM_BROWSER_TARGETS: chromium,firefox,webkit,mobile-webkit
+          VELODOM_BROWSER_TARGETS: chromium,mobile-chromium,firefox,webkit,mobile-webkit
         run: node tools/scripts/check-browser-e2e.mjs

@@ -108,6 +108,14 @@ or claim that a matching package is available from a registry.
   compatibility ranges, browser/build/Node capability declarations, duplicate
   and named-conflict diagnostics, plus a pure `inspectPluginConformance()`
   report that never executes third-party setup or cleanup code.
+- Expanded release gates with mobile Chromium, unexpected browser-error
+  detection, a six-case Minimal/Blog/Empty JavaScript/TypeScript starter matrix,
+  generated-starter bundle ceilings, compiler/render benchmark execution, and
+  browser-runtime size measurement derived from real public import reachability
+  rather than unrelated optional package modules. Local browser checks now
+  default to required desktop/mobile Chromium, while strict CI explicitly owns
+  the complete five-target matrix; the static test server is force-closed after
+  the gate so failed optional launches cannot retain it.
 - An enforced first TypeScript `strict` slice for stable/shared contracts and
   low-dependency Core utilities, wired into normal checks and package builds.
 

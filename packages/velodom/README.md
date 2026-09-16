@@ -261,6 +261,13 @@ recent state diffs, request waterfall, correlated route events, and compiler
 directive/source diagnostics. Lab is development-only and absent
 from normal production output; `--no-lab` adds nothing.
 
+Repository release verification generates and builds Minimal, Blog, and Empty
+starters in both JavaScript and TypeScript, including the full
+Tailwind/localization/PWA/testing composition. Each generated build has total
+and largest-chunk ceilings. The strict browser matrix covers desktop/mobile
+Chromium, Firefox, and desktop/mobile WebKit and fails on unexpected browser
+errors; these are repository gates, not code shipped into an application.
+
 ## Requirements
 
 - Node.js `^20.19.0` or `>=22.12.0`

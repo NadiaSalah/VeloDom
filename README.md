@@ -58,6 +58,8 @@ npm run typecheck:strict
 npm run build
 npm run pack:check
 npm run benchmark:compiler
+npm run benchmark:rendering
+npm run benchmark:check
 ```
 
 The root development command builds the package and starts
@@ -146,6 +148,14 @@ release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
+- Closed the executable later-release roadmap with release-gate coverage for
+  desktop/mobile Chromium, Firefox, desktop/mobile WebKit, unexpected browser
+  errors, six generated starter/language combinations, and per-starter bundle
+  ceilings. Performance checks now follow the actual `velodom` plus
+  `velodom/vite` browser import graph, run compiler/render benchmarks, and keep
+  optional Node/build tooling outside Core payload measurements. Local browser
+  checks default to the two required Chromium profiles; strict CI selects all
+  five targets explicitly, avoiding optional local browser-launch leaks.
 - Formalized optional plugin manifests with VeloDom compatibility ranges,
   explicit browser/build/Node capabilities, duplicate/conflict diagnostics,
   and shape-only conformance inspection. Legacy function/object plugins remain

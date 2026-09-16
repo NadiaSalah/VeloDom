@@ -365,9 +365,9 @@ These ideas fit VeloDom only as optional build/development integrations. They
 need a bounded design, a public compatibility story, and tests after the
 next-release Project Index and installer contracts are proven.
 
-**Executable later-release scope: 6 of 7 milestones complete.**
+**Executable later-release scope: 7 of 7 milestones complete.**
 
-`[#################...] 86%`
+`[####################] 100%`
 
 - [x] Expand the feature installer lifecycle with safe `vd remove`, `vd
   upgrade`, compatibility reporting, and shareable project presets. Removal
@@ -413,9 +413,16 @@ next-release Project Index and installer contracts are proven.
   reports duplicates, incompatibility, target mismatch, and conflicts without
   executing setup/cleanup; legacy manifest-free plugins remain compatible and
   no marketplace or discovery service was added.
-- [ ] Expand browser/performance regression benchmarks and starter compatibility
+- [x] Expand browser/performance regression benchmarks and starter compatibility
   coverage as the new contracts land; checks remain release gates rather than
-  browser runtime behavior.
+  browser runtime behavior. The release matrix now covers desktop/mobile
+  Chromium plus desktop/mobile WebKit and Firefox, fails on unexpected browser
+  errors, verifies six Minimal/Blog/Empty JavaScript/TypeScript starter builds,
+  enforces per-starter bundle ceilings, runs compiler/render correctness
+  benchmarks, and measures only modules reachable from public browser entries.
+  Local runs default to required desktop/mobile Chromium; strict CI selects the
+  complete five-target matrix explicitly so machine-specific Firefox launch
+  failures cannot leave the local gate hanging.
 
 ## Research / Experimental Boundaries
 

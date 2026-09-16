@@ -30,7 +30,7 @@ const budgets = Object.freeze({
   distTotalJsBytes: 256 * 1024,
   distLargestJsChunkBytes: 120 * 1024,
   distLargestJsChunkGzipBytes: 45 * 1024,
-  packageTotalJsBytes: 450 * 1024,
+  packageTotalJsBytes: 380 * 1024,
   packageLargestJsModuleBytes: 40 * 1024,
   optionalDistTotalCssBytes: readOptionalKilobyteBudget(
     "VELODOM_CSS_BUDGET_KB"
@@ -69,9 +69,7 @@ const distCssFiles = existsSync(distAssetsRoot)
   : [];
 const distCssStats = await readStats(distCssFiles);
 const packageStats = await readStats(packageFiles);
-const packageRuntimeStats = packageStats.filter(item => (
-  !isPackageToolingModule(item.file)
-));
+const packageRuntimeStats = await readRuntimeModuleStats(packageStats);
 
 await assertDevelopmentToolsAbsent(distFiles);
 await assertSingleFilePageIsLazy(distFiles);
@@ -193,6 +191,58 @@ async function readInitialDistStats(stats) {
   }
 }
 
+/**
+ * Resolves the files reachable from the two browser entry points. Counting the
+ * whole package would incorrectly charge Core for optional Node/build tools.
+ */
+async function readRuntimeModuleStats(stats) {
+  const byFile = new Map(stats.map(item => [path.resolve(item.file), item]));
+  const visited = new Set();
+  const visit = async file => {
+    const absolute = path.resolve(file);
+
+    if (visited.has(absolute) || !byFile.has(absolute)) return;
+    visited.add(absolute);
+    const source = await readFile(absolute, "utf8");
+    const specifiers = readRelativeJavaScriptImports(source);
+
+    await Promise.all(specifiers.map(specifier => (
+      visit(path.resolve(path.dirname(absolute), specifier))
+    )));
+  };
+
+  await Promise.all([
+    visit(path.join(packageLibRoot, "index.js")),
+    visit(path.join(packageLibRoot, "adapters", "vite.js"))
+  ]);
+
+  if (visited.size === 0) {
+    fail("Could not resolve the VeloDom browser runtime entry graph.");
+  }
+
+  return stats.filter(item => visited.has(path.resolve(item.file)));
+}
+
+/** Reads static, dynamic, and side-effect-only relative JavaScript imports. */
+function readRelativeJavaScriptImports(source) {
+  const imports = new Set();
+  const patterns = [
+    /(?:from\s+|import\s*\()\s*["'](\.[^"']+\.js)["']/g,
+    /import\s*["'](\.[^"']+\.js)["']/g
+  ];
+
+  patterns.forEach(pattern => {
+    let match = pattern.exec(source);
+
+    while (match) {
+      if (match[1]) imports.add(match[1]);
+      match = pattern.exec(source);
+    }
+  });
+
+  return [...imports];
+}
+
 function checkBudget(name, actual, limit) {
   checks.push({
     name,
@@ -212,14 +262,6 @@ function largestBytes(stats) {
 
 function largestGzipBytes(stats) {
   return Math.max(0, ...stats.map(item => item.gzipBytes));
-}
-
-function isPackageToolingModule(file) {
-  return /[/\\]testing\.js$/.test(file)
-    || /[/\\]pwa\.js$/.test(file)
-    || /[/\\]cli(?:\.js|[/\\])/.test(file)
-    || /[/\\]devtools(?:\.js|[/\\])/.test(file)
-    || /[/\\]scaffolder[/\\]/.test(file);
 }
 
 /** Fails production verification when the local Lab bootstrap was bundled. */

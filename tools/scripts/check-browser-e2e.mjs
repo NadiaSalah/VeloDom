@@ -73,11 +73,12 @@ try {
     );
   }
 } finally {
-  server.close();
+  await server.close();
 }
 
 function createTargetRegistry() {
   const iphone = devices["iPhone 13"];
+  const android = devices["Pixel 7"];
 
   return Object.freeze({
     chromium: Object.freeze({
@@ -86,6 +87,23 @@ function createTargetRegistry() {
       required: true,
       launch: launchInstalledChromium,
       contextOptions: {}
+    }),
+    "mobile-chromium": Object.freeze({
+      name: "mobile-chromium",
+      label: "Mobile Chromium viewport",
+      required: true,
+      launch: launchInstalledChromium,
+      contextOptions: android
+        ? { ...android }
+        : {
+          hasTouch: true,
+          isMobile: true,
+          userAgent: "VeloDom Mobile Chromium E2E",
+          viewport: {
+            width: 412,
+            height: 915
+          }
+        }
     }),
     firefox: Object.freeze({
       name: "firefox",
@@ -137,7 +155,9 @@ function getSelectedTargets(registry) {
     ? process.env.VELODOM_BROWSER_TARGETS.split(",")
       .map(value => value.trim())
       .filter(Boolean)
-    : Object.keys(registry);
+    : Object.values(registry)
+      .filter(target => target.required)
+      .map(target => target.name);
 
   const unknown = requested.filter(name => !registry[name]);
 
@@ -297,19 +317,35 @@ async function assertInteractiveSmoke(browser, target, origin) {
 
 async function runInteractiveStep(context, target, name, callback) {
   const page = await context.newPage();
+  const browserProblems = [];
 
+  page.on("console", message => {
+    if (debugBrowserE2e) {
+      console.log(`[browser:${target.name}:${message.type()}] ${message.text()}`);
+    }
+    if (message.type() === "error") {
+      browserProblems.push(`console.error: ${message.text()}`);
+    }
+  });
+  page.on("pageerror", error => {
+    if (debugBrowserE2e) {
+      console.log(`[browser:${target.name}:error] ${error.message}`);
+    }
+    browserProblems.push(`pageerror: ${error.message}`);
+  });
   if (debugBrowserE2e) {
     console.log(`[browser:${target.name}] starting ${name}`);
-    page.on("console", message => {
-      console.log(`[browser:${target.name}:${message.type()}] ${message.text()}`);
-    });
-    page.on("pageerror", error => {
-      console.log(`[browser:${target.name}:error] ${error.message}`);
-    });
   }
 
   try {
     await callback(page);
+
+    if (browserProblems.length > 0) {
+      throw new Error([
+        "Unexpected browser errors:",
+        ...browserProblems.map(problem => `- ${problem}`)
+      ].join("\n"));
+    }
 
     if (debugBrowserE2e) {
       console.log(`[browser:${target.name}] completed ${name}`);
@@ -612,12 +648,25 @@ async function createStaticServer(root) {
   await new Promise(resolvePromise => {
     server.listen(0, "127.0.0.1", resolvePromise);
   });
+  // Browser launch failures can leave keep-alive sockets around briefly. The
+  // server must never keep a completed release gate alive on its own.
+  server.unref();
 
   const address = server.address();
 
   return {
-    close() {
-      server.close();
+    async close() {
+      await new Promise((resolvePromise, rejectPromise) => {
+        server.close(error => {
+          if (error) {
+            rejectPromise(error);
+            return;
+          }
+
+          resolvePromise();
+        });
+        server.closeAllConnections?.();
+      });
     },
     origin: `http://127.0.0.1:${address.port}`
   };

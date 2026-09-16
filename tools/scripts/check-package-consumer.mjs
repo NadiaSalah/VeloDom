@@ -16,6 +16,7 @@ import {
   readFile,
   readdir,
   rm,
+  stat,
   symlink,
   writeFile
 } from "node:fs/promises";
@@ -194,6 +195,10 @@ try {
 
   const starterCases = [
     {
+      args: ["--template", "minimal", "--javascript"],
+      name: "minimal-javascript"
+    },
+    {
       args: ["--template", "minimal", "--typescript", "--tailwind"],
       name: "minimal-typescript-tailwind",
       typecheck: true
@@ -202,6 +207,10 @@ try {
       args: ["--template", "blog", "--javascript", "--test-unit"],
       name: "blog-javascript",
       testUnit: true
+    },
+    {
+      args: ["--template", "empty", "--javascript"],
+      name: "empty-javascript"
     },
     {
       args: ["--template", "empty", "--typescript"],
@@ -228,6 +237,7 @@ try {
       typecheck: true
     }
   ];
+  const starterBuilds = [];
 
   for (const starterCase of starterCases) {
     const starterRoot = join(temporaryRoot, starterCase.name);
@@ -288,6 +298,22 @@ try {
       cwd: starterRoot
     });
     await access(join(starterRoot, "dist", "index.html"));
+    const buildStats = await readStarterBuildStats(starterRoot);
+
+    if (buildStats.totalJavaScriptBytes > 192 * 1024) {
+      throw new Error(
+        `${starterCase.name} JavaScript exceeds 192 KiB: ${buildStats.totalJavaScriptBytes} bytes`
+      );
+    }
+    if (buildStats.largestJavaScriptBytes > 128 * 1024) {
+      throw new Error(
+        `${starterCase.name} largest chunk exceeds 128 KiB: ${buildStats.largestJavaScriptBytes} bytes`
+      );
+    }
+    starterBuilds.push({
+      name: starterCase.name,
+      ...buildStats
+    });
     if (starterCase.args.includes("--pwa")) {
       for (const file of [
         "manifest.webmanifest",
@@ -300,6 +326,12 @@ try {
     }
   }
 
+  console.log("Generated starter compatibility matrix");
+  starterBuilds.forEach(result => {
+    console.log(
+      `- ${result.name}: ${formatKilobytes(result.totalJavaScriptBytes)} total JS, ${formatKilobytes(result.largestJavaScriptBytes)} largest chunk`
+    );
+  });
   console.log(
     "Installed package and generated starter consumer checks passed."
   );
@@ -356,6 +388,23 @@ async function readJavaScriptAssets(directory) {
   );
 
   return sources.join("\n");
+}
+
+async function readStarterBuildStats(starterRoot) {
+  const assetsRoot = join(starterRoot, "dist", "assets");
+  const files = await readdir(assetsRoot, { withFileTypes: true });
+  const sizes = await Promise.all(files
+    .filter(entry => entry.isFile() && entry.name.endsWith(".js"))
+    .map(async entry => (await stat(join(assetsRoot, entry.name))).size));
+
+  return {
+    largestJavaScriptBytes: Math.max(0, ...sizes),
+    totalJavaScriptBytes: sizes.reduce((total, size) => total + size, 0)
+  };
+}
+
+function formatKilobytes(bytes) {
+  return `${(bytes / 1024).toFixed(1)} KiB`;
 }
 
 async function readProjectText(directory) {

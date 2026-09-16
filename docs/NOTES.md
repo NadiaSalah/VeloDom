@@ -367,10 +367,11 @@
   empty test file.
 - Browser support is documented as an evergreen V1 policy in
   section of `RELEASING.md` and mirrored by `package.json#browserslist`. The Playwright
-  smoke suite now attempts Chromium/Chrome/Edge, Firefox, WebKit, and a mobile
-  WebKit viewport profile. Chromium remains required locally; optional targets
-  are skipped when their binaries are unavailable unless
-  `VELODOM_BROWSER_STRICT=1` is set.
+  smoke suite defaults to required desktop/mobile Chromium profiles. Firefox
+  and desktop/mobile WebKit remain explicit optional local targets and strict
+  CI targets, avoiding a leaked local Firefox launch process when a machine's
+  compositor cannot start. Selected optional targets are skipped when they
+  cannot launch unless `VELODOM_BROWSER_STRICT=1` is set.
 - Local npm recovery-code exports are ignored through `.gitignore`. They should
   remain outside version control and should not be read during routine
   framework work.
@@ -859,6 +860,15 @@
   compatible. Conformance validates a bounded semver range subset, host
   capabilities, duplicates, and named conflicts without importing, installing,
   discovering, or executing third-party packages.
+
+- Browser/performance/starter verification remains repository tooling and adds
+  no runtime service. The browser matrix now exercises desktop and mobile
+  Chromium separately, while Firefox and desktop/mobile WebKit stay strict CI
+  targets; any unexpected page or console error fails its step. The installed
+  tarball generates six starter/language combinations and checks their actual
+  build sizes. Package runtime budgets traverse imports from `velodom` and
+  `velodom/vite`, so optional compiler, Node, CLI, devtools, and build modules
+  are no longer misclassified as application startup code.
 
 ## Handoff Guidance
 

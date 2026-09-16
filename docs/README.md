@@ -452,9 +452,10 @@ What the main checks do:
 | `npm run pack:check` | Runs package checks and inspects the npm tarball dry-run contents. |
 | `npm run benchmark:rendering` | Runs local happy-dom page-binding and loop-rendering benchmarks. |
 | `npm run benchmark:compiler` | Reports cold template compilation, warm incremental-cache reuse, and one explicitly invalidated rebuild. Timings are diagnostic rather than a machine-specific release threshold. |
-| `npm run performance:check` | Enforces separate initial-entry, total lazy-route, largest-chunk, and browser-runtime package JavaScript budgets after build artifacts exist; Node/build-only PWA, CLI, scaffolder, testing, and devtools modules are excluded. Set `VELODOM_CSS_BUDGET_KB` to optionally enforce a project-owned total CSS budget too. |
-| `npm run test:browser` | Builds the showcase and runs the Playwright browser matrix. Chromium/Chrome/Edge is required; Firefox, WebKit, and mobile WebKit run when installed. |
-| `npm run build` | Runs all quality/package gates, builds the showcase, then checks performance budgets. |
+| `npm run benchmark:check` | Runs both deterministic compiler-cache and rendering benchmark workloads; timings remain local diagnostics while correctness failures stop the gate. |
+| `npm run performance:check` | Enforces separate initial-entry, total lazy-route, largest-chunk, and public-browser-entry JavaScript budgets after build artifacts exist. Package runtime size follows modules reachable from `velodom` and `velodom/vite`, so optional Node/build tooling is not misclassified as startup code. Set `VELODOM_CSS_BUDGET_KB` to optionally enforce a project-owned total CSS budget too. |
+| `npm run test:browser` | Builds the showcase and runs the required desktop/mobile Chromium smoke checks. Strict CI selects Firefox and desktop/mobile WebKit too; any unexpected page or console error fails its step. |
+| `npm run build` | Runs all quality/package gates, builds the showcase, executes benchmark workloads, then checks performance budgets. |
 
 Generated `examples/velodom-blog/dist`, `packages/velodom/lib`, and
 `packages/velodom/types` folders are build output and should not be edited
@@ -4441,15 +4442,17 @@ Run the local smoke matrix with:
 ```bash
 npm run test:browser
 VELODOM_BROWSER_STRICT=1 npm run test:browser
-VELODOM_BROWSER_TARGETS=chromium,firefox,webkit,mobile-webkit npm run test:browser
+VELODOM_BROWSER_TARGETS=chromium,mobile-chromium,firefox,webkit,mobile-webkit npm run test:browser
 ```
 
-Chromium is the required local target. Firefox, WebKit, and mobile WebKit are
-attempted when their Playwright binaries exist; release CI should use strict
-mode. The suite covers direct routes, client navigation, dynamic params,
-forms, requests, cleanup, focus, and no-JavaScript SEO output. `happy-dom`
-tests are fast checks, not a replacement for real browsers. VeloDom does not
-ship browser polyfills by default.
+Desktop and mobile Chromium are the default required local targets. Select
+Firefox, WebKit, or mobile WebKit explicitly through
+`VELODOM_BROWSER_TARGETS`; release CI uses strict mode and selects all five
+targets. The suite covers direct routes, client
+navigation, dynamic params, forms, requests, cleanup, focus, no-JavaScript SEO,
+and rejects unexpected `pageerror`/`console.error` output. `happy-dom` tests are
+fast checks, not a replacement for real browsers. VeloDom does not ship browser
+polyfills by default.
 
 ### Editor intelligence
 
@@ -5166,12 +5169,12 @@ VeloDom does not target Internet Explorer, legacy EdgeHTML Edge, Opera Mini, or
 browsers without native ES modules.
 
 `npm run test:browser` runs a Playwright-powered matrix. A local Chrome, Edge,
-or Playwright Chromium target is required. Firefox, WebKit, and a mobile
-Safari/WebKit viewport profile are attempted automatically and reported as
-skipped when their Playwright browser binaries are not installed. Set
-`VELODOM_BROWSER_STRICT=1` to fail instead of skipping missing optional browser
-targets, and set `VELODOM_BROWSER_TARGETS=chromium,firefox,webkit,mobile-webkit`
-to choose targets explicitly. `happy-dom` remains the fast local DOM
+or Playwright Chromium target is required, and desktop/mobile Chromium run by
+default. Set
+`VELODOM_BROWSER_TARGETS=chromium,mobile-chromium,firefox,webkit,mobile-webkit`
+to select the complete matrix and `VELODOM_BROWSER_STRICT=1` to fail instead of
+skipping a selected optional target that cannot launch. Release CI sets both.
+`happy-dom` remains the fast local DOM
 integration environment; it is not treated as a replacement for real-browser
 E2E coverage.
 
