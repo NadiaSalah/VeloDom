@@ -195,7 +195,7 @@ marketing list.
 
 | Import | Public values |
 | --- | --- |
-| `velodom` | `createApp`, `computed`, `effect`, `watch`, `definePageConfig`, `definePlugin`, `defineRequestRoute`, `defineResourceAdapter`, `assertResourceAdapterConformance`, `createDirectionPlugin`, `createRtlFlipStyles`, `createSharedState`, `createDevtoolsPlugin`, `createRequestCache`, `withRequestRetry`, `createValidationPlugin`, `createProgressiveFormsPlugin`, `assertPluginConformance`, `createPluginManager`, `ApiError`, `createAuthRuntime`, `createLocalStorageAuthProvider`, `createServerSessionAuthProvider`, `defineRequestMiddleware`, `normalizeAuthSession`, `requestJson`, `VD_AUTH`, `VD_MIDDLEWARE`, `VD_REQUEST` |
+| `velodom` | `createApp`, `computed`, `effect`, `watch`, `definePageConfig`, `definePlugin`, `defineRequestRoute`, `defineResourceAdapter`, `assertResourceAdapterConformance`, `createDirectionPlugin`, `createRtlFlipStyles`, `createSharedState`, `createDevtoolsPlugin`, `createRequestCache`, `withRequestRetry`, `createValidationPlugin`, `createProgressiveFormsPlugin`, `assertPluginConformance`, `inspectPluginConformance`, `createPluginManager`, `ApiError`, `createAuthRuntime`, `createLocalStorageAuthProvider`, `createServerSessionAuthProvider`, `defineRequestMiddleware`, `normalizeAuthSession`, `requestJson`, `VD_AUTH`, `VD_MIDDLEWARE`, `VD_REQUEST` |
 | `velodom/compiler` | `analyzeVeloDomDocument`, `compileTemplate`, `createRuntimeFeatureManifest`, `defineTemplateOptimizer`, `getVeloDomDirectiveCompletions`, `runTemplateOptimizers` |
 | `velodom/content` | `loadContentCollection`, `loadExternalContentCollection`, `createContentCollection`, `createContentIndex`, `parseMarkdownContent`, `createContentSeoEntries`, `createContentSitemap`, `createContentSearchIndex`, `createContentRssFeed` |
 | `velodom/localization` | `defineLocaleDictionary`, `definePluralMessage`, `createLocalization`, `generateLocaleKeyDeclaration`, `getLocaleKeyCompletions`, `extractLocaleKeyUsage`, `createLocaleFormatter`, `inspectLocalization` |
@@ -4597,6 +4597,7 @@ Runtime:
 - `definePlugin`
 - `defineResourceAdapter`
 - `assertPluginConformance`
+- `inspectPluginConformance`
 - `assertResourceAdapterConformance`
 - `createDevtoolsPlugin`
 - `createDirectionPlugin`
@@ -4762,6 +4763,43 @@ export const pwaServiceWorker = {
   ])
 };
 ```
+
+Optional integration manifest (advanced plugin authors only):
+
+```js
+import {
+  assertPluginConformance,
+  definePlugin,
+  inspectPluginConformance
+} from "velodom";
+
+const searchPlugin = definePlugin({
+  manifest: {
+    name: "@example/velodom-search",
+    version: "1.2.0",
+    velodom: "^1.0.0",
+    capabilities: ["browser", "build"],
+    conflicts: ["legacy-search"]
+  },
+  setup({ app }) {
+    // Optional integration setup.
+  }
+});
+
+const report = inspectPluginConformance(searchPlugin, {
+  target: "browser"
+});
+assertPluginConformance(searchPlugin, { target: "browser" });
+```
+
+The manifest is optional so small application plugins stay simple. A manifest
+declares an exact plugin version, a VeloDom range (`*`, exact, `1.x`, caret,
+tilde, or comparator set), one or more `browser`/`build`/`node` capabilities,
+and optional package-name conflicts. Inspection is shape-only: it never calls
+`setup()` or `cleanup()`. The browser plugin manager rejects incompatible,
+build-only, duplicate, or conflicting manifested plugins before setup begins.
+V1 does not include a marketplace, remote discovery, or third-party execution
+during validation.
 
 ```js
 // vite.config.js

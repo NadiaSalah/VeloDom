@@ -132,7 +132,7 @@ docs/
 ## Current Status
 
 The package source is version `1.0.0`. Its public contract exposes 14 package
-entry points, 79 browser/build public values, 43 preferred directive names,
+entry points, 80 browser/build public values, 43 preferred directive names,
 and 25 CLI commands. Release checks cover TypeScript, ESLint, documentation consistency,
 the automated test suite, production builds, package boundaries, an installed
 tarball consumer, the generated starter, and browser targets.
@@ -146,6 +146,10 @@ release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
+- Formalized optional plugin manifests with VeloDom compatibility ranges,
+  explicit browser/build/Node capabilities, duplicate/conflict diagnostics,
+  and shape-only conformance inspection. Legacy function/object plugins remain
+  valid, and validation never executes third-party setup code.
 - Added stable runtime error IDs, compiler/router/request/component/runtime
   grouping, bounded normalized source stacks, and page/component ownership
   trails. Error boundaries now receive the structured diagnostic while keeping

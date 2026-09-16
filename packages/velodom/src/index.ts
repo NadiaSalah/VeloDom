@@ -63,7 +63,12 @@ export type {
   PageDataLoader,
   PagePrerenderConfig,
   PageScriptContext,
+  PluginCapability,
+  PluginConformanceOptions,
+  PluginConformanceReport,
   PluginContext,
+  PluginManifest,
+  PluginManifestDiagnostic,
   ProgressiveFormRequestContext,
   ProgressiveFormResponseContext,
   ProgressiveFormsPluginOptions,
@@ -141,7 +146,8 @@ export {
 /** Advanced plugin manager utility. */
 export {
   assertPluginConformance,
-  createPluginManager
+  createPluginManager,
+  inspectPluginConformance
 } from "./plugins.ts";
 
 /** Public request, auth, middleware, and request-constant utilities. */

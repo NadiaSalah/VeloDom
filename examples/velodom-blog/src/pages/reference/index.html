@@ -24,7 +24,7 @@
         source tree.
       </p>
       <div class="mt-7 flex flex-wrap gap-2">
-        <span class="badge badge-primary badge-outline">79 public values</span>
+        <span class="badge badge-primary badge-outline">80 public values</span>
         <span class="badge badge-primary badge-outline">14 package exports</span>
         <span class="badge badge-primary badge-outline">43 preferred directives</span>
         <span class="badge badge-primary badge-outline">25 CLI commands</span>
@@ -79,7 +79,7 @@ const ui = createSharedState({ theme: "system" }, { name: "ui" });
 createApp({ adapter, plugins: [ui.plugin] });
 ui.state.theme = "dark";</code></pre>
       </div>
-      <p class="mt-4">Also public for conformance and integrations: <code class="inline-code">defineResourceAdapter</code>, <code class="inline-code">assertResourceAdapterConformance</code>, <code class="inline-code">assertPluginConformance</code>, <code class="inline-code">createRtlFlipStyles</code>, and <code class="inline-code">createDevtoolsPlugin</code>. Use them only when authoring infrastructure rather than an ordinary page.</p>
+      <p class="mt-4">Also public for conformance and integrations: <code class="inline-code">defineResourceAdapter</code>, <code class="inline-code">assertResourceAdapterConformance</code>, <code class="inline-code">inspectPluginConformance</code>, <code class="inline-code">assertPluginConformance</code>, <code class="inline-code">createRtlFlipStyles</code>, and <code class="inline-code">createDevtoolsPlugin</code>. Plugin inspection validates optional compatibility, browser/build/Node capabilities, duplicates, and conflicts without executing setup code. Use these APIs only when authoring infrastructure rather than an ordinary page.</p>
     </section>
 
     <section id="requests" class="doc-section">

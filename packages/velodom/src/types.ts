@@ -486,8 +486,42 @@ export type PluginSetup = (
   context: PluginContext
 ) => MaybePromise<void | PluginCleanup>;
 
+/** Explicit host surface supplied by an optional plugin package. */
+export type PluginCapability = "browser" | "build" | "node";
+
+/** Static plugin metadata validated without executing setup code. */
+export interface PluginManifest {
+  capabilities: readonly PluginCapability[];
+  conflicts?: readonly string[];
+  name: string;
+  velodom: string;
+  version: string;
+}
+
+/** Stable result item returned by plugin conformance inspection. */
+export interface PluginManifestDiagnostic {
+  code: string;
+  message: string;
+  plugin?: string;
+  severity: "error" | "warning";
+}
+
+/** Options for static plugin compatibility and target inspection. */
+export interface PluginConformanceOptions {
+  frameworkVersion?: string;
+  target?: PluginCapability;
+}
+
+/** Static plugin inspection result; no setup or cleanup code has run. */
+export interface PluginConformanceReport {
+  compatible: boolean;
+  diagnostics: PluginManifestDiagnostic[];
+  manifests: PluginManifest[];
+}
+
 /** Function-style or object-style application plugin. */
 export type VeloDomPlugin = PluginSetup | {
+  manifest?: PluginManifest;
   setup: PluginSetup;
   cleanup?: PluginCleanup;
 };

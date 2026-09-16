@@ -852,6 +852,14 @@
   repository ceiling. This prevents educational content from being mistaken
   for startup cost without removing the aggregate regression guard.
 
+- Plugin manifests are optional advanced metadata, not a new plugin registry.
+  CLI impact is `NONE`: project creation needs no prompt or generated file.
+  Runtime managers statically require a declared `browser` capability only
+  when a manifest exists; legacy manifest-free function/object plugins stay
+  compatible. Conformance validates a bounded semver range subset, host
+  capabilities, duplicates, and named conflicts without importing, installing,
+  discovering, or executing third-party packages.
+
 ## Handoff Guidance
 
 1. Read `README.md`, then `TODO.md`, before changing framework APIs.

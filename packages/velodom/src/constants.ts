@@ -348,6 +348,20 @@ export const VD_ERROR = Object.freeze({
   })
 });
 
+/** Stable optional plugin-manifest vocabulary for the V1 package contract. */
+export const VD_PLUGIN = Object.freeze({
+  FRAMEWORK_VERSION: "1.0.0",
+  CAPABILITIES: Object.freeze(["browser", "build", "node"]),
+  CODES: Object.freeze({
+    CAPABILITY: "VD_PLUGIN_CAPABILITY",
+    COMPATIBILITY: "VD_PLUGIN_COMPATIBILITY",
+    CONFLICT: "VD_PLUGIN_CONFLICT",
+    DUPLICATE: "VD_PLUGIN_DUPLICATE",
+    MANIFEST: "VD_PLUGIN_MANIFEST",
+    SHAPE: "VD_PLUGIN_SHAPE"
+  })
+});
+
 /** Request event names, stages, and public error codes. */
 export const VD_REQUEST = Object.freeze({
   DEBOUNCE_KEYS: Object.freeze([

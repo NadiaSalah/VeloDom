@@ -246,6 +246,14 @@ const errors = mountVeloDomErrorOverlay({ limit: 25 });
 The overlay is not mounted by normal runtime imports, retains no network
 payloads, and provides no retry or state-mutation controls.
 
+Small application plugins still need only a setup function or `{ setup,
+cleanup }`. Published integrations may add an optional static `manifest` with
+an exact plugin version, a VeloDom compatibility range, explicit
+`browser`/`build`/`node` capabilities, and named conflicts. Use
+`inspectPluginConformance()` for a diagnostic report or
+`assertPluginConformance()` for a throwing test assertion. Neither function
+executes plugin code, and VeloDom provides no marketplace or remote discovery.
+
 Choose `--lab` during scripted project creation or select it in Customize mode
 to add `npm run lab`. The command starts the existing Vite server with an
 experimental read-only panel for routes, mounted components, state, bindings,

@@ -705,7 +705,9 @@ export const cache = {
       </p>
       <div class="code-window">
         <div class="code-toolbar"><span>public imports</span><span>stable boundaries</span></div>
-        <pre class="code-example" vd-pre><code>import { createApp, definePlugin } from "velodom";
+        <pre class="code-example" vd-pre><code>import {
+  createApp, definePlugin, inspectPluginConformance
+} from "velodom";
 import { mountVeloDom } from "velodom/vite";
 import { compileTemplate } from "velodom/compiler";
 import {
@@ -714,6 +716,18 @@ import {
   mountTestPage,
   resolveTestRoute
 } from "velodom/testing";
+
+const integration = definePlugin({
+  manifest: {
+    name: "example-tools",
+    version: "1.0.0",
+    velodom: "^1.0.0",
+    capabilities: ["browser"]
+  },
+  setup() {}
+});
+
+inspectPluginConformance(integration, { target: "browser" });
 
 // Do not import velodom/lib/* or packages/velodom/src/*
 // Those are framework internals, not application APIs.</code></pre>

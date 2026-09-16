@@ -48,7 +48,8 @@ before use.
 | Progressive forms | Forms | Supported | plugin opt-in | normal client request | public plugin | Yes |
 | Shared state | State | Supported | `createSharedState` | page-local state | public helper | Yes |
 | Computed/effect/watch | State | Supported | functions from `velodom` | direct state | public helpers | Yes |
-| Plugin system | Extension | Stable | `definePlugin` / `createPluginManager` | function plugin | public APIs | Yes |
+| Plugin system | Extension | Stable | `definePlugin` / `createPluginManager` | simple function plugin or optional static compatibility/capability/conflict manifest | public APIs | Yes |
+| Plugin conformance | Extension | Supported | `inspectPluginConformance` / `assertPluginConformance` | shape-only diagnostics; no marketplace or third-party execution | public APIs | Yes |
 | Structured error diagnosis | Resilience | Stable | app error handler, optional `velodom/devtools` overlay | stable IDs, grouped bounded source stacks, hierarchical ownership | public types + devtools helper | Yes |
 | Error boundary hook | Resilience | Stable | app error handler | application-owned fallback/retry UI | public types | Yes |
 | SEO metadata | Build | Stable | page `seo` config | dynamic entries | Vite plugin | Yes |

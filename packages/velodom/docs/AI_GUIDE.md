@@ -148,6 +148,15 @@ Do not import from package `lib` internals or from repository
 `packages/velodom/src` paths. An unexported implementation file is not a stable
 API, even if it exists in the installed tarball or repository checkout.
 
+For a small application-owned plugin, prefer a plain setup function. Use an
+optional manifest only for a reusable integration that needs compatibility,
+host-capability, or conflict metadata. The public fields are `name`, exact
+`version`, `velodom`, `capabilities`, and optional `conflicts`; supported host
+capabilities are `browser`, `build`, and `node`. Run
+`inspectPluginConformance()` or `assertPluginConformance()` statically. Do not
+execute third-party setup while validating it, fetch remote catalogs, or infer
+that conformance means security approval.
+
 ## Choose Canonical Versus Legacy Syntax
 
 - Write `vd-*`; accept existing `data-vd-*` only as compatibility syntax.

@@ -395,6 +395,13 @@ Primary `velodom` values:
 - optional plugins/helpers: shared state, direction, validation, progressive
   forms, request cache/retry, devtools bridge, plugin manager
 
+Plain application plugins need only a setup function. Reusable integrations
+may add `manifest: { name, version, velodom, capabilities, conflicts? }` to the
+object form. `version` is exact; `velodom` accepts `*`, an exact version,
+`1.x`, caret, tilde, or whitespace-separated comparators. Capabilities are
+`browser`, `build`, or `node`. `inspectPluginConformance()` returns static
+diagnostics and never runs setup/cleanup; there is no built-in marketplace.
+
 Additional public functionality is separated into the documented package
 subpaths. See `FEATURE_INVENTORY.md` for exact capability status and
 `README.md` for the supported import map.

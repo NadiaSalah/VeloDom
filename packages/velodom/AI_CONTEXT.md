@@ -239,6 +239,11 @@ visibility are never server authorization.
   request doubles, DOM event dispatch, accessibility smoke diagnostics, and
   page/component mounts. It is not an application runtime service.
 - Use only capabilities marked implemented in `docs/FEATURE_INVENTORY.md`.
+- Keep ordinary application plugins manifest-free unless metadata solves a
+  real integration problem. Published integrations may declare a static
+  manifest with `name`, exact `version`, VeloDom range, capabilities, and
+  conflicts. Inspect it with `inspectPluginConformance()`; validation must
+  never execute third-party setup code or imply marketplace approval.
 
 ## Mandatory AI Rules
 

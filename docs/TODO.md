@@ -365,9 +365,9 @@ These ideas fit VeloDom only as optional build/development integrations. They
 need a bounded design, a public compatibility story, and tests after the
 next-release Project Index and installer contracts are proven.
 
-**Executable later-release scope: 5 of 7 milestones complete.**
+**Executable later-release scope: 6 of 7 milestones complete.**
 
-`[##############......] 71%`
+`[#################...] 86%`
 
 - [x] Expand the feature installer lifecycle with safe `vd remove`, `vd
   upgrade`, compatibility reporting, and shareable project presets. Removal
@@ -406,10 +406,13 @@ next-release Project Index and installer contracts are proven.
   IDs, normalized bounded frames, subsystem groups, and page/component/request
   ownership; the opt-in `velodom/devtools` overlay only observes and groups
   those reports, while application hooks continue to own retry and fallback UI.
-- [ ] Formalize plugin manifests with compatibility ranges, declared build,
+- [x] Formalize plugin manifests with compatibility ranges, declared build,
   browser, and Node capabilities, conflict diagnostics, and conformance tests.
-  Do not create an official marketplace or execute third-party plugins while
-  validating their manifests.
+  Optional manifests now declare exact plugin versions, a bounded VeloDom
+  range subset, host capabilities, and named conflicts. Static conformance
+  reports duplicates, incompatibility, target mismatch, and conflicts without
+  executing setup/cleanup; legacy manifest-free plugins remain compatible and
+  no marketplace or discovery service was added.
 - [ ] Expand browser/performance regression benchmarks and starter compatibility
   coverage as the new contracts land; checks remain release gates rather than
   browser runtime behavior.
