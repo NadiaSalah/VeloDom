@@ -2,6 +2,33 @@
 
 ## Architectural Decisions
 
+### Commerce and large-application roadmap review — 2026-09-17
+
+- Documentation-only planning: added ten prioritized proposals with ownership,
+  value, relative complexity, CLI classification, and acceptance criteria in
+  `TODO.md`. New progress is 0/10; completed implementation and simplicity
+  counters are unchanged. No feature, public API, syntax, starter, or version
+  was implemented or changed by this review.
+- Existing routing/layouts, optional shared state, requests/auth, cache/retry,
+  native validation, localization/RTL, static SEO, diagnostics, and tooling are
+  reused rather than re-listed as missing services. The initial work validates
+  a store/admin application on current V1, not a redesign of Core.
+- `src/api` in a frontend project is not a server security boundary. Backend
+  contracts own authorization, session and tenant isolation, authoritative
+  prices/stock, idempotency, payment verification, and durable order state.
+  OWASP/Stripe primary references are linked in TODO as rationale, not as a
+  vendor choice, financial/compliance certification, or new package dependency.
+- The full educational blog remains a teaching consumer. New commerce examples
+  and optional starter choices are future work; the package feature inventory,
+  syntax docs, AI contract and current example content intentionally do not claim
+  their existence. C05/C06 extend existing request/forms contracts only after
+  real recipes demonstrate missing generic behavior.
+- Retained the feature-expansion freeze while beginner validation is incomplete.
+  V1.x data/forms/production hooks require tests and runtime budgets; later-major contract
+  generation stays build-only. Existing SSR research gained commerce acceptance
+  cases rather than a duplicate checklist; realtime and virtual-list exploration
+  remain optional research with explicit native/pagination alternatives.
+
 ### Repository organization and teaching entry point — 2026-09-17
 
 - Kept the current ownership boundaries: publishable framework and its own build

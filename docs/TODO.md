@@ -23,6 +23,7 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 | Approved authoring and rendering maturity | Implemented locally | Looped components, keyed updates, `.vd` lazy parity, and compiler cache; release verification remains separate |
 | Approved developer intelligence | Implemented locally | Shared project index, diagnostics, safe fixes, generated types, and CLI composition |
 | Approved optional extensions | Implemented locally | Seven bounded tooling/integration milestones complete; research remains excluded |
+| Commerce and large applications | Planned validation / optional extensions | General-purpose frontend already exists; the new track below is not implemented or a production-commerce certification |
 | Hybrid rendering, AI, migration, CMS, and Edge | Research / Experimental | External or high-risk capabilities; never required by Core |
 
 ### Progress counter
@@ -43,6 +44,10 @@ state.
 **New V1 simplicity/organization follow-up: 3 of 8 complete (37.5%).**
 This separately scoped quality/adoption work is detailed below; the completed
 implementation counters above do not mean these follow-ups or release gates are done.
+
+**Commerce and large-application track: 0 of 10 complete (0%).**
+These new proposals do not change the completed baseline or the 3/8 simplicity
+counter. Research experiments are tracked separately and are not implementation promises.
 
 ### Status vocabulary
 
@@ -109,6 +114,195 @@ These tasks reuse current contracts, not new directives or a new runtime layer.
 Existing SSR/islands/AI/migration proposals remain in Research below; this track
 does not promote them. Release approval and full browser CI remain the existing
 V1 Ecosystem gates, not additional unchecked copies here.
+
+## Commerce and Large Applications — Evidence-led Roadmap
+
+VeloDom is already a general-purpose frontend, not a blog engine. The current
+documentation site is one consumer, not the framework's architectural boundary.
+The objective is to prove and improve store, administration, and business-app
+workflows without turning Core into an e-commerce backend or enterprise platform.
+
+**Progress: 0 of 10 milestones complete (0%).**
+
+`[--------------------] 0%`
+
+### Existing foundations — reuse before adding
+
+| Already implemented | Apply it to | Missing evidence or bounded extension |
+| --- | --- | --- |
+| Pages, dynamic routes, query context, layouts, guards, lazy routes | Catalog, product details, account and admin shells | Complete non-blog journeys; unsaved-edit handling is evaluated in C06 |
+| `createSharedState`, shallow reactive state, keyed lists | Cart count, selected variants, editable collections | Explicit immutable/reassignment patterns; cart persistence is app-owned |
+| Request routes, middleware, cancellation, retry, cache helpers, page data policies | Search, catalog reads, account requests, mutations | Consistent post-mutation refresh and privacy scope in C05; not a second request engine |
+| Native validation/progressive forms and error boundaries | Address forms, login, product editing, recovery | Complex form composition in C06; client validation is not backend validation |
+| Localization, native `Intl`, RTL, assets and static SEO/content hooks | Translated catalog, currency display, responsive product images | Real application examples and freshness policy, not a new translation or image service |
+| Project Index, types, build reports, testing helpers and Lab | Team development, large route trees, debugging | Measured scale and production integration evidence in C07/C09 |
+
+Prerequisite: complete the beginner journey and common-recipe work in the
+Simplicity track before adding optional Core APIs. C01–C04 can validate current
+V1 contracts; C05–C09 are bounded V1.x proposals, not a reason to inflate the
+initial V1 release. C10 is deferred to a future major release unless independent usage justifies
+earlier prioritization. Complexity labels are relative, not delivery estimates.
+
+### P0 — Prove real applications with the current V1
+
+- [ ] **C01 — Storefront reference consumer. V1 validation; complexity: High;
+  owner: application/example; CLI: NONE initially.** Build a separate small
+  store example using public imports: catalog, categories, product variants,
+  URL-backed search/filter/sort/pagination, product details, cart quantity and
+  totals, empty/loading/error states, and a clearly mocked checkout handoff.
+  Reuse `createSharedState`, requests, keyed lists, layouts, and native `Intl`;
+  no `vd-cart`/`vd-checkout` directives or required store service. Keep guest-cart
+  persistence versioned and application-owned, store no credentials in it, and
+  revalidate availability/prices with the backend. Value: prove a complete
+  shopping interaction without learning a second framework model. Acceptance:
+  direct product links, Back/Forward filters, refresh/persistence failure,
+  keyboard operation, mobile/RTL, and production builds work; the example
+  clearly labels mock data/payment and makes no real transaction.
+
+- [ ] **C02 — Administration and business workflow example. V1 validation;
+  complexity: Medium; owner: application/example; CLI: NONE initially.** Add
+  a focused admin area to the same reference consumer rather than a second
+  copy of its domain/data layer. Demonstrate list/detail/edit, server-paginated
+  search, bulk-action confirmation, validation errors, and separate layouts.
+  Reuse native forms, existing request status, and accessible HTML; include
+  focus restoration, keyboard controls, readable errors, and non-color-only
+  status. Value: show dashboards/CRUD are first-class use cases without shipping
+  a mandatory data grid/design system. Acceptance: rejected/failed/conflicting
+  writes preserve edits and recover visibly; test actual server denial as well
+  as UI guards through C03. Extend the existing common-recipe task, not a new
+  parallel form tutorial.
+
+- [ ] **C03 — Backend, session, and safe-write integration contract. V1
+  documentation/integration tests; complexity: High; owner: application backend
+  plus fixtures; CLI: NONE.** Teach that `src/api` discovery is a client request
+  convention, not a secret server execution boundary. Specify a small
+  replaceable HTTP contract for session, catalog, cart quotation, order creation,
+  and order status. Test denied resource/role/tenant access, session expiry,
+  logout/account changes, pending requests, and cached private data isolation.
+  Keep server credentials, permission checks, CSRF/session policy, authoritative
+  price/currency/stock/tax validation, and order state transitions on the server.
+  Explain idempotent writes and retry restrictions: disabling a button or using
+  a client-generated key alone cannot guarantee one order/payment. A future
+  sandbox payment adapter must verify provider events on the backend and must
+  not treat the browser success URL as proof of payment. Value: a realistic
+  production boundary without making Core a backend. Acceptance: a deterministic
+  local backend fixture rejects unauthorized/tampered/duplicate writes and
+  produces no real charges; no provider SDK or secret enters a browser bundle.
+
+- [ ] **C04 — Large-team application organization recipe. V1 documentation;
+  complexity: Medium; owner: docs/examples; CLI: NONE.** Show feature-owned
+  catalog/cart/account/admin modules, shared application UI, typed public
+  contracts, and dependency direction while retaining existing `src/pages`,
+  `src/components`, `src/layouts`, and `src/api` discovery. Keep helpers in
+  explicit app-owned modules outside discovery folders where appropriate;
+  do not invent auto-discovered `services` folders or a DI container. Explain
+  public versus server-only configuration, environment/build differences,
+  deployment base paths, and choosing JS or TS without duplicating the app.
+  Value: teams can grow a project without giant page scripts or private Core
+  imports. Acceptance: examples build using the installed npm artifact and
+  existing inspection tools; no new module registry or mandatory global store.
+
+### P1 — Optional improvements after the reference workflows expose gaps
+
+- [ ] **C05 — Coherent read/mutation lifecycle. V1.x; complexity: High;
+  owner: generic request/data helpers only if recipes prove insufficient;
+  CLI: NONE.** Audit current cache/page-data/retry/cancellation contracts first.
+  Design explicit invalidation/refetch after a successful mutation, bounded
+  cache lifetime, duplicate-read coalescing, and stale-response prevention.
+  Scope private entries by session/tenant and handle logout/in-flight completion
+  without cross-user reuse. Begin with pessimistic writes; optimistic UI is
+  optional, requires rollback/conflict semantics, and must never confirm payment
+  or stock ownership. Value: fewer inconsistent cart/admin views and less
+  hand-written request coordination. Acceptance: concurrency, abort, failed
+  mutation, account-switch and memory-bound tests; reuse one request engine,
+  preserve existing helpers, and add no automatic global fetch/store behavior.
+
+- [ ] **C06 — Composable complex forms and edit protection. V1.x; complexity:
+  High; owner: optional forms integration and narrowly scoped router extension
+  only if needed; CLI: NONE initially.** Build on native constraints and the
+  existing validation plugin: field/server-error mapping, dirty/touched state,
+  repeatable fields, async-validation cancellation, and multi-step form recipes.
+  Evaluate an optional schema adapter, not a required validation dependency.
+  Include an explicit multipart/file-upload escape hatch with cancel/cleanup;
+  do not imply the JSON request helper already serializes files or that upload
+  progress/resume is automatic. Define unsaved-edit behavior for app navigation,
+  browser Back, and best-effort native unload prompts without trapping users;
+  browser restrictions still apply. Value: usable checkout/admin forms without
+  a new form DSL. Acceptance: accessible focus/errors, retained values on failure,
+  stale validation ignored, no duplicate listeners, server validation retained.
+
+- [ ] **C07 — Measured large-project reliability. V1.x; complexity: Medium;
+  owner: existing build/test tooling; CLI: NONE.** Extend current benchmarks and
+  six-starter gates with deterministic larger route/component graphs and long
+  navigation sessions. Measure cold/warm builds, HMR invalidation, route chunks,
+  cleanup/listener/cache growth, and representative catalog/admin response work.
+  Prefer server pagination and lazy routes before virtualization. Reuse
+  `build-report`, Project Index, browser tests, and performance budgets instead
+  of adding another dashboard. Value: replace "supports large projects" claims
+  with reproducible evidence. Acceptance: record dataset, environment, baselines
+  and thresholds; cover deep links, base paths, auth changes and repeated mounts;
+  regressions fail CI, and browser-scale evidence is not presented as backend
+  throughput or a guarantee of concurrent shoppers.
+
+- [ ] **C08 — Optional Store/Admin starter exposure. V1.x, after C01–C04;
+  complexity: Medium; owner: existing scaffolder; CLI: STARTER_SPECIFIC.** Only
+  promote a proven minimal subset of the reference app into starter selection
+  after usability tests show it saves setup work. Reuse shared starter layers,
+  feature installers, ownership/conflict rules, and JS/TS choices; do not copy
+  the full teaching site or add another generator. Value: a beginner starts a
+  practical app with editable files and no framework-internal edits. Acceptance:
+  packed-install builds, language/tooling combinations, optional additions,
+  public-only imports, portable docs, and visible mock/backend setup; no secret
+  prompts, payment activation or dependency installation without explicit choice.
+  There is no Store/Admin starter option today; do not document future flags
+  as current commands.
+
+- [ ] **C09 — Opt-in production diagnostics recipe. V1.x; complexity: Medium;
+  owner: application integration, then generic hooks only for confirmed gaps;
+  CLI: NONE.** Reuse structured error reports, existing boundaries, and request
+  lifecycle hooks to forward redacted errors/timing/correlation IDs to an
+  application-selected sink. Document source-map handling, sampling, cleanup,
+  and route/request attribution; never capture session/cart/payment payloads
+  by default. Keep Lab development-only. Value: diagnose real user failures
+  without mandatory telemetry or a framework monitoring account. Acceptance:
+  normal imports create no collector/network traffic, redaction fixtures pass,
+  handlers clean up, and observability failure never breaks a user action.
+
+### P2 — Defer until contracts and users justify it
+
+- [ ] **C10 — Optional API-contract code generation. Future major release; complexity: High;
+  owner: build-only adapter; CLI: POST_CREATE_STEP if approved.** Evaluate
+  generating app-owned request wrappers and TS declarations from a local
+  OpenAPI schema, reusing `vd types` conventions where possible. Plain JS and
+  hand-written handlers must stay valid; server validation remains mandatory.
+  Value: reduce API drift for multi-team applications, not introduce a new
+  runtime RPC/server-actions layer. Acceptance: deterministic output, explicit
+  generated-file ownership, no overwrite of user handlers, no network fetch
+  without consent, and installed-consumer tests. No CLI command is promised yet.
+
+### Services that must not be built into Core
+
+| Concern | Correct owner / VeloDom's role |
+| --- | --- |
+| Catalog persistence and full-text search | Application backend/database/search service; VeloDom displays and requests records |
+| Prices, currencies, discounts, inventory, shipping and taxes | Server business rules; frontend formats and previews but cannot authorize totals |
+| Payments, refunds, fulfillment and subscriptions | Application backend + chosen provider; frontend handles a documented handoff/status UI |
+| Accounts, sessions, roles, tenants and authorization | Server identity/access policy; existing client providers/guards improve UX only |
+| Upload storage, image transformation, email and jobs | Optional application services/adapters, not hidden credentials or mandatory cloud dependencies |
+| Shared state, error UI and presentation | Application-owned patterns using optional generic helpers; no compulsory global store/UI kit |
+
+External evidence for these boundaries (not a selected vendor dependency):
+[OWASP authorization](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)
+requires permissions to be checked on requests;
+[Stripe fulfillment](https://docs.stripe.com/checkout/fulfillment) explains why
+payment completion cannot depend only on a browser landing page; its
+[idempotent-request contract](https://docs.stripe.com/api/idempotent_requests)
+illustrates backend/provider-enforced retry semantics. Recheck the chosen
+provider's actual contract during implementation; there is no universal payment API.
+
+Keep `examples/velodom-blog` as the teaching site. Future store/admin consumers
+should be separate application examples, linked from lessons once implemented,
+not silently substituted for the documentation site or bundled into Core.
 
 ## V1 Core — Implemented
 
@@ -508,6 +702,10 @@ of concept are required before promoting any item to a later release.
 - [ ] Evaluate an opt-in hybrid server-rendering boundary and route rendering
   modes that keep static output the default for applications that explicitly
   need request-time HTML.
+  Use public product/category freshness and authenticated-account isolation as
+  evaluation cases. Compare explicit static rebuilds with request-time needs;
+  never cache personalized pricing/account HTML across users. Commerce does not
+  automatically promote this research to an implemented V1 SSR/hydration promise.
 - [ ] Evaluate compiler-generated islands or partial hydration only if ordinary
   HTML remains the authoring surface, no mandatory virtual DOM is introduced,
   and pages that do not opt in pay no hydration cost.
@@ -526,6 +724,17 @@ of concept are required before promoting any item to a later release.
 - [ ] Evaluate locale negotiation, cookie/domain locale policy, full ICU
   parsing, and request-time translation providers outside the build-time
   localization helpers.
+- [ ] **Commerce/large-data research; complexity: High; CLI: NONE:** Evaluate an
+  optional virtual-list integration only when C07 measurements show pagination
+  is insufficient. Prove keyed state/focus, keyboard/screen-reader behavior,
+  variable-height rows, cleanup, and memory limits; never change default
+  `vd-for` semantics or hide important indexable content by default.
+- [ ] **Business-app realtime research; complexity: Medium–High; CLI: NONE:**
+  Evaluate app-owned SSE/WebSocket recipes for order notifications and dashboards
+  with reconnect/backoff, authentication changes, missed-event recovery,
+  bounded buffering, and cleanup. Start with native APIs and existing lifecycle
+  hooks; do not add a required connection, hosted broker, or stock/transaction
+  consistency guarantee to Core.
 
 ## V1 Explicit Non-Goals — Rejected
 

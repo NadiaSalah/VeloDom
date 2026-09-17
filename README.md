@@ -200,6 +200,14 @@ startup failure still requires verification on the strict Linux CI runner.
 
 ## TODO
 
+The roadmap now includes a **Commerce and Large Applications** track: **0/10
+implemented**. Start with a storefront/admin reference consumer and documented
+backend boundaries using current V1 APIs, then evaluate optional data/form/scale
+improvements for V1.x. API-contract generation is deferred to a future major release; realtime,
+virtualization, and request-time rendering stay research. These are proposals,
+not new npm features. Payment, stock, authorization, and pricing remain
+application/server responsibilities; the documentation blog stays the teaching site.
+
 See [docs/TODO.md](docs/TODO.md) for release gates and the separately counted
 V1 simplicity/organization follow-up. Prioritize onboarding and real developer
 feedback before adding capabilities. Near-term work includes:
