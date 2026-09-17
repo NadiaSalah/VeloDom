@@ -40,6 +40,10 @@ authentication, tags, and releases are external state and are deliberately not
 recorded as completed here. Repository tests never publish or prove registry
 state.
 
+**New V1 simplicity/organization follow-up: 3 of 8 complete (37.5%).**
+This separately scoped quality/adoption work is detailed below; the completed
+implementation counters above do not mean these follow-ups or release gates are done.
+
 ### Status vocabulary
 
 - **V1 — Implemented:** supported by source, tests, and public documentation.
@@ -52,6 +56,59 @@ state.
 - **Research / Experimental:** investigation or opt-in prototype only; it is
   not a runtime promise.
 - **Rejected:** conflicts with VeloDom's identity or adds mandatory complexity.
+
+## V1 Simplicity, Organization, and Adoption — Prioritized Follow-up
+
+This quality track is separate from the completed implementation milestones.
+Freeze new capability expansion while validating the existing beginner path.
+These tasks reuse current contracts, not new directives or a new runtime layer.
+
+**Progress: 3 of 8 complete (37.5%).**
+
+`[#######-------------] 37.5%`
+
+- [x] **P0 / V1 / Small:** Separate package, quality, browser, and performance
+  repository scripts; keep source/example/package boundaries and stable npm
+  commands. Fix obsolete lint globs and exclude generated tarballs/reports from
+  Git. Value: contributors can find ownership without moving Core or duplicating
+  the package's self-contained build scripts.
+- [x] **P0 / V1 / Small:** Inspect both actual npm manifests, public entry files,
+  nested accidental/private artifacts, and download/install/file-count budgets.
+  Keep source maps and portable consumer documentation. Value: catch packaging
+  growth and leaks before release without adding browser bytes.
+- [x] **P0 / V1 / Small:** Make the root README an entry point instead of a second
+  changelog; explain repository versus npm versus generated-site outputs. Add a
+  two-file first-feature walkthrough to the educational homepage and clarify
+  that the full documentation site differs from the generated Blog starter.
+- [ ] **P1 / V1 / Medium:** Validate one recommended beginner journey end to end:
+  Minimal + JavaScript + ordinary CSS, edit one page, add one component, then
+  build/preview. Show advanced alternatives afterward; preserve JS/TS, folder/
+  `.vd`, and existing aliases. Acceptance: a new user completes it using only
+  the quick start and generated README, with no framework-internal imports.
+- [ ] **P1 / V1 / Medium:** Audit common list and form recipes against the existing
+  request/auto-state/validation helpers. Remove unnecessary example boilerplate,
+  show loading/error/empty/success states, and test the taught snippets. Do not
+  add a new directive where an existing helper already solves the task.
+- [ ] **P1 / V1 / Medium:** Expand dev/production parity fixtures only where
+  coverage is missing: imported/public assets, route/hash entry, layouts,
+  scoped styles, requests and recovery. Reuse current starter/browser gates;
+  include the new introductory lesson in copy-to-project tests. Acceptance:
+  the same documented example works in development and from an installed
+  tarball's production build without `/src/` asset URLs or hidden setup.
+- [ ] **P1 / V1 validation / External:** Observe 3–5 independent developers
+  (including beginners) building a small content site or dashboard. Record
+  first-page time, unclear errors, manual setup steps, and production surprises.
+  Obtain voluntary feedback; automated tests cannot close this task. Use that
+  evidence to choose simplifications rather than claiming ecosystem maturity.
+- [ ] **P2 / V1.x / Medium:** Break the long teaching guide into smaller lessons
+  only when navigation/usability evidence justifies it. Preserve existing
+  `/features#...` links, keep syntax/inventory authoritative, and retain literal
+  code + live examples. Do not duplicate the handbook in a second package doc
+  tree or split the framework into more npm packages merely to reduce file count.
+
+Existing SSR/islands/AI/migration proposals remain in Research below; this track
+does not promote them. Release approval and full browser CI remain the existing
+V1 Ecosystem gates, not additional unchecked copies here.
 
 ## V1 Core — Implemented
 
@@ -204,8 +261,10 @@ application browser runtime weight:
 - [x] The showcase now has a dedicated quality lesson for public page data,
   recoverable error boundaries, opt-in prefetch, and compiler safety signals.
 - [x] Split interactive exercises into `/playground`, keeping `/features`
-  readable and below the CLI large-template warning while dogfooding state,
+  focused on explanation while dogfooding state,
   component props, slots, refs, expose, and declarative requests.
+  The expanded static catalog still has a non-blocking size advisory; its
+  evidence-led lesson split is tracked in the V1 simplicity follow-up.
 - [x] Project intelligence now detects object-form `expose` APIs, including
   JavaScript shorthand properties and method syntax.
 - [x] Cross-browser documentation sidebars consume the router-restored

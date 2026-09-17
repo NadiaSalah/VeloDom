@@ -22,7 +22,7 @@ import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const workspaceRoot = resolve(fileURLToPath(new URL("../..", import.meta.url)));
+const workspaceRoot = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 const velodomRoot = join(workspaceRoot, "packages", "velodom");
 const createRoot = join(workspaceRoot, "packages", "create-velodom");
 const temporaryRoot = await mkdtemp(join(tmpdir(), "create-velodom-consumer-"));

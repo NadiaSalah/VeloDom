@@ -17,3 +17,9 @@ Thumbs.db
 # Local npm account recovery material must never be committed.
 npm_recovery_codes.txt
 .npm-cache/
+
+# Local build, browser-test and package artifacts (not source).
+*.tgz
+*.tsbuildinfo
+playwright-report/
+test-results/

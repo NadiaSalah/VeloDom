@@ -24,6 +24,7 @@ const script = join(
   workspaceRoot,
   "tools",
   "scripts",
+  "performance",
   "check-performance-budgets.mjs"
 );
 

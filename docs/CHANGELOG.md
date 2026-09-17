@@ -14,6 +14,17 @@ or claim that a matching package is available from a registry.
 
 ### Added
 
+- Repository-only `pack:report` checks both real npm artifacts for allowed files,
+  declared entry points, known private/generated paths, and download/install/file
+  budgets while retaining debugging source maps. No new framework API or dependency.
+- Tested two-file first-feature lesson on the teaching homepage, with an explicit
+  distinction between the source repository, educational site, and generated starter.
+- Organized repository checks into package/quality/browser/performance folders;
+  npm entry commands remain stable and CI uses `browser:check`. ESLint now covers
+  the current tools/tests/scripts paths instead of obsolete root folders.
+- Consolidated repetitive root README history into links to the existing changelog
+  and notes; added a separately counted V1 simplicity/adoption follow-up roadmap.
+
 - HTML-first pages and components with compiler-validated `vd-*` directives,
   safe expressions, text interpolation, reactive state, lifecycle cleanup,
   refs, events, slots, scoped styles, and optional `.vd` single-file modules.

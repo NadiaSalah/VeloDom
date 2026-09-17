@@ -14,9 +14,10 @@ import {
   readFile
 } from "node:fs/promises";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
-const CORE_DIRECTORY = "packages/velodom/src";
+const CORE_DIRECTORY = fileURLToPath(new URL("../../../packages/velodom/src", import.meta.url));
 const EXPORT_PATTERN = /^\s*export\s+(?:(?:default|declare|async)\s+)*(?:class|interface|type|const|let|var|\{)/;
 
 const files = await collectTypeScriptFiles(CORE_DIRECTORY);

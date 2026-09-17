@@ -59,8 +59,10 @@ export default tseslint.config(
     files: [
       "packages/*/bin/**/*.js",
       "examples/**/*.js",
-      "scripts/**/*.mjs",
-      "test/**/*.js",
+      "packages/*/scripts/**/*.mjs",
+      "tools/scripts/**/*.mjs",
+      "tools/tests/**/*.js",
+      "tools/test-support/**/*.js",
       "*.js"
     ],
     extends: [

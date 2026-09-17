@@ -125,8 +125,15 @@ packages/
 examples/
   velodom-blog/             full documentation application and real consumer
 tools/
-  scripts/                  repository checks, packaging, browser verification
+  scripts/
+    package/                artifact audits and installed-consumer checks
+    quality/                source comments and documentation contracts
+    browser/                production browser verification
+    performance/            compiler/render benchmarks and bundle budgets
   tests/                    framework, package, and regression tests
+  test-support/             shared test/audit helpers
+  test-fixtures/            isolated package consumer input
+  type-tests/               compile-time API regression tests
 docs/
   README.md                 detailed repository handbook
   TODO.md                   roadmap
@@ -134,6 +141,24 @@ docs/
   NOTES.md                  architecture/release decisions
   RELEASING.md              release gates
 ```
+
+### GitHub source, npm artifact, and website are different outputs
+
+| Output | What belongs in it | What stays out |
+| --- | --- | --- |
+| GitHub repository | Source, tests, fixtures, docs, templates, example site, CI, lockfile | Dependencies, generated `lib/types/dist`, browser reports, tarballs, credentials |
+| `velodom` npm tarball | Built ESM with source maps, types, binaries, consumer docs, small starter templates, license | Repository tests, full teaching site, development configs, release history |
+| Deployed documentation site | `examples/velodom-blog/dist`, produced by the build | Package source, tests, credentials |
+
+Use `npm run package:build` then `npm run pack:report` to inspect **both** npm
+artifacts without publishing. Use `npm run pack:check` for installed-consumer
+and starter verification too. The workspace root and documentation site are
+private; they are not the npm publish target. Do not copy `node_modules` to GitHub
+or move repository-only tools into the public package to make the root look smaller.
+
+Source maps are retained intentionally for debugging. Installed package size
+includes optional Node tooling, docs, and maps; it is not the JavaScript sent to
+a browser. `npm run performance:check` measures that separate concern.
 
 ## Current Status
 
@@ -152,254 +177,32 @@ release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
-### Source and documentation consistency audit
+- Organized repository checks under `tools/scripts/{package,quality,browser,performance}`
+  and kept npm commands stable. CI uses the named browser command.
+- Added `npm run pack:report`: audits both real npm file lists, public entry
+  targets, accidental private/build files, and compressed/installed size budgets.
+  It neither installs nor publishes; run `npm run package:build` first.
+- Corrected ESLint's obsolete test/script paths so current maintenance code is
+  checked. Generated artifacts remain outside Git.
+- Simplified this README into an entry point. Detailed implementation history
+  remains in [CHANGELOG](docs/CHANGELOG.md) and [NOTES](docs/NOTES.md), not a
+  second rolling changelog here.
+- Improved the teaching homepage with a two-file beginner walkthrough and an
+  explicit distinction between the documentation site, npm package, and starter.
+- No framework APIs, syntax, dependencies, versions, or source maps were removed.
 
-- Fixed CLI argument/async error handling, side-effect-free `--help`/`-h`, and
-  presentation flags during creation in `packages/velodom/src/cli.ts`.
-- Replaced regex-based navigation diagnosis with the existing compiler AST:
-  `vd-bind:href` expressions are no longer mistaken for literal invalid URLs.
-- Fixed ARIA boolean serialization, CSS variable casing, and stale styles when
-  switching binding formats in `src/directives/features/bindings.ts`.
-- Hardened `src/errors/error-reporter.ts` for non-Error throws and redacted form
-  values from diagnostic element snapshots. Application messages and arbitrary
-  markup still require application-owned secret handling.
-- Improved generated starter CSS (responsive navigation, focus outlines, code
-  contrast, reduced motion), CLI narrow-terminal branding, and blog sidebar
-  scrolling. Existing applications are not overwritten.
-- Synchronized package syntax/AI guides, the repository handbook/roadmap, and
-  the executable binding lesson in `examples/velodom-blog`.
-- No public exports, dependencies, versions, or supported aliases were removed.
-- Production visual checks exposed broken source-folder logo URLs and mobile
-  code-card overflow in the blog. Components now import the logo through Vite,
-  and code cards shrink within their grid, including the `.vd` lesson on Mobile
-  WebKit. Browser coverage checks loaded logos and page overflow on every journey.
-- Verification: 320 tests, docs/strict types/lint, production build, six installed
-  starter builds, tarball checks, and performance budgets passed. Chromium and
-  WebKit desktop/mobile journeys passed. Local Firefox failed before navigation
-  with a graphics startup error; the strict Linux CI gate remains required.
-  The guide's approximately 35 kB template has one advisory size warning.
+### Verification and limitations
 
-- Closed the executable later-release roadmap with release-gate coverage for
-  desktop/mobile Chromium, Firefox, desktop/mobile WebKit, unexpected browser
-  errors, six generated starter/language combinations, and per-starter bundle
-  ceilings. Performance checks now follow the actual `velodom` plus
-  `velodom/vite` browser import graph, run compiler/render benchmarks, and keep
-  optional Node/build tooling outside Core payload measurements. Local browser
-  checks default to the two required Chromium profiles; strict CI selects all
-  five targets explicitly, avoiding optional local browser-launch leaks.
-- Formalized optional plugin manifests with VeloDom compatibility ranges,
-  explicit browser/build/Node capabilities, duplicate/conflict diagnostics,
-  and shape-only conformance inspection. Legacy function/object plugins remain
-  valid, and validation never executes third-party setup code.
-- Added stable runtime error IDs, compiler/router/request/component/runtime
-  grouping, bounded normalized source stacks, and page/component ownership
-  trails. Error boundaries now receive the structured diagnostic while keeping
-  recovery UI application-owned; an explicitly imported development overlay
-  from `velodom/devtools` can observe and group reports without entering normal
-  application bundles.
-- Added one Node-only Project Index for CLI intelligence. It caches discovered
-  template, script, config, and compiler data once per command; `doctor`,
-  generated types/docs, graph, health, security, and build reports now reuse
-  that snapshot while `vd inspect --json` keeps its prior public shape.
-- Added stable categorized IDs, template source locations, conservative typo
-  suggestions, and offline `vd explain <diagnostic-code>` guidance to project
-  diagnostics. Existing human messages remain readable and JSON output is now
-  suitable for editor/CI consumers without requiring AI or network access.
-- Added `vd check` as a transparent read-only composition of compiler,
-  accessibility, relationship, security, configuration, generated-type, and
-  maintainability checks. Its report explicitly leaves browser testing as
-  `not-run`; it neither builds nor writes generated declarations behind the
-  user's back.
-- Added preview-first `vd fix` for the narrow syntax-preserving migration
-  allowlist: legacy `data-vd-*`, event attributes, and `vd-request-state` to the
-  preferred forms. `--write` is explicit and guarded against changed files;
-  scripts, business logic, unknown syntax, and file deletion are out of scope.
-- Extended `vd doctor` through the shared index with invalid `vd-nav` targets,
-  protected/impossible request targets, explicit typed-prop mismatches,
-  component-ref/expose calls, and conservatively unused exported state. Dynamic
-  props, state access, and general control flow are intentionally not guessed.
-- Strengthened the existing optional `vd types` output: route params and
-  request names now combine with keys from `vd-prop-*`, static object-form
-  `vd-props`, and required/optional `ComponentInitContext<Props>` contracts.
-  Property values stay honestly `unknown`, and Vanilla projects need nothing.
-- Rebuilt `vd build-report` around a compact versioned artifact emitted by the
-  Vite plugin. Reports now attribute initial, route, component, shared, and lazy
-  feature chunks from Rollup module metadata and measure duplicated dependency
-  bytes only when Rollup can prove them; missing metadata is reported plainly.
-- Added idempotent `vd add i18n|pwa|tests|lab` for existing applications. It
-  preflights conflicts, never overwrites user files, records generated hashes
-  and controlled config changes in `.velodom/features.json`, and leaves package
-  installation explicit.
-- Expanded the optional read-only Lab with a true nested ownership tree, recent
-  state diffs, a payload-free request waterfall, correlated route transitions,
-  directive/source locations, and copyable local `vd explain` commands.
-  Request/navigation IDs exist only in bounded development events.
-- Added `vd test` as a thin dispatcher over real application-owned package
-  scripts. Unit, browser, compiler, route, request, component, and accessibility
-  filters fail when their script is absent instead of reporting a placeholder
-  pass. `velodom/testing` now also supplies compiler fixtures, route resolution,
-  recorded request doubles, DOM event dispatch, and compiler-backed
-  accessibility smoke checks without entering production bundles.
-- Completed the safe first-party feature lifecycle. `vd features` audits
-  ownership and reversibility, `vd remove` refuses user-modified files,
-  `vd upgrade` rolls clean features through current generators with rollback,
-  and `vd preset export/apply` shares only validated feature choices—not source
-  code, credentials, dependency installation, or third-party execution.
-- Extended optional localization without a mandatory client service: typed
-  explicit plural leaves use native `Intl.PluralRules`, named primitive
-  placeholders stay text-only, locale directions are checked, and
-  missing/extra/unused/unknown keys receive stable diagnostics. `vd i18n
-  extract|check` performs static project analysis, while completion metadata is
-  available to optional editors and the starter demonstrates the small API.
-- Added build-only `vd inspect css|assets` reports for stylesheet ownership,
-  repeated declaration blocks, possibly unused selectors, RTL-safe logical
-  properties, intrinsic image dimensions, local asset size/hash usage,
-  responsive variants, and possible LCP hints. All findings remain advisory
-  and no image transformer or browser runtime was added.
-- Added the explicit `velodom/pwa` build subpath. It validates an
-  application-owned manifest and bounded cache policies, emits an offline
-  fallback and external registration module only when enabled, and is
-  available through `--pwa` or `vd add pwa`; normal VeloDom imports never
-  register a service worker.
-- Completed the monotonic TypeScript `strict` migration. The final CLI,
-  project-intelligence, and scaffolder slice was hardened, then the gate was
-  extended to all 88 package source files through `src/**/*.ts` so future
-  modules enter the strict boundary automatically.
-- Tightened resource-map generics, Vite glob contracts, binary image reads,
-  frontmatter/Markdown parsing, normalized locale definitions, CSS/SEO source
-  extraction, and static CLI captures where indexed values can be absent.
-- Aligned runtime behavior with the public `VeloDomApp.navigate()` type: direct
-  application navigation and plugin navigation now always return a Promise,
-  including invalid-path diagnostics, with a focused regression test.
-- Continued the monotonic TypeScript `strict` migration through component
-  mounting, page routing, route matching, resource-adapter validation, page
-  data, scoped styles, runtime SEO, page events, lifecycle hook dispatch, and
-  recoverable error-boundary dependencies. Application JavaScript and
-  TypeScript authoring remain equivalent.
-- Added a focused missing-`#app` diagnostic so an invalid HTML shell reports
-  one actionable router error instead of causing a secondary error-boundary
-  failure.
-- Continued the staged TypeScript `strict` migration through the directive
-  engine and lazy feature modules, the complete safe-expression evaluator, and
-  the declarative request dependencies reached by directives: auth,
-  middleware, bindings, and request routing. The enforced boundary preserves
-  template syntax and the JavaScript/TypeScript application API.
-- Consolidated safe inspection of unknown thrown values into one internal Core
-  helper, removing duplicate compiler/request error extraction while retaining
-  source-aware diagnostics and non-`Error` compatibility.
-- Tightened reactive subscription callbacks, dynamic init-result narrowing,
-  and DOM ref collection types while preserving existing runtime behavior.
-- Added an automatic, plugin-local incremental compiler cache keyed by
-  normalized template source and effective compiler options. It invalidates on
-  source changes and Vite hot updates, keeps at most 256 least-recently-used
-  results, and adds no browser runtime code or user configuration.
-- Added a repeatable `npm run benchmark:compiler` report for cold compilation,
-  warm cache hits, and an explicitly invalidated rebuild without turning
-  machine-specific timing into a release threshold.
-- Restored `.vd` page lazy-loading parity with folder pages: Vite now extracts
-  only route config eagerly and emits template, script, style, and manifest as
-  one lazy page chunk, without a second public authoring format.
-- Added a production gate proving the documentation `.vd` page stays outside
-  the application entry bundle while direct routing and interaction still work.
-- Added stable `vd-key` reconciliation that moves existing DOM/component
-  ownership ranges during safe reorders, preserving focus, form edits, event
-  listeners, refs, and component-local state while retaining conservative
-  rebuilds for unkeyed or ambiguous identity.
-- Added DOM, component lifecycle, playground, and browser coverage for keyed
-  reorder, insert, removal, duplicate-key fallback, and same-key replacement.
-- Added experimental, opt-in VeloDom Lab on top of the existing Vite workflow:
-  route/component/state/binding/compiler inspection, a nested ownership tree,
-  state diffs, request waterfall, correlated route timeline, safe serialization,
-  DOM highlighting, search, themes, responsive UI, and HMR metadata refresh
-  through a versioned read-only protocol.
-- Added `vd lab`, focused `vd inspect` views, deterministic `vd explain`, Lab
-  setup checks in `vd doctor`, and an optional `--lab` project choice shared by
-  JavaScript/TypeScript and every starter.
-- Split the production-side inspection hook from the full Lab session/UI and
-  added an emitted-bundle scan proving Lab bootstrap code is absent from normal
-  production builds.
-- Verified the Lab against the running Blog in the in-app browser and fixed two
-  integration defects found there: Vite now resolves the injected devtools
-  entry explicitly, and the router reads plugin-installed inspection sessions
-  lazily so the first page mount is captured.
-- Rescanned package exports, public values, preferred directives, CLI commands,
-  authoring conventions, and optional integrations against implementation and
-  tests before changing teaching content.
-- Corrected stale Blog starter and generated feature props so dynamic values use
-  `vd-props`, then added explicit loop and empty states.
-- Corrected the showcase's routing, hash, form, localization, package-map, CLI,
-  and source-derived metric examples; removed unused presentation CSS.
-- Expanded the documentation audit to verify the live showcase against the
-  package manifest/source and reject known obsolete signatures.
-- Added concise JSDoc to every named Core function and an AST-backed regression
-  gate, while stripping comments only from compiled JavaScript to preserve the
-  lightweight runtime budget.
-- Verified 284 tests, documentation/type/lint gates, production and package
-  builds, the installed tarball consumer, both package dry-runs, performance
-  budgets, the compiler benchmark, and Chromium browser E2E. Broader strict
-  browser-matrix confirmation remains a final-release workflow responsibility.
-- Normalized release history around one planned first official `1.0.0` release;
-  discarded private repository and registry experiments are now represented by
-  one concise pre-public note instead of false version chronology.
-- Removed stale current-state claims about npm publication, account history,
-  dated workflow runs, and a nonexistent publishable-package `private` guard.
-- Added a documentation consistency rule that rejects known stale pre-release
-  publication claims in maintained current-state guides.
-- Audited Markdown references after the showcase rename and standardized the
-  consumer path as `examples/velodom-blog`; the documentation audit now rejects
-  the obsolete pre-rename path.
-- Replaced the one-size starter copier with a shared, feature-based scaffolder
-  used by `create-velodom`, `velodom`, `vd init`, and `vd create`.
-- Added Minimal, Blog, and Empty starter layers without creating a template
-  matrix for every language and feature combination.
-- Added genuine JavaScript/TypeScript generation plus optional Tailwind,
-  ESLint, Prettier, official route examples, English/Arabic localization,
-  unit/E2E tests, Git, package-manager installation, and server startup.
-- Added safe path/name validation, non-empty directory protection, conflict
-  diagnostics, dotfile handling, package-manager detection, and clean
-  cancellation/next-step output.
-- Added the dedicated Node-only `packages/create-velodom` npm-create wrapper;
-  it imports the same `velodom/cli` engine and adds no browser dependency.
-- Kept `examples/velodom-blog` as the full academic showcase while deriving a
-  much smaller, production-editable Blog starter.
-- Added package `AI_CONTEXT.md`, `QUICK_START.md`, `SYNTAX_REFERENCE.md`,
-  `FEATURE_INVENTORY.md`, and `AI_GUIDE.md` to the npm allowlist.
-- Reworked package README content into a focused consumer overview instead of
-  duplicating the repository handbook.
-- Extended package/consumer and CLI tests to verify the composable starters,
-  packed-artifact generation, public-only imports, and representative builds.
-- Removed the duplicated root AI context and updated repository links to the
-  package-owned source of truth.
-- Verified the automated suite, documentation/type/lint gates, installed
-  tarball builds, a real Recommended install/lint/format/type/build smoke, and
-  both packed packages. Exact counts and artifact sizes belong to the release
-  run for the selected commit rather than permanent current-state prose.
-- Fixed Windows package-manager execution by invoking npm through its Node CLI,
-  and made every Prettier-enabled generated file formatted at creation time.
-
-Primary changed paths are `packages/velodom/src`, the Blog/feature starter
-templates, `examples/velodom-blog`, package-local AI references, repository
-guides, and documentation/test checks under `tools/`.
-Official starter input now lives only in the composable `templates/default`
-and `templates/starters` sources inside the VeloDom package.
-
-The incremental-compiler milestone specifically changes
-`packages/velodom/src/vite-plugin`, the shared compiler-cache constant, focused
-compiler/Vite tests, the repository benchmark command, and synchronized root,
-package, AI, roadmap, changelog, decision, and consumer documentation. It does
-not change runtime syntax, public exports, generated projects, or starter
-configuration.
-
-The strict-typing migration now covers every TypeScript source below
-`packages/velodom/src`, including Core/runtime, compiler/Vite integration,
-optional public subpaths, adapters, CLI/project intelligence, and scaffolding.
-Application code remains free to use Vanilla JavaScript or TypeScript; this
-maintenance gate changes neither template syntax nor generated starter choices.
+See [maintenance notes](docs/NOTES.md) for this change's checks and measured
+artifact sizes. A passing local package check is not npm publication or a
+successful remote workflow. The previously observed local Firefox graphics
+startup failure still requires verification on the strict Linux CI runner.
 
 ## TODO
 
-Only optional or future work belongs in [docs/TODO.md](docs/TODO.md). Near-term
-release work should stay limited to:
+See [docs/TODO.md](docs/TODO.md) for release gates and the separately counted
+V1 simplicity/organization follow-up. Prioritize onboarding and real developer
+feedback before adding capabilities. Near-term work includes:
 
 - preserve source-backed Vite/Rollup chunk attribution and regression coverage;
 - run the complete package and browser gates on the final commit;

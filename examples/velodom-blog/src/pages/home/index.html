@@ -46,6 +46,50 @@
     </div>
   </section>
 
+  <section class="site-frame pt-16" aria-labelledby="first-feature">
+    <p class="eyebrow">New to VeloDom? Start here</p>
+    <h2 id="first-feature" class="section-heading mt-3 scroll-mt-24">One page. Two files. One interaction.</h2>
+    <p class="section-copy max-w-3xl">
+      Choose the Minimal JavaScript starter, keep its bootstrap and layout, then
+      replace these two files. Open the home route and press the button: the count
+      changes without a page reload. You do not need to learn the entire API first.
+    </p>
+    <div class="mt-6 grid min-w-0 gap-5 lg:grid-cols-2">
+      <div class="code-window min-w-0 !mt-0">
+        <div class="code-toolbar"><span>src/pages/home/index.html</span><span>HTML</span></div>
+        <pre class="code-example" vd-pre><code>&lt;main&gt;
+  &lt;h1&gt;My first VeloDom page&lt;/h1&gt;
+  &lt;p aria-live="polite"&gt;Count: {{ count }}&lt;/p&gt;
+  &lt;button type="button" vd-on:click="increment()"&gt;
+    Add one
+  &lt;/button&gt;
+&lt;/main&gt;</code></pre>
+      </div>
+      <div class="code-window min-w-0 !mt-0">
+        <div class="code-toolbar"><span>src/pages/home/script.js</span><span>JavaScript</span></div>
+        <pre class="code-example" vd-pre><code>export const state = { count: 0 };
+
+export function init({ state }) {
+  state.increment = () =&gt; {
+    state.count += 1;
+  };
+}</code></pre>
+      </div>
+    </div>
+    <ol class="mt-6 grid gap-4 md:grid-cols-3">
+      <li class="feature-card"><h3 class="font-bold">1. Make it work</h3><p class="mt-2 text-slate-600">HTML describes the page. State holds values. A script function handles the event.</p><a href="/playground#bindings" vd-nav class="mt-3 inline-block font-bold text-indigo-700">Try a live binding →</a></li>
+      <li class="feature-card"><h3 class="font-bold">2. Reuse when needed</h3><p class="mt-2 text-slate-600">Extract repeated UI into a component. Share navigation and a footer with a layout.</p><a href="/features#components" vd-nav class="mt-3 inline-block font-bold text-indigo-700">Learn composition →</a></li>
+      <li class="feature-card"><h3 class="font-bold">3. Add real data</h3><p class="mt-2 text-slate-600">Introduce a request with loading, error, and empty states only when your page needs data.</p><a href="/features#requests" vd-nav class="mt-3 inline-block font-bold text-indigo-700">Learn requests →</a></li>
+    </ol>
+    <div class="mt-6 rounded-3xl border border-indigo-100 bg-indigo-50 p-6 text-indigo-950">
+      <h3 class="font-bold">This website is the teaching example, not the installed framework.</h3>
+      <p class="mt-2 leading-7">Its source is <code>examples/velodom-blog</code>. The npm package contains the framework,
+        portable documentation, and small editable starter templates. It does not install this entire site,
+        its Tailwind styling, or the framework's test suite in your application.</p>
+      <a href="/features#start" vd-nav class="mt-3 inline-block font-bold">Choose the right starting point →</a>
+    </div>
+  </section>
+
   <section class="site-frame py-16">
     <div class="grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
       <div>
@@ -60,9 +104,9 @@
       <div class="rounded-3xl border border-indigo-100 bg-indigo-50 p-6 text-indigo-950">
         <p class="font-bold">A deliberate boundary</p>
         <p class="mt-2 leading-7">
-          JSX, a virtual DOM, a global store, SSR, CSS tooling, and AI are never
-          mandatory. Use ordinary HTML first, then add only the VeloDom feature
-          that solves the current problem.
+          Start with HTML, local state, and one event. You do not need JSX, a
+          global store, Tailwind, or AI. Static HTML generation is supported;
+          automatic request-time SSR and hydration are not provided in V1.
         </p>
       </div>
     </div>

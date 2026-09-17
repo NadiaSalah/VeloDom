@@ -30,7 +30,7 @@ import {
 } from "@playwright/test";
 
 const projectRoot = resolve(
-  fileURLToPath(new URL("../..", import.meta.url))
+  fileURLToPath(new URL("../../..", import.meta.url))
 );
 // The showcase directory is application-owned and is named explicitly so
 // release verification follows the same path used by the build and docs.
@@ -398,6 +398,11 @@ async function assertStaticSeo(origin) {
 async function assertRouting(page, origin) {
   await page.goto(`${origin}/`);
   await waitForPageText(page, "From your first page to production boundaries.");
+  await waitForPageText(page, "One page. Two files. One interaction.");
+  const firstLesson = await page.locator('section[aria-labelledby="first-feature"] pre code').allTextContents();
+  if (firstLesson.length !== 2 || !firstLesson[0].includes("{{ count }}") || !firstLesson[1].includes("state.increment")) {
+    throw new Error("Homepage teaching snippets must remain readable literal code.");
+  }
 
   // The desktop navigation is intentionally hidden at mobile breakpoints.
   // Use the visible course CTA so this assertion follows the same route a

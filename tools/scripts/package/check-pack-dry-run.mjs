@@ -10,6 +10,7 @@
 
 import {
   mkdtemp,
+  readFile,
   rm
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -22,11 +23,17 @@ import {
 } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
+import { auditPackageArtifact } from "../../test-support/package-artifact.js";
 
 const workspaceRoot = resolve(
-  fileURLToPath(new URL("../..", import.meta.url))
+  fileURLToPath(new URL("../../..", import.meta.url))
 );
-const packageRoot = join(workspaceRoot, "packages", "velodom");
+// Bound installed tooling/docs as well as compressed download size. Source maps
+// remain intentional debugging content; they are not application runtime bytes.
+const packageBudgets = {
+  velodom: { size: 800 * 1024, unpackedSize: 3500 * 1024, entryCount: 400 },
+  "create-velodom": { size: 8 * 1024, unpackedSize: 24 * 1024, entryCount: 10 }
+};
 const temporaryRoot = await mkdtemp(
   join(tmpdir(), "velodom-pack-dry-run-")
 );
@@ -47,21 +54,35 @@ const npmArguments = process.platform === "win32"
   : [];
 
 try {
-  const output = await run(npmCommand, [
-    ...npmArguments,
-    "pack",
-    "--dry-run",
-    "--ignore-scripts"
-  ], {
-    cwd: packageRoot,
-    env: {
-      ...process.env,
-      npm_config_cache: cacheRoot
-    }
-  });
+  for (const [name, budget] of Object.entries(packageBudgets)) {
+    const packageRoot = join(workspaceRoot, "packages", name);
+    const manifest = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf8"));
+    const output = await run(npmCommand, [
+      ...npmArguments,
+      "pack",
+      "--dry-run",
+      "--ignore-scripts",
+      "--json"
+    ], {
+      cwd: packageRoot,
+      env: {
+        ...process.env,
+        npm_config_cache: cacheRoot
+      }
+    });
 
-  process.stdout.write(output);
-  console.log("VeloDom package dry-run check passed.");
+    const [artifact] = JSON.parse(output);
+    const violations = auditPackageArtifact(artifact, manifest, budget);
+    if (violations.length) throw new Error(`${name} pack audit failed:\n${violations.join("\n")}`);
+    console.log(`${name}: ${artifact.entryCount} files; ${(artifact.size / 1024).toFixed(1)} KiB packed; ${(artifact.unpackedSize / 1024).toFixed(1)} KiB installed.`);
+    const groups = new Map();
+    for (const file of artifact.files) {
+      const group = file.path.startsWith("lib/") && file.path.endsWith(".map") ? "lib source maps" : file.path.split("/")[0];
+      groups.set(group, (groups.get(group) || 0) + file.size);
+    }
+    for (const [group, bytes] of groups) console.log(`  ${group}: ${(bytes / 1024).toFixed(1)} KiB`);
+  }
+  console.log("Both package content and size gates passed (no publication).");
 } finally {
   if (process.env.VELODOM_KEEP_PACK_DRY_RUN !== "1") {
     assertSafeTemporaryRoot(temporaryRoot);

@@ -47,6 +47,19 @@ content; repository audits and release history remain excluded.
 
 ## Release Checklist
 
+Before packaging, build with `npm run package:build`, then inspect
+`npm run pack:report`. The report validates both actual npm file lists and size
+budgets (VeloDom: 800 KiB compressed / 3500 KiB unpacked / 400 files;
+create-velodom: 8 KiB / 24 KiB / 10 files). A budget change needs a measured reason,
+not an automatic increase. Maps are retained for debugging and measured separately
+from browser runtime bytes. The artifact audit rejects known private/generated
+paths, but does not replace reviewing content for secrets.
+
+GitHub receives tracked source, docs, tests, fixtures, lockfile, and workflows.
+Never commit dependencies, generated output, local account recovery material,
+`.env` values, or tarballs. Inspect `git status` and the staged diff before any
+owner-approved push. Package publication remains a separate approved action.
+
 This checklist is an approval gate, not an automated publication script.
 Completing local checks never implies permission to publish.
 

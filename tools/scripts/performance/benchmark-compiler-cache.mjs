@@ -11,10 +11,10 @@
 import { performance } from "node:perf_hooks";
 import {
   createIncrementalCompilerCache
-} from "../../packages/velodom/src/vite-plugin/compiler-cache.ts";
+} from "../../../packages/velodom/src/vite-plugin/compiler-cache.ts";
 import {
   createTemplateModule
-} from "../../packages/velodom/src/vite-plugin/index.ts";
+} from "../../../packages/velodom/src/vite-plugin/index.ts";
 
 const warmIterations = 250;
 const filename = "src/pages/benchmark/index.html";

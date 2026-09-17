@@ -7,6 +7,7 @@ import {
 import path from "node:path";
 import { gzipSync } from "node:zlib";
 
+// The working directory also supports isolated build fixtures in regression tests.
 const workspaceRoot = process.cwd();
 const distRoot = path.join(
   workspaceRoot,

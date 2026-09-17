@@ -18,7 +18,7 @@ and content.
 
 | Route | Purpose |
 | --- | --- |
-| `/` | Landing page and learning path |
+| `/` | Two-file beginner walkthrough, learning path, and package/site boundaries |
 | `/features` | Guided lessons for the framework capabilities |
 | `/playground` | Live state, keyed loop reconciliation, loop-scoped components, slots, refs, expose, and request exercises |
 | `/reference` | Source-verified public package catalog |
@@ -106,13 +106,14 @@ From the repository root:
 
 ```bash
 npm run dev
-npm run lab
+npm run lab --workspace @velodom/velodom-blog
 npm run build
 vd doctor --root examples/velodom-blog
 vd health --root examples/velodom-blog
 ```
 
-`npm run lab` opens the optional local read-only VeloDom Lab overlay while the
+Build the package first with `npm run package:build` if this is a fresh checkout.
+The workspace-targeted `lab` command opens the optional local read-only VeloDom Lab overlay while the
 same application runs through Vite. The normal `dev` and production `build`
 paths remain free of Lab bootstrap code.
 

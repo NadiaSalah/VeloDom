@@ -2,6 +2,61 @@
 
 ## Architectural Decisions
 
+### Repository organization and teaching entry point — 2026-09-17
+
+- Kept the current ownership boundaries: publishable framework and its own build
+  scripts under `packages/velodom`, a thin npm-create wrapper next to it, optional
+  editor tooling as a private workspace, and the full educational website under
+  `examples/velodom-blog`. Moving tests or that site into the npm package would
+  increase installed weight rather than simplify consumers.
+- Grouped ten maintainer scripts by package, quality, browser, and performance
+  responsibility. Updated root npm commands, relative imports, fixtures, and CI;
+  public framework/CLI entry points did not move. CI now also runs Node regressions
+  and the actual two-artifact size/content audit. No workflow was dispatched here.
+- Fixed ESLint globs left over from old root `scripts`/`test` folders. All current
+  maintenance scripts/tests/helpers now enter lint. This exposed one ambiguous
+  regex-spacing warning and ANSI test regexes; use counted spaces and Node's
+  `stripVTControlCharacters` without changing the tested behavior.
+- Removed the duplicated rolling history from the root README; existing
+  CHANGELOG/NOTES retain the decisions. README decreased from 24,073 to about
+  10,131 bytes (approximately 58%). This is documentation reduction, not a claim
+  that relocating scripts shrinks application bundles.
+- `pack:report` inspects npm's JSON dry-run for both packages, checks manifest
+  entry targets and allowlisted content, rejects known nested private/generated
+  paths, and applies bounded size/file-count limits. It shares one pure audit
+  helper with regression tests. This is not a general credential/content scanner.
+  Expanded Git ignores cover tarballs, incremental builds, and browser reports.
+- Current measured artifacts: `velodom` 326 files, 658.6 KiB compressed,
+  2812.5 KiB unpacked; `create-velodom` 4 files, 1.7 KiB compressed, 3.0 KiB
+  unpacked. Small package-doc clarifications slightly increased package bytes;
+  no runtime bytes were removed or added. Embedded source maps account for
+  1769.4 KiB unpacked and are deliberately retained for useful debugging.
+- The homepage now teaches one two-file interaction before the feature catalog,
+  distinguishes the full teaching site from the generated Blog starter, and
+  states the V1 SSR/hydration boundary honestly. The actual displayed snippets
+  are parsed, compiled, mounted, and clicked by a regression test, not copied into
+  an unrelated test fixture. Code remains literal-safe under `vd-pre`.
+- Root-hash documentation checks now validate the target against actual homepage
+  IDs rather than rejecting every `/#...` link, allowing the new lesson link
+  while continuing to catch misrouted feature-section anchors.
+- CLI impact: `NONE` for the framework CLI and starter prompts. The new npm
+  maintainer commands are `pack:report` and `browser:check`. No source APIs,
+  syntax, exports, dependencies, version, starter ownership, or legacy aliases
+  changed. Templates were inspected unchanged; six generated combinations passed.
+- Passed: 326 Node tests, documentation/header checks, normal/strict types, ESLint,
+  complete production build, package/installed-consumer checks, all six starter
+  builds, packed npm-create wrapper, both artifact audits, compiler/render
+  benchmarks, and browser/runtime size budgets. Browser journeys passed for
+  Chromium and WebKit desktop/mobile, including literal homepage snippets.
+- Browser startup/CI limits remain: Firefox was not rerun in this maintenance
+  pass because of the previously recorded local graphics failure; the full
+  five-target Linux workflow must still run on the exact release commit. The
+  long static feature guide's advisory remains explicit. No push/publication.
+- The V1 simplicity track is separately counted at 3/8 (37.5%): remaining work
+  covers a beginner journey, common recipes, missing dev/production parity,
+  independent-user observation, and an evidence-led lesson split. Research
+  proposals remain research instead of being silently added to Core.
+
 ### Audit verification — 2026-09-17
 
 - Passed: 320 Node tests (eight new regressions), documentation consistency,
@@ -481,7 +536,7 @@
   stable enough to avoid changing the HTML-first authoring model.
 - Framework-owned TypeScript files require an English module header and
   adjacent JSDoc for each exported declaration. The dependency-free
-  `tools/scripts/check-core-docs.mjs` audit is part of the normal quality gate and
+  `tools/scripts/quality/check-core-docs.mjs` audit is part of the normal quality gate and
   rejects adjacent duplicate JSDoc blocks.
 - Documentation comments should capture ownership, invariants, or architectural
   reasons; obvious line-by-line narration is intentionally avoided.

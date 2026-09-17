@@ -10,6 +10,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { stripVTControlCharacters } from "node:util";
 import { runVeloDomCli } from "../../../packages/velodom/src/cli.ts";
 import {
   formatVeloDomLogo,
@@ -24,8 +25,8 @@ test("CLI branding has a readable plain logo and an opt-in colored logo", () => 
   assert.match(plain, /VeloDom CLI/);
   assert.match(plain, /HTML-first/);
   assert.match(plain, /██╗/);
-  assert.doesNotMatch(plain, /\u001B\[/);
-  assert.match(colored, /\u001B\[/);
+  assert.equal(stripVTControlCharacters(plain), plain);
+  assert.notEqual(stripVTControlCharacters(colored), colored);
   assert.match(colored, /VeloDom/);
   assert.equal(shouldUseCliColor(new Set(["no-color"])), false);
   assert.equal(formatVeloDomLogo({ columns: 40 }), "VeloDom CLI");
@@ -80,7 +81,8 @@ test("project creation accepts presentation flags without changing scaffold opti
       stderr: message => assert.fail(message)
     }), 0);
     await access(join(root, "site", "src/pages/home/index.html"));
-    assert.doesNotMatch(output.join("\n"), /██╗|\u001B\[/);
+    assert.doesNotMatch(output.join("\n"), /██╗/);
+    assert.equal(stripVTControlCharacters(output.join("\n")), output.join("\n"));
     const css = await readFile(join(root, "site", "src/style.css"), "utf8");
     assert.match(css, /:focus-visible/);
     assert.match(css, /prefers-reduced-motion/);

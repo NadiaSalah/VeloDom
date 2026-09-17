@@ -36,6 +36,9 @@ tools, routing examples, localization, an optional PWA build, tests, local Lab, 
 server start.
 
 The generated project is user-owned. Never edit `node_modules/velodom`.
+The repository's `examples/velodom-blog` is the complete educational website,
+not the generated Blog starter and not part of the npm artifact. Package docs
+and small starter layers are shipped; repository tests and release records are not.
 For an existing application, `vd add i18n|tests|lab|pwa` installs only those
 first-party optional features and records generated ownership in
 `.velodom/features.json`. Never invent other feature names or bypass a reported

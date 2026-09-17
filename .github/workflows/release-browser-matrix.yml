@@ -35,9 +35,15 @@ jobs:
       - name: Build the release candidate
         run: npm run build
 
+      - name: Run regression tests
+        run: npm test
+
+      - name: Audit npm artifact contents and size
+        run: npm run pack:report
+
       - name: Run strict browser verification
         env:
           VELODOM_BROWSER_STRICT: "1"
           VELODOM_BROWSER_E2E_DEBUG: "1"
           VELODOM_BROWSER_TARGETS: chromium,mobile-chromium,firefox,webkit,mobile-webkit
-        run: node tools/scripts/check-browser-e2e.mjs
+        run: npm run browser:check

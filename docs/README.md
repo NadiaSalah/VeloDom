@@ -76,6 +76,31 @@ portable consumer contract and are not duplicated in the root `docs` folder.
 
 ## What Works Today
 
+### Repository and distribution ownership
+
+The full source checkout is a maintainer workspace. `packages/velodom` is the
+publishable framework; `packages/create-velodom` is its thin creation wrapper.
+`examples/velodom-blog` is the actual educational website, not part of the npm
+framework payload. Its homepage starts with a two-file interaction before the
+full feature catalog. The generated Blog starter is intentionally much smaller.
+
+Maintenance checks are grouped under `tools/scripts/package`, `quality`,
+`browser`, and `performance`; use the root npm commands rather than depending
+on their internal file paths. Tests, fixtures, and type tests stay under `tools`.
+The package's own build/declaration scripts stay inside `packages/velodom/scripts`
+so it can build without repository tooling. Root config and the lockfile remain
+at the workspace root for normal tool discovery and reproducible installs.
+
+After `npm run package:build`, `npm run pack:report` audits both real npm pack
+manifests, reports compressed and unpacked bytes by category, and rejects missing
+entry points, non-allowlisted paths, known private/generated artifacts, and size
+budget regressions. It does not publish and is not a general secret scanner.
+`npm run pack:check` also installs tarballs and builds generated consumers.
+Source maps, declarations, small starter layers, and portable AI/human references
+are intentionally shipped; repository histories and this website are not.
+
+### Supported capabilities
+
 VeloDom currently provides:
 
 - folder-discovered pages and nested components

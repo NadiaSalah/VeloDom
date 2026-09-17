@@ -14,7 +14,7 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const workspaceRoot = resolve(
-  fileURLToPath(new URL("../..", import.meta.url))
+  fileURLToPath(new URL("../../..", import.meta.url))
 );
 const packageManifest = JSON.parse(await readWorkspaceFile(
   "packages/velodom/package.json"
@@ -34,6 +34,7 @@ const showcaseReference = await readWorkspaceFile(
 const showcaseFeatures = await readWorkspaceFile(
   "examples/velodom-blog/src/pages/features/index.html"
 );
+const showcaseHome = await readWorkspaceFile("examples/velodom-blog/src/pages/home/index.html");
 const showcaseLearning = await readWorkspaceFile(
   "examples/velodom-blog/src/content/learning.js"
 );
@@ -210,12 +211,17 @@ for (const [label, count] of [
 for (const [pattern, message] of [
   [/vd-progressive-form/, "uses removed vd-progressive-form syntax"],
   [/createLocaleFormatter\s*\(\s*{/, "uses the old locale formatter signature"],
-  [/src\/pages\/index\.html/, "uses an obsolete root-page convention"],
-  [/href=&quot;\/#|href="\/#/, "uses a cross-page hash as a root-page hash"]
+  [/src\/pages\/index\.html/, "uses an obsolete root-page convention"]
 ]) {
   if (pattern.test(showcaseFeatures)) {
     violations.push(`the showcase features page ${message}`);
   }
+}
+
+// Root-page anchors are valid when the home page actually owns the target.
+const homeAnchors = new Set([...showcaseHome.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]));
+for (const [, anchor] of showcaseFeatures.matchAll(/href=(?:"|&quot;)\/#([A-Za-z0-9_-]+)/g)) {
+  if (!homeAnchors.has(anchor)) violations.push(`the showcase features page links to missing home anchor "${anchor}"`);
 }
 
 for (const required of [
@@ -340,7 +346,7 @@ function collectDocumentedCliCommands(source) {
  */
 function collectImplementedCliCommands(source) {
   const dispatcher = source.match(
-    /switch \(command\) \{([\s\S]*?)\n    \}\n  \} catch/
+    /switch \(command\) \{([\s\S]*?)\n {4}\}\n {2}\} catch/
   )?.[1] || "";
 
   return new Set(

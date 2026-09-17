@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
 const manifest = JSON.parse(
@@ -104,6 +104,21 @@ test("npm-create wrapper delegates to the shared Node-only CLI", () => {
   assert.equal(createManifest.dependencies.velodom, `^${manifest.version}`);
   assert.match(createBinary, /from "velodom\/cli"/);
   assert.doesNotMatch(createBinary, /copy|template|node:fs|node:child_process/i);
+});
+
+test("workspace maintenance commands resolve organized scripts and CI uses the stable command", async () => {
+  for (const script of Object.values(workspaceManifest.scripts)) {
+    for (const [, path] of script.matchAll(/node (tools\/scripts\/[^\s]+\.mjs)/g)) {
+      assert.match(path, /^tools\/scripts\/(package|quality|browser|performance)\//);
+      await access(new URL(`../../../${path}`, import.meta.url));
+    }
+  }
+  const workflow = await readFile(new URL("../../../.github/workflows/release-browser-matrix.yml", import.meta.url), "utf8");
+  assert.match(workflow, /run: npm run browser:check/);
+  assert.match(workflow, /run: npm test/);
+  assert.match(workflow, /run: npm run pack:report/);
+  assert.match(workspaceManifest.scripts["browser:check"], /browser\/check-browser-e2e\.mjs/);
+  assert.match(workspaceManifest.scripts["pack:check"], /npm run pack:report/);
 });
 
 test("workspace keeps consumers behind public package imports", () => {
