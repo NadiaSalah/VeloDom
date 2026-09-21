@@ -41,12 +41,12 @@ authentication, tags, and releases are external state and are deliberately not
 recorded as completed here. Repository tests never publish or prove registry
 state.
 
-**New V1 simplicity/organization follow-up: 4 of 8 complete (50%).**
+**New V1 simplicity/organization follow-up: 5 of 8 complete (62.5%).**
 This separately scoped quality/adoption work is detailed below; the completed
 implementation counters above do not mean these follow-ups or release gates are done.
 
 **Commerce and large-application track: 0 of 10 complete (0%).**
-These new proposals do not change the completed baseline or the 4/8 simplicity
+These new proposals do not change the completed baseline or the 5/8 simplicity
 counter. Research experiments are tracked separately and are not implementation promises.
 
 ### Status vocabulary
@@ -68,9 +68,9 @@ This quality track is separate from the completed implementation milestones.
 Freeze new capability expansion while validating the existing beginner path.
 These tasks reuse current contracts, not new directives or a new runtime layer.
 
-**Progress: 4 of 8 complete (50%).**
+**Progress: 5 of 8 complete (62.5%).**
 
-`[##########----------] 50%`
+`[#############-------] 62.5%`
 
 - [x] **P0 / V1 / Small:** Separate package, quality, browser, and performance
   repository scripts; keep source/example/package boundaries and stable npm
@@ -94,10 +94,16 @@ These tasks reuse current contracts, not new directives or a new runtime layer.
   private import paths, and produces the production build before the advanced
   alternatives are introduced. Independent human observation remains the
   separately open validation task below rather than being inferred from tests.
-- [ ] **P1 / V1 / Medium:** Audit common list and form recipes against the existing
+- [x] **P1 / V1 / Medium:** Audit common list and form recipes against the existing
   request/auto-state/validation helpers. Remove unnecessary example boilerplate,
   show loading/error/empty/success states, and test the taught snippets. Do not
-  add a new directive where an existing helper already solves the task.
+  add a new directive where an existing helper already solves the task. The
+  teaching site now uses one `vd-target` plus `vd-auto-state`, an always-iterable
+  keyed loop, and an accessible progressive form status/field-error recipe.
+  Integration tests compile and execute those exact displayed snippets across
+  native-invalid, loading, success, empty, request-error, and server-field-error
+  outcomes; the production browser journey covers success and empty without an
+  expected console error weakening the release gate.
 - [ ] **P1 / V1 / Medium:** Expand dev/production parity fixtures only where
   coverage is missing: imported/public assets, route/hash entry, layouts,
   scoped styles, requests and recovery. Reuse current starter/browser gates;

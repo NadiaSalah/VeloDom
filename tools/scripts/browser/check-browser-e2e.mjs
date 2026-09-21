@@ -533,13 +533,14 @@ async function assertRequestExamples(page, origin) {
       .filter(node => node.textContent?.includes("Loop scope:")).length === 1
   ));
 
-  await page.locator('[data-vd-request="articles.getOne"]').nth(1).waitFor();
-
-  await page.locator('[data-vd-request="articles.getOne"]').nth(0).click();
+  await page.locator('[data-demo-action="list-success"]').waitFor();
+  await page.locator('[data-demo-action="list-success"]').click();
   await waitForPageText(page, "HTML-first is the center of VeloDom");
-
-  await page.locator('[data-vd-request="articles.getOne"]').nth(1).click();
-  await waitForPageText(page, "Compiler-first without hiding the DOM");
+  await page.locator('[data-demo-action="list-empty"]').click();
+  await waitForPageText(page, "No articles found.");
+  await page.waitForFunction(() => (
+    document.querySelector('[data-demo-list-success]')?.style.display === "none"
+  ));
 }
 
 async function assertArticlePage(page, origin) {

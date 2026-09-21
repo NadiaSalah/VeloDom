@@ -211,36 +211,38 @@ state.openFeatured = () =&gt; {
         debounce, throttle, hooks, and validation remain opt-in.
       </p>
       <div class="code-window">
-        <div class="code-toolbar"><span>declarative request</span><span>automatic state</span></div>
-        <pre class="code-example" vd-pre><code>&lt;button
-  vd-request="articles.getOne"
-  vd-request-config="{
-    params: { id: 'html-first' },
-    target: 'articleResult',
-    autoState: true,
-    retry: 1
-  }"
-&gt;
-  Load article
-&lt;/button&gt;
+        <div class="code-toolbar"><span>list request</span><span>loading + error + empty + success</span></div>
+        <pre class="code-example" data-recipe="request-list" vd-pre><code>&lt;button
+  type="button"
+  vd-request="catalog.list"
+  vd-target="productsResult"
+  vd-auto-state
+&gt;Load products&lt;/button&gt;
 
-&lt;p vd-show="articleLoading"&gt;Loading…&lt;/p&gt;
-&lt;p vd-if="articleError !== ''"&gt;{{ articleError }}&lt;/p&gt;
-&lt;h3&gt;{{ articleResult?.title }}&lt;/h3&gt;</code></pre>
+&lt;p vd-show="productsLoading" aria-live="polite"&gt;Loading products…&lt;/p&gt;
+&lt;p vd-if="productsError !== ''" role="alert"&gt;{{ productsError }}&lt;/p&gt;
+&lt;p vd-if="!productsLoading &amp;&amp; productsError === '' &amp;&amp; productsResult?.items?.length === 0"&gt;No products found.&lt;/p&gt;
+&lt;ul vd-if="!productsLoading &amp;&amp; productsError === '' &amp;&amp; Boolean(productsResult?.items?.length)"&gt;
+  &lt;li vd-for="product in (productsResult?.items || [])" vd-key="product.id"&gt;
+    {{ product.name }}
+  &lt;/li&gt;
+&lt;/ul&gt;</code></pre>
       </div>
       <p class="mt-5"><a href="/playground#request" vd-nav class="font-bold text-indigo-700">Run the local request example →</a></p>
       <h3>Progressive forms keep native HTML as the baseline.</h3>
       <div class="code-window">
         <div class="code-toolbar"><span>native form + opt-in enhancement</span><span>server owns policy</span></div>
-        <pre class="code-example" vd-pre><code>&lt;form action="/contact" method="post" vd-form vd-validate&gt;
+        <pre class="code-example" data-recipe="progressive-form" vd-pre><code>&lt;form action="/contact" method="post" vd-form vd-validate&gt;
   &lt;label&gt;
     Email
-    &lt;input name="email" type="email" required&gt;
+    &lt;input name="email" type="email" aria-describedby="email-error" required&gt;
   &lt;/label&gt;
+  &lt;small id="email-error" vd-form-error="email"&gt;&lt;/small&gt;
   &lt;button type="submit"&gt;Send&lt;/button&gt;
+  &lt;p vd-form-status aria-live="polite"&gt;&lt;/p&gt;
 &lt;/form&gt;</code></pre>
       </div>
-      <p class="mt-3">The server still owns authentication, CSRF, validation, redirects, and authorization. VeloDom only provides an optional HTML enhancement bridge.</p>
+      <p class="mt-3">The same list markup covers all four common states without manual loading/error assignments. The form remains usable HTML; the optional plugins add native validation, status text, and server field errors. The server still owns authentication, CSRF, validation, redirects, and authorization.</p>
     </section>
 
     <section id="api" class="doc-section">

@@ -2,6 +2,33 @@
 
 ## Architectural Decisions
 
+### Common list and form recipes — 2026-09-21
+
+- Replaced the teaching site's verbose single-record request snippet with a
+  common list recipe based on `vd-target` and `vd-auto-state`. Loading, error,
+  empty, and success presentation stays in semantic HTML; no directive or
+  request engine was added.
+- The audit exposed a non-obvious authoring requirement: an inner `vd-for` is
+  evaluated independently, so its source must remain iterable before the first
+  result. Current teaching uses `result?.items || []` and documents why rather
+  than hiding the behavior behind a new runtime abstraction.
+- Expanded the progressive-form snippet with native constraints, an associated
+  field-error node, and live status text. Server validation and policy remain
+  application/backend responsibilities.
+- Added integration tests that read, compile, and execute the literal snippets
+  shown on `/features`, preventing documentation-only copies from drifting.
+  The production playground reuses the same state pattern and exposes success,
+  empty, and explicit failure controls; browser release coverage exercises the
+  non-error states so expected console errors are not globally ignored.
+- Removed the superseded playground `lessonResult`, `lessonLoading`, and
+  `lessonError` state and old single-record controls. `articles.getOne` remains
+  required by the dynamic article page; `articles.list` reuses the existing
+  article collection for the list-state lesson.
+- Passed the two new recipe tests, full quality/type/lint checks, installed
+  package and six-starter builds, production documentation build, compiler and
+  rendering benchmarks, performance budgets, and desktop/mobile Chromium
+  journeys. Simplicity progress is now 5/8 (62.5%).
+
 ### Verified beginner journey — 2026-09-21
 
 - Made Minimal + JavaScript + ordinary CSS the explicit package Quick Start

@@ -184,6 +184,10 @@ release commit is verified, approved, tagged, and published deliberately.
 - Extended the installed-tarball consumer check to execute the documented
   component command and build the taught Minimal JavaScript project; no Core
   runtime, public API, version, dependency, or browser payload changed.
+- Simplified the taught list/form recipes around existing `vd-auto-state`,
+  native constraints, and progressive form feedback. The displayed snippets
+  are now executed as integration fixtures, and the production playground
+  visibly covers successful and empty list responses.
 - Organized repository checks under `tools/scripts/{package,quality,browser,performance}`
   and kept npm commands stable. CI uses the named browser command.
 - Added `npm run pack:report`: audits both real npm file lists, public entry
@@ -216,8 +220,8 @@ not new npm features. Payment, stock, authorization, and pricing remain
 application/server responsibilities; the documentation blog stays the teaching site.
 
 See [docs/TODO.md](docs/TODO.md) for release gates and the separately counted
-V1 simplicity/organization follow-up, now **4/8 complete (50%)**. Prioritize common
-list/form recipes and real developer
+V1 simplicity/organization follow-up, now **5/8 complete (62.5%)**. Prioritize
+remaining dev/production parity and real developer
 feedback before adding capabilities. Near-term work includes:
 
 - preserve source-backed Vite/Rollup chunk attribution and regression coverage;

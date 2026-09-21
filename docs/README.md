@@ -2293,6 +2293,36 @@ It compiles to the stable runtime attribute `data-vd-request-state`.
 `vd-request-state` / `data-vd-request-state` remain supported for existing
 templates and direct data-attribute usage.
 
+### Recipe: List Loading, Error, Empty, and Success
+
+Use one result target and `vd-auto-state`; do not assign loading/error fields
+manually in a click handler. Keep the loop expression iterable before the first
+response because nested directives are evaluated independently:
+
+```html
+<button
+  type="button"
+  vd-request="products.list"
+  vd-target="productsResult"
+  vd-auto-state
+>Load products</button>
+
+<p vd-show="productsLoading" aria-live="polite">Loading products…</p>
+<p vd-if="productsError !== ''" role="alert">{{ productsError }}</p>
+<p vd-if="!productsLoading && productsError === '' && productsResult?.items?.length === 0">
+  No products found.
+</p>
+<ul vd-if="!productsLoading && productsError === '' && Boolean(productsResult?.items?.length)">
+  <li vd-for="product in (productsResult?.items || [])" vd-key="product.id">
+    {{ product.name }}
+  </li>
+</ul>
+```
+
+The documentation site executes this exact displayed recipe against success,
+empty, and failure responses. No list-specific directive or second request
+state abstraction is required.
+
 ### Request Debounce
 
 Use debounce for search forms, autosave buttons, and other actions where rapid
@@ -2625,7 +2655,8 @@ Create form:
 <form
   vd-validate
   vd-request="posts.create"
-  vd-request-config="{ target: 'createResult', autoState: true }"
+  vd-target="createResult"
+  vd-auto-state
 >
   <input name="title" vd-model="createDraft.title" required>
   <textarea name="body" vd-model="createDraft.body" required></textarea>

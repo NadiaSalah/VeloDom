@@ -336,10 +336,26 @@ handlers or a named route registry for advanced grouping.
 <button
   vd-request="posts.list"
   vd-params="{ page: page }"
-  vd-target="posts"
+  vd-target="postsResult"
   vd-auto-state
 >Load posts</button>
+
+<p vd-show="postsLoading" aria-live="polite">Loading…</p>
+<p vd-if="postsError !== ''" role="alert">{{ postsError }}</p>
+<p vd-if="!postsLoading && postsError === '' && postsResult?.items?.length === 0">
+  No posts found.
+</p>
+<ul vd-if="!postsLoading && postsError === '' && Boolean(postsResult?.items?.length)">
+  <li vd-for="post in (postsResult?.items || [])" vd-key="post.id">
+    {{ post.title }}
+  </li>
+</ul>
 ```
+
+`vd-auto-state` derives `postsLoading` and `postsError` from the
+`postsResult` target. Use an always-iterable loop source such as
+`postsResult?.items || []`; nested directives are evaluated independently and
+must remain safe before the first result arrives.
 
 Request directives:
 
@@ -364,8 +380,8 @@ declare auth, roles, named/custom middleware, and auth-failure redirects.
 
 ```html
 <form vd-form vd-request="posts.create" vd-validate>
-  <input name="title" required>
-  <small vd-form-error="title"></small>
+  <input name="title" aria-describedby="title-error" required>
+  <small id="title-error" vd-form-error="title"></small>
   <p vd-form-status aria-live="polite"></p>
   <button type="submit">Create</button>
 </form>

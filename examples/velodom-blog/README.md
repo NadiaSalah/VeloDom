@@ -20,7 +20,7 @@ and content.
 | --- | --- |
 | `/` | Two-file beginner walkthrough, learning path, and package/site boundaries |
 | `/features` | Guided lessons for the framework capabilities |
-| `/playground` | Live state, keyed loop reconciliation, loop-scoped components, slots, refs, expose, and request exercises |
+| `/playground` | Live state, keyed loop reconciliation, components, refs, and request list states |
 | `/reference` | Source-verified public package catalog |
 | `/single-file` | Optional `.vd` authoring example |
 | `/blog/posts/:id` | Dynamic route and content detail |
@@ -90,6 +90,12 @@ duplicate router click handling.
 The loop playground increments one component before reordering the same item
 objects. Its counter remains unchanged, demonstrating that stable `vd-key`
 identity moves existing instances instead of remounting them.
+
+The request lesson uses one `vd-target` plus `vd-auto-state` to demonstrate
+loading, success, empty, and error outcomes without manual request-state
+assignments. The exact displayed list and progressive-form snippets are
+compiled and exercised by integration tests; loop sources remain iterable even
+before their first result.
 
 The `/single-file` route is also the production lazy-loading fixture: its
 config is available for routing at startup while the remaining `.vd` module is

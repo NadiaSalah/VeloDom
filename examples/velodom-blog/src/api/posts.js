@@ -54,7 +54,15 @@ const articles = [
 ];
 
 /** Returns the local documentation articles used by the example application. */
-export async function listArticles() {
+export async function listArticles(input = {}) {
+  if (input.mode === "error") {
+    throw new Error("Article list is temporarily unavailable.");
+  }
+
+  if (input.mode === "empty") {
+    return { posts: [] };
+  }
+
   return { posts: articles };
 }
 

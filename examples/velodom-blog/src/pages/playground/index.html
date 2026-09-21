@@ -91,17 +91,19 @@ export function init({ state }) {
     </section>
 
     <section id="request" class="feature-lab scroll-mt-28">
-      <div class="feature-lab-header"><strong>Declarative local request</strong><span class="feature-lab-label">vd-request</span></div>
+      <div class="feature-lab-header"><strong>Declarative list states</strong><span class="feature-lab-label">vd-request</span></div>
+      <p class="mt-4 text-sm leading-7 text-slate-600">One result target derives loading and error names. Try the successful, empty, and failed outcomes without writing request-state boilerplate.</p>
       <div class="mt-5 flex flex-wrap items-center gap-3">
-        <button vd-request="articles.getOne" vd-request-config="{ params: { id: 'html-first' }, target: 'lessonResult', autoState: true }" class="btn btn-primary rounded-xl">Load HTML-first lesson</button>
-        <button vd-request="articles.getOne" vd-request-config="{ params: { id: 'compiler-first' }, target: 'lessonResult', autoState: true }" class="btn btn-outline rounded-xl">Load compiler lesson</button>
+        <button data-demo-action="list-success" vd-request="articles.list" vd-params="{ mode: 'success' }" vd-target="articleListResult" vd-auto-state class="btn btn-primary rounded-xl">Load articles</button>
+        <button data-demo-action="list-empty" vd-request="articles.list" vd-params="{ mode: 'empty' }" vd-target="articleListResult" vd-auto-state class="btn btn-outline rounded-xl">Show empty state</button>
+        <button data-demo-action="list-error" vd-request="articles.list" vd-params="{ mode: 'error' }" vd-target="articleListResult" vd-auto-state class="btn btn-outline rounded-xl">Show error state</button>
       </div>
-      <p vd-show="lessonLoading" class="mt-4 text-sm text-indigo-700">Loading local route…</p>
-      <p vd-if="lessonError !== ''" vd-text="lessonError" class="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700"></p>
-      <div vd-if="Boolean(lessonResult?.title)" class="mt-4 rounded-xl bg-emerald-50 p-4">
-        <strong vd-text="lessonResult.title" class="block text-emerald-950"></strong>
-        <span vd-text="lessonResult.excerpt" class="mt-1 block text-sm text-emerald-800"></span>
-      </div>
+      <p vd-show="articleListLoading" aria-live="polite" class="mt-4 text-sm text-indigo-700">Loading articles…</p>
+      <p vd-if="articleListError !== ''" role="alert" class="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{{ articleListError }}</p>
+      <p data-demo-list-empty vd-if="!articleListLoading && articleListError === '' && articleListResult?.posts?.length === 0" class="mt-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-800">No articles found.</p>
+      <ul data-demo-list-success vd-if="!articleListLoading && articleListError === '' && Boolean(articleListResult?.posts?.length)" class="mt-4 grid gap-3 md:grid-cols-2">
+        <li vd-for="article in (articleListResult?.posts || [])" vd-key="article.id" class="rounded-xl bg-emerald-50 p-4 text-sm font-semibold text-emerald-950">{{ article.title }}</li>
+      </ul>
     </section>
   </div>
 

@@ -18,6 +18,9 @@ or claim that a matching package is available from a registry.
   shipped Quick Start and generated Minimal README. The installed-tarball gate
   now creates its documented component, applies the lesson, and builds it before
   the existing six-starter compatibility and size checks complete.
+- Added source-tested list and progressive-form recipes that demonstrate
+  loading, success, empty, request-error, native-invalid, and server-field-error
+  states using existing directives and optional plugins.
 - Repository-only `pack:report` checks both real npm artifacts for allowed files,
   declared entry points, known private/generated paths, and download/install/file
   budgets while retaining debugging source maps. No new framework API or dependency.
