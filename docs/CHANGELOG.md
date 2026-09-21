@@ -21,6 +21,9 @@ or claim that a matching package is available from a registry.
 - Added source-tested list and progressive-form recipes that demonstrate
   loading, success, empty, request-error, native-invalid, and server-field-error
   states using existing directives and optional plugins.
+- Added installed-tarball copy-to-project verification for the literal beginner
+  lesson, generated component/scoped style, public favicon, and production asset
+  URLs while retaining the existing Vite and browser parity coverage.
 - Repository-only `pack:report` checks both real npm artifacts for allowed files,
   declared entry points, known private/generated paths, and download/install/file
   budgets while retaining debugging source maps. No new framework API or dependency.

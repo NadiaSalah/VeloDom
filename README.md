@@ -188,6 +188,10 @@ release commit is verified, approved, tagged, and published deliberately.
   native constraints, and progressive form feedback. The displayed snippets
   are now executed as integration fixtures, and the production playground
   visibly covers successful and empty list responses.
+- Converted the installed starter check into a real copy-to-project parity
+  fixture: it reads the homepage lesson source, adds the documented component,
+  builds from the packed package, and rejects source-only asset links while
+  verifying public and scoped assets.
 - Organized repository checks under `tools/scripts/{package,quality,browser,performance}`
   and kept npm commands stable. CI uses the named browser command.
 - Added `npm run pack:report`: audits both real npm file lists, public entry
@@ -220,8 +224,9 @@ not new npm features. Payment, stock, authorization, and pricing remain
 application/server responsibilities; the documentation blog stays the teaching site.
 
 See [docs/TODO.md](docs/TODO.md) for release gates and the separately counted
-V1 simplicity/organization follow-up, now **5/8 complete (62.5%)**. Prioritize
-remaining dev/production parity and real developer
+V1 simplicity/organization follow-up, now **6/8 complete (75%)**. Prioritize
+independent developer observation and evidence-led guide navigation before
+splitting documentation. Real developer
 feedback before adding capabilities. Near-term work includes:
 
 - preserve source-backed Vite/Rollup chunk attribution and regression coverage;

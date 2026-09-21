@@ -30,6 +30,7 @@ import {
 } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
+import { Window } from "happy-dom";
 
 const workspaceRoot = resolve(
   fileURLToPath(new URL("../../..", import.meta.url))
@@ -302,6 +303,9 @@ try {
       cwd: starterRoot
     });
     await access(join(starterRoot, "dist", "index.html"));
+    if (starterCase.name === "minimal-javascript") {
+      await assertBeginnerProductionOutput(starterRoot);
+    }
     const buildStats = await readStarterBuildStats(starterRoot);
 
     if (buildStats.totalJavaScriptBytes > 192 * 1024) {
@@ -391,32 +395,23 @@ async function applyBeginnerJourney(starterRoot, installedPackageRoot) {
     starterRoot
   ], { cwd: starterRoot });
 
-  await writeFile(
-    join(starterRoot, "src", "pages", "home", "index.html"),
-    `<main>
-  <h1>{{ title }}</h1>
-  <p aria-live="polite">Count: {{ count }}</p>
-  <button type="button" vd-on:click="increment()">Add one</button>
-  <vd-component
+  const lesson = await readBeginnerJourney();
+  const page = lesson.html.replace(
+    "</main>",
+    `  <vd-component
     name="welcome-note"
     vd-prop-title="Ready to build"
   ></vd-component>
-</main>
-`
+</main>`
+  );
+
+  await writeFile(
+    join(starterRoot, "src", "pages", "home", "index.html"),
+    `${page.trim()}\n`
   );
   await writeFile(
     join(starterRoot, "src", "pages", "home", "script.js"),
-    `export const state = {
-  title: "My VeloDom site",
-  count: 0,
-};
-
-export function init({ state }) {
-  state.increment = () => {
-    state.count += 1;
-  };
-}
-`
+    `${lesson.script.trim()}\n`
   );
 
   await access(join(
@@ -426,6 +421,50 @@ export function init({ state }) {
     "welcome-note",
     "index.html"
   ));
+}
+
+async function readBeginnerJourney() {
+  const source = await readFile(join(
+    workspaceRoot,
+    "examples",
+    "velodom-blog",
+    "src",
+    "pages",
+    "home",
+    "index.html"
+  ), "utf8");
+  const window = new Window();
+  window.document.body.innerHTML = source;
+  const snippets = [...window.document.querySelectorAll(
+    'section[aria-labelledby="first-feature"] pre[vd-pre] code'
+  )].map(node => node.textContent);
+
+  await window.close();
+  if (snippets.length !== 2 || snippets.some(snippet => !snippet.trim())) {
+    throw new Error("The copy-to-project beginner lesson must contain HTML and script snippets");
+  }
+
+  return {
+    html: snippets[0],
+    script: snippets[1]
+  };
+}
+
+async function assertBeginnerProductionOutput(starterRoot) {
+  await access(join(starterRoot, "dist", "velodom-favicon.svg"));
+  const output = await readProjectText(join(starterRoot, "dist"));
+
+  if (
+    /\b(?:src|href)=["']\/src\//.test(output)
+    || /url\((?:["'])?\/src\//.test(output)
+  ) {
+    throw new Error("Beginner production output retained a source-only asset URL");
+  }
+  for (const expected of ["Ready to build", "vd-card"]) {
+    if (!output.includes(expected)) {
+      throw new Error(`Beginner production output is missing ${JSON.stringify(expected)}`);
+    }
+  }
 }
 
 async function readJavaScriptAssets(directory) {

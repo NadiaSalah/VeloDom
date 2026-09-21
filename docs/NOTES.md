@@ -2,6 +2,30 @@
 
 ## Architectural Decisions
 
+### Development and production parity audit — 2026-09-21
+
+- Replaced the manually duplicated package-consumer beginner fixture with the
+  literal two snippets parsed from the educational homepage. The installed CLI
+  still creates the documented component, which is appended to that copied
+  page before the installed package builds it.
+- Added focused production assertions for the public favicon, taught component
+  text, scoped component CSS, and actual `src`/`href`/CSS asset URLs. Internal
+  `/src/` discovery keys remain valid runtime metadata and are deliberately not
+  confused with browser asset URLs.
+- Audited existing coverage instead of adding a second environment harness:
+  Vite tests cover development transform/cache invalidation and `.vd` virtual
+  modules; integration tests cover layouts/scoped CSS/recovery; the production
+  browser gate covers imported logo assets, layouts, direct route/hash entry,
+  requests, article reload recovery, and lazy `.vd` behavior. The installed
+  tarball matrix covers all six starter/language combinations.
+- No runtime/compiler/type/export/CLI command/template source behavior changed.
+  CLI impact is `NONE`; the repository-only installed consumer became stricter.
+  The temporary retained failure fixture used to classify internal keys was
+  deleted after the asset-URL rule was corrected.
+- The installed package consumer and all six starter builds passed after the
+  refinement. Earlier in this sequence, full quality/build/performance and
+  desktop/mobile Chromium gates passed. Simplicity progress is now 6/8 (75%).
+
 ### Common list and form recipes — 2026-09-21
 
 - Replaced the teaching site's verbose single-record request snippet with a

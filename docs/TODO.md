@@ -41,12 +41,12 @@ authentication, tags, and releases are external state and are deliberately not
 recorded as completed here. Repository tests never publish or prove registry
 state.
 
-**New V1 simplicity/organization follow-up: 5 of 8 complete (62.5%).**
+**New V1 simplicity/organization follow-up: 6 of 8 complete (75%).**
 This separately scoped quality/adoption work is detailed below; the completed
 implementation counters above do not mean these follow-ups or release gates are done.
 
 **Commerce and large-application track: 0 of 10 complete (0%).**
-These new proposals do not change the completed baseline or the 5/8 simplicity
+These new proposals do not change the completed baseline or the 6/8 simplicity
 counter. Research experiments are tracked separately and are not implementation promises.
 
 ### Status vocabulary
@@ -68,9 +68,9 @@ This quality track is separate from the completed implementation milestones.
 Freeze new capability expansion while validating the existing beginner path.
 These tasks reuse current contracts, not new directives or a new runtime layer.
 
-**Progress: 5 of 8 complete (62.5%).**
+**Progress: 6 of 8 complete (75%).**
 
-`[#############-------] 62.5%`
+`[###############-----] 75%`
 
 - [x] **P0 / V1 / Small:** Separate package, quality, browser, and performance
   repository scripts; keep source/example/package boundaries and stable npm
@@ -104,12 +104,19 @@ These tasks reuse current contracts, not new directives or a new runtime layer.
   native-invalid, loading, success, empty, request-error, and server-field-error
   outcomes; the production browser journey covers success and empty without an
   expected console error weakening the release gate.
-- [ ] **P1 / V1 / Medium:** Expand dev/production parity fixtures only where
+- [x] **P1 / V1 / Medium:** Expand dev/production parity fixtures only where
   coverage is missing: imported/public assets, route/hash entry, layouts,
   scoped styles, requests and recovery. Reuse current starter/browser gates;
   include the new introductory lesson in copy-to-project tests. Acceptance:
   the same documented example works in development and from an installed
-  tarball's production build without `/src/` asset URLs or hidden setup.
+  tarball's production build without `/src/` asset URLs or hidden setup. The
+  installed-package gate now reads the literal homepage HTML/script lesson,
+  copies it into Minimal JavaScript, creates the taught component through the
+  installed CLI, and verifies its scoped style, public favicon, and absence of
+  source-only asset links in production output. Existing Vite tests cover dev
+  compilation/invalidation; production browser journeys cover imported logos,
+  layouts, route/hash entry, requests, reload recovery, and `.vd` lazy styles,
+  so no duplicate parity runner was added.
 - [ ] **P1 / V1 validation / External:** Observe 3–5 independent developers
   (including beginners) building a small content site or dashboard. Record
   first-page time, unclear errors, manual setup steps, and production surprises.
