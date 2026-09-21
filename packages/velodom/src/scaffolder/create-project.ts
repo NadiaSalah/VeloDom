@@ -215,7 +215,9 @@ ${plan.testing !== "none" ? `# Run the configured real test layers\nnpx vd test$
 
 ${enabled || "Only the minimum VeloDom application files."}
 
-## Start editing
+${createStarterJourney(plan, extension)}
+
+## Project map
 
 - Bootstrap: \`src/main.${extension}\`
 - Pages: \`src/pages/\`
@@ -242,6 +244,50 @@ Use \`npx vd create --help\` to inspect options without creating files; presenta
 flags \`--no-logo\` and \`--no-color\` also work during creation. Generated styles
 include visible keyboard focus, wrapping navigation, and reduced-motion rules.
 `);
+}
+
+/** Creates the starter-specific path shown before optional/advanced commands. */
+function createStarterJourney(plan: ScaffoldPlan, extension: string) {
+  if (plan.starter !== "minimal") {
+    return `## Start editing
+
+Open \`src/pages/home/index.html\`, keep business code inside \`src/\`, and run
+\`${formatPackageScript(plan.packageManager, "build")}\` before deployment.
+Use \`${formatPackageScript(plan.packageManager, "preview")}\` to inspect the production build.`;
+  }
+
+  return `## Recommended first journey
+
+This is the shortest path for the Minimal starter. Finish it before adding
+optional tooling or changing authoring modes.
+
+1. Keep \`${formatPackageScript(plan.packageManager, "dev")}\` running and edit the heading in
+   \`src/pages/home/index.html\`. The page already demonstrates interpolation,
+   a click event, and the nearby \`src/pages/home/script.${extension}\` state.
+2. Add one conventional folder component:
+
+   \`\`\`bash
+   npx vd create component welcome-note${plan.language === "typescript" ? " --ts" : ""}
+   \`\`\`
+
+3. Render it from the home page:
+
+   \`\`\`html
+   <vd-component
+     name="welcome-note"
+     vd-prop-title="Ready to build"
+   ></vd-component>
+   \`\`\`
+
+4. Adjust ordinary global CSS in \`src/style.css\`, then verify the production output:
+
+   \`\`\`bash
+   ${formatPackageScript(plan.packageManager, "build")}
+   ${formatPackageScript(plan.packageManager, "preview")}
+   \`\`\`
+
+Pages and components may also use optional \`.vd\` files, and projects may use
+TypeScript or Tailwind, but those are alternatives rather than prerequisites.`;
 }
 
 /** Prints the enabled features. */

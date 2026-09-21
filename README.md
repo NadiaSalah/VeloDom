@@ -177,6 +177,13 @@ release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
+- Aligned the package Quick Start and generated Minimal README around one
+  verified beginner journey: edit a page, create/render a component, adjust
+  ordinary CSS, then build and preview. Advanced JS/TS, folder/`.vd`, and
+  CSS/Tailwind choices remain available after that path.
+- Extended the installed-tarball consumer check to execute the documented
+  component command and build the taught Minimal JavaScript project; no Core
+  runtime, public API, version, dependency, or browser payload changed.
 - Organized repository checks under `tools/scripts/{package,quality,browser,performance}`
   and kept npm commands stable. CI uses the named browser command.
 - Added `npm run pack:report`: audits both real npm file lists, public entry
@@ -209,7 +216,8 @@ not new npm features. Payment, stock, authorization, and pricing remain
 application/server responsibilities; the documentation blog stays the teaching site.
 
 See [docs/TODO.md](docs/TODO.md) for release gates and the separately counted
-V1 simplicity/organization follow-up. Prioritize onboarding and real developer
+V1 simplicity/organization follow-up, now **4/8 complete (50%)**. Prioritize common
+list/form recipes and real developer
 feedback before adding capabilities. Near-term work includes:
 
 - preserve source-backed Vite/Rollup chunk attribution and regression coverage;

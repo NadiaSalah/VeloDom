@@ -254,6 +254,10 @@ try {
       cwd: temporaryRoot
     });
 
+    if (starterCase.name === "minimal-javascript") {
+      await applyBeginnerJourney(starterRoot, installedPackageRoot);
+    }
+
     const starterSource = await readProjectText(starterRoot);
 
     for (const forbidden of [
@@ -375,6 +379,53 @@ async function linkStarterDependencies(starterRoot, installedPackageRoot) {
     await access(source);
     await symlink(source, join(starterModules, scope), linkType);
   }
+}
+
+async function applyBeginnerJourney(starterRoot, installedPackageRoot) {
+  await run(process.execPath, [
+    join(installedPackageRoot, "bin", "vd.js"),
+    "create",
+    "component",
+    "welcome-note",
+    "--root",
+    starterRoot
+  ], { cwd: starterRoot });
+
+  await writeFile(
+    join(starterRoot, "src", "pages", "home", "index.html"),
+    `<main>
+  <h1>{{ title }}</h1>
+  <p aria-live="polite">Count: {{ count }}</p>
+  <button type="button" vd-on:click="increment()">Add one</button>
+  <vd-component
+    name="welcome-note"
+    vd-prop-title="Ready to build"
+  ></vd-component>
+</main>
+`
+  );
+  await writeFile(
+    join(starterRoot, "src", "pages", "home", "script.js"),
+    `export const state = {
+  title: "My VeloDom site",
+  count: 0,
+};
+
+export function init({ state }) {
+  state.increment = () => {
+    state.count += 1;
+  };
+}
+`
+  );
+
+  await access(join(
+    starterRoot,
+    "src",
+    "components",
+    "welcome-note",
+    "index.html"
+  ));
 }
 
 async function readJavaScriptAssets(directory) {

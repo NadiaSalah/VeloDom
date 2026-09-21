@@ -711,6 +711,10 @@ test("CLI create scaffolds convention-first project resources", async () => {
       join(root, "starter/vite.config.js"),
       "utf8"
     );
+    const starterReadme = await readFile(
+      join(root, "starter/README.md"),
+      "utf8"
+    );
     const starterManifest = JSON.parse(await readFile(
       join(root, "starter/package.json"),
       "utf8"
@@ -734,6 +738,13 @@ test("CLI create scaffolds convention-first project resources", async () => {
     assert.match(starterViteConfig, /from "velodom\/vite-plugin"/);
     assert.match(await readFile(join(root, "starter/jsconfig.json"), "utf8"), /"ignoreDeprecations": "6\.0"/);
     assert.match(starterViteConfig, /"@": fileURLToPath/);
+    assert.match(starterReadme, /## Recommended first journey/);
+    assert.match(starterReadme, /npx vd create component welcome-note/);
+    assert.match(starterReadme, /vd-prop-title="Ready to build"/);
+    assert.match(starterReadme, /npm run build/);
+    assert.match(starterReadme, /npm run preview/);
+    assert.match(starterReadme, /TypeScript or Tailwind, but those are alternatives/);
+    assert.doesNotMatch(starterReadme, /packages\/velodom\/src|velodom\/lib\//);
     assert.equal(starterManifest.name, "starter");
     assert.equal(starterManifest.scripts.lab, "vd lab");
     assert.equal(starterManifest.imports["#app/*"], "./src/*");

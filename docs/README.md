@@ -719,6 +719,12 @@ auto-started server. Customize exposes each layer. Scriptable flags include
 `--package-manager`. Selecting Lab adds only a `lab` script; selecting No adds
 no dependency, configuration, or production code.
 
+The beginner path is deliberately explicit rather than tied to those defaults:
+choose Minimal, Customize, JavaScript, and Plain CSS, or run
+`create-velodom my-app --template minimal --javascript --css --yes`. The shipped
+Quick Start and generated README then lead through one page, one component,
+ordinary CSS, build, and preview before presenting advanced alternatives.
+
 ### Focused Page Demos
 
 Use `--demo` when learning one capability instead of starting with a full

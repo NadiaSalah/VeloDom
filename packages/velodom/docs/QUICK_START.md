@@ -1,22 +1,28 @@
 # VeloDom Quick Start
 
-## 1. Create the Project
+## Recommended Beginner Journey
+
+Complete this path before choosing optional integrations. It deliberately uses
+the Minimal starter, Vanilla JavaScript, and ordinary CSS; TypeScript, Tailwind,
+folder/`.vd` alternatives, and additional tooling remain available afterward.
+
+### 1. Create the Project
 
 After the first official V1 release makes both packages available:
 
 ```bash
-npm create velodom@latest
+npm create velodom@latest my-app -- --template minimal --javascript --css --yes
 cd my-app
 npm run dev
 ```
 
-Choose a starter and Recommended mode for the short path. Do not infer npm
-availability from source documentation. Before release, a repository checkout
-uses the local build:
+In the interactive flow, choose **Minimal**, then **Customize**, JavaScript, and
+Plain CSS to reach the same result. Do not infer npm availability from source
+documentation. Before release, a repository checkout uses the local build:
 
 ```bash
 npm run package:build
-node packages/velodom/bin/create-velodom.js my-app --no-install
+node packages/velodom/bin/create-velodom.js my-app --template minimal --javascript --css --yes --no-install
 cd my-app
 npm install
 npm run dev
@@ -28,21 +34,18 @@ examples, English/Arabic localization, an optional PWA build, testing, Git,
 install, and startup. Customize mode can also add the optional local VeloDom Lab command; selecting
 No leaves the project unchanged.
 
-Scriptable example:
+### 2. Edit the Home Page
 
-```bash
-npm create velodom@latest my-blog -- --template blog --typescript --tailwind
-```
-
-## 2. Edit the Home Page
+Replace the generated home files with this smallest interactive page. The HTML
+stays readable, while behavior remains in the nearby application-owned script.
 
 ```html
 <!-- src/pages/home/index.html -->
 <main>
   <h1>{{ title }}</h1>
-  <p vd-text="message"></p>
-  <button type="button" vd-on:click="count++">
-    Count: {{ count }}
+  <p aria-live="polite">Count: {{ count }}</p>
+  <button type="button" vd-on:click="increment()">
+    Add one
   </button>
 </main>
 ```
@@ -51,9 +54,14 @@ npm create velodom@latest my-blog -- --template blog --typescript --tailwind
 // src/pages/home/script.js
 export const state = {
   title: "My VeloDom site",
-  message: "Edit ordinary HTML and refresh.",
   count: 0
 };
+
+export function init({ state }) {
+  state.increment = () => {
+    state.count += 1;
+  };
+}
 ```
 
 ```js
@@ -67,7 +75,57 @@ export default {
 };
 ```
 
-## 3. Add a Page
+### 3. Add a Component
+
+Create a conventional folder component. The command writes only files owned by
+your application:
+
+```bash
+npx vd create component welcome-note
+```
+
+Render it from `src/pages/home/index.html`:
+
+```html
+<vd-component
+  name="welcome-note"
+  vd-prop-title="Ready to build"
+></vd-component>
+```
+
+Edit `src/components/welcome-note/index.html`, `script.js`, and `style.css` as
+ordinary application files. No framework-internal import is needed.
+
+### 4. Use Ordinary CSS
+
+Global styles live in `src/style.css`; folder component styles remain scoped to
+that component. Add a small global rule and confirm it updates in development:
+
+```css
+main {
+  width: min(48rem, calc(100% - 2rem));
+  margin-inline: auto;
+  padding-block: 4rem;
+}
+```
+
+### 5. Build and Preview
+
+Stop the development server, then verify the same application as optimized
+production output:
+
+```bash
+npm run build
+npm run preview
+```
+
+Open the printed local URL, click **Add one**, and confirm the component is
+visible. The journey is complete when both development and preview behave the
+same way.
+
+## Continue When the First Journey Works
+
+### Add Another Page
 
 For a quick orientation, run `npx vd help`. The interactive help includes the
 large VeloDom CLI wordmark; use `--no-logo` in scripts or `--no-color` for plain
@@ -102,25 +160,9 @@ Then link with app-relative navigation:
 <a href="/about" vd-nav>About</a>
 ```
 
-## 4. Add a Component
+### Inspect and Extend the Project
 
 ```bash
-npx vd create component status-badge
-```
-
-Use it from a page:
-
-```html
-<vd-component
-  name="status-badge"
-  vd-prop-label="Ready"
-></vd-component>
-```
-
-## 5. Build and Inspect
-
-```bash
-npm run build
 npx vd doctor
 npx vd inspect css
 npx vd inspect assets
@@ -163,6 +205,12 @@ The starter uses only public imports:
 ```js
 import { mountVeloDom } from "velodom/vite";
 import { velodom } from "velodom/vite-plugin";
+```
+
+Optional scriptable alternatives remain available after the beginner path:
+
+```bash
+npm create velodom@latest my-blog -- --template blog --typescript --tailwind
 ```
 
 ## Where to Read Next

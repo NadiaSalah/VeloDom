@@ -45,8 +45,13 @@ The interactive flow asks for Minimal, Blog, or Empty and then Recommended or
 Customize mode. Scripted automation can pass options such as:
 
 ```bash
+create-velodom my-app --template minimal --javascript --css --yes
 create-velodom my-blog --template blog --typescript --tailwind --i18n --pwa --no-install
 ```
+
+For a first project, use the first command and follow the generated README: edit
+the home page, create one folder component, adjust ordinary CSS, then run the
+production build and preview. Optional alternatives follow that verified path.
 
 Optional layers include ESLint, Prettier, official route examples, localization,
 an explicit installable PWA build, unit/E2E testing, the local VeloDom Lab

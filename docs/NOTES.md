@@ -2,6 +2,30 @@
 
 ## Architectural Decisions
 
+### Verified beginner journey — 2026-09-21
+
+- Made Minimal + JavaScript + ordinary CSS the explicit package Quick Start
+  path without changing the interactive Recommended defaults or removing
+  TypeScript, Tailwind, folder, `.vd`, or alias choices. The interactive route
+  tells beginners exactly which Customize selections produce the same project.
+- Generated Minimal READMEs now put an ordered page/component/CSS/build/preview
+  journey before optional tooling. Blog and Empty READMEs retain a shorter
+  starter-specific editing path instead of teaching files they do not own.
+- Extended the installed-tarball consumer gate: the generated Minimal JavaScript
+  project runs the installed `vd create component welcome-note`, receives the
+  taught page/script, passes the private-import sweep, and builds production
+  output. Existing six-case JS/TS/starter matrix and size limits remain intact.
+- No directive, runtime, compiler, type, export, dependency, package version,
+  starter source, or browser payload changed. The change is scaffolder guidance,
+  package documentation, and verification only; CLI impact is
+  `DEFAULT_INCLUDED` for generated README content, with no new flag or command.
+- Passed the 22 focused CLI tests, strict package typecheck, and installed
+  package/starter consumer gate. The six generated builds remain below their
+  existing JavaScript budgets. Browser tests were not rerun because the lesson
+  changed generated documentation/test fixtures rather than browser runtime.
+- Simplicity progress is now 4/8 (50%). Independent user observation remains
+  open and is not claimed by automated validation.
+
 ### Commerce and large-application roadmap review — 2026-09-17
 
 - Documentation-only planning: added ten prioritized proposals with ownership,

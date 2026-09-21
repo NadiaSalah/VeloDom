@@ -14,6 +14,10 @@ or claim that a matching package is available from a registry.
 
 ### Added
 
+- Added one ordered Minimal + JavaScript + plain-CSS beginner journey to the
+  shipped Quick Start and generated Minimal README. The installed-tarball gate
+  now creates its documented component, applies the lesson, and builds it before
+  the existing six-starter compatibility and size checks complete.
 - Repository-only `pack:report` checks both real npm artifacts for allowed files,
   declared entry points, known private/generated paths, and download/install/file
   budgets while retaining debugging source maps. No new framework API or dependency.

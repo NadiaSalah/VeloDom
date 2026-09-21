@@ -41,12 +41,12 @@ authentication, tags, and releases are external state and are deliberately not
 recorded as completed here. Repository tests never publish or prove registry
 state.
 
-**New V1 simplicity/organization follow-up: 3 of 8 complete (37.5%).**
+**New V1 simplicity/organization follow-up: 4 of 8 complete (50%).**
 This separately scoped quality/adoption work is detailed below; the completed
 implementation counters above do not mean these follow-ups or release gates are done.
 
 **Commerce and large-application track: 0 of 10 complete (0%).**
-These new proposals do not change the completed baseline or the 3/8 simplicity
+These new proposals do not change the completed baseline or the 4/8 simplicity
 counter. Research experiments are tracked separately and are not implementation promises.
 
 ### Status vocabulary
@@ -68,9 +68,9 @@ This quality track is separate from the completed implementation milestones.
 Freeze new capability expansion while validating the existing beginner path.
 These tasks reuse current contracts, not new directives or a new runtime layer.
 
-**Progress: 3 of 8 complete (37.5%).**
+**Progress: 4 of 8 complete (50%).**
 
-`[#######-------------] 37.5%`
+`[##########----------] 50%`
 
 - [x] **P0 / V1 / Small:** Separate package, quality, browser, and performance
   repository scripts; keep source/example/package boundaries and stable npm
@@ -85,11 +85,15 @@ These tasks reuse current contracts, not new directives or a new runtime layer.
   changelog; explain repository versus npm versus generated-site outputs. Add a
   two-file first-feature walkthrough to the educational homepage and clarify
   that the full documentation site differs from the generated Blog starter.
-- [ ] **P1 / V1 / Medium:** Validate one recommended beginner journey end to end:
+- [x] **P1 / V1 / Medium:** Validate one recommended beginner journey end to end:
   Minimal + JavaScript + ordinary CSS, edit one page, add one component, then
   build/preview. Show advanced alternatives afterward; preserve JS/TS, folder/
-  `.vd`, and existing aliases. Acceptance: a new user completes it using only
-  the quick start and generated README, with no framework-internal imports.
+  `.vd`, and existing aliases. The shipped Quick Start and Minimal generated
+  README now teach the same ordered path. The installed-tarball consumer creates
+  the documented component through `vd`, applies the page/script example, rejects
+  private import paths, and produces the production build before the advanced
+  alternatives are introduced. Independent human observation remains the
+  separately open validation task below rather than being inferred from tests.
 - [ ] **P1 / V1 / Medium:** Audit common list and form recipes against the existing
   request/auto-state/validation helpers. Remove unnecessary example boilerplate,
   show loading/error/empty/success states, and test the taught snippets. Do not
