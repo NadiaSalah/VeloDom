@@ -41,7 +41,7 @@ assistants all resolve to the same installed documentation.
 - ESLint and Node.js test runner
 - Playwright browser verification
 - Tailwind CSS and daisyUI only in the documentation blog consumer
-- ordinary CSS only in the separate storefront reference consumer
+- ordinary CSS only in the separate storefront/administration reference consumer
 
 ## Run the Workspace
 
@@ -126,7 +126,7 @@ packages/
   velodom-vscode/           optional private editor tooling
 examples/
   velodom-blog/             full documentation application and real consumer
-  velodom-store/            storefront/cart/mock-checkout reference consumer
+  velodom-store/            storefront/cart/admin/mock-checkout reference consumer
 tools/
   scripts/
     package/                artifact audits and installed-consumer checks
@@ -152,7 +152,7 @@ docs/
 | GitHub repository | Source, tests, fixtures, docs, templates, example site, CI, lockfile | Dependencies, generated `lib/types/dist`, browser reports, tarballs, credentials |
 | `velodom` npm tarball | Built ESM with source maps, types, binaries, consumer docs, small starter templates, license | Repository tests, full teaching site, development configs, release history |
 | Deployed documentation site | `examples/velodom-blog/dist`, produced by the build | Package source, tests, credentials |
-| Storefront reference build | `examples/velodom-store/dist`, produced by `npm run build:store` | Real payments, credentials, server authorization |
+| Store/admin reference build | `examples/velodom-store/dist`, produced by `npm run build:store` | Real payments, credentials, server authorization |
 
 Use `npm run package:build` then `npm run pack:report` to inspect **both** npm
 artifacts without publishing. Use `npm run pack:check` for installed-consumer
@@ -185,6 +185,11 @@ release commit is verified, approved, tagged, and published deliberately.
   direct product routes, URL filters, keyed product components, versioned guest
   cart persistence, authoritative mock quotes, RTL, and a visibly simulated
   checkout. It uses no commerce-specific Core syntax or real transaction.
+- Extended the same consumer with a separate administration layout, URL-backed
+  server-pagination fixture, detail/edit routes, optimistic revision checks,
+  native validation, recoverable failed/conflicting drafts, and confirmed bulk
+  publication actions. It reuses the catalog repository rather than copying
+  product data or adding a Core data-grid/form abstraction.
 - Fixed the optional direction controller so `ctx.direction` reaches component
   lifecycle hooks as documented, with runtime/type regression coverage.
 - Extended desktop/mobile browser gates across the store's Back/Forward filters,
@@ -228,9 +233,10 @@ startup failure still requires verification on the strict Linux CI runner.
 
 ## TODO
 
-The **Commerce and Large Applications** track is now **1/10 implemented**.
-The storefront consumer is complete; continue with the focused admin workflow and documented
-backend boundaries using current V1 APIs, then evaluate optional data/form/scale
+The **Commerce and Large Applications** track remains **1/10 complete** while
+the `C02` admin workflow is implemented and verified but intentionally stays
+open until `C03` proves real server authorization denial. Continue with that
+backend/session boundary, then evaluate optional data/form/scale
 improvements for V1.x. API-contract generation is deferred to a future major release; realtime,
 virtualization, and request-time rendering stay research. These are proposals,
 not new npm features. Payment, stock, authorization, and pricing remain

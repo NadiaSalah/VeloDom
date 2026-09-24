@@ -9,13 +9,17 @@
  */
 
 import "./style.css";
-import { createDirectionPlugin } from "velodom";
+import {
+  createDirectionPlugin,
+  createValidationPlugin
+} from "velodom";
 import { mountVeloDom } from "velodom/vite";
 import { cart } from "#app/domain/cart/cart-store.js";
 
 await mountVeloDom({
   plugins: [
     cart.plugin,
+    createValidationPlugin(),
     createDirectionPlugin({
       defaultLocale: "en",
       locales: {

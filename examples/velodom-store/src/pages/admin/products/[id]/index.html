@@ -1,0 +1,25 @@
+<main class="admin-page">
+  <a class="back-link" href="/admin/products" vd-nav>← Product administration</a>
+  <div class="admin-heading compact-heading">
+    <div>
+      <p class="eyebrow">Product detail</p>
+      <h1>{{ product?.name || '' }}</h1>
+      <p class="lede">{{ product?.summary || '' }}</p>
+    </div>
+    <a class="button button-primary" vd-href="editHref" vd-nav>Edit product</a>
+  </div>
+
+  <dl class="record-details content-card">
+    <div><dt>Product id</dt><dd>{{ product?.id || '' }}</dd></div>
+    <div><dt>Status</dt><dd><span class="status-badge" vd-attr="{ 'data-status': product?.status }">{{ product?.status || '' }}</span></dd></div>
+    <div><dt>Revision</dt><dd>{{ product?.revision || '' }}</dd></div>
+    <div><dt>Base price</dt><dd>{{ price }}</dd></div>
+    <div><dt>Category</dt><dd>{{ product?.categoryLabel || '' }}</dd></div>
+    <div><dt>Variants</dt><dd>{{ product?.variants?.length || 0 }}</dd></div>
+  </dl>
+
+  <section class="content-card record-copy" aria-labelledby="description-heading">
+    <h2 id="description-heading">Description</h2>
+    <p>{{ product?.description || '' }}</p>
+  </section>
+</main>

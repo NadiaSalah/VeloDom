@@ -5,7 +5,7 @@
  *
  * Serves the production build and drives real local browsers through the V1
  * VeloDom site routes, request examples, one-file pages, the separate
- * storefront reference consumer, and static SEO fallback checks.
+ * storefront/admin reference consumer, and static SEO fallback checks.
  * ----------------------------------------
  */
 
@@ -324,7 +324,7 @@ async function assertInteractiveSmoke(browser, target, origin) {
   await assertCompactDesktopNavigation(browser, target, origin);
 }
 
-async function runInteractiveStep(context, target, name, callback) {
+async function runInteractiveStep(context, target, name, callback, options = {}) {
   const page = await context.newPage();
   const browserProblems = [];
 
@@ -366,10 +366,16 @@ async function runInteractiveStep(context, target, name, callback) {
     });
     if (overflow) throw new Error(`Page content overflows the viewport horizontally: ${JSON.stringify(overflow)}`);
 
-    if (browserProblems.length > 0) {
+    const unexpectedBrowserProblems = browserProblems.filter(problem => (
+      !(options.expectedConsoleErrors || []).some(expected => (
+        problem.includes(expected)
+      ))
+    ));
+
+    if (unexpectedBrowserProblems.length > 0) {
       throw new Error([
         "Unexpected browser errors:",
-        ...browserProblems.map(problem => `- ${problem}`)
+        ...unexpectedBrowserProblems.map(problem => `- ${problem}`)
       ].join("\n"));
     }
 
@@ -408,6 +414,11 @@ async function assertStaticSeo(origin, storeOrigin) {
   assertIncludes(storeHtml, "<title>Aurora desk lamp | VeloDom Store</title>");
   assertIncludes(storeHtml, "data-vd-seo-fallback");
   assertIncludes(storeHtml, "A dimmable task light with a small footprint.");
+
+  const adminHtml = await fetchText(`${storeOrigin}/admin/products/`);
+
+  assertIncludes(adminHtml, "<title>Product Administration | VeloDom Store</title>");
+  assertIncludes(adminHtml, 'name="robots" content="noindex,nofollow"');
 }
 
 async function assertStorefrontSmoke(browser, target, origin) {
@@ -476,6 +487,97 @@ async function assertStorefrontSmoke(browser, target, origin) {
         "Cart changes remain in this tab because browser storage is unavailable."
       );
     });
+    await runInteractiveStep(
+      context,
+      target,
+      "storefront-administration",
+      async page => {
+        await page.goto(`${origin}/admin/products`);
+        await waitForPageText(page, "Search a server-paginated list");
+        // The SEO fallback can expose page text before the async page module and
+        // its model bindings finish mounting. The shared component appears only
+        // after page directives are ready, so it is the deterministic UI gate.
+        await page.locator(".locale-button").waitFor();
+        await page.locator("#admin-search").fill("workspace");
+        await page.waitForFunction(() => (
+          document.querySelector("#admin-search")?.value === "workspace"
+        ));
+        const submittedForm = await page.locator("form.admin-filters").evaluate(form => {
+          const input = document.querySelector("#admin-search");
+
+          return {
+            entries: [...new FormData(form).entries()],
+            inputName: input?.getAttribute("name"),
+            inputValue: input?.value,
+            ownsInput: input?.form === form
+          };
+        });
+        if (submittedForm.entries.find(([name]) => name === "q")?.[1] !== "workspace") {
+          throw new Error(
+            `Admin search form lost its query before submit: ${JSON.stringify(submittedForm)}`
+          );
+        }
+        await page.locator('button:has-text("Search")').click();
+        await page.waitForURL(url => url.searchParams.get("q") === "workspace");
+        await page.waitForFunction(() => (
+          document.querySelectorAll(".admin-table tbody tr").length === 2
+        ));
+
+        await page.locator('a[href="/admin/products/focus-timer/edit"]').click();
+        await waitForPageText(page, "Edit Focus dial timer");
+        const nameInput = page.locator("#product-name");
+
+        await nameInput.fill("Focus recovery timer");
+        await page.locator('select[name="mode"]').selectOption("error");
+        await page.locator('button:has-text("Save product")').click();
+        await waitForPageText(page, "Your draft is still available.");
+        if (await nameInput.inputValue() !== "Focus recovery timer") {
+          throw new Error("A failed admin write erased the user's draft.");
+        }
+        await page.waitForFunction(() => document.activeElement?.id === "save-error");
+
+        await page.locator('select[name="mode"]').selectOption("conflict");
+        await page.locator('button:has-text("Save product")').click();
+        await waitForPageText(page, "Your draft was preserved");
+        if (await nameInput.inputValue() !== "Focus recovery timer") {
+          throw new Error("A conflicting admin write erased the user's draft.");
+        }
+
+        await page.locator('button:has-text("Reload server version")').click();
+        await waitForPageText(page, "Reloaded revision 2");
+        if (await nameInput.inputValue() !== "Focus dial timer") {
+          throw new Error("Reload did not restore the authoritative server value.");
+        }
+
+        await nameInput.fill("Focus recovery timer");
+        await page.locator('button:has-text("Save product")').click();
+        await waitForPageText(page, "saved as revision 3");
+        await page.waitForFunction(() => document.activeElement?.id === "save-status");
+        await page.locator('a:has-text("Cancel")').click();
+        await waitForPageText(page, "Focus recovery timer");
+        await page.locator('a:has-text("Product administration")').click();
+        await waitForPageText(page, "Server-paginated product records");
+
+        const firstRow = page.locator(".admin-table tbody tr").first();
+        const firstProductName = await firstRow.locator("th strong").innerText();
+
+        await firstRow.locator('input[type="checkbox"]').check();
+        await page.locator("#bulk-action-trigger").click();
+        await page.locator("#bulk-confirm-dialog").waitFor({ state: "visible" });
+        await page.locator('#bulk-confirm-dialog button:has-text("Confirm action")').click();
+        await waitForPageText(page, "1 product archived.");
+        await page.waitForFunction(() => document.activeElement?.id === "bulk-success");
+
+        const updatedRow = page.locator(".admin-table tbody tr")
+          .filter({ hasText: firstProductName });
+        if ((await updatedRow.locator(".status-badge").innerText()).trim().toLowerCase() !== "archived") {
+          throw new Error("Bulk status was not expressed as readable text.");
+        }
+      },
+      {
+        expectedConsoleErrors: ["[VeloDom] API Request Failed"]
+      }
+    );
   } finally {
     await context.close();
   }

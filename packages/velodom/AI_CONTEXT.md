@@ -37,8 +37,10 @@ server start.
 
 The generated project is user-owned. Never edit `node_modules/velodom`.
 The repository's `examples/velodom-blog` is the complete educational website,
-and `examples/velodom-store` is a separate commerce reference consumer. Neither
-is the generated Blog starter or part of the npm artifact. Package docs
+and `examples/velodom-store` is a separate storefront/admin reference consumer.
+Its native forms, revision conflicts, bulk confirmation, cart, and checkout are
+application patterns rather than Core APIs. Neither example is the generated
+Blog starter or part of the npm artifact. Package docs
 and small starter layers are shipped; repository tests and release records are not.
 For an existing application, `vd add i18n|tests|lab|pwa` installs only those
 first-party optional features and records generated ownership in

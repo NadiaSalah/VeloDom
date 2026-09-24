@@ -82,8 +82,8 @@ portable consumer contract and are not duplicated in the root `docs` folder.
 The full source checkout is a maintainer workspace. `packages/velodom` is the
 publishable framework; `packages/create-velodom` is its thin creation wrapper.
 `examples/velodom-blog` is the actual educational website, while
-`examples/velodom-store` is the independent catalog/cart/mock-checkout reference
-consumer. Neither is part of the npm framework payload. The documentation
+`examples/velodom-store` is the independent storefront/cart/admin/mock-checkout
+reference consumer. Neither is part of the npm framework payload. The documentation
 homepage starts with a two-file interaction before the full feature catalog.
 The generated Blog starter is intentionally much smaller.
 
@@ -852,13 +852,13 @@ examples/
       api/                    application-owned handlers and middleware
       assets/                 application-owned static assets
       main.js                 one-call application bootstrap
-  velodom-store/              independent storefront reference consumer
+  velodom-store/              independent storefront/admin reference consumer
     src/
-      pages/                  catalog, product, cart, checkout, and recovery
+      pages/                  public commerce plus administration workflows
       components/             navigation and reusable product presentation
       api/                    stable application request names
-      domain/                 explicit app-owned catalog/cart policy
-      layouts/                shared store shell
+      domain/                 shared repository plus app-owned cart/admin policy
+      layouts/                separate public and administration shells
 
 docs/                         DX, future research, and identity notes
 tsconfig.json                 workspace type-check configuration
@@ -2615,6 +2615,8 @@ Use the same small pattern for CRUD screens:
 2. point the form/button at an application-owned API route with `vd-request`
 3. use `target` plus `autoState` so VeloDom derives result/loading/error names
 4. install `createValidationPlugin()` only when native form validation is needed
+5. include an expected revision for collaborative edits, preserve the draft on
+   failure, and let the user explicitly reload before retrying a conflict
 
 API routes stay in `src/api`:
 
@@ -2703,11 +2705,38 @@ Update form:
   <textarea name="body" vd-model="editDraft.body"></textarea>
 
   <button type="submit" vd-bind:disabled="updateLoading">Update</button>
-  <p vd-if="Boolean(updateResult?.id)">
+<p vd-if="Boolean(updateResult?.id)">
     Updated #{{ updateResult.id }}
   </p>
 </form>
 ```
+
+For an edit that can race another writer, send the revision loaded with the
+draft. The backend must compare it atomically; a disabled button alone cannot
+prevent stale writes. Request failures update `updateError` without replacing
+`editDraft`, so keep the fields mounted and offer an explicit reload action:
+
+```html
+<input type="hidden" name="expectedRevision" vd-value="editDraft.revision">
+
+<p vd-if="updateError !== ''" role="alert" tabindex="-1">
+  {{ updateError }}
+</p>
+
+<button
+  type="button"
+  vd-request="posts.getOne"
+  vd-params="{ id: editDraft.id }"
+  vd-target="reloadResult"
+  vd-auto-state
+>Reload server version</button>
+```
+
+The administration route in `examples/velodom-store` executes this exact
+pattern against a deterministic local revision fixture. Its application script
+restores focus to status text and copies a reloaded record into the draft only
+after the user requests recovery. C03 in the roadmap adds real HTTP/session
+denial; the client example does not claim that a route guard is authorization.
 
 Delete actions can be buttons because they usually need only one parameter:
 
@@ -5078,13 +5107,13 @@ choices, not VeloDom Core dependencies or requirements.
 
 ## Storefront Reference Consumer
 
-`examples/velodom-store` proves a non-blog workflow with ordinary CSS and the
-same public package contract. It includes URL-backed search/filter/sort/page
-state, direct product routes and static SEO entries, keyed product components,
-public page data, request loading/errors, optional shared state, and native
-currency formatting. Its English/Arabic control uses the optional direction
-plugin, whose `ctx.direction` controller is available to both page and component
-hooks.
+`examples/velodom-store` proves non-blog storefront and administration
+workflows with ordinary CSS and the same public package contract. The public
+shell includes URL-backed search/filter/sort/page state, direct product routes
+and static SEO entries, keyed product components, page data, request status,
+optional shared state, and native currency formatting. Its English/Arabic
+control uses the optional direction plugin, whose `ctx.direction` controller
+is available to both page and component hooks.
 
 The guest cart persists only a versioned list of product option ids and
 quantities. Product names, stock, and prices are recalculated through a local
@@ -5092,6 +5121,21 @@ deterministic fixture before mutations and checkout. The final handoff states
 that it creates no order and takes no payment. Real pricing, inventory, tax,
 sessions, authorization, and provider event verification stay on an
 application backend.
+
+The separate `admin` layout reuses that catalog repository and provides:
+
+- `/admin/products` with URL-backed server-style search and pagination;
+- `/admin/products/:id` detail and `/admin/products/:id/edit` native form routes;
+- native constraints plus repeated server-side fixture validation;
+- an expected-revision write contract whose failure/conflict paths preserve the
+  page-owned draft and provide explicit authoritative reload;
+- a native confirmation dialog for bulk publish/archive actions; and
+- focus-restored live status, keyboard controls, semantic table/form/dialog
+  markup, and status words in addition to color.
+
+These routes are marked `noindex,nofollow`. They demonstrate a client workflow,
+not backend security: C03 adds a replaceable HTTP/session fixture and proves
+actual denial in addition to hiding or guarding UI.
 
 Run it independently from the workspace root:
 
@@ -5103,8 +5147,10 @@ npm run preview:store
 
 The normal root build includes its production build. The browser release gate
 checks direct links, Back/Forward filters, refresh and blocked persistence,
-keyboard activation, mobile layout, RTL, quotation, and mock checkout. See its
-application-level details in `examples/velodom-store/README.md`.
+keyboard activation, mobile layout, RTL, quotation, mock checkout, admin URL
+search, failed/conflicting draft recovery, focus restoration, and confirmed
+bulk changes. See its application-level details in
+`examples/velodom-store/README.md`.
 
 ## Verification
 

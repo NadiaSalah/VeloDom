@@ -1,0 +1,149 @@
+<main class="admin-page">
+  <div class="admin-heading">
+    <div>
+      <p class="eyebrow">Administration example</p>
+      <h1>Products</h1>
+      <p class="lede">
+        Search a server-paginated list, inspect records, and confirm bulk actions
+        without a framework data grid.
+      </p>
+    </div>
+    <span class="environment-badge">Mock backend fixture</span>
+  </div>
+
+  <form class="filters-panel admin-filters" method="get" action="/admin/products">
+    <div class="field">
+      <label for="admin-search">Search products</label>
+      <input id="admin-search" name="q" type="search" vd-model="queryText" placeholder="Name, id, category">
+    </div>
+    <div class="field">
+      <label for="admin-status">Publication status</label>
+      <select id="admin-status" name="status" vd-model="selectedStatus">
+        <option value="all">All statuses</option>
+        <option value="active">Active</option>
+        <option value="draft">Draft</option>
+        <option value="archived">Archived</option>
+      </select>
+    </div>
+    <button class="button button-primary filter-submit" type="submit">Search</button>
+  </form>
+
+  <div class="admin-toolbar">
+    <p aria-live="polite">
+      {{ adminResult?.pagination?.total || 0 }} matching products · {{ selectedCountLabel }}
+    </p>
+    <div class="bulk-controls">
+      <label for="bulk-action">Bulk action</label>
+      <select id="bulk-action" vd-model="bulkAction">
+        <option value="archive">Archive</option>
+        <option value="publish">Publish</option>
+      </select>
+      <button
+        id="bulk-action-trigger"
+        class="button button-secondary"
+        type="button"
+        vd-bind:disabled="selectedIds.length === 0"
+        vd-on:click="openBulkConfirmation()"
+      >Review action</button>
+    </div>
+  </div>
+
+  <p vd-show="adminLoading" class="status-panel" aria-live="polite">Loading products…</p>
+  <div vd-if="adminError !== ''" class="status-panel error" role="alert">
+    <strong>Products unavailable.</strong>
+    <p>{{ adminError }}</p>
+  </div>
+  <div
+    id="bulk-feedback"
+    vd-if="bulkError !== ''"
+    class="status-panel error"
+    role="alert"
+    tabindex="-1"
+  >{{ bulkError }}</div>
+  <div
+    id="bulk-success"
+    vd-if="Boolean(bulkResult?.message)"
+    class="status-panel success"
+    role="status"
+    tabindex="-1"
+  >{{ bulkResult.message }}</div>
+
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <caption>Server-paginated product records</caption>
+      <thead>
+        <tr>
+          <th scope="col"><span class="visually-hidden">Select</span></th>
+          <th scope="col">Product</th>
+          <th scope="col">Category</th>
+          <th scope="col">Status</th>
+          <th scope="col">Revision</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr vd-for="product in (adminResult?.items || [])" vd-key="product.id">
+          <td>
+            <input
+              type="checkbox"
+              vd-checked="selectedIds.includes(product.id)"
+              vd-attr="{ 'aria-label': 'Select ' + product.name }"
+              vd-on:change="toggleProductSelection(product.id, event.target.checked)"
+            >
+          </td>
+          <th scope="row">
+            <strong>{{ product.name }}</strong>
+            <small>{{ product.id }}</small>
+          </th>
+          <td>{{ product.categoryLabel }}</td>
+          <td><span class="status-badge" vd-attr="{ 'data-status': product.status }">{{ product.status }}</span></td>
+          <td>{{ product.revision }}</td>
+          <td class="table-actions">
+            <a vd-href="'/admin/products/' + product.id" vd-nav>View</a>
+            <a vd-href="'/admin/products/' + product.id + '/edit'" vd-nav>Edit</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div
+    vd-if="!adminLoading && adminError === '' && adminResult?.items?.length === 0"
+    class="status-panel"
+  >No product records match this search.</div>
+
+  <nav
+    vd-if="adminResult?.pagination?.pageCount > 1"
+    class="pagination"
+    aria-label="Administration product pages"
+  >
+    <a vd-if="adminResult.pagination.hasPrevious" class="button button-secondary" vd-href="previousHref" vd-nav>Previous</a>
+    <span>Page {{ adminResult.pagination.page }} of {{ adminResult.pagination.pageCount }}</span>
+    <a vd-if="adminResult.pagination.hasNext" class="button button-secondary" vd-href="nextHref" vd-nav>Next</a>
+  </nav>
+
+  <dialog id="bulk-confirm-dialog" class="confirmation-dialog" aria-labelledby="bulk-dialog-title">
+    <h2 id="bulk-dialog-title">Confirm bulk action</h2>
+    <p>
+      Apply <strong>{{ bulkAction }}</strong> to {{ selectedIds.length }} selected
+      product{{ selectedIds.length === 1 ? '' : 's' }}?
+    </p>
+    <p>This changes the shared local catalog fixture and advances each revision.</p>
+    <div vd-if="bulkError !== ''" class="status-panel error" role="alert">{{ bulkError }}</div>
+    <div class="dialog-actions">
+      <button class="button button-secondary" type="button" vd-on:click="closeBulkConfirmation()">Cancel</button>
+      <button
+        class="button button-danger"
+        type="button"
+        vd-request="admin.bulkUpdate"
+        vd-request-config="{
+          params: { ids: selectedIds, action: bulkAction, confirmed: true },
+          target: 'bulkResult',
+          autoState: true,
+          onSuccess: handleBulkSuccess
+        }"
+        vd-bind:disabled="bulkLoading"
+      >{{ bulkLoading ? 'Applying…' : 'Confirm action' }}</button>
+    </div>
+  </dialog>
+</main>

@@ -23,7 +23,7 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 | Approved authoring and rendering maturity | Implemented locally | Looped components, keyed updates, `.vd` lazy parity, and compiler cache; release verification remains separate |
 | Approved developer intelligence | Implemented locally | Shared project index, diagnostics, safe fixes, generated types, and CLI composition |
 | Approved optional extensions | Implemented locally | Seven bounded tooling/integration milestones complete; research remains excluded |
-| Commerce and large applications | Planned validation / optional extensions | General-purpose frontend already exists; the new track below is not implemented or a production-commerce certification |
+| Commerce and large applications | Active validation / optional extensions | Storefront is complete; the admin workflow is implemented locally and awaits the C03 server-denial contract before milestone closure |
 | Hybrid rendering, AI, migration, CMS, and Edge | Research / Experimental | External or high-risk capabilities; never required by Core |
 
 ### Progress counter
@@ -47,7 +47,9 @@ implementation counters above do not mean these follow-ups or release gates are 
 
 **Commerce and large-application track: 1 of 10 complete (10%).**
 These new proposals do not change the completed baseline or the 6/8 simplicity
-counter. Research experiments are tracked separately and are not implementation promises.
+counter. C02's application workflow is implemented and verified, but remains
+open until C03 supplies its required real server-denial evidence. Research
+experiments are tracked separately and are not implementation promises.
 
 ### Status vocabulary
 
@@ -197,7 +199,14 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   a mandatory data grid/design system. Acceptance: rejected/failed/conflicting
   writes preserve edits and recover visibly; test actual server denial as well
   as UI guards through C03. Extend the existing common-recipe task, not a new
-  parallel form tutorial.
+  parallel form tutorial. Application-side implementation is complete in
+  `examples/velodom-store`: a dedicated admin layout shares the catalog
+  repository with the storefront; URL search is server-paginated; native
+  validated edit forms preserve drafts across deterministic failure/conflict;
+  revision reload recovers explicitly; and a native dialog confirms keyboard-
+  operable bulk publication changes. Unit and Chromium browser coverage prove
+  readable non-color status, focus restoration, and recovery. Keep this item
+  open until C03 exercises actual server authorization denial and UI guards.
 
 - [ ] **C03 — Backend, session, and safe-write integration contract. V1
   documentation/integration tests; complexity: High; owner: application backend

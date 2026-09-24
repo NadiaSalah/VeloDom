@@ -1,0 +1,28 @@
+<template>
+  <div class="app-shell admin-app-shell">
+    <vd-component name="store-nav"></vd-component>
+    <div class="page-frame admin-shell">
+      <aside class="admin-sidebar" aria-label="Administration navigation">
+        <p class="eyebrow">Workspace</p>
+        <strong>Store administration</strong>
+        <nav>
+          <a href="/admin/products" vd-nav>Products</a>
+          <a href="/" vd-nav>Public catalog</a>
+        </nav>
+        <p class="admin-sidebar-note">
+          Local fixture only. Session and backend denial behavior is introduced
+          in the next integration milestone.
+        </p>
+      </aside>
+      <section class="admin-workspace" aria-label="Administration workspace">
+        <vd-page></vd-page>
+      </section>
+    </div>
+    <footer class="site-footer">
+      <div class="page-frame footer-grid">
+        <strong>VeloDom Store Admin</strong>
+        <p>Native forms · explicit requests · accessible status</p>
+      </div>
+    </footer>
+  </div>
+</template>

@@ -12,6 +12,10 @@ import {
   products,
   STORE_CURRENCY
 } from "./products.js";
+import {
+  findPublicCatalogRecord,
+  listPublicCatalogRecords
+} from "./catalog-repository.js";
 
 export const CATALOG_PAGE_SIZE = 4;
 
@@ -20,7 +24,7 @@ export async function listCatalog(input = {}) {
   await applyFixtureBehavior(input);
   const filters = normalizeCatalogFilters(input);
   const query = filters.q.toLocaleLowerCase("en");
-  const matched = products.filter(product => {
+  const matched = listPublicCatalogRecords().filter(product => {
     const matchesCategory = filters.category === "all"
       || product.category === filters.category;
     const haystack = `${product.name} ${product.summary} ${product.categoryLabel}`
@@ -56,7 +60,7 @@ export async function listCatalog(input = {}) {
 export async function getProduct(input = {}) {
   await applyFixtureBehavior(input);
   const id = String(input.id ?? input.params?.id ?? "").trim();
-  const product = products.find(candidate => candidate.id === id);
+  const product = findPublicCatalogRecord(id);
 
   if (!product) {
     throw new Error(`Product "${id || "unknown"}" was not found.`);
@@ -107,7 +111,7 @@ export function getCategories() {
 
 /** Returns product records for build-time SEO entry generation. */
 export function getProductEntries() {
-  return products;
+  return listPublicCatalogRecords();
 }
 
 function normalizeCatalogFilters(input) {
@@ -144,7 +148,7 @@ function quoteLine(requested) {
   const productId = String(requested?.productId || "").trim();
   const variantId = String(requested?.variantId || "").trim();
   const quantity = normalizePositiveInteger(requested?.quantity);
-  const product = products.find(candidate => candidate.id === productId);
+  const product = findPublicCatalogRecord(productId);
   const variant = product?.variants.find(candidate => candidate.id === variantId);
 
   if (!product || !variant) {

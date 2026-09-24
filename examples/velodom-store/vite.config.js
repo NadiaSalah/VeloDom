@@ -3,7 +3,7 @@
  * Module: Storefront Vite Configuration
  * ----------------------------------------
  *
- * Keeps the commerce reference consumer on the public VeloDom Vite contract.
+ * Keeps the storefront/admin reference consumer on the public VeloDom Vite contract.
  * ----------------------------------------
  */
 

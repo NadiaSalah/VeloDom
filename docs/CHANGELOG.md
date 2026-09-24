@@ -14,6 +14,12 @@ or claim that a matching package is available from a registry.
 
 ### Added
 
+- Extended `examples/velodom-store` with a separate administration layout and
+  shared catalog repository: URL-backed server pagination, detail/edit routes,
+  native validation, optimistic revision conflict recovery, focus-restored
+  request feedback, readable statuses, and confirmed bulk publication actions.
+  Deterministic unit/browser coverage proves failed/conflicting drafts remain
+  intact. Actual session/role denial remains the explicit C03 backend milestone.
 - Added the separate `examples/velodom-store` public-package consumer with
   deterministic catalog/product/cart/quote data, URL-backed filtering,
   versioned id/quantity-only persistence, direct product SEO entries, RTL, and

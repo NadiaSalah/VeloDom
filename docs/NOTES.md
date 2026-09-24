@@ -2,6 +2,33 @@
 
 ## Architectural Decisions
 
+### Administration workflow over the shared store domain — 2026-09-24
+
+- Extended `examples/velodom-store` instead of creating a second admin consumer
+  or copying product data. A small application-owned catalog repository now
+  supplies both public reads and administration writes; no data grid, CRUD
+  directive, persistence layer, or global-store requirement entered Core.
+- Added a separate `admin.vd` layout and list/detail/edit routes. Search and
+  pagination remain URL-backed; edits use native named controls, `vd-model`,
+  `vd-validate`, `vd-request`, and automatic request status. CLI impact is
+  `NONE`: C02 validates current public V1 authoring contracts and is not a new
+  starter option.
+- Administration writes compare an expected revision. Failure and conflict do
+  not overwrite the page-owned draft; users can explicitly load the latest
+  record and retry. A native dialog gates bulk publish/archive actions. Focused
+  status nodes, keyboard-native controls, semantic HTML, and text status labels
+  make outcomes observable without relying on color.
+- The browser journey exposed a form-test race with static SEO fallback and
+  asynchronous page mounting. The gate now waits for the shared mounted
+  component before editing model-bound fields. It also verifies the form's
+  actual `FormData` before navigation. Expected request failures are ignored
+  only inside this recovery scenario; unexpected console errors still fail it.
+- C02's application behavior has five deterministic domain tests and a real
+  Chromium flow covering search, transport failure, revision conflict, reload,
+  success, focus restoration, and bulk confirmation. The milestone remains
+  open in the roadmap because its acceptance deliberately delegates real
+  authorization denial to C03's HTTP/session fixture.
+
 ### Storefront reference consumer and component direction parity — 2026-09-21
 
 - Added `examples/velodom-store` as a separate private workspace consumer. It

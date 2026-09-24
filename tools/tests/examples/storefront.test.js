@@ -21,6 +21,13 @@ import {
   CART_STORAGE_VERSION,
   createCartModel
 } from "../../../examples/velodom-store/src/domain/cart/cart-store.js";
+import {
+  resetCatalogRepository
+} from "../../../examples/velodom-store/src/domain/catalog/catalog-repository.js";
+
+test.beforeEach(() => {
+  resetCatalogRepository();
+});
 
 test("storefront catalog uses deterministic URL-compatible filters", async () => {
   const result = await listCatalog({
