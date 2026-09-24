@@ -1,0 +1,38 @@
+<template>
+  <aside class="mock-boundary" role="note">
+    <span aria-hidden="true">◆</span>
+    <div>
+      <strong>{{ title }}</strong>
+      <p>{{ message }}</p>
+    </div>
+  </aside>
+</template>
+
+<script>
+export const state = {
+  title: "Safe reference boundary",
+  message: "Catalog, stock, prices, checkout, and payment are deterministic mock data. No transaction can occur."
+};
+</script>
+
+<style>
+.mock-boundary {
+  display: flex;
+  gap: .9rem;
+  align-items: flex-start;
+  border: 1px solid color-mix(in srgb, var(--warning) 38%, var(--border));
+  border-radius: 1.25rem;
+  padding: 1rem 1.1rem;
+  background: color-mix(in srgb, var(--warning) 9%, var(--surface));
+}
+
+.mock-boundary span {
+  color: var(--warning);
+}
+
+.mock-boundary p {
+  margin: .25rem 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+</style>

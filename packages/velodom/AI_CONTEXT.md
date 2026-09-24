@@ -37,7 +37,8 @@ server start.
 
 The generated project is user-owned. Never edit `node_modules/velodom`.
 The repository's `examples/velodom-blog` is the complete educational website,
-not the generated Blog starter and not part of the npm artifact. Package docs
+and `examples/velodom-store` is a separate commerce reference consumer. Neither
+is the generated Blog starter or part of the npm artifact. Package docs
 and small starter layers are shipped; repository tests and release records are not.
 For an existing application, `vd add i18n|tests|lab|pwa` installs only those
 first-party optional features and records generated ownership in
@@ -236,6 +237,9 @@ visibility are never server authorization.
   `definePluralMessage`, `{name}` primitive interpolation, native plural rules,
   and explicit/inferred direction. Use `vd i18n extract|check` for static key
   evidence; there is no localization directive or required global store.
+- When the optional direction plugin is registered, both page and component
+  lifecycle hooks can use `ctx.direction`; templates receive reactive
+  `$direction`. Without the plugin, the controller is absent.
 - `vd lab` is an optional local Vite inspector. It is read-only,
   development-only, and never required to run or build an application.
 - Error boundaries receive `diagnostic` with stable `code`, `group`,

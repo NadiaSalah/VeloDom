@@ -1,0 +1,123 @@
+<main class="page-main">
+  <div class="page-frame">
+    <div class="page-heading">
+      <p class="eyebrow">VeloDom commerce reference</p>
+      <h1>A real storefront flow, with no store framework hidden in Core.</h1>
+      <p class="lede">
+        Filter public products through the URL, open direct product routes, and
+        keep a small guest cart. Every record and checkout response is local mock data.
+      </p>
+    </div>
+
+    <vd-component name="mock-boundary"></vd-component>
+
+    <form class="filters-panel" method="get" action="/" aria-label="Catalog filters">
+      <div class="field">
+        <label for="catalog-search">Search catalog</label>
+        <input id="catalog-search" name="q" type="search" vd-value="searchQuery" placeholder="Lamp, notebook…">
+      </div>
+      <div class="field">
+        <label for="catalog-category">Category</label>
+        <select id="catalog-category" name="category" vd-model="selectedCategory">
+          <option value="all">All products</option>
+          <option
+            vd-for="category in (catalogResult?.categories || [])"
+            vd-key="category.id"
+            vd-bind:value="category.id"
+          >{{ category.label }}</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="catalog-sort">Sort</label>
+        <select id="catalog-sort" name="sort" vd-model="selectedSort">
+          <option value="featured">Featured</option>
+          <option value="price-asc">Price: low to high</option>
+          <option value="price-desc">Price: high to low</option>
+          <option value="name">Name</option>
+        </select>
+      </div>
+      <button class="button button-primary filter-submit" type="submit">Apply filters</button>
+    </form>
+
+    <div class="category-links" aria-label="Quick category filters">
+      <a
+        vd-for="category in categoryLinks"
+        vd-key="category.id"
+        class="category-link"
+        vd-class="{ 'is-active': category.active }"
+        vd-href="category.href"
+        vd-attr="{ 'aria-current': category.active ? 'page' : null }"
+        vd-nav
+      >{{ category.label }}</a>
+    </div>
+
+    <div class="catalog-toolbar">
+      <p aria-live="polite">
+        {{ catalogResult?.pagination?.total || 0 }} matching products
+      </p>
+      <div class="stack-actions">
+        <button
+          class="button button-secondary"
+          type="button"
+          vd-request="catalog.list"
+          vd-params="filters"
+          vd-target="catalogResult"
+          vd-auto-state
+        >Refresh</button>
+        <button
+          class="button button-secondary"
+          type="button"
+          vd-request="catalog.list"
+          vd-params="failureFilters"
+          vd-target="catalogResult"
+          vd-auto-state
+        >Test error state</button>
+      </div>
+    </div>
+
+    <p vd-show="catalogLoading" class="status-panel" aria-live="polite">Loading catalog…</p>
+    <div vd-if="catalogError !== ''" class="status-panel error" role="alert">
+      <strong>Catalog unavailable.</strong>
+      <p>{{ catalogError }}</p>
+    </div>
+    <div
+      vd-if="!catalogLoading && catalogError === '' && catalogResult?.items?.length === 0"
+      class="status-panel"
+    >
+      No products match these filters. Try a broader search.
+    </div>
+
+    <section
+      vd-if="!catalogLoading && catalogError === '' && Boolean(catalogResult?.items?.length)"
+      class="product-grid"
+      aria-label="Product results"
+    >
+      <vd-component
+        vd-for="product in (catalogResult?.items || [])"
+        vd-key="product.id"
+        name="product-card"
+        vd-props="{ product, currency: catalogResult.currency, locale }"
+      ></vd-component>
+    </section>
+
+    <nav
+      vd-if="!catalogLoading && catalogError === '' && catalogResult?.pagination?.pageCount > 1"
+      class="pagination"
+      aria-label="Catalog pages"
+    >
+      <a
+        vd-if="catalogResult.pagination.hasPrevious"
+        class="button button-secondary"
+        vd-href="previousHref"
+        vd-nav
+      >Previous</a>
+      <span>Page {{ catalogResult.pagination.page }} of {{ catalogResult.pagination.pageCount }}</span>
+      <a
+        vd-if="catalogResult.pagination.hasNext"
+        class="button button-secondary"
+        vd-href="nextHref"
+        vd-nav
+      >Next</a>
+    </nav>
+  </div>
+</main>

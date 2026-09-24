@@ -14,6 +14,11 @@ or claim that a matching package is available from a registry.
 
 ### Added
 
+- Added the separate `examples/velodom-store` public-package consumer with
+  deterministic catalog/product/cart/quote data, URL-backed filtering,
+  versioned id/quantity-only persistence, direct product SEO entries, RTL, and
+  an explicitly non-transactional checkout. Unit and desktop/mobile browser
+  gates cover its critical state and navigation outcomes.
 - Added one ordered Minimal + JavaScript + plain-CSS beginner journey to the
   shipped Quick Start and generated Minimal README. The installed-tarball gate
   now creates its documented component, applies the lesson, and builds it before
@@ -188,6 +193,9 @@ or claim that a matching package is available from a registry.
 
 ### Fixed
 
+- Forwarded the optional direction controller from the current page context to
+  component lifecycle hooks and synchronized the public TypeScript context, so
+  documented `ctx.direction` behavior now matches pages and components.
 - Fixed production blog logos by importing assets through Vite rather than
   referencing `/src` from runtime templates; constrained playground grid cards
   and single-file lesson grids so wide code samples scroll internally on phones.

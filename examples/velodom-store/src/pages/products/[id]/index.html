@@ -1,0 +1,59 @@
+<main class="page-main">
+  <div class="page-frame">
+    <a class="button button-secondary" href="/" vd-nav>← Back to catalog</a>
+
+    <section class="product-detail" vd-style="{ '--product-accent': productAccent }">
+      <div class="detail-visual" aria-hidden="true">{{ productInitials }}</div>
+      <div class="detail-copy">
+        <p class="eyebrow">{{ product.categoryLabel }}</p>
+        <h1>{{ product.name }}</h1>
+        <p class="detail-description">{{ product.description }}</p>
+        <strong class="detail-price">{{ price }}</strong>
+
+        <div class="purchase-panel">
+          <div class="purchase-actions">
+            <div class="field">
+              <label for="product-variant">Option</label>
+              <select
+                id="product-variant"
+                vd-model="selectedVariantId"
+                vd-on:change="selectVariant($event)"
+              >
+                <option
+                  vd-for="variant in variantOptions"
+                  vd-key="variant.id"
+                  vd-bind:value="variant.id"
+                  vd-bind:disabled="variant.disabled"
+                >{{ variant.optionLabel }}</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="product-quantity">Quantity</label>
+              <input
+                id="product-quantity"
+                type="number"
+                min="1"
+                vd-attr="{ max: maxStock }"
+                vd-model="quantity"
+              >
+            </div>
+            <button
+              type="button"
+              class="button button-primary"
+              vd-disabled="adding || selectedVariantId === ''"
+              vd-on:click="addToCart()"
+            >{{ adding ? "Checking…" : "Add to cart" }}</button>
+          </div>
+
+          <p vd-if="cartMessage !== ''" class="status-panel success" aria-live="polite">
+            {{ cartMessage }} <a href="/cart" vd-nav>Open cart</a>
+          </p>
+          <p vd-if="cartError !== ''" class="status-panel error" role="alert">{{ cartError }}</p>
+          <p class="status-panel">
+            Availability and price are checked against the local backend fixture before the cart changes.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>

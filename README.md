@@ -41,12 +41,14 @@ assistants all resolve to the same installed documentation.
 - ESLint and Node.js test runner
 - Playwright browser verification
 - Tailwind CSS and daisyUI only in the documentation blog consumer
+- ordinary CSS only in the separate storefront reference consumer
 
 ## Run the Workspace
 
 ```bash
 npm install
 npm run dev
+npm run dev:store
 ```
 
 Verification:
@@ -124,6 +126,7 @@ packages/
   velodom-vscode/           optional private editor tooling
 examples/
   velodom-blog/             full documentation application and real consumer
+  velodom-store/            storefront/cart/mock-checkout reference consumer
 tools/
   scripts/
     package/                artifact audits and installed-consumer checks
@@ -149,6 +152,7 @@ docs/
 | GitHub repository | Source, tests, fixtures, docs, templates, example site, CI, lockfile | Dependencies, generated `lib/types/dist`, browser reports, tarballs, credentials |
 | `velodom` npm tarball | Built ESM with source maps, types, binaries, consumer docs, small starter templates, license | Repository tests, full teaching site, development configs, release history |
 | Deployed documentation site | `examples/velodom-blog/dist`, produced by the build | Package source, tests, credentials |
+| Storefront reference build | `examples/velodom-store/dist`, produced by `npm run build:store` | Real payments, credentials, server authorization |
 
 Use `npm run package:build` then `npm run pack:report` to inspect **both** npm
 artifacts without publishing. Use `npm run pack:check` for installed-consumer
@@ -177,6 +181,15 @@ release commit is verified, approved, tagged, and published deliberately.
 
 ## Completed in the Current Update
 
+- Added `examples/velodom-store` as a separate public-API consumer for catalog,
+  direct product routes, URL filters, keyed product components, versioned guest
+  cart persistence, authoritative mock quotes, RTL, and a visibly simulated
+  checkout. It uses no commerce-specific Core syntax or real transaction.
+- Fixed the optional direction controller so `ctx.direction` reaches component
+  lifecycle hooks as documented, with runtime/type regression coverage.
+- Extended desktop/mobile browser gates across the store's Back/Forward filters,
+  keyboard cart action, refresh and blocked-storage outcomes, mock checkout,
+  responsive layout, and RTL direction.
 - Aligned the package Quick Start and generated Minimal README around one
   verified beginner journey: edit a page, create/render a component, adjust
   ordinary CSS, then build and preview. Advanced JS/TS, folder/`.vd`, and
@@ -215,8 +228,8 @@ startup failure still requires verification on the strict Linux CI runner.
 
 ## TODO
 
-The roadmap now includes a **Commerce and Large Applications** track: **0/10
-implemented**. Start with a storefront/admin reference consumer and documented
+The **Commerce and Large Applications** track is now **1/10 implemented**.
+The storefront consumer is complete; continue with the focused admin workflow and documented
 backend boundaries using current V1 APIs, then evaluate optional data/form/scale
 improvements for V1.x. API-contract generation is deferred to a future major release; realtime,
 virtualization, and request-time rendering stay research. These are proposals,

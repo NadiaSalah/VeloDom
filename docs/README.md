@@ -59,6 +59,7 @@ Source repository: [github.com/NadiaSalah/VeloDom](https://github.com/NadiaSalah
 - [Consolidated Architecture and Integration Reference](#consolidated-architecture-and-integration-reference)
 - [Public Package Boundaries](#public-package-boundaries)
 - [Showcase Routes](#showcase-routes)
+- [Storefront Reference Consumer](#storefront-reference-consumer)
 - [Verification](#verification)
 - [Release Decision](#release-decision)
 - [Browser Support](#browser-support)
@@ -80,9 +81,11 @@ portable consumer contract and are not duplicated in the root `docs` folder.
 
 The full source checkout is a maintainer workspace. `packages/velodom` is the
 publishable framework; `packages/create-velodom` is its thin creation wrapper.
-`examples/velodom-blog` is the actual educational website, not part of the npm
-framework payload. Its homepage starts with a two-file interaction before the
-full feature catalog. The generated Blog starter is intentionally much smaller.
+`examples/velodom-blog` is the actual educational website, while
+`examples/velodom-store` is the independent catalog/cart/mock-checkout reference
+consumer. Neither is part of the npm framework payload. The documentation
+homepage starts with a two-file interaction before the full feature catalog.
+The generated Blog starter is intentionally much smaller.
 
 Maintenance checks are grouped under `tools/scripts/package`, `quality`,
 `browser`, and `performance`; use the root npm commands rather than depending
@@ -479,12 +482,11 @@ What the main checks do:
 | `npm run benchmark:compiler` | Reports cold template compilation, warm incremental-cache reuse, and one explicitly invalidated rebuild. Timings are diagnostic rather than a machine-specific release threshold. |
 | `npm run benchmark:check` | Runs both deterministic compiler-cache and rendering benchmark workloads; timings remain local diagnostics while correctness failures stop the gate. |
 | `npm run performance:check` | Enforces separate initial-entry, total lazy-route, largest-chunk, and public-browser-entry JavaScript budgets after build artifacts exist. Package runtime size follows modules reachable from `velodom` and `velodom/vite`, so optional Node/build tooling is not misclassified as startup code. Set `VELODOM_CSS_BUDGET_KB` to optionally enforce a project-owned total CSS budget too. |
-| `npm run test:browser` | Builds the showcase and runs the required desktop/mobile Chromium smoke checks. Strict CI selects Firefox and desktop/mobile WebKit too; any unexpected page or console error fails its step. |
-| `npm run build` | Runs all quality/package gates, builds the showcase, executes benchmark workloads, then checks performance budgets. |
+| `npm run test:browser` | Builds both example consumers and runs required desktop/mobile Chromium smoke checks. Strict CI selects Firefox and desktop/mobile WebKit too; any unexpected page or console error fails its step. |
+| `npm run build` | Runs all quality/package gates, builds the documentation and storefront consumers, executes benchmark workloads, then checks performance budgets. |
 
-Generated `examples/velodom-blog/dist`, `packages/velodom/lib`, and
-`packages/velodom/types` folders are build output and should not be edited
-manually.
+Generated `examples/*/dist`, `packages/velodom/lib`, and
+`packages/velodom/types` folders are build output and should not be edited manually.
 
 ## CLI and Project Intelligence
 
@@ -850,6 +852,13 @@ examples/
       api/                    application-owned handlers and middleware
       assets/                 application-owned static assets
       main.js                 one-call application bootstrap
+  velodom-store/              independent storefront reference consumer
+    src/
+      pages/                  catalog, product, cart, checkout, and recovery
+      components/             navigation and reusable product presentation
+      api/                    stable application request names
+      domain/                 explicit app-owned catalog/cart policy
+      layouts/                shared store shell
 
 docs/                         DX, future research, and identity notes
 tsconfig.json                 workspace type-check configuration
@@ -870,6 +879,9 @@ Ownership rule:
 - The documentation application is a real workspace consumer under
   `examples/velodom-blog`; it does not import framework source or carry a
   private copy of Core.
+- The storefront reference under `examples/velodom-store` also imports public
+  package paths only. Its `src/domain` folder is an explicit application module,
+  not a new framework discovery convention or a commerce service in Core.
 - `tools/test-fixtures/package-consumer` verifies the packed npm artifact; it is not
   an application example or an artifact file.
 - `packages/velodom-vscode` is an optional editor integration with its own
@@ -5063,6 +5075,36 @@ features itself.
 
 The showcase uses Tailwind CSS and daisyUI. Those libraries are application
 choices, not VeloDom Core dependencies or requirements.
+
+## Storefront Reference Consumer
+
+`examples/velodom-store` proves a non-blog workflow with ordinary CSS and the
+same public package contract. It includes URL-backed search/filter/sort/page
+state, direct product routes and static SEO entries, keyed product components,
+public page data, request loading/errors, optional shared state, and native
+currency formatting. Its English/Arabic control uses the optional direction
+plugin, whose `ctx.direction` controller is available to both page and component
+hooks.
+
+The guest cart persists only a versioned list of product option ids and
+quantities. Product names, stock, and prices are recalculated through a local
+deterministic fixture before mutations and checkout. The final handoff states
+that it creates no order and takes no payment. Real pricing, inventory, tax,
+sessions, authorization, and provider event verification stay on an
+application backend.
+
+Run it independently from the workspace root:
+
+```bash
+npm run dev:store
+npm run build:store
+npm run preview:store
+```
+
+The normal root build includes its production build. The browser release gate
+checks direct links, Back/Forward filters, refresh and blocked persistence,
+keyboard activation, mobile layout, RTL, quotation, and mock checkout. See its
+application-level details in `examples/velodom-store/README.md`.
 
 ## Verification
 

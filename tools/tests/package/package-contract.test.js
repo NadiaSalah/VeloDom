@@ -17,6 +17,12 @@ const blogManifest = JSON.parse(
     "utf8"
   )
 );
+const storeManifest = JSON.parse(
+  await readFile(
+    new URL("../../../examples/velodom-store/package.json", import.meta.url),
+    "utf8"
+  )
+);
 const editorManifest = JSON.parse(
   await readFile(
     new URL("../../../packages/velodom-vscode/package.json", import.meta.url),
@@ -35,6 +41,10 @@ const createBinary = await readFile(
 );
 const blogViteConfig = await readFile(
   new URL("../../../examples/velodom-blog/vite.config.js", import.meta.url),
+  "utf8"
+);
+const storeViteConfig = await readFile(
+  new URL("../../../examples/velodom-store/vite.config.js", import.meta.url),
   "utf8"
 );
 
@@ -126,13 +136,19 @@ test("workspace keeps consumers behind public package imports", () => {
     "packages/create-velodom",
     "packages/velodom",
     "packages/velodom-vscode",
-    "examples/velodom-blog"
+    "examples/velodom-blog",
+    "examples/velodom-store"
   ]);
   assert.equal(blogManifest.dependencies.velodom, manifest.version);
+  assert.equal(storeManifest.dependencies.velodom, manifest.version);
   assert.equal(editorManifest.private, true);
   assert.equal(editorManifest.dependencies.velodom, `^${manifest.version}`);
   assert.equal(blogManifest.imports["#app/*"], "./src/*");
   assert.match(blogViteConfig, /from "velodom\/vite-plugin"/);
   assert.match(blogViteConfig, /find: "@"/);
   assert.doesNotMatch(blogViteConfig, /packages\/velodom\/src/);
+  assert.equal(storeManifest.imports["#app/*"], "./src/*");
+  assert.match(storeViteConfig, /from "velodom\/vite-plugin"/);
+  assert.match(storeViteConfig, /find: "@"/);
+  assert.doesNotMatch(storeViteConfig, /packages\/velodom\/src/);
 });

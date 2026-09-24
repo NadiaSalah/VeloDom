@@ -1,0 +1,56 @@
+<main class="page-main">
+  <div class="page-frame">
+    <div class="page-heading">
+      <p class="eyebrow">Application-owned shared state</p>
+      <h1>Your guest cart.</h1>
+      <p class="lede">Only product option ids and quantities persist. This page requotes names, stock, and prices every time it changes.</p>
+    </div>
+
+    <p vd-if="persistenceNotice !== ''" class="status-panel" role="status">{{ persistenceNotice }}</p>
+    <p vd-show="quoteLoading" class="status-panel" aria-live="polite">Checking current availability and prices…</p>
+
+    <div vd-if="quoteError !== ''" class="status-panel error" role="alert">
+      <strong>The current cart cannot be confirmed.</strong>
+      <p>{{ quoteError }}</p>
+      <div class="stack-actions">
+        <button type="button" class="button button-secondary" vd-on:click="retryQuote()">Retry quote</button>
+        <button type="button" class="button button-danger" vd-on:click="clearCart()">Clear invalid cart</button>
+      </div>
+    </div>
+
+    <section vd-if="!quoteLoading && quoteError === '' && quoteLines.length === 0" class="content-card checkout-card">
+      <h2>Your cart is empty.</h2>
+      <p>Explore the catalog and add an available product option.</p>
+      <a class="button button-primary" href="/" vd-nav>Browse catalog</a>
+    </section>
+
+    <section vd-if="!quoteLoading && quoteError === '' && quoteLines.length > 0" class="content-card checkout-card" aria-labelledby="cart-lines-heading">
+      <h2 id="cart-lines-heading">Confirmed items</h2>
+      <ul class="cart-list">
+        <li vd-for="line in quoteLines" vd-key="line.productId + ':' + line.variantId" class="cart-line">
+          <div>
+            <h2>{{ line.name }}</h2>
+            <p>{{ line.variantLabel }} · {{ line.unitPrice }} each</p>
+          </div>
+          <div class="quantity-controls" aria-label="Quantity controls">
+            <button type="button" vd-on:click="changeQuantity(line.productId, line.variantId, line.quantity - 1)" vd-attr="{ 'aria-label': 'Decrease ' + line.name }">−</button>
+            <strong>{{ line.quantity }}</strong>
+            <button type="button" vd-on:click="changeQuantity(line.productId, line.variantId, line.quantity + 1)" vd-attr="{ 'aria-label': 'Increase ' + line.name }">+</button>
+          </div>
+          <div>
+            <strong>{{ line.lineTotal }}</strong>
+            <button type="button" class="button button-danger" vd-on:click="removeLine(line.productId, line.variantId)">Remove</button>
+          </div>
+        </li>
+      </ul>
+
+      <div class="cart-summary">
+        <div>
+          <span>Mock quoted total</span>
+          <strong>{{ total }}</strong>
+        </div>
+        <a class="button button-primary" href="/checkout" vd-nav>Continue to mock checkout</a>
+      </div>
+    </section>
+  </div>
+</main>

@@ -51,6 +51,7 @@ import type {
 } from "./resource-adapter.ts";
 import type {
   ErrorBoundaryHook,
+  DirectionController,
   RouteLocation,
   StateRecord,
   UnknownRecord
@@ -73,6 +74,7 @@ interface ComponentPageContext {
   params?: Record<string, string>;
   query?: Record<string, string | string[]>;
   meta?: UnknownRecord;
+  direction?: DirectionController;
   components?: UnknownRecord;
   getPageState?: (pageName: string) => ComponentState;
   hasPage?: (pageName: string) => boolean;
@@ -944,6 +946,7 @@ function createComponentContext(
     params: pageCtx?.params || {},
     query: pageCtx?.query || {},
     meta: pageCtx?.meta || {},
+    direction: pageCtx?.direction,
     get components() {
       return pageCtx?.components || {};
     },

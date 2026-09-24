@@ -286,8 +286,9 @@ errors; these are repository gates, not code shipped into an application.
 
 The npm package includes built ESM, debugging source maps, TypeScript declarations,
 CLI binaries, portable documentation, and small editable starter layers. The full
-educational website (`examples/velodom-blog` in the source repository), maintainer
-tests, release records, and development configuration are not installed.
+educational website (`examples/velodom-blog`) and storefront reference consumer
+(`examples/velodom-store`) in the source repository, maintainer tests, release
+records, and development configuration are not installed.
 The generated Blog starter is not a copy of the full documentation website.
 Do not edit `node_modules/velodom`; own your application files and import the
 public entry points. Installed package bytes are not the browser bundle size:

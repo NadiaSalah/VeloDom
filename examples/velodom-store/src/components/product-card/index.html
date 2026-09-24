@@ -1,0 +1,17 @@
+<article class="product-card" vd-style="{ '--product-accent': productAccent }">
+  <div class="product-visual" aria-hidden="true">
+    <span>{{ productInitials }}</span>
+  </div>
+  <div class="product-copy">
+    <p class="product-category">{{ categoryLabel }}</p>
+    <h2>{{ productName }}</h2>
+    <p>{{ productSummary }}</p>
+    <div class="product-meta">
+      <strong>{{ productPrice }}</strong>
+      <span>{{ availabilityLabel }}</span>
+    </div>
+    <a class="button button-secondary" vd-href="productHref" vd-nav>
+      View product
+    </a>
+  </div>
+</article>

@@ -8,12 +8,16 @@
     "packages/create-velodom",
     "packages/velodom",
     "packages/velodom-vscode",
-    "examples/velodom-blog"
+    "examples/velodom-blog",
+    "examples/velodom-store"
   ],
   "scripts": {
     "dev": "npm run package:build && vite --config examples/velodom-blog/vite.config.js",
-    "build": "npm run check && npm run package:check && vite build --config examples/velodom-blog/vite.config.js && npm run benchmark:check && npm run performance:check",
+    "dev:store": "npm run package:build && vite --config examples/velodom-store/vite.config.js",
+    "build": "npm run check && npm run package:check && vite build --config examples/velodom-blog/vite.config.js && npm run build:store && npm run benchmark:check && npm run performance:check",
+    "build:store": "vite build --config examples/velodom-store/vite.config.js",
     "preview": "vite preview --config examples/velodom-blog/vite.config.js",
+    "preview:store": "vite preview --config examples/velodom-store/vite.config.js",
     "test": "node --test \"tools/tests/**/*.test.js\"",
     "docs:check": "node tools/scripts/quality/check-core-docs.mjs && node tools/scripts/quality/check-doc-consistency.mjs",
     "typecheck": "tsc --noEmit",

@@ -4,8 +4,8 @@
  * ----------------------------------------
  *
  * Serves the production build and drives real local browsers through the V1
- * VeloDom site routes, request examples, one-file pages, and static SEO
- * fallback checks.
+ * VeloDom site routes, request examples, one-file pages, the separate
+ * storefront reference consumer, and static SEO fallback checks.
  * ----------------------------------------
  */
 
@@ -35,6 +35,7 @@ const projectRoot = resolve(
 // The showcase directory is application-owned and is named explicitly so
 // release verification follows the same path used by the build and docs.
 const distRoot = join(projectRoot, "examples", "velodom-blog", "dist");
+const storeDistRoot = join(projectRoot, "examples", "velodom-store", "dist");
 const strictBrowserMatrix = process.env.VELODOM_BROWSER_STRICT === "1";
 const debugBrowserE2e = process.env.VELODOM_BROWSER_E2E_DEBUG === "1";
 const browserLaunchTimeoutMs = readPositiveDuration(
@@ -45,15 +46,21 @@ const targetRegistry = createTargetRegistry();
 const selectedTargets = getSelectedTargets(targetRegistry);
 
 await access(join(distRoot, "index.html"));
+await access(join(storeDistRoot, "index.html"));
 
 const server = await createStaticServer(distRoot);
+const storeServer = await createStaticServer(storeDistRoot);
 const results = [];
 
 try {
-  await assertStaticSeo(server.origin);
+  await assertStaticSeo(server.origin, storeServer.origin);
 
   for (const target of selectedTargets) {
-    results.push(await runBrowserTarget(target, server.origin));
+    results.push(await runBrowserTarget(
+      target,
+      server.origin,
+      storeServer.origin
+    ));
   }
 
   printBrowserSummary(results);
@@ -74,6 +81,7 @@ try {
   }
 } finally {
   await server.close();
+  await storeServer.close();
 }
 
 function createTargetRegistry() {
@@ -171,7 +179,7 @@ function getSelectedTargets(registry) {
   return requested.map(name => registry[name]);
 }
 
-async function runBrowserTarget(target, origin) {
+async function runBrowserTarget(target, origin, storeOrigin) {
   let browser;
 
   try {
@@ -203,6 +211,7 @@ async function runBrowserTarget(target, origin) {
   try {
     await assertNoJavaScriptSeo(browser, target, origin);
     await assertInteractiveSmoke(browser, target, origin);
+    await assertStorefrontSmoke(browser, target, storeOrigin);
 
     return {
       name: target.name,
@@ -383,7 +392,7 @@ async function runInteractiveStep(context, target, name, callback) {
   }
 }
 
-async function assertStaticSeo(origin) {
+async function assertStaticSeo(origin, storeOrigin) {
   const html = await fetchText(`${origin}/features/`);
 
   assertIncludes(html, "<title>VeloDom Framework Features</title>");
@@ -393,6 +402,83 @@ async function assertStaticSeo(origin) {
   );
   assertIncludes(html, "data-vd-seo-fallback");
   assertIncludes(html, "VeloDom framework features");
+
+  const storeHtml = await fetchText(`${storeOrigin}/products/aurora-lamp/`);
+
+  assertIncludes(storeHtml, "<title>Aurora desk lamp | VeloDom Store</title>");
+  assertIncludes(storeHtml, "data-vd-seo-fallback");
+  assertIncludes(storeHtml, "A dimmable task light with a small footprint.");
+}
+
+async function assertStorefrontSmoke(browser, target, origin) {
+  const context = await browser.newContext(target.contextOptions);
+
+  try {
+    await runInteractiveStep(context, target, "storefront", async page => {
+      await page.goto(`${origin}/?category=workspace&sort=price-asc`);
+      await waitForPageText(page, "A real storefront flow");
+      await waitForPageText(page, "Focus dial timer");
+      await page.waitForFunction(() => {
+        const titles = [...document.querySelectorAll(".product-card h2")]
+          .map(node => node.textContent?.trim());
+
+        return titles.join("|") === "Focus dial timer|Aurora desk lamp";
+      });
+
+      await page.locator('a.category-link:has-text("Carry")').click();
+      await page.waitForURL(url => url.searchParams.get("category") === "carry");
+      await waitForPageText(page, "Canvas day pack");
+      await page.goBack();
+      await page.waitForURL(url => url.searchParams.get("category") === "workspace");
+      await waitForPageText(page, "Focus dial timer");
+      await page.goForward();
+      await page.waitForURL(url => url.searchParams.get("category") === "carry");
+      await waitForPageText(page, "Canvas day pack");
+
+      await page.goto(`${origin}/products/aurora-lamp`);
+      await waitForPageText(page, "Aurora desk lamp");
+      const addButton = page.locator('button:has-text("Add to cart")');
+
+      await addButton.focus();
+      await addButton.press("Enter");
+      await waitForPageText(page, "Added after a fresh mock stock and price check.");
+      await page.reload();
+      await page.waitForFunction(() => (
+        document.querySelector(".cart-badge")?.textContent?.trim() === "1"
+      ));
+
+      await page.locator('a.primary-link[href="/cart"]').click();
+      await waitForPageText(page, "Confirmed items");
+      await waitForPageText(page, "Aurora desk lamp");
+      await page.locator('a[href="/checkout"]').click();
+      await waitForPageText(page, "No payment can occur here.");
+      await page.locator('button:has-text("Complete mock handoff")').click();
+      await waitForPageText(page, "No order was created and no payment was taken.");
+
+      await page.locator(".locale-button").click();
+      await page.waitForFunction(() => (
+        document.documentElement.dir === "rtl"
+        && document.documentElement.lang === "ar"
+      ));
+    });
+
+    await context.addInitScript(() => {
+      Storage.prototype.setItem = () => {
+        throw new Error("storage blocked by browser policy");
+      };
+    });
+    await runInteractiveStep(context, target, "storefront-storage-failure", async page => {
+      await page.goto(`${origin}/products/focus-timer`);
+      await waitForPageText(page, "Focus dial timer");
+      await page.locator('button:has-text("Add to cart")').click();
+      await waitForPageText(
+        page,
+        "Cart changes remain in this tab because browser storage is unavailable."
+      );
+    });
+  } finally {
+    await context.close();
+  }
 }
 
 async function assertRouting(page, origin) {

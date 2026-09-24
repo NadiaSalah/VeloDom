@@ -58,7 +58,7 @@ before use.
 | Sitemap/robots output | Build | Stable | SEO build config | custom hosting files | Vite plugin | Yes |
 | Content collections | Build | Supported | `velodom/content` | external loader | content APIs | Yes |
 | Localization helpers | i18n | Supported | `velodom/localization` | nested keys, explicit plurals, parameters, locale paths/SEO, static key checks | localization APIs + `vd i18n` | Yes |
-| Direction/RTL helpers | i18n | Supported | direction plugin, `vd-rtl-flip` | project CSS | public helpers | Yes |
+| Direction/RTL helpers | i18n | Supported | direction plugin, `vd-rtl-flip` | page/component `ctx.direction`, reactive `$direction`, project CSS | public helpers | Yes |
 | Node Request adapter | Server | Supported | `velodom/node` | custom server adapter | `createNodeRequestAdapter` | Yes |
 | Full automatic SSR | Server | Not provided | use explicit build-time static rendering instead | Node request adapter handles HTTP only | no universal SSR runtime | Boundary tested |
 | Hydration | Server | Not provided | client takeover of static output instead | explicit static-content policy | no DOM reconciliation/hydration API | Boundary tested |

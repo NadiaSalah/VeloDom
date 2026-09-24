@@ -1,0 +1,27 @@
+<header class="site-header">
+  <div class="page-frame nav-row">
+    <a href="/" vd-nav class="brand-link" aria-label="VeloDom Store home">
+      <img class="site-brand-mark" src="/store-mark.svg" alt="" width="44" height="44">
+      <span>
+        <strong>VeloDom Store</strong>
+        <small>reference consumer</small>
+      </span>
+    </a>
+
+    <nav aria-label="Primary navigation" class="primary-nav">
+      <a class="primary-link" href="/" vd-nav>Catalog</a>
+      <a class="primary-link" href="/cart" vd-nav>
+        Cart <span class="cart-badge" aria-label="cart item count">{{ cartCount }}</span>
+      </a>
+    </nav>
+
+    <button
+      type="button"
+      class="locale-button"
+      vd-on:click="toggleLocale()"
+      vd-attr="{ 'aria-label': localeButtonLabel }"
+    >
+      {{ localeButtonText }}
+    </button>
+  </div>
+</header>

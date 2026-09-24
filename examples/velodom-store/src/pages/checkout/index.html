@@ -1,0 +1,44 @@
+<main class="page-main">
+  <div class="page-frame">
+    <section class="content-card checkout-card">
+      <p class="eyebrow">Mock checkout handoff</p>
+      <h1>No payment can occur here.</h1>
+      <p class="lede">This final step sends only the cart ids and quantities to a deterministic local handler, which requotes them again and returns a simulation result.</p>
+
+      <vd-component name="mock-boundary"></vd-component>
+
+      <p vd-show="preparing" class="status-panel" aria-live="polite">Preparing a fresh quote…</p>
+      <p vd-if="prepareError !== ''" class="status-panel error" role="alert">{{ prepareError }}</p>
+
+      <ul vd-if="!preparing && prepareError === '' && quoteLines.length > 0" class="checkout-list">
+        <li vd-for="line in quoteLines" vd-key="line.productId + ':' + line.variantId" class="checkout-line">
+          <span>{{ line.quantity }} × {{ line.name }} · {{ line.variantLabel }}</span>
+          <strong>{{ line.lineTotal }}</strong>
+        </li>
+      </ul>
+      <div vd-if="!preparing && prepareError === '' && quoteLines.length > 0" class="cart-summary">
+        <span>Mock total</span>
+        <strong>{{ total }}</strong>
+      </div>
+
+      <div class="stack-actions">
+        <a class="button button-secondary" href="/cart" vd-nav>Back to cart</a>
+        <button
+          vd-if="!preparing && prepareError === '' && quoteLines.length > 0"
+          type="button"
+          class="button button-primary"
+          vd-request="checkout.createMock"
+          vd-params="{ lines: cartLines }"
+          vd-target="checkoutResult"
+          vd-auto-state
+        >{{ checkoutLoading ? "Simulating…" : "Complete mock handoff" }}</button>
+      </div>
+
+      <p vd-if="checkoutError !== ''" class="status-panel error" role="alert">{{ checkoutError }}</p>
+      <div vd-if="Boolean(checkoutResult?.message)" class="status-panel success" role="status">
+        <strong>Simulation result: {{ checkoutResult.status }}</strong>
+        <p>{{ checkoutResult.message }}</p>
+      </div>
+    </section>
+  </div>
+</main>

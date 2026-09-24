@@ -90,7 +90,7 @@ interface PageRuntimeContext {
   params: Record<string, string>;
   query: Record<string, string | string[]>;
   meta: UnknownRecord;
-  direction: unknown;
+  direction: DirectionController | undefined;
   readonly components: UnknownRecord;
   getPageState(pageName: string): PageState;
   hasPage(pageName: string): boolean;
@@ -919,7 +919,7 @@ function createPageContext(
     params: route.params || {},
     query: route.query || {},
     meta: route.meta || {},
-    direction: state[VD_DIRECTION.STATE_KEY],
+    direction: state[VD_DIRECTION.STATE_KEY] as DirectionController | undefined,
     get components() {
       return state.components as UnknownRecord;
     },

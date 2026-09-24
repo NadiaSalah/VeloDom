@@ -1,0 +1,15 @@
+<template>
+  <div class="app-shell">
+    <vd-component name="store-nav"></vd-component>
+    <vd-page></vd-page>
+    <footer class="site-footer">
+      <div class="page-frame footer-grid">
+        <div>
+          <strong>VeloDom Store</strong>
+          <p>A deterministic reference consumer—not a real shop.</p>
+        </div>
+        <p>HTML-first UI · app-owned commerce policy · no real payments</p>
+      </div>
+    </footer>
+  </div>
+</template>

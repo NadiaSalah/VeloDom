@@ -107,6 +107,58 @@ test("direction plugin exposes ctx.direction and reactive $direction", async () 
   await app.destroy();
 });
 
+test("direction plugin forwards the page direction context to components", async () => {
+  let componentDirection = null;
+  const app = createApp({
+    adapter: {
+      pages: {
+        html: {
+          home: async () => '<vd-component name="locale-toggle"></vd-component>'
+        },
+        manifests: {
+          home: async () => ({
+            directives: [],
+            features: ["components"]
+          })
+        }
+      },
+      components: {
+        html: {
+          "locale-toggle": async () => "<p>Locale</p>"
+        },
+        manifests: {
+          "locale-toggle": async () => ({
+            directives: [],
+            features: []
+          })
+        },
+        modules: {
+          "locale-toggle": async () => ({
+            init({ ctx }) {
+              componentDirection = ctx.direction;
+            }
+          })
+        }
+      }
+    },
+    plugins: [
+      createDirectionPlugin({
+        defaultLocale: "en",
+        locales: {
+          en: { lang: "en", direction: "ltr" },
+          ar: { lang: "ar", direction: "rtl" }
+        }
+      })
+    ]
+  });
+
+  await app.mount();
+  assert.equal(componentDirection, app.direction);
+  componentDirection.setLocale("ar");
+  assert.equal(document.documentElement.dir, "rtl");
+  await app.destroy();
+});
+
 test("direction plugin validates locales and directions", async () => {
   assert.throws(
     () => createDirectionPlugin({

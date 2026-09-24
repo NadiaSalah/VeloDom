@@ -399,6 +399,10 @@ server/native feedback locations.
 
 `vd-rtl-flip` marks directional artwork for project CSS. Direction and
 localization helpers are opt-in and never require a global locale runtime.
+When `createDirectionPlugin()` is installed, page and component lifecycle hooks
+receive the same optional `ctx.direction` controller. Templates can bind the
+reactive `$direction` value. Do not assume either value exists without the
+plugin.
 
 Localization dictionaries may use nested string groups and explicit
 `definePluralMessage({ one, other })` leaves. Resolve text with

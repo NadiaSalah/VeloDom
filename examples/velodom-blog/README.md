@@ -14,6 +14,11 @@ internal shared layer, not a standalone application. Use this blog when you
 need a complete documentation site with multiple routes, layouts, requests,
 and content.
 
+The separate `examples/velodom-store` consumer covers catalog, direct product,
+guest-cart, RTL, and mock-checkout workflows with ordinary CSS. It is linked
+from this site's beginner and direction lessons but intentionally does not
+share the documentation app's Tailwind UI or become another starter.
+
 ## What the example demonstrates
 
 | Route | Purpose |

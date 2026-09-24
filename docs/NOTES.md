@@ -2,6 +2,29 @@
 
 ## Architectural Decisions
 
+### Storefront reference consumer and component direction parity — 2026-09-21
+
+- Added `examples/velodom-store` as a separate private workspace consumer. It
+  imports only public VeloDom paths and keeps all catalog, cart, checkout,
+  persistence, and presentation policy application-owned. CLI impact is
+  `NONE`; C01 validates current V1 and deliberately adds no Store starter yet.
+- The guest cart stores only a versioned list of product/variant ids and
+  quantities. Every display and mutation requotes mock backend records, and
+  the checkout handler clearly creates no transaction. Real authorization,
+  stock, price, tax, payment, and idempotency remain backend responsibilities.
+- Browser validation revealed that the direction controller was attached to
+  page context but omitted when component context was derived. Documentation
+  already promised page/component access. The runtime now forwards the same
+  optional controller and public types describe it; a focused regression proves
+  component access and cleanup remains plugin-owned.
+- Reused the existing production browser harness instead of adding another
+  runner. Desktop and mobile Chromium cover URL filter order, Back/Forward,
+  direct product links, keyboard cart entry, refresh persistence, blocked
+  storage, cart quotation, mock checkout, horizontal overflow, and RTL.
+- Added five deterministic storefront domain tests. The package build, store
+  production build, Core direction tests, quality checks, and desktop/mobile
+  browser journeys passed. Commerce roadmap progress is 1/10 (10%).
+
 ### Development and production parity audit — 2026-09-21
 
 - Replaced the manually duplicated package-consumer beginner fixture with the

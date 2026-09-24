@@ -45,7 +45,7 @@ state.
 This separately scoped quality/adoption work is detailed below; the completed
 implementation counters above do not mean these follow-ups or release gates are done.
 
-**Commerce and large-application track: 0 of 10 complete (0%).**
+**Commerce and large-application track: 1 of 10 complete (10%).**
 These new proposals do not change the completed baseline or the 6/8 simplicity
 counter. Research experiments are tracked separately and are not implementation promises.
 
@@ -139,9 +139,9 @@ documentation site is one consumer, not the framework's architectural boundary.
 The objective is to prove and improve store, administration, and business-app
 workflows without turning Core into an e-commerce backend or enterprise platform.
 
-**Progress: 0 of 10 milestones complete (0%).**
+**Progress: 1 of 10 milestones complete (10%).**
 
-`[--------------------] 0%`
+`[##------------------] 10%`
 
 ### Existing foundations — reuse before adding
 
@@ -162,7 +162,7 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
 
 ### P0 — Prove real applications with the current V1
 
-- [ ] **C01 — Storefront reference consumer. V1 validation; complexity: High;
+- [x] **C01 — Storefront reference consumer. V1 validation; complexity: High;
   owner: application/example; CLI: NONE initially.** Build a separate small
   store example using public imports: catalog, categories, product variants,
   URL-backed search/filter/sort/pagination, product details, cart quantity and
@@ -174,7 +174,17 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   shopping interaction without learning a second framework model. Acceptance:
   direct product links, Back/Forward filters, refresh/persistence failure,
   keyboard operation, mobile/RTL, and production builds work; the example
-  clearly labels mock data/payment and makes no real transaction.
+  clearly labels mock data/payment and makes no real transaction. Implemented
+  as the separate `examples/velodom-store` consumer with deterministic local
+  catalog and quotation fixtures, URL-backed native filters, direct SEO product
+  routes, keyed product components, a versioned id/quantity-only guest cart,
+  fresh price/stock checks, and a non-transactional checkout handoff. Unit tests
+  cover filter/pagination, authoritative pricing/stock, invalid/unavailable
+  persistence, and mock checkout. Desktop/mobile browser journeys cover
+  Back/Forward filters, keyboard add-to-cart, refresh persistence, blocked
+  storage, direct routes, mock checkout, responsive overflow, and RTL. The
+  example exposed and fixed the existing direction-context gap for components;
+  no commerce API, directive, starter, or dependency entered Core.
 
 - [ ] **C02 — Administration and business workflow example. V1 validation;
   complexity: Medium; owner: application/example; CLI: NONE initially.** Add

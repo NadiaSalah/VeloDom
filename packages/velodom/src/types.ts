@@ -683,6 +683,8 @@ export interface PageScriptContext<
     params: Record<string, string>;
     query: Record<string, string | string[]>;
     meta: UnknownRecord;
+    /** Present when the optional direction plugin is installed. */
+    direction?: DirectionController;
   };
 }
 

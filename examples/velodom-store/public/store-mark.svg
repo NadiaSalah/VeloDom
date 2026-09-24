@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">VeloDom Store</title>
+  <rect width="64" height="64" rx="18" fill="#101b3d"/>
+  <path d="M13 18h8l11 22 11-22h8L35 49h-6L13 18Z" fill="#63d9ff"/>
+  <path d="M22 18h8l5 10-4 8-9-18Z" fill="#fff" opacity=".9"/>
+</svg>

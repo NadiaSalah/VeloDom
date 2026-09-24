@@ -103,6 +103,10 @@ For localized apps, keep dictionaries in application source and use
 `definePluralMessage()` only for plural leaves. Pass primitive `{name}` values
 to `t()` and counts to `plural()`; do not invent an i18n directive or full ICU
 syntax. `vd i18n extract|check` is static and cannot prove dynamic configs.
+The optional direction plugin exposes one controller as `ctx.direction` in
+both page and component hooks and `$direction` in templates. Guard component
+code when the plugin is optional; do not create a second document-direction
+store merely because the control lives in a component.
 
 Run `vd fix` without flags and review the file/line preview. Use `--write` only
 for the built-in preferred-directive alias migration; it intentionally leaves
