@@ -49,6 +49,11 @@ coalesced GETs, independent aborts and explicit invalidation/scope rules.
 It distinguishes request-cache policy from public-only page-data freshness and
 does not claim automatic private-session caching or post-write UI refresh.
 
+The same lesson explains abortable retry waiting, signal forwarding and
+middleware cancellation. Late completion notifications are suppressed after a
+binding is disposed/replaced; an accepted backend write is never rolled back
+by client cancellation.
+
 The binding lesson on `/playground#bindings` demonstrates ARIA boolean tokens,
 case-sensitive CSS variables, and removal of old object styles. The desktop
 sidebar scrolls within short viewports; reduced-motion preferences disable

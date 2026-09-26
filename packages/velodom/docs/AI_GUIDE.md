@@ -100,6 +100,14 @@ private read caching, include tenant/user/session epoch in app-owned scope and
 clear/abort on auth changes. Session/no-store endpoints remain uncached. Do not
 claim it automatically clears the separate router page-data cache.
 
+Retry only safe operations. `withRequestRetry` and declarative retries exclude
+AbortError/aborted contexts, stop waiting on abort and clean up listeners/timers.
+Pass the existing context signal into the transport; do not add another
+controller for every retry. Middleware cannot proceed into another operation
+after cancellation. Cancellation fences late success, not accepted server
+writes or state applied before a callback. Resolve uncertain writes through
+backend status/idempotency rather than blindly repeating them.
+
 Before using a directive:
 
 1. Find it in `SYNTAX_REFERENCE.md`.

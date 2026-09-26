@@ -4179,7 +4179,9 @@ const apiCache = createRequestCache({
 export const routes = {
   posts: {
     getOne: withRequestRetry(
-      params => apiCache.requestJson(`/api/posts/${params.id}`),
+      (params, context) => apiCache.requestJson(`/api/posts/${params.id}`, {
+        signal: context.signal
+      }),
       { retries: 2 }
     )
   }
@@ -4197,6 +4199,23 @@ The cache wrapper and retry wrapper are application-owned helpers. They do not
 change declarative request behavior unless the user explicitly uses them in an
 API route or request module. The devtools bridge only installs a browser global
 when its plugin is registered.
+
+Both the optional retry wrapper and declarative `retry` use an abortable wait.
+They never retry `AbortError` or start another attempt for an aborted context.
+Middleware checks cancellation before each next operation and preserves aborts
+instead of wrapping them as ordinary middleware failures. The optional wrapper
+also rejects a late result from a handler that ignored its signal; declarative
+bindings suppress late success notifications after an awaited `onSuccess`
+callback if that binding was disposed or replaced. Timer/abort listeners are
+released when a retry wait settles.
+
+Always forward `context.signal` to your actual I/O. Framework cancellation does
+not forcibly stop custom work that ignores the signal, undo an already-written
+state value, or roll back a write accepted by the backend. Use authoritative
+status/refetch and backend idempotency for ambiguous write outcomes; do not
+blindly retry checkout/create actions. `shouldRetry(error, attempt)` still lets
+an application narrow the explicit retry policy; cancellation is excluded even
+when that predicate would return true.
 
 The request cache is opt-in and memory-only. It coalesces identical concurrent
 GET reads; headers and credentials are part of identity. Each consumer can

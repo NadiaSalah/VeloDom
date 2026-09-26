@@ -570,6 +570,7 @@ async function assertStorefrontSmoke(browser, target, origin) {
 
         await page.locator('a[href="/admin/products/focus-timer/edit"]').click();
         await waitForPageText(page, "Edit Focus dial timer");
+        await page.locator(".locale-button").waitFor();
         const nameInput = page.locator("#product-name");
 
         await nameInput.fill("Focus recovery timer");
@@ -602,10 +603,14 @@ async function assertStorefrontSmoke(browser, target, origin) {
         await waitForPageText(page, "Focus recovery timer");
         await page.locator('a:has-text("Product administration")').click();
         await waitForPageText(page, "Server-paginated product records");
+        // The static table caption appears before async directives are bound.
+        // Wait for the same mounted-component gate used by the initial list.
+        await page.locator(".locale-button").waitFor();
 
         const firstRow = page.locator(".admin-table tbody tr").first();
 
         await firstRow.locator('input[type="checkbox"]').check();
+        await waitForPageText(page, "1 product selected");
         await page.locator("#bulk-action-trigger").click();
         await page.locator("#bulk-confirm-dialog").waitFor({ state: "visible" });
         await page.locator('#bulk-confirm-dialog button:has-text("Confirm action")').click();

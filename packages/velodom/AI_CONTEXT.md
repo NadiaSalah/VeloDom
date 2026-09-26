@@ -85,6 +85,12 @@ Use uncached `requestJson` for session/no-store endpoints. No HttpOnly cookie
 change, HTTP cache policy or page-data invalidation is inferred automatically.
 Legacy `ttlMs: 0` remains retained-until-clear/eviction; default capacity is 100.
 
+Retries never repeat AbortError or aborted contexts. Both declarative retry and
+`withRequestRetry` use abortable waits with cleanup. Middleware stops before
+another operation after cancellation; forward context.signal to real I/O.
+Cancelled late completions/notifications are fenced, not rolled back. An
+already accepted backend write or applied state is not undone by aborting.
+
 ## Public Imports
 
 - `velodom`

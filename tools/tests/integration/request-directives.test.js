@@ -1036,6 +1036,61 @@ test("invalid request retry reports a configuration error", async () => {
   });
 });
 
+test("directive cleanup cancels retry waiting without publishing error or late result", async () => {
+  const root = createRoot(`<button data-vd-request="catalog.read"
+    data-vd-request-config="{ target: 'result', error: 'error', retry: 2, retryDelayMs: 50 }">Load</button>`);
+  let calls = 0;
+  let notifyWait;
+  const waitStarted = new Promise(resolve => { notifyWait = resolve; });
+  configureRequestRuntime({ routes: {
+    "catalog.read": (_params, { signal }) => {
+      calls++;
+      const add = signal.addEventListener.bind(signal);
+      signal.addEventListener = (name, ...args) => {
+        add(name, ...args);
+        if (name === "abort") notifyWait();
+      };
+      throw new Error("temporary");
+    }
+  } });
+  const state = createState({ result: "unchanged", error: "" });
+  await withoutConsoleError(async messages => {
+    const cleanup = await applyDirectives(root, state);
+    root.querySelector("button").click();
+    await waitStarted;
+    cleanup();
+    await delay(60);
+    assert.equal(calls, 1);
+    assert.equal(state.result, "unchanged");
+    assert.equal(state.error, "");
+    assert.deepEqual(messages, []);
+  });
+});
+
+test("directive cleanup fences delayed middleware before a write handler starts", async () => {
+  const root = createRoot('<button data-vd-request="catalog.save" data-vd-target="result">Save</button>');
+  let release;
+  let calls = 0;
+  configureRequestRuntime({ routes: {
+    "catalog.save": {
+      middleware: [params => new Promise(resolve => { release = () => resolve(params); })],
+      handler: () => { calls++; return "unexpected write"; }
+    }
+  } });
+  const state = createState({ result: "unchanged" });
+  await withoutConsoleError(async messages => {
+    const cleanup = await applyDirectives(root, state);
+    root.querySelector("button").click();
+    await waitFor(() => assert.equal(typeof release, "function"));
+    cleanup();
+    release();
+    await delay(0);
+    assert.equal(calls, 0);
+    assert.equal(state.result, "unchanged");
+    assert.deepEqual(messages, []);
+  });
+});
+
 test("global request hooks observe successful declarative requests", async () => {
   const root = createRoot(`
     <button
@@ -1188,6 +1243,30 @@ test("request config onSuccess callback runs after state is written", async () =
   });
 
   cleanup();
+});
+
+test("cleanup during an async success callback suppresses stale completion notifications", async () => {
+  const root = createRoot(`<button data-vd-request="posts.save"
+    data-vd-request-config="{ target: 'result', onSuccess: completeLater }">Save</button>`);
+  let release;
+  const notifications = [];
+  configureRequestRuntime({
+    routes: { "posts.save": () => "saved" },
+    hooks: { afterRequest: payload => { notifications.push(["after", payload.ok]); } }
+  });
+  const state = createState({
+    result: "",
+    emit: name => { notifications.push(["event", name]); },
+    completeLater: () => new Promise(resolve => { release = resolve; })
+  });
+  const cleanup = await applyDirectives(root, state);
+  root.querySelector("button").click();
+  await waitFor(() => assert.equal(typeof release, "function"));
+  assert.equal(state.result, "saved", "cancellation does not undo an already completed action");
+  cleanup();
+  release();
+  await delay(0);
+  assert.deepEqual(notifications, []);
 });
 
 function createRoot(html) {

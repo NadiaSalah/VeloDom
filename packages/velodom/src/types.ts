@@ -574,9 +574,10 @@ export interface RequestCache {
   readonly size: number;
 }
 
-/** Options for wrapping an application request handler with retries. */
+/** Explicit retries; cancelled contexts and AbortError are never retried. */
 export interface RequestRetryOptions {
   retries?: number;
+  /** Abortable pause between attempts, with timer/listener cleanup. */
   delayMs?: number;
   shouldRetry?: (
     error: unknown,

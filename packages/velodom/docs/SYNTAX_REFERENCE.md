@@ -388,6 +388,16 @@ CSRF enforcement, tenant/resource authorization, authoritative business data,
 and sensitive transitions on an application backend. Retry a write only when
 that backend defines safe idempotency semantics.
 
+Declarative retry and `withRequestRetry(handler, { retries, delayMs,
+shouldRetry })` never retry `AbortError` or aborted contexts. Waiting is
+abortable and cleans up its timer/listener. Middleware checks before each
+operation and does not wrap cancellation as a policy failure. Forward
+`context.signal` to actual I/O; code ignoring it is not forcibly stopped.
+The wrapper rejects ignored-abort completion, and disposed/replaced declarative
+bindings suppress late notifications after async `onSuccess`. Cancellation
+does not undo an accepted backend write or state already applied before a
+callback; use status/idempotency and explicit refetch for ambiguous outcomes.
+
 ## Optional Request Cache
 
 `createRequestCache({ ttlMs: 5000, maxEntries: 40, scope: "public" })` wraps the

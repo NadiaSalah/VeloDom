@@ -316,6 +316,87 @@ test("request retry wrapper stops when shouldRetry rejects the error", async () 
   assert.equal(attempts, 1);
 });
 
+test("retry does not call a handler for an already cancelled request", async () => {
+  let calls = 0;
+  const controller = new AbortController();
+  controller.abort();
+  const handler = withRequestRetry(() => { calls++; return "unexpected"; });
+
+  await assert.rejects(handler({}, { signal: controller.signal }), { name: "AbortError" });
+  assert.equal(calls, 0);
+});
+
+test("retry never repeats an AbortError, even without a cancelled context signal", async () => {
+  let calls = 0;
+  let policyCalls = 0;
+  const abort = new Error("transport cancelled");
+  abort.name = "AbortError";
+  const handler = withRequestRetry(() => {
+    calls++;
+    throw abort;
+  }, { retries: 3, shouldRetry: () => { policyCalls++; return true; } });
+
+  await assert.rejects(handler({}, {}), error => error === abort);
+  assert.equal(calls, 1);
+  assert.equal(policyCalls, 0);
+});
+
+test("cancelling during a retry wait stops the next handler attempt", async () => {
+  let calls = 0;
+  const controller = new AbortController();
+  const handler = withRequestRetry(() => {
+    calls++;
+    if (calls === 1) throw new Error("temporary");
+    return "unexpected retry";
+  }, {
+    retries: 2,
+    delayMs: 25,
+    shouldRetry: () => {
+      queueMicrotask(() => controller.abort());
+      return true;
+    }
+  });
+
+  await assert.rejects(handler({}, { signal: controller.signal }), { name: "AbortError" });
+  assert.equal(calls, 1);
+});
+
+test("retry wait removes its abort listener on successful completion", async () => {
+  const controller = new AbortController();
+  const signal = controller.signal;
+  const add = signal.addEventListener.bind(signal);
+  const remove = signal.removeEventListener.bind(signal);
+  let listeners = 0;
+  let subscriptions = 0;
+  signal.addEventListener = (name, ...args) => { if (name === "abort") { listeners++; subscriptions++; } add(name, ...args); };
+  signal.removeEventListener = (name, ...args) => { if (name === "abort") listeners--; remove(name, ...args); };
+  let calls = 0;
+  const handler = withRequestRetry(() => {
+    calls++;
+    if (calls === 1) throw new Error("temporary");
+    return "recovered";
+  }, { delayMs: 1 });
+
+  assert.equal(await handler({}, { signal }), "recovered");
+  assert.equal(subscriptions, 1);
+  assert.equal(listeners, 0);
+});
+
+test("retry discards an ignored-abort completion without starting another attempt", async () => {
+  let finish;
+  let calls = 0;
+  const controller = new AbortController();
+  const handler = withRequestRetry(() => {
+    calls++;
+    return new Promise(resolve => { finish = resolve; });
+  }, { retries: 3 });
+  const pending = handler({}, { signal: controller.signal });
+  controller.abort();
+  finish("late result");
+  await assert.rejects(pending, { name: "AbortError" });
+  assert.equal(calls, 1);
+});
+
 test("devtools bridge installs only through its plugin", async () => {
   const app = {
     shared: {

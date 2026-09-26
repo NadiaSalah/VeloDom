@@ -43,7 +43,7 @@ before use.
 | Declarative requests | Requests | Stable | `vd-request` family | direct `requestJson` | request APIs | Yes |
 | Request middleware | Requests | Stable | `src/api/middleware.js` | inline function | middleware APIs | Yes |
 | Request auth providers | Auth | Stable | app provider registry | server/local demo providers | auth APIs | Yes |
-| Request cache/retry | Requests | Supported | helper wrappers; bounded LRU GET cache, independent cancellation, explicit scope/clear fencing | application-owned; no automatic write refresh or private page caching | public helpers + cache options | Yes |
+| Request cache/retry | Requests | Supported | helper wrappers; bounded LRU GET cache, independent cancellation, explicit scope/clear fencing; abortable retry waits and no AbortError retry | application-owned; no automatic write refresh, rollback or private page caching | public helpers + cache/retry options | Yes |
 | Native form requests | Forms | Stable | `vd-form` | ordinary submit handler | request runtime | Yes |
 | Validation plugin | Forms | Supported | `vd-validate` | browser constraints | `createValidationPlugin` | Yes |
 | Progressive forms | Forms | Supported | plugin opt-in | normal client request | public plugin | Yes |

@@ -17,6 +17,9 @@ import {
 import { reportUserActionError } from "../errors/error-reporter.ts";
 import { isPlainObject } from "../shared/object.ts";
 import {
+  assertRequestActive, isRequestAbortError, waitForRetryDelay
+} from "./cancellation.ts";
+import {
   getThrownString
 } from "../shared/thrown.ts";
 import {
@@ -570,6 +573,13 @@ async function runRequestDirective(
 
     await runRequestSuccessCallback(requestConfig, successPayload);
 
+    // A user callback can await work, replace the request or dispose its binding.
+    // Already-applied results are not rolled back, but late effects are fenced.
+    if (!isLatestRequest(el, activeRequest)) {
+      devtoolsStatus = "aborted";
+      return;
+    }
+
     state.emit?.(VD_REQUEST.EVENTS.SUCCESS, {
       route: routeName,
       params: finalParams,
@@ -581,7 +591,7 @@ async function runRequestDirective(
   } catch (err) {
     if (
       !isLatestRequest(el, activeRequest)
-      || getThrownString(err, "name") === "AbortError"
+      || isRequestAbortError(err)
     ) {
       devtoolsStatus = "aborted";
       return;
@@ -972,6 +982,7 @@ async function executeRequestWithRetry({
   let failures = 0;
 
   for (;;) {
+    assertRequestActive(requestContext.signal);
     try {
       return await executeRequestMiddleware({
         middleware: routeConfig.middleware,
@@ -987,7 +998,7 @@ async function executeRequestWithRetry({
       if (
         failures >= retryOptions.retries
         || requestContext.signal?.aborted
-        || getThrownString(error, "name") === "AbortError"
+        || isRequestAbortError(error)
       ) {
         throw error;
       }
@@ -1211,49 +1222,6 @@ function normalizeRequestRetryCount(value: unknown): number {
   if (value === false || value === undefined) return 0;
 
   return Number(value);
-}
-
-/** Waits for the for retry delay. */
-function waitForRetryDelay(
-  ms: number,
-  signal?: AbortSignal
-): Promise<void> {
-  if (!signal) {
-    return new Promise(resolve => {
-      setTimeout(resolve, ms);
-    });
-  }
-
-  if (signal.aborted) {
-    return Promise.reject(createRequestAbortError());
-  }
-
-  const abortSignal = signal;
-
-  return new Promise((resolve, reject) => {
-    /** Aborts the active operation. */
-    function abort() {
-      clearTimeout(timer);
-      abortSignal.removeEventListener("abort", abort);
-      reject(createRequestAbortError());
-    }
-
-    const timer = setTimeout(() => {
-      abortSignal.removeEventListener("abort", abort);
-      resolve(undefined);
-    }, ms);
-    abortSignal.addEventListener("abort", abort, {
-      once: true
-    });
-  });
-}
-
-/** Creates the request abort error. */
-function createRequestAbortError(): Error {
-  const error = new Error("Request aborted");
-
-  error.name = "AbortError";
-  return error;
 }
 
 /** Returns the request params input. */

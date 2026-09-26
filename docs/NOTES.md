@@ -2,6 +2,48 @@
 
 ## Architectural Decisions
 
+### Unified retry and middleware cancellation — 2026-09-26
+
+- Source tests reproduced pre-aborted handler execution, repeated AbortError,
+  next attempts after cancelled retry waits, delayed middleware reaching a
+  handler after cancellation, and middleware wrapping aborts as failures.
+  Another test proved a disposed binding still emitted success/afterRequest
+  after an awaited callback. These were control-flow bugs, not backend policy.
+- `requests/cancellation.ts` now owns the common cancellation classifier,
+  active check and abortable wait. The old declarative wait was moved here and
+  the optional wrapper's uncancellable timer was removed. Middleware checks
+  each dispatch and final completion; it preserves the original AbortError.
+  The wrapper checks before attempts and after successful handler completion.
+  The declarative runtime rechecks binding ownership after async onSuccess.
+- Cancellation strings are centralized in Core constants. Declarative waits
+  keep their original Error shape; the cache keeps its DOMException shape for
+  compatibility while sharing the same name/message. No runtime export,
+  signature, dependency, syntax, automatic retry policy or starter changed.
+- Cancellation releases wait timers/listeners and prevents later operations;
+  it cannot undo accepted server writes, already-applied state, or custom work
+  that ignores a signal. Backend status/idempotency and app-owned refetch remain
+  necessary for ambiguous outcomes. Existing signal/predicate contracts remain.
+- CLI impact is `NONE`: no global feature/configuration or creation prompt is
+  needed. Templates do not actively use the optional wrapper. Root/package/AI
+  docs and the blog cache lesson now teach cancellation and signal forwarding;
+  installed-package checks also exercise the real wrapper.
+- C05 stays open for router loader cancellation, page-data freshness/coalescing/
+  invalidation and complete catalog/admin/account refresh evidence.
+- Verification: all 367 automated tests passed (twelve new regressions), as did
+  docs/types/strict/lint, the full build, six installed starter combinations,
+  both installed reference consumers, public runtime retry/cache smoke tests,
+  and performance budgets. Dry-run artifacts passed at 332 files / 670.5 KiB
+  packed for VeloDom and 4 files / 1.7 KiB for the creation wrapper.
+- One mobile browser run selected an unbound checkbox while the table caption
+  was already visible. The same target passed on replay without source changes,
+  confirming nondeterministic readiness rather than a reproduced cancellation
+  defect. The administration E2E now waits for its mounted locale component
+  after edit/list navigation and asserts selection text before opening the
+  dialog; it does not force clicks, extend timeouts or ignore errors.
+- The corrected full desktop/mobile Chromium production matrix and final
+  docs/types/strict/lint checks passed. Other browser engines and remote CI are
+  separate release evidence; no version change or publication was performed.
+
 ### Request-cache concurrency and invalidation — 2026-09-26
 
 - C05's first implementation scope is the existing opt-in request helper.

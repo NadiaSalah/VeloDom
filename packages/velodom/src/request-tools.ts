@@ -26,10 +26,13 @@ import {
 import {
   VELODOM_DEVTOOLS_PROTOCOL_VERSION
 } from "./devtools/protocol.ts";
+import {
+  assertRequestActive, isRequestAbortError, waitForRetryDelay
+} from "./requests/cancellation.ts";
 /** Optional cache stays available here while its coordination is owned by one module. */
 export { createRequestCache } from "./requests/request-cache.ts";
 
-/** Wraps an application request route handler with explicit retry behavior. */
+/** Wraps a handler with explicit retry; cancellation is never a retryable failure. */
 export function withRequestRetry(
   handler: RouteHandler,
   options: RequestRetryOptions = {}
@@ -51,14 +54,18 @@ export function withRequestRetry(
     let failures = 0;
 
     for (;;) {
+      assertRequestActive(context?.signal);
       try {
-        return await handler(params, context);
+        const result = await handler(params, context);
+        assertRequestActive(context?.signal);
+        return result;
       } catch (error) {
         const nextAttempt = failures + 1;
 
         if (
           failures >= retries
           || context?.signal?.aborted
+          || isRequestAbortError(error)
           || !shouldRetry(error, nextAttempt)
         ) {
           throw error;
@@ -67,7 +74,7 @@ export function withRequestRetry(
         failures = nextAttempt;
 
         if (delayMs > 0) {
-          await delay(delayMs);
+          await waitForRetryDelay(delayMs, context?.signal);
         }
       }
     }
@@ -166,7 +173,7 @@ function normalizeNonNegativeNumber(
   const normalized = Number(value);
 
   if (!Number.isFinite(normalized) || normalized < 0) {
-    throw new TypeError("VeloDom optional tool delays and TTLs cannot be negative");
+    throw new TypeError("VeloDom retry delays must be finite and non-negative");
   }
 
   return normalized;
@@ -183,11 +190,4 @@ function normalizeGlobalName(value: unknown) {
   }
 
   return normalized;
-}
-
-/** Performs the internal `delay()` operation. */
-function delay(ms: number) {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms);
-  });
 }

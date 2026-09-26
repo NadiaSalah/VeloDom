@@ -128,6 +128,11 @@ finite `ttlMs`, bounded `maxEntries`, independent cancellation and app-owned
 post-write UI refresh is explicit and separate from page-data caching. See the
 syntax guide for exact options and compatibility behavior.
 
+Retries use abortable waits and never repeat AbortError/aborted requests;
+middleware preserves cancellation and does not start another operation after
+abort. Forward the request signal to I/O. Cancellation cannot roll back an
+already accepted backend write; recover through status/idempotency and refetch.
+
 - [Quick Start](docs/QUICK_START.md) — verified setup and first edits.
 - [Syntax Reference](docs/SYNTAX_REFERENCE.md) — canonical public syntax.
 - [Feature Inventory](docs/FEATURE_INVENTORY.md) — implemented feature status.

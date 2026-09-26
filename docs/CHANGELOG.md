@@ -14,6 +14,13 @@ or claim that a matching package is available from a registry.
 
 ### Added
 
+- Unified retry cancellation across declarative requests and the optional
+  retry wrapper. Aborted contexts and AbortError never retry; middleware stops
+  before another operation, preserves cancellation, and rejects ignored-abort
+  completions. Disposed/replaced bindings suppress late completion effects
+  after async success callbacks. Added twelve regressions and removed the
+  duplicate/uncancellable waits; running backend writes are never claimed to
+  be rolled back. C05 remains open for page-data/router/refetch work.
 - Hardened the existing optional request cache with bounded LRU/in-flight
   retention, GET coalescing with independent cancellation, header/credential
   identity, explicit private-scope fencing and pending-write invalidation.

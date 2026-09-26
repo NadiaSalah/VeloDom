@@ -257,9 +257,17 @@ implementation/helpers were replaced by one focused Core module; public
 imports, custom keys, `clear()` and legacy zero-TTL semantics are preserved.
 Updated files include cache/types/constants, regression and installed-consumer
 checks, package AI/syntax/inventory guides and the blog's cache lesson.
-Page-data invalidation/cancellation and retry-wait auditing remain in C05, so
+Retry-wait/middleware cancellation is now verified too: pre-aborted requests,
+AbortError, cancelled waits and late completion notifications no longer start
+another application operation. The two wait implementations were consolidated;
+no API signatures or CLI options changed. Related files: Core request helpers,
+middleware/router/cancellation/types/constants, request regression tests and
+the handbook/package/blog cancellation guidance.
+The administration browser journey now waits for mounted bindings before
+editing/selecting, preventing premature actions on visible but unbound markup.
+Page-data invalidation/cancellation and the full refresh recipe remain in C05, so
 the commerce counter is intentionally still 4/10, not 5/10.
-Verification: 355 tests, docs/types/strict/lint, full build, six generated
+Verification: 367 tests, docs/types/strict/lint, full build, six generated
 starter combinations, installed real consumers, package content/size and
 performance gates passed. Desktop/mobile Chromium production tests passed.
 Other engines and remote CI remain separate release evidence.

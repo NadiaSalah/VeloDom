@@ -193,7 +193,7 @@ try {
   ]) {
     await access(join(installedPackageRoot, file));
   }
-  await assertInstalledRequestCache(consumerRoot);
+  await assertInstalledRequestTools(consumerRoot);
 
   const starterCases = [
     {
@@ -439,11 +439,11 @@ async function assertReferenceConsumers(temporaryRoot, installedPackageRoot) {
   }
 }
 
-async function assertInstalledRequestCache(consumerRoot) {
+async function assertInstalledRequestTools(consumerRoot) {
   const path = join(consumerRoot, "cache-smoke.mjs");
   await writeFile(path, `
 import assert from "node:assert/strict";
-import { createRequestCache } from "velodom";
+import { createRequestCache, withRequestRetry } from "velodom";
 let finish;
 let calls = 0;
 globalThis.fetch = () => {
@@ -459,6 +459,22 @@ finish(new Response('{"revision":1}'));
 assert.deepEqual(await first, { revision: 1 });
 assert.deepEqual(await second, { revision: 1 });
 assert.equal(cache.size, 0);
+let attempts = 0;
+const controller = new AbortController();
+controller.abort();
+const retry = withRequestRetry(() => { attempts++; return "unexpected"; });
+await assert.rejects(retry({}, { signal: controller.signal }), { name: "AbortError" });
+assert.equal(attempts, 0);
+const delayedController = new AbortController();
+const delayed = withRequestRetry(() => {
+  attempts++;
+  throw new Error("temporary");
+}, {
+  delayMs: 1000,
+  shouldRetry() { delayedController.abort(); return true; }
+});
+await assert.rejects(delayed({}, { signal: delayedController.signal }), { name: "AbortError" });
+assert.equal(attempts, 1);
 `);
   await run(process.execPath, [path], { cwd: consumerRoot });
 }

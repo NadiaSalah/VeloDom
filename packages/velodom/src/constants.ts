@@ -152,6 +152,8 @@ export const VD_MIDDLEWARE = Object.freeze({
 
 /** Private runtime keys and sentinel values. */
 export const VD_INTERNAL = Object.freeze({
+  ABORT_ERROR_NAME: "AbortError",
+  REQUEST_ABORT_MESSAGE: "Request aborted",
   CLEANUP_KEY: "__vdCleanup",
   REQUEST_ABORT: Symbol("VD_REQUEST_ABORT"),
   PAGE_NOT_FOUND_CODE: "VD_PAGE_NOT_FOUND"

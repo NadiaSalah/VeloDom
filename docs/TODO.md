@@ -276,8 +276,15 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   races, and saturation; installed TS consumption checks the new options.
   Its superseded implementation/helpers were removed, and package/AI/blog
   docs distinguish request caching from public-only page-data freshness.
+  **Retry/cancellation progress:** unified the existing declarative wait and
+  optional retry wrapper; cancelled contexts and AbortError never trigger a
+  new attempt. Middleware no longer proceeds into another operation after
+  cancellation or wraps aborts as ordinary failures. Late ignored-abort results
+  and completion effects after an async success callback are fenced. Twelve
+  additional regressions cover wrapper/middleware/directive cancellation and
+  listener cleanup; replaced duplicate/uncancellable wait helpers.
   **Still open:** page-data SWR/coalescing/invalidation and router loader
-  cancellation; abortable retry waiting; the complete success/refetch recipe
+  cancellation; the complete success/refetch recipe
   exercised against catalog/admin/account changes. Do not mark C05 complete
   based on the request-cache portion alone. CLI impact for these helper options
   is NONE; no generated global cache or starter policy is added.

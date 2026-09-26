@@ -13,6 +13,7 @@ import {
   VD_REQUEST
 } from "../constants.ts";
 import { isPlainObject } from "../shared/object.ts";
+import { assertRequestActive, isRequestAbortError } from "./cancellation.ts";
 import {
   getThrownString,
   hasThrownProperty
@@ -179,6 +180,7 @@ export async function executeRequestMiddleware({
     index: number,
     currentParams: StateRecord
   ): Promise<unknown> {
+    assertRequestActive(context.signal);
     if (index >= middleware.length) {
       effectiveParams = { ...currentParams };
       return routeHandler(effectiveParams, context);
@@ -260,6 +262,7 @@ export async function executeRequestMiddleware({
   }
 
   const result = await dispatch(0, effectiveParams);
+  assertRequestActive(context.signal);
 
   return {
     result,
@@ -369,7 +372,7 @@ async function callMiddleware<TResult>(
   try {
     return await callback();
   } catch (error) {
-    if (hasThrownProperty(error, "__vdStage")) {
+    if (isRequestAbortError(error) || hasThrownProperty(error, "__vdStage")) {
       throw error;
     }
 

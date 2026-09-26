@@ -10,7 +10,7 @@
  * ----------------------------------------
  */
 
-import { VD_OPTIONAL_TOOLS } from "../constants.ts";
+import { VD_INTERNAL, VD_OPTIONAL_TOOLS } from "../constants.ts";
 import { requestJson } from "./http-client.ts";
 import type { JsonRequestOptions } from "./http-client.ts";
 import type { RequestCache, RequestCacheOptions, UnknownRecord } from "../types.ts";
@@ -189,5 +189,5 @@ function joinRead(read: PendingRead, signal: AbortSignal | null | undefined, det
 
 /** Matches the standard cancellation name used by the existing HTTP client. */
 function createAbortError() {
-  return new DOMException("Request aborted", "AbortError");
+  return new DOMException(VD_INTERNAL.REQUEST_ABORT_MESSAGE, VD_INTERNAL.ABORT_ERROR_NAME);
 }

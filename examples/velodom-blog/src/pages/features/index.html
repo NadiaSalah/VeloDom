@@ -393,6 +393,7 @@ export const getOne = withRequestRetry(
         </div>
       </div>
       <p class="mt-3">The optional request cache coalesces concurrent GET reads with independent cancellation, uses bounded LRU retention (100 entries by default), and fences older cache writes after <code>clear()</code>. Clear only after a confirmed successful mutation, then explicitly reload the UI. A failed write preserves the last good read.</p>
+      <p class="mt-3">Both retry forms use abortable waiting and never repeat <code>AbortError</code> or a cancelled request. Middleware stops before the next operation after cancellation. Forward <code>context.signal</code> to I/O; custom work that ignores it cannot be forcibly stopped. A binding disposed/replaced during an async success callback no longer sends late completion notifications. Aborting does not undo state already applied or a write accepted by the backend: use status and idempotency to recover.</p>
       <div class="callout"><strong>Privacy and freshness:</strong> headers and credentials affect request identity, but HttpOnly cookie changes and HTTP cache headers are not inferred. Session/no-store endpoints stay uncached. For explicitly permitted private read caching, an app-owned scope must include tenant/user/session identity and be cleared on auth changes. Page-data caching is separate and public-only here. Legacy <code>ttlMs: 0</code> means until clear/eviction; prefer a finite TTL. Never blindly retry checkout/create actions.</div>
     </section>
 
