@@ -52,6 +52,11 @@ The page-data lesson now covers 100-value LRU/100-read limits, matching-load
 coalescing, next-visit SWR and safe failure/expiry behavior. Request-cache and
 page-data freshness remain separate, with no public page refetch API yet.
 
+`/features#quality` now forwards optional client loader `signal` and explains
+navigation ownership across async resources/hooks/fallbacks, independent cached
+read cancellation, cache-owned SWR and app destruction. The store's existing
+loaders already forward that signal. Ignored-abort app writes are not rolled back.
+
 The same lesson explains abortable retry waiting, signal forwarding and
 middleware cancellation. Late completion notifications are suppressed after a
 binding is disposed/replaced; an accepted backend write is never rolled back

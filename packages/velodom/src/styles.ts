@@ -10,6 +10,7 @@
 
 import { VD } from "./constants.ts";
 import { reportUserActionError } from "./errors/error-reporter.ts";
+import { assertRequestActive, awaitWithAbort } from "./shared/cancellation.ts";
 
 let scopeIndex = 0;
 
@@ -17,8 +18,10 @@ let scopeIndex = 0;
 export async function applyScopedFolderStyles(
   root: Element,
   styleModules: Record<string, () => string | Promise<string>>,
-  folderPrefix: string
+  folderPrefix: string,
+  signal?: AbortSignal
 ): Promise<void> {
+  assertRequestActive(signal);
   const entries = Object.entries(styleModules)
     .filter(([filePath]) => filePath.startsWith(folderPrefix))
     .sort(([a], [b]) => a.localeCompare(b));
@@ -28,14 +31,13 @@ export async function applyScopedFolderStyles(
   const scopeId = `vd-scope-${++scopeIndex}`;
   const scopeSelector = `[${VD.SCOPE}="${scopeId}"]`;
 
-  root.setAttribute(VD.SCOPE, scopeId);
-
   let cssChunks: string[];
   try {
-    cssChunks = await Promise.all(
+    cssChunks = await awaitWithAbort(Promise.all(
       entries.map(([, load]) => load())
-    );
+    ), signal);
   } catch (err) {
+    if (signal?.aborted) throw err;
     reportUserActionError(err, {
       title: "Style Load Error",
       file: "velodom/styles.ts",
@@ -46,6 +48,8 @@ export async function applyScopedFolderStyles(
     return;
   }
 
+  assertRequestActive(signal);
+  root.setAttribute(VD.SCOPE, scopeId);
   const style = document.createElement("style");
   style.textContent = cssChunks
     .map((css, index) => scopeCss(

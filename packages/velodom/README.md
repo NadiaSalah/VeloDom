@@ -134,6 +134,14 @@ refresh does not renew freshness; expired/cold errors propagate normally.
 App destruction clears it. There is no public page-cache invalidation API yet;
 keep private and immediately write-sensitive page loaders uncached.
 
+Client page loaders receive optional `signal` (build/server may omit it).
+Forward it to I/O, and use `ctx.signal` in async page/component hooks. Core
+fences cancelled navigation results across data/resources/styles/hooks/fallbacks.
+Cached subscribers cancel independently; SWR survives departure but tracked
+reads abort on app destruction. No setup option or controller is required.
+Cancellation cannot undo direct application state/DOM writes or accepted backend
+writes; check the signal before direct writes after an await.
+
 Retries use abortable waits and never repeat AbortError/aborted requests;
 middleware preserves cancellation and does not start another operation after
 abort. Forward the request signal to I/O. Cancellation cannot roll back an

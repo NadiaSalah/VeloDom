@@ -14,6 +14,7 @@ import { VD_INTERNAL, VD_OPTIONAL_TOOLS } from "../constants.ts";
 import { requestJson } from "./http-client.ts";
 import type { JsonRequestOptions } from "./http-client.ts";
 import type { RequestCache, RequestCacheOptions, UnknownRecord } from "../types.ts";
+import { joinSharedRead, type SharedAsyncRead } from "../shared/cancellation.ts";
 
 interface CacheEntry {
   baseKey: string;
@@ -21,11 +22,8 @@ interface CacheEntry {
   value: unknown;
 }
 
-interface PendingRead {
+interface PendingRead extends SharedAsyncRead {
   baseKey: string;
-  controller: AbortController;
-  consumers: number;
-  promise: Promise<unknown>;
 }
 
 /**
@@ -129,9 +127,9 @@ export function createRequestCache(options: RequestCacheOptions = {}): RequestCa
           });
         read = task;
       }
-      return joinRead(read, signal, () => {
+      return joinSharedRead(read, signal, () => {
         if (pending.get(key) === read) pending.delete(key);
-      });
+      }, createAbortError);
     },
     clear(baseKey?: string) {
       if (baseKey === undefined) {
@@ -151,39 +149,6 @@ export function createRequestCache(options: RequestCacheOptions = {}): RequestCa
       prune();
       return entries.size;
     }
-  });
-}
-
-/** Release each subscriber once; only the final cancellation aborts transport. */
-function joinRead(read: PendingRead, signal: AbortSignal | null | undefined, detach: () => void) {
-  read.consumers++;
-  return new Promise<unknown>((resolve, reject) => {
-    let settled = false;
-    const release = () => {
-      if (settled) return false;
-      settled = true;
-      read.consumers--;
-      signal?.removeEventListener("abort", onAbort);
-      return true;
-    };
-    const onAbort = () => {
-      if (!release()) return;
-      if (read.consumers === 0) {
-        detach();
-        read.controller.abort();
-      }
-      reject(createAbortError());
-    };
-
-    signal?.addEventListener("abort", onAbort, { once: true });
-    if (signal?.aborted) onAbort();
-    // Attach both handlers even after cancellation so rejected transport work
-    // is observed and cannot produce an abandoned unhandled rejection.
-    read.promise.then(value => {
-      if (release()) resolve(value);
-    }, error => {
-      if (release()) reject(error);
-    });
   });
 }
 

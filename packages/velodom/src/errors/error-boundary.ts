@@ -21,6 +21,7 @@ import type {
   ErrorBoundaryFallback,
   ErrorBoundaryHook
 } from "../types.ts";
+import { awaitWithAbort } from "../shared/cancellation.ts";
 
 /** Options required to run one recoverable error boundary attempt. */
 export interface RecoverableErrorBoundaryOptions {
@@ -39,6 +40,8 @@ export interface RecoverableErrorBoundaryOptions {
   group?: ErrorReportOptions["group"];
   retry?: () => unknown | Promise<unknown>;
   navigate?: (path: string) => unknown | Promise<unknown>;
+  /** Private owner signal prevents a departed scope's fallback from rendering. */
+  signal?: AbortSignal;
 }
 
 /**
@@ -49,6 +52,7 @@ export async function renderRecoverableErrorBoundary(
   error: unknown,
   options: RecoverableErrorBoundaryOptions
 ) {
+  if (options.signal?.aborted) return false;
   const reported = reportUserActionError(error, {
     code: options.code,
     title: options.title,
@@ -79,7 +83,8 @@ export async function renderRecoverableErrorBoundary(
   };
 
   try {
-    const fallback = await options.hook(context);
+    const fallback = await awaitWithAbort(options.hook(context), options.signal);
+    if (options.signal?.aborted) return false;
 
     if (fallback === false) {
       return false;
@@ -88,6 +93,7 @@ export async function renderRecoverableErrorBoundary(
     renderFallback(options.target, fallback);
     return true;
   } catch (boundaryError) {
+    if (options.signal?.aborted) return false;
     reportUserActionError(boundaryError, {
       code: VD_ERROR.CODES.BOUNDARY_CRASH,
       group: "runtime",

@@ -14,6 +14,16 @@ or claim that a matching package is available from a registry.
 
 ### Added
 
+- Fixed stale navigation commits across resource/layout/data/style/module/hook
+  and fallback awaits. Client PageDataContext now offers optional signal;
+  cached read cancellation is subscriber-aware, SWR stays cache-owned, and app
+  destroy aborts tracked background work. Mounted components clean captured
+  owners instead of a reused page root; directive/loop cleanup awaits async
+  ownership release. Added 23 regressions plus installed runtime/TS checks and
+  aligned package/AI/blog guidance. Consolidated cancellation coordination;
+  preserved hash/guard behavior, destroy-before-onCleanup, public exports,
+  CLI choices and version. Explicit page invalidation/refetch remains C05 work.
+
 - Unified retry cancellation across declarative requests and the optional
   retry wrapper. Aborted contexts and AbortError never retry; middleware stops
   before another operation, preserves cancellation, and rejects ignored-abort

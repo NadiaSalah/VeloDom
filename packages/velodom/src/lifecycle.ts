@@ -12,16 +12,21 @@ import type {
   LifecycleContext,
   MaybePromise
 } from "./types.ts";
+import { reportUserActionError } from "./errors/error-reporter.ts";
 
 /** Creates an abortable lifecycle context around an application context. */
 export function createLifecycleScope<
   TContext extends object = Record<string, never>
 >(
-  baseContext: TContext = {} as TContext
+  baseContext: TContext = {} as TContext,
+  parentSignal?: AbortSignal
 ) {
   const controller = new AbortController();
   const callbacks: Array<() => MaybePromise<void>> = [];
   let disposed = false;
+  const abort = () => controller.abort();
+  parentSignal?.addEventListener("abort", abort, { once: true });
+  if (parentSignal?.aborted) abort();
 
   const context: TContext & LifecycleContext = {
     ...baseContext,
@@ -32,7 +37,13 @@ export function createLifecycleScope<
       }
 
       if (disposed) {
-        callback();
+        // A hook may ignore abort and register after disposal. Release immediately
+        // and observe asynchronous failure because no dispose caller owns it now.
+        void Promise.resolve(callback()).catch(error => reportUserActionError(error, {
+          title: "Late Lifecycle Cleanup Failed",
+          file: "velodom/lifecycle.ts",
+          hint: "Check ctx.signal before continuing an async hook after navigation."
+        }));
         return () => {};
       }
 
@@ -50,6 +61,7 @@ export function createLifecycleScope<
 
   return {
     context,
+    abort,
     get disposed() {
       return disposed;
     },
@@ -58,6 +70,7 @@ export function createLifecycleScope<
 
       disposed = true;
       controller.abort();
+      parentSignal?.removeEventListener("abort", abort);
 
       const errors = [];
 

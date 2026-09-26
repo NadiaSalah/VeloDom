@@ -107,6 +107,14 @@ unhandled rejection. Expired/cold errors propagate normally. There is not yet a
 public page-cache invalidation/refetch API. Keep immediately write-sensitive
 and private loaders uncached; do not generate private `page-data` imports.
 
+Forward optional `data.load({ signal })` to I/O; build/server contexts can omit
+it. Shared cached reads use a transport signal, not one subscriber's signal.
+SWR belongs to the cache and survives departure; tracked reads abort on destroy.
+Use `ctx.signal` in async hooks and check it before direct application writes
+after awaits. Core fences stale navigation results across resources, styles,
+data, init, mounted and fallback work; it cannot undo writes from app code
+ignoring abort. Preserve destroy-before-onCleanup and normal hash/guard behavior.
+
 Retry only safe operations. `withRequestRetry` and declarative retries exclude
 AbortError/aborted contexts, stop waiting on abort and clean up listeners/timers.
 Pass the existing context signal into the transport; do not add another

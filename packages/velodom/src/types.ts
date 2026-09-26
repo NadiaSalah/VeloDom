@@ -232,6 +232,8 @@ export interface PageDataContext {
   query: Record<string, string | string[]>;
   meta: UnknownRecord;
   mode: "build" | "client" | "server";
+  /** Client read cancellation; optional in build/server contexts. Forward to I/O. */
+  signal?: AbortSignal;
 }
 
 /** Application-owned loader exported from a conventional page data module. */

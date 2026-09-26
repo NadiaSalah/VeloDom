@@ -13,7 +13,7 @@ import {
   VD_REQUEST
 } from "../constants.ts";
 import { isPlainObject } from "../shared/object.ts";
-import { assertRequestActive, isRequestAbortError } from "./cancellation.ts";
+import { assertRequestActive, isRequestAbortError } from "../shared/cancellation.ts";
 import {
   getThrownString,
   hasThrownProperty

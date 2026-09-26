@@ -36,6 +36,7 @@ import type { PageEventHub } from "./events.ts";
 import { evaluateExpression } from "./expression/index.ts";
 import { isPlainObject } from "./shared/object.ts";
 import { normalizeFolderPath } from "./shared/path.ts";
+import { assertRequestActive, awaitWithAbort } from "./shared/cancellation.ts";
 import {
   DEVTOOLS_CONTEXT
 } from "./devtools/hook.ts";
@@ -68,6 +69,7 @@ type ComponentElement = HTMLElement & {
 };
 
 interface ComponentPageContext {
+  signal?: AbortSignal;
   [DEVTOOLS_CONTEXT]?: DevtoolsRuntimeSession | null;
   page?: string;
   route?: RouteLocation | null;
@@ -131,16 +133,21 @@ export async function mount(
   resources: Partial<ValidatedResourceGroup> = {},
   errorBoundary: ErrorBoundaryHook | null = null
 ): Promise<ComponentCleanup> {
-
+  assertRequestActive(pageCtx?.signal);
   normalizeTemplateSyntax(root);
 
   const components = findComponents(root);
+  const ownedCleanups = new Set<ComponentCleanup>();
 
   await Promise.all(
 
     [...components].map(async (el) => {
 
-      if (loaded.has(el)) return;
+      if (loaded.has(el)) {
+        const existing = el[VD_INTERNAL.CLEANUP_KEY];
+        if (existing && (el !== root || ancestry.length === 0)) ownedCleanups.add(existing);
+        return;
+      }
 
       loaded.add(el);
 
@@ -180,6 +187,8 @@ export async function mount(
       let lifecycle: ComponentLifecycle | null = null;
       let hookArgs: ModuleHookArguments | null = null;
       let devtoolsCleanup: (() => void) | null = null;
+      let directivesCleanup: (() => unknown) | null = null;
+      let childrenCleanup: ComponentCleanup | null = null;
 
       try {
 
@@ -191,17 +200,19 @@ export async function mount(
 
         const slots = collectSlots(el);
         const loadManifest = resources.manifests?.[folder];
-        const [html, manifest] = await Promise.all([
+        const [html, manifest] = await awaitWithAbort(Promise.all([
           loadHtml(),
           loadManifest?.() ?? null
-        ]);
+        ]), pageCtx?.signal);
+        assertRequestActive(pageCtx?.signal);
 
         el.innerHTML = html;
         applySlots(el, slots);
         await applyScopedFolderStyles(
           el,
           resources.styles || {},
-          `${folder}/`
+          `${folder}/`,
+          pageCtx?.signal
         );
 
         const refs = getRefs(el);
@@ -221,7 +232,8 @@ export async function mount(
         }) || null;
         const loadModule = resources.modules?.[folder];
         lifecycle = createLifecycleScope(
-          createComponentContext(el, pageCtx, state)
+          createComponentContext(el, pageCtx, state),
+          pageCtx?.signal
         );
         hookArgs = {
           el,
@@ -230,17 +242,39 @@ export async function mount(
           state,
           ctx: lifecycle.context
         };
+        const signal = lifecycle.context.signal;
+        const childContext = { ...pageCtx, signal };
+        cleanup = once(async () => {
+          lifecycle?.abort();
+          // One failed/hanging user release must not skip sibling resources.
+          await disposeCallbacks([
+            () => unregisterInstance?.(),
+            () => directivesCleanup?.(),
+            () => { devtoolsCleanup?.(); devtoolsCleanup = null; },
+            () => childrenCleanup?.(),
+            async () => {
+              try { if (hookArgs) await runModuleHook(componentModule?.destroy, hookArgs); }
+              finally {
+                try { await lifecycle?.dispose(); } finally { state?._dispose?.(); }
+              }
+            }
+          ]);
+        });
+        el[VD_INTERNAL.CLEANUP_KEY] = cleanup;
+        ownedCleanups.add(cleanup);
 
         let moduleResult: unknown = null;
 
         if (loadModule) {
 
-          componentModule = await loadModule();
+          componentModule = await awaitWithAbort(loadModule(), signal);
+          assertRequestActive(signal);
           mergeModuleStateSeed(state, componentModule, "component");
-          moduleResult = await runModuleInit(
+          moduleResult = await awaitWithAbort(runModuleInit(
             componentModule.init || componentModule.default,
             hookArgs
-          );
+          ), signal);
+          assertRequestActive(signal);
 
           mergeState(state, moduleResult);
           mergeExposedMembers(state, getModuleExpose(moduleResult));
@@ -253,7 +287,8 @@ export async function mount(
           getModuleExpose(moduleResult)
         );
 
-        const directivesCleanup = await applyDirectives(el, state, {
+        directivesCleanup = await applyDirectives(el, state, {
+          signal,
           el,
           props,
           page: pageCtx?.page || "",
@@ -265,56 +300,51 @@ export async function mount(
             root,
             scopedState,
             [...ancestry, folder],
-            pageCtx,
+            childContext,
             resources,
             errorBoundary
           )
         });
 
-        const childrenCleanup = shouldMountChildren(manifest)
+        childrenCleanup = shouldMountChildren(manifest)
           ? await mount(
             el,
             state,
             [...ancestry, folder],
-            pageCtx,
+            childContext,
             resources,
             errorBoundary
           )
           : null;
 
-        cleanup = once(async () => {
-          await childrenCleanup?.();
-          unregisterInstance?.();
-          directivesCleanup?.();
-          devtoolsCleanup?.();
-          devtoolsCleanup = null;
-          if (hookArgs) {
-            await runModuleHook(componentModule?.destroy, hookArgs);
-          }
-          await lifecycle?.dispose();
-          state?._dispose?.();
-        });
-
-        el[VD_INTERNAL.CLEANUP_KEY] = cleanup;
-
-        await runModuleHook(componentModule?.mounted, hookArgs);
+        await awaitWithAbort(runModuleHook(componentModule?.mounted, hookArgs), signal);
+        assertRequestActive(signal);
 
         if (shouldUnwrapComponent(el)) {
           unwrapComponent(el);
         }
 
       } catch (err) {
-        await cleanup?.();
-        unregisterInstance?.();
-        devtoolsCleanup?.();
-        devtoolsCleanup = null;
-        await lifecycle?.dispose();
-        state?._dispose?.();
+        let failure = err;
+        try {
+          if (cleanup) await awaitWithAbort(cleanup(), pageCtx?.signal);
+          else {
+            unregisterInstance?.();
+            devtoolsCleanup?.();
+            devtoolsCleanup = null;
+            try { await lifecycle?.dispose(); } finally { state?._dispose?.(); }
+          }
+        } catch (cleanupError) {
+          if (!pageCtx?.signal?.aborted) {
+            failure = new AggregateError([err, cleanupError], "Component setup and cleanup failed");
+          }
+        }
         loaded.delete(el);
         delete el[VD_INTERNAL.CLEANUP_KEY];
+        if (pageCtx?.signal?.aborted) return;
 
         const recovered = typeof errorBoundary === "function"
-          ? await renderRecoverableErrorBoundary(err, {
+          ? await renderRecoverableErrorBoundary(failure, {
             code: VD_ERROR.CODES.COMPONENT_CRASH,
             group: "component",
             title: `Component Crash: ${name || "Unknown"}`,
@@ -331,6 +361,7 @@ export async function mount(
             ],
             hint: "Verify the component folder, script.js/script.ts exports, and template expressions.",
             retry: () => {
+              if (pageCtx?.signal?.aborted) return undefined;
               resetComponentHost(el, originalChildren);
               loaded.delete(el);
 
@@ -342,12 +373,14 @@ export async function mount(
                 resources,
                 errorBoundary
               );
-            }
+            },
+            signal: pageCtx?.signal
           })
           : false;
 
         if (!recovered) {
-          reportUserActionError(err, {
+          if (pageCtx?.signal?.aborted) return;
+          reportUserActionError(failure, {
             code: VD_ERROR.CODES.COMPONENT_CRASH,
             group: "component",
             title: `Component Crash: ${name || "Unknown"}`,
@@ -367,9 +400,8 @@ export async function mount(
 
   );
 
-  return () => {
-    return disposeTree(root);
-  };
+  // Capture this mount's owners, not a reused #app subtree from a later route.
+  return () => disposeCallbacks(ownedCleanups);
 }
 
 /** Evaluates the `shouldMountChildren()` condition for the supplied input. */
@@ -734,20 +766,30 @@ export async function disposeTree(root: ComponentRoot | null): Promise<void> {
       }
     });
 
-  for (const callback of callbacks) {
-    await callback();
-  }
+  await disposeCallbacks(callbacks);
+}
+
+/** Attempts every captured owner even if one application's cleanup fails. */
+async function disposeCallbacks(callbacks: Iterable<ComponentCleanup>): Promise<void> {
+  const errors: unknown[] = [];
+  await Promise.all([...callbacks].map(async callback => {
+    try { await callback(); } catch (error) { errors.push(error); }
+  }));
+  if (errors.length === 1) throw errors[0];
+  if (errors.length > 1) throw new AggregateError(errors, "Multiple VeloDom component cleanups failed");
 }
 
 /** Performs the internal `once()` operation. */
 function once<TResult>(fn: () => TResult): () => TResult | undefined {
   let called = false;
+  let result: TResult | undefined;
 
   return () => {
-    if (called) return undefined;
+    if (called) return result;
 
     called = true;
-    return fn();
+    result = fn();
+    return result;
   };
 }
 

@@ -18,7 +18,7 @@ import { reportUserActionError } from "../errors/error-reporter.ts";
 import { isPlainObject } from "../shared/object.ts";
 import {
   assertRequestActive, isRequestAbortError, waitForRetryDelay
-} from "./cancellation.ts";
+} from "../shared/cancellation.ts";
 import {
   getThrownString
 } from "../shared/thrown.ts";

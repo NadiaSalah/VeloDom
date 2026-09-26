@@ -1251,6 +1251,17 @@ Page hook arguments:
 - `ctx.signal`: lifecycle `AbortSignal`
 - `ctx.onCleanup(callback)`: reverse-order cleanup registration
 
+Forward `ctx.signal` to async I/O in page and component hooks. A newer accepted
+navigation cancels the pending replacement; a rejected newer guard does not.
+Core stops awaiting cancelled imports, data, styles, hooks and error fallbacks,
+observes late rejections, and prevents their late results from committing to a
+newer page. Same-page hash navigation keeps the visible page's lifecycle alive.
+Component cleanup captures its own instances rather than querying the reused
+`#app` after an await. `destroy()` still runs before `ctx.onCleanup()`.
+Application code that ignores its signal can still mutate state, DOM or a backend;
+Core does not undo these effects. Check `ctx.signal.aborted` before direct writes
+after an awaited operation. A hanging user cleanup cannot be forcibly completed.
+
 Page state is preserved when navigating away and returning during the same app
 runtime. Mounted component state is recreated.
 
@@ -1261,8 +1272,9 @@ part of the page rather than an event-driven request:
 
 ```js
 // src/pages/blog/[slug]/data.js
-export async function load({ params, query, mode }) {
-  const response = await fetch(`/api/articles/${params.slug}`);
+export async function load({ params, query, mode, signal }) {
+  const response = await fetch(`/api/articles/${params.slug}`, { signal });
+  if (!response.ok) throw new Error("Article read failed");
 
   return {
     article: await response.json(),
@@ -1292,6 +1304,16 @@ pending load; uncached pages still load independently. Each app retains at
 most 100 LRU values and tracks at most 100 pending reads. Expired values are
 pruned, and excess distinct reads run uncached rather than being discarded.
 Destroying the app clears stored/pending cache identities.
+
+Client `load()` receives an optional `signal`; forward it to `fetch` or the
+existing request helper as shown above. Build/server contexts may omit it.
+An uncached read receives its navigation signal. A cached read uses a shared
+transport signal: cancelling one subscriber does not cancel another, and the
+last cancellation aborts/fences the pending read. SWR background reads are owned
+by the cache, survive a page departure, and tracked reads are aborted on app
+destruction. Cancelling navigation never commits a late loader result, even if
+the application transport ignores abort. No cache, controller or prompt needs
+to be configured for normal client navigation.
 
 A failed background refresh keeps the previous value only within its original
 stale window; it does not reset that value's age or produce an unhandled promise

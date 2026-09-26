@@ -92,6 +92,17 @@ errors propagate normally. Destroy clears cache identities. No public page
 invalidation/refetch API exists yet; keep private or immediately write-sensitive
 loaders uncached. Request-cache clearing does not clear page data.
 
+Client `data.load()` receives optional `signal`; build/server contexts may omit
+it. Forward it to I/O. Cached subscribers cancel independently; the final abort
+cancels/fences shared work. SWR is cache-owned, survives page departure, and
+tracked reads abort on app destruction. Do not add a controller/cache by default.
+Core prevents late resource/data/style/hook/fallback results from committing
+after replacement. Page/component `ctx.signal` follows its owner; use it in
+async hooks and check it before direct writes after awaits. A rejected new guard
+does not cancel an accepted load; same-page hash keeps the visible scope alive.
+Destroy precedes onCleanup; application code ignoring abort can still write to
+DOM/state/backend and a non-settling cleanup cannot be forcibly completed.
+
 Retries never repeat AbortError or aborted contexts. Both declarative retry and
 `withRequestRetry` use abortable waits with cleanup. Middleware stops before
 another operation after cancellation; forward context.signal to real I/O.

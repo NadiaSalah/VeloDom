@@ -13,6 +13,9 @@
  */
 
 import { VD_PAGE_DATA } from "./constants.ts";
+import {
+  assertRequestActive, awaitWithAbort, joinSharedRead, type SharedAsyncRead
+} from "./shared/cancellation.ts";
 import type {
   PageDataContext,
   PageDataCachePolicy,
@@ -33,9 +36,8 @@ interface CachedPageData {
   retainedUntil: number;
 }
 
-interface PendingPageData {
+interface PendingPageData extends SharedAsyncRead {
   page: string;
-  promise: Promise<unknown>;
 }
 
 /** Holds the private cache used by one browser router instance. */
@@ -43,6 +45,8 @@ export interface PageDataCache {
   load(module: PageDataModule, context: Omit<PageDataContext, "mode">): Promise<unknown>;
   /** Invalidates stored and pending variants without cancelling original callers. */
   clear(page?: string): void;
+  /** Releases tracked background reads on application destruction. */
+  dispose(): void;
 }
 
 /** Resolves the preferred `load` export or default export from a page data module. */
@@ -82,23 +86,24 @@ export function createPageDataCache(
     module: PageDataModule,
     context: Omit<PageDataContext, "mode">,
     policy: Required<PageDataCachePolicy>
-  ): Promise<unknown> {
+  ): PendingPageData {
     const current = pending.get(key);
-    if (current) return current.promise;
+    if (current) return current;
 
     // Saturation must not discard a legitimate navigation or retain more work.
-    if (pending.size >= VD_PAGE_DATA.CACHE_MAX_ENTRIES) {
-      return runPageDataLoader(module, context);
-    }
+    const tracked = pending.size < VD_PAGE_DATA.CACHE_MAX_ENTRIES;
     const task: PendingPageData = {
       page: context.page,
+      controller: new AbortController(), consumers: 0,
       promise: Promise.resolve(undefined)
     };
-    pending.set(key, task);
+    if (tracked) pending.set(key, task);
     // Register coordination before app code runs, including synchronous loaders.
-    task.promise = Promise.resolve().then(() => runPageDataLoader(module, context))
+    task.promise = Promise.resolve().then(() => runPageDataLoader(module, {
+      ...context, signal: task.controller.signal
+    }))
       .then(data => {
-        if (pending.get(key) === task) {
+        if (pending.get(key) === task && !task.controller.signal.aborted) {
           prune();
           const loadedAt = now();
           entries.delete(key);
@@ -116,11 +121,19 @@ export function createPageDataCache(
       }).finally(() => {
         if (pending.get(key) === task) pending.delete(key);
       });
-    return task.promise;
+    return task;
+  }
+
+  /** Joins the same generic cancellation coordination used by GET caching. */
+  function join(task: PendingPageData, key: string, signal?: AbortSignal) {
+    return joinSharedRead(task, signal, () => {
+      if (pending.get(key) === task) pending.delete(key);
+    });
   }
 
   return {
     async load(module, context) {
+      assertRequestActive(context.signal);
       const policy = resolveCachePolicy(module, context.page);
 
       if (!policy) {
@@ -147,11 +160,17 @@ export function createPageDataCache(
         // Keep navigation immediate; the refreshed value is used on the next visit.
         // Background failure leaves the prior age intact. Once the stale window
         // expires, navigation awaits a read and surfaces its failure normally.
-        void refresh(key, module, context, policy).catch(() => undefined);
+        // Background SWR is owned by the cache, not the departed page's signal.
+        void join(refresh(key, module, context, policy), key).catch(() => undefined);
         return entry.data;
       }
 
-      return refresh(key, module, context, policy);
+      return join(refresh(key, module, context, policy), key, context.signal);
+    },
+    dispose() {
+      for (const task of pending.values()) task.controller.abort();
+      pending.clear();
+      entries.clear();
     },
     clear(page) {
       if (page === undefined) {
@@ -177,7 +196,9 @@ export async function loadClientPageData(
 ): Promise<unknown> {
   if (!loader) return undefined;
 
-  const module = await loader() as PageDataModule;
+  assertRequestActive(context.signal);
+  const module = await awaitWithAbort(loader(), context.signal) as PageDataModule;
+  assertRequestActive(context.signal);
 
   return cache
     ? cache.load(module, context)
@@ -273,10 +294,11 @@ async function runPageDataLoader(
 ) {
   const load = resolvePageDataLoader(module, context.page);
 
-  return load({
+  assertRequestActive(context.signal);
+  return awaitWithAbort(load({
     ...context,
     mode: VD_PAGE_DATA.MODES.CLIENT
-  });
+  }), context.signal);
 }
 
 /** Resolves the cache policy. */

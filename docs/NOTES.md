@@ -2,6 +2,47 @@
 
 ## Architectural Decisions
 
+### Navigation ownership and loader cancellation — 2026-09-26
+
+- Six initial regressions reproduced late template/CSS/data/init commits,
+  cancellation after destroy and a blocked guard incorrectly affecting an
+  accepted load. Each accepted replacement now owns its preparation/mount
+  signal, separate from guard competition and the retained visible lifecycle.
+  Preparation does not replace the visible page until its resources/data/module
+  are ready. Hash-only navigation preserves the visible owner and cancels a
+  pending replacement. Failed preparation cleans the old owner before fallback
+  and aligns browser history; a departed async fallback cannot overwrite new UI.
+- Async component cleanup captures the instances that load created, never a
+  later query of the reused #app. Directives await asynchronous nested cleanup;
+  loops register cleanup before mounting and do not report expected cancelled
+  updates. Release attempts are isolated; destroy-before-onCleanup remains
+  tested. Late cleanup registration observes async failure. User code ignoring
+  abort may still write directly, and a non-settling user cleanup cannot be forced.
+- One internal shared cancellation utility now coordinates request/page reads,
+  observes late work and releases listener/subscriber ownership. The old request
+  utility path and duplicate request-cache join helper were removed. Cached page
+  subscribers have independent aborts; final cancellation aborts/fences transport.
+  SWR belongs to the cache, not a departed page; app destroy aborts tracked work.
+- Public type addition: optional PageDataContext.signal on client loads; build/
+  server may omit it. No new exports, syntax, package dependency or version.
+  CLI classification DEFAULT_INCLUDED, no prompt or generated controller/cache.
+  Existing templates have no page-data fetch recipe to migrate; the store's
+  loaders already forward signal. Package and handbook snippets/AI docs plus
+  the blog quality lesson now explain the same ownership and limitations.
+- Twenty-three regressions were added, existing cleanup-order tests retained,
+  and the installed package smoke checks stale navigation plus optional signal
+  typing. All 403 source tests, docs/types/strict/lint, full build, six starter
+  combinations and both installed real consumers pass. Desktop/mobile Chromium
+  production flows also pass, including delayed catalog → cart cancellation.
+  Other engines and remote CI remain separate release evidence. Both package
+  content/size gates pass: VeloDom 332 files / 682.6 KiB packed / 2897.8 KiB
+  installed; create wrapper 4 files / 1.7 KiB packed. Bundle budgets pass at
+  124.7 KiB initial / 247.0 KiB total teaching-site JS and 363.0 KiB package
+  runtime source; no speed improvement claim. No push/publish/version change.
+- C05 remains open for explicit public invalidation/refetch and the real
+  mutation-success recipe. The 4/10 commerce counter is unchanged; its stale
+  section-local 3/10 display was corrected to match already completed C04.
+
 ### Bounded public page-data freshness — 2026-09-26
 
 - Seven failing regressions exposed duplicate cold/SWR loads, an unhandled

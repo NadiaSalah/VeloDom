@@ -20,6 +20,8 @@ import type {
   DirectiveRuntimeOptions,
   DirectiveState
 } from "./directives/runtime.ts";
+import { assertRequestActive, awaitWithAbort } from "./shared/cancellation.ts";
+import { reportUserActionError } from "./errors/error-reporter.ts";
 
 const featureCache = new Map<string, DirectiveFeature>();
 
@@ -35,10 +37,12 @@ export async function applyDirectives(
   state: DirectiveState,
   options: DirectiveRuntimeOptions = {}
 ): Promise<DirectiveCleanup> {
+  assertRequestActive(options.signal);
   const featureNames = selectDirectiveFeatures(options.features);
-  const features = await Promise.all(
+  const features = await awaitWithAbort(Promise.all(
     featureNames.map(loadDirectiveFeature)
-  );
+  ), options.signal);
+  assertRequestActive(options.signal);
 
   return applyLoadedDirectives(
     root,
@@ -55,7 +59,37 @@ function applyLoadedDirectives(
   options: DirectiveRuntimeOptions,
   features: DirectiveFeature[]
 ): DirectiveCleanup | Promise<DirectiveCleanup> {
+  assertRequestActive(options.signal);
   const cleanups: DirectiveCleanup[] = [];
+  let disposed = false;
+  let disposal: Promise<void> | undefined;
+  const cleanup = () => {
+    if (disposed) return disposal;
+    disposed = true;
+    options.signal?.removeEventListener("abort", onAbort);
+    const pending: Promise<unknown>[] = [];
+    const errors: unknown[] = [];
+    for (const callback of cleanups.splice(0)) {
+      try {
+        const result = callback();
+        if (isPromiseLike(result)) pending.push(result);
+      } catch (error) { errors.push(error); }
+    }
+    if (pending.length === 0 && errors.length === 0) return undefined;
+    disposal = Promise.allSettled(pending).then((results): void => {
+      for (const result of results) {
+        if (result.status === "rejected") errors.push(result.reason);
+      }
+      if (errors.length === 1) throw errors[0];
+      if (errors.length > 1) throw new AggregateError(errors, "Multiple VeloDom directive cleanups failed");
+    });
+    return disposal;
+  };
+  const onAbort = () => {
+    // Native abort dispatch cannot await; keep cleanup rejections observed.
+    void cleanup()?.catch(reportDirectiveCleanupError);
+  };
+  options.signal?.addEventListener("abort", onAbort, { once: true });
   const context: DirectiveRuntimeContext = {
     props: options.props ?? {},
     root: options.el ?? root,
@@ -89,13 +123,24 @@ function applyLoadedDirectives(
     }))
     .filter(isPromiseLike);
 
-  const cleanup = () => {
-    cleanups.forEach(cleanup => cleanup());
-  };
-
   return pending.length > 0
-    ? Promise.all(pending).then(() => cleanup)
+    ? awaitWithAbort(Promise.all(pending), options.signal).then(() => {
+      assertRequestActive(options.signal);
+      return cleanup;
+    }, async error => {
+      await cleanup();
+      throw error;
+    })
     : cleanup;
+}
+
+/** Reports cleanup failures without converting cancellation to a fatal render. */
+function reportDirectiveCleanupError(error: unknown): void {
+  reportUserActionError(error, {
+    title: "Directive Cleanup Failed",
+    file: "velodom/directives.ts",
+    hint: "Check component destroy and lifecycle cleanup callbacks."
+  });
 }
 
 /** Returns whether a directive feature scheduled asynchronous setup work. */

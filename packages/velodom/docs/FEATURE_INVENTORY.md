@@ -37,7 +37,7 @@ before use.
 | Scroll/focus restoration | Routing | Stable | automatic | `data-vd-focus` | router | Yes |
 | Route prefetch | Routing | Supported | `vd-prefetch` | none | router | Yes |
 | Global/page guards | Routing | Stable | `beforeEach`, `beforeEnter` | async arrays | public guard types | Yes |
-| Page data loader | Data | Stable | page `data.js|ts` | direct app request | public loader types | Yes |
+| Page data loader | Data | Stable | page `data.js|ts`, optional client `signal`; cancelled navigation results fenced | build/server may omit signal | public loader types | Yes |
 | Page data cache policy | Data | Supported | public-only `maxAgeMs`, SWR; bounded LRU/coalescing, background-failure age preserved; no public invalidation yet | none | cache policy type | Yes |
 | File request routes | Requests | Stable | `src/api/**` browser modules | route registry; separate trusted backend | Vite adapter | Yes |
 | Declarative requests | Requests | Stable | `vd-request` family | direct `requestJson` | request APIs | Yes |

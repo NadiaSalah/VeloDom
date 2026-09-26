@@ -55,6 +55,7 @@ import {
   normalizeFolderPath
 } from "./shared/path.ts";
 import { getThrownString } from "./shared/thrown.ts";
+import { assertRequestActive, awaitWithAbort } from "./shared/cancellation.ts";
 import type {
   RuntimeFeatureManifest
 } from "./compiler/types.ts";
@@ -76,6 +77,7 @@ import type {
 
 type PageState = StateRecord & ReactiveStateMethods;
 type PageCleanup = () => unknown | Promise<unknown>;
+type PageLifecycle = ReturnType<typeof createLifecycleScope<PageRuntimeContext>>;
 
 interface PageRouterRuntime {
   availablePages: Set<string>;
@@ -154,12 +156,14 @@ export function createPageRouter(
   let currentRoute: RouteLocation | null = null;
   let initialized = false;
   let latestNavigationId = 0;
+  let latestGuardController: AbortController | null = null;
+  let navigationController: AbortController | null = null;
   let removeRouterListeners: (() => void) | null = null;
   const scrollPositions = new Map<string, ScrollPosition>();
   const prefetchedPages = new Set<string>();
   const prefetchPromises = new Map<string, Promise<void>>();
 
-  /** Loads the requested value. */
+  /** Prepares an activation and commits only while its navigation still owns it. */
   async function load(
     path: string,
     pagePath = "",
@@ -167,6 +171,39 @@ export function createPageRouter(
     redirectDepth = 0,
     navigationId = ++latestNavigationId
   ): Promise<boolean | void> {
+    const guardController = redirectDepth > 0 && latestGuardController
+      ? latestGuardController : new AbortController();
+    if (redirectDepth === 0) {
+      latestGuardController?.abort();
+      latestGuardController = guardController;
+    }
+    let navigation: AbortController | null = null;
+    let lifecycle: PageLifecycle | null = null;
+    let localCleanup: PageCleanup | null = null;
+    let retained = false;
+    let historyCommitted = false;
+    const cleanupFailures = new Set<unknown>();
+    /** Observes cleanup failure without turning cancellation into a crash. */
+    async function release(cleanup: PageCleanup | null, signal: AbortSignal) {
+      try { await awaitWithAbort(cleanup?.(), signal); }
+      catch (error) {
+        if (signal.aborted || cleanupFailures.has(error)) return;
+        cleanupFailures.add(error);
+        reportUserActionError(error, {
+          code: VD_ERROR.CODES.NAVIGATION_CRASH,
+          group: "router", title: "Page Cleanup Failed",
+          file: "velodom/page-router.ts",
+          hint: "Check destroy() and ctx.onCleanup() callbacks. Other cleanup still runs."
+        });
+      }
+    }
+    /** Writes history once, including a failed accepted navigation's fallback. */
+    function commitHistory() {
+      if (historyCommitted) return;
+      saveScrollPosition(scrollPositions, previousScrollKey);
+      applyHistoryMode(historyMode, path);
+      historyCommitted = true;
+    }
     // Plugins are installed after router construction and before init(). Read
     // the session lazily so an opt-in devtools plugin can observe first mount.
     const devtools = getDevtoolsRuntimeSession(appContext);
@@ -203,6 +240,8 @@ export function createPageRouter(
           historyMode
         )
       ) {
+        // Hash navigation cancels a pending replacement, never the visible page.
+        navigationController?.abort();
         const previousUrl = window.location.href;
 
         saveScrollPosition(scrollPositions, previousScrollKey);
@@ -228,11 +267,11 @@ export function createPageRouter(
           ...globalGuards,
           route.beforeEnter
         ];
-        const guardResult = await runNavigationGuards(
+        const guardResult = await awaitWithAbort(runNavigationGuards(
           guards,
           route,
           currentRoute
-        );
+        ), guardController.signal);
 
         // A slower async guard must never commit after a newer navigation.
         if (navigationId !== latestNavigationId) {
@@ -259,16 +298,49 @@ export function createPageRouter(
         }
       }
 
-      saveScrollPosition(scrollPositions, previousScrollKey);
-
-      applyHistoryMode(historyMode, path);
-
-      if (activePageCleanup) {
-        await activePageCleanup();
-        activePageCleanup = null;
-      } else {
-        await disposeTree(app);
-      }
+      assertRequestActive(guardController.signal);
+      // A rejected newer guard must not invalidate an already accepted loader.
+      navigationController?.abort();
+      navigation = new AbortController();
+      navigationController = navigation;
+      const signal = navigation.signal;
+      const state = getOrCreatePageState(page, runtime);
+      const events = createPageEventHub();
+      lifecycle = createLifecycleScope(createPageContext(
+        state, events, runtime, route,
+        targetPath => load(targetPath, "", VD_ROUTER.HISTORY_PUSH), devtools
+      ), signal);
+      lifecycle.context.direction = appContext.direction;
+      const ctx = lifecycle.context;
+      let directionCleanup: (() => void) | null = null;
+      let directivesCleanup: (() => unknown) | null = null;
+      let componentsCleanup: PageCleanup | null = null;
+      let ownedRoots: Element[] = [];
+      let pageModule: UnknownRecord | null = null;
+      let hookArgs: ModuleHookArguments | null = null;
+      localCleanup = onceAsync(async () => {
+        lifecycle?.abort();
+        const errors: unknown[] = [];
+        const attempts: PageCleanup[] = [
+          () => directionCleanup?.(),
+          () => { pageScopeCleanup?.(); pageScopeCleanup = null; },
+          () => events.clear(),
+          () => directivesCleanup?.(),
+          () => componentsCleanup?.(),
+          ...ownedRoots.map(root => () => disposeTree(root)),
+          async () => {
+            // Preserve destroy-before-onCleanup even when destroy rejects.
+            try { if (hookArgs) await runModuleHook(pageModule?.destroy, hookArgs); }
+            finally { await lifecycle?.dispose(); }
+          }
+        ];
+        // Start every release even when an application callback rejects or hangs.
+        await Promise.all(attempts.map(async cleanup => {
+          try { await cleanup(); } catch (error) { errors.push(error); }
+        }));
+        if (errors.length === 1) throw errors[0];
+        if (errors.length > 1) throw new AggregateError(errors, "Multiple VeloDom page cleanups failed");
+      });
 
       const loadHtml = pageHtml[page];
 
@@ -299,12 +371,13 @@ export function createPageRouter(
         manifest,
         layoutTemplate,
         layoutManifest
-      ] = await Promise.all([
+      ] = await awaitWithAbort(Promise.all([
         loadHtml(),
         loadManifest?.() ?? null,
         loadLayoutHtml?.() ?? null,
         layoutName ? loadLayoutManifest?.() ?? null : undefined
-      ]);
+      ]), signal);
+      assertRequestActive(signal);
       const activeManifest = combineRuntimeManifests(
         manifest,
         layoutManifest
@@ -314,25 +387,43 @@ export function createPageRouter(
         page,
         route
       );
+      const data = initialPageData.found
+        ? initialPageData.data
+        : await loadClientPageData(pageData[page], {
+          page, route, params: route.params, query: route.query,
+          meta: route.meta, signal
+        }, pageDataCache);
+      const loadModule = pageModules[page];
+      pageModule = loadModule ? await awaitWithAbort(loadModule(), signal) : null;
+      assertRequestActive(signal);
+
+      const previousCleanup = activePageCleanup;
+      activePageCleanup = null;
+      if (previousCleanup) await awaitWithAbort(previousCleanup(), signal);
+      else await awaitWithAbort(disposeTree(app), signal);
+      assertRequestActive(signal);
+      commitHistory();
 
       applyPageSeo(pageConfigs[page]?.seo, route.path);
       app.innerHTML = layoutName && layoutTemplate
         ? renderPageLayout(layoutTemplate, html, layoutName)
         : html;
+      ownedRoots = [...app.children];
+      activePageCleanup = localCleanup;
       if (layoutName) {
         await applyScopedFolderStyles(
           app,
           layoutStyles,
-          `${layoutName}/`
+          `${layoutName}/`, signal
         );
       }
       await applyScopedFolderStyles(
         app,
         pageStyles,
-        `${page}/`
+        `${page}/`, signal
       );
 
-      const state = getOrCreatePageState(page, runtime);
+      assertRequestActive(signal);
       state.__vdPageName = page;
       state.components = {};
       pageScopeCleanup = devtools?.registerScope({
@@ -342,40 +433,15 @@ export function createPageRouter(
         source: `src/pages/${page}`,
         state
       }) || null;
-      const data = initialPageData.found
-        ? initialPageData.data
-        : await loadClientPageData(pageData[page], {
-          page,
-          route,
-          params: route.params,
-          query: route.query,
-          meta: route.meta
-        }, pageDataCache);
-
       state[VD_PAGE_DATA.STATE_KEY] = data;
-      const directionCleanup = attachDirectionToPageState(
+      directionCleanup = attachDirectionToPageState(
         state,
         appContext.direction
       );
-      const events = createPageEventHub();
-      const lifecycle = createLifecycleScope(
-        createPageContext(
-          state,
-          events,
-          runtime,
-          route,
-          targetPath => load(targetPath, "", VD_ROUTER.HISTORY_PUSH),
-          devtools
-        )
-      );
-      const ctx = lifecycle.context;
-
       attachEventApiToState(state, events);
 
       const refs = getRefs(app);
-      const loadModule = pageModules[page];
-      let pageModule: UnknownRecord | null = null;
-      const hookArgs: ModuleHookArguments = {
+      hookArgs = {
         el: app,
         props: {},
         refs,
@@ -384,18 +450,18 @@ export function createPageRouter(
         ctx
       };
 
-      if (loadModule) {
-
-        pageModule = await loadModule();
+      if (pageModule) {
         mergeModuleStateSeed(state, pageModule, "page");
         const init = pageModule.init || pageModule.default;
-        const result = await runModuleInit(init, hookArgs);
+        const result = await awaitWithAbort(runModuleInit(init, hookArgs), ctx.signal);
+        assertRequestActive(signal);
 
         mergeState(state, result);
 
       }
 
-      const directivesCleanup = await applyDirectives(app, state, {
+      directivesCleanup = await applyDirectives(app, state, {
+        signal: ctx.signal,
         el: app,
         props: {},
         page: ctx.page,
@@ -413,7 +479,8 @@ export function createPageRouter(
         )
       });
 
-      const componentsCleanup = shouldMountComponents(activeManifest)
+      assertRequestActive(signal);
+      componentsCleanup = shouldMountComponents(activeManifest)
           ? await mount(
             app,
             state,
@@ -424,18 +491,9 @@ export function createPageRouter(
           )
         : null;
 
-      activePageCleanup = onceAsync(async () => {
-        await componentsCleanup?.();
-        directivesCleanup?.();
-        directionCleanup?.();
-        pageScopeCleanup?.();
-        pageScopeCleanup = null;
-        await runModuleHook(pageModule?.destroy, hookArgs);
-        await lifecycle.dispose();
-        events.clear();
-      });
-
-      await runModuleHook(pageModule?.mounted, hookArgs);
+      assertRequestActive(signal);
+      await awaitWithAbort(runModuleHook(pageModule?.mounted, hookArgs), ctx.signal);
+      assertRequestActive(signal);
       currentRoute = route;
       devtools?.setRoute(route);
       activeLocationPath = getCurrentLocationPath();
@@ -449,11 +507,20 @@ export function createPageRouter(
         path: route.path
       });
 
+      retained = true;
+      if (navigationController === navigation) navigationController = null;
       return true;
 
     } catch (err) {
-      pageScopeCleanup?.();
-      pageScopeCleanup = null;
+      const signal = navigation?.signal || guardController.signal;
+      if (signal.aborted) return false;
+      // Preparation can fail before replacement. Release the visible owner too;
+      // never discover owners by querying the reusable #app after an await.
+      const previousCleanup = activePageCleanup;
+      activePageCleanup = null;
+      await release(previousCleanup, signal);
+      if (previousCleanup !== localCleanup) await release(localCleanup, signal);
+      if (signal.aborted) return false;
       devtools?.emit("route:navigate:error", {
         message: err instanceof Error ? err.message : String(err),
         navigationId,
@@ -474,86 +541,88 @@ export function createPageRouter(
         return;
       }
 
-      if (getThrownString(err, "code") !== VD_INTERNAL.PAGE_NOT_FOUND_CODE) {
-        const recovered = typeof errorBoundary === "function"
-          && app
-          ? await renderRecoverableErrorBoundary(err, {
-            code: VD_ERROR.CODES.NAVIGATION_CRASH,
-            group: "router",
-            title: "Navigation Crash",
-            target: app,
-            phase: "navigation",
-            hook: errorBoundary,
-            file: "velodom/page-router.ts",
-            line: 28,
-            page,
-            ownership: [
-              { kind: "application", name: "#app" },
-              { kind: "page", name: page }
-            ],
-            hint: "Check page path, page module exports, and directive expressions used on the page.",
-            retry: () => load(path, pagePath, VD_ROUTER.HISTORY_REPLACE),
-            navigate: targetPath => load(
-              targetPath,
-              "",
-              VD_ROUTER.HISTORY_PUSH
-            )
-          })
-          : false;
-
-        if (!recovered) {
-          reportUserActionError(err, {
-            code: VD_ERROR.CODES.NAVIGATION_CRASH,
-            group: "router",
-            title: "Navigation Crash",
-            file: "velodom/page-router.ts",
-            line: 28,
-            hint: "Check page path, page module exports, and directive expressions used on the page.",
-            ownership: [
-              { kind: "application", name: "#app" },
-              { kind: "page", name: page }
-            ],
-            fatal: true
-          });
-        }
-
-        return;
-      }
-
-      const load404 = pageHtml[notFoundPage];
-
-      if (load404) {
-        applyPageSeo(
-          pageConfigs[notFoundPage]?.seo,
-          route.path
-        );
-        const html = await load404();
-        const layoutName = resolvePageLayoutName(
-          pageConfigs[notFoundPage],
-          layoutHtml
-        );
-        const layoutTemplate = layoutName
-          ? await layoutHtml[layoutName]?.()
-          : null;
-
-        app.innerHTML = layoutName && layoutTemplate
-          ? renderPageLayout(layoutTemplate, html, layoutName)
-          : html;
-      } else {
-        applyPageSeo(undefined, route.path);
-        app.innerHTML = `<h1>Page "${page}" not found</h1>`;
-      }
-
-      currentRoute = {
-        ...route,
-        page: notFoundPage,
-        matched: false
-      };
-      devtools?.setRoute(currentRoute);
+      commitHistory();
+      currentRoute = null;
       activeLocationPath = getCurrentLocationPath();
-      restoreScrollPosition(currentRoute, scrollPositions, historyMode);
-      moveFocusAfterNavigation(currentRoute, historyMode);
-      return false;
+      try {
+        if (getThrownString(err, "code") !== VD_INTERNAL.PAGE_NOT_FOUND_CODE) {
+          const recovered = typeof errorBoundary === "function"
+            ? await renderRecoverableErrorBoundary(err, {
+              code: VD_ERROR.CODES.NAVIGATION_CRASH,
+              group: "router",
+              title: "Navigation Crash",
+              target: app,
+              phase: "navigation",
+              hook: errorBoundary,
+              file: "velodom/page-router.ts",
+              line: 28,
+              page,
+              ownership: [
+                { kind: "application", name: "#app" },
+                { kind: "page", name: page }
+              ],
+              hint: "Check page path, page module exports, and directive expressions used on the page.",
+              retry: () => load(path, pagePath, VD_ROUTER.HISTORY_REPLACE),
+              navigate: targetPath => load(targetPath, "", VD_ROUTER.HISTORY_PUSH),
+              signal
+            })
+            : false;
+
+          if (signal.aborted) return false;
+          if (!recovered) {
+            reportUserActionError(err, {
+              code: VD_ERROR.CODES.NAVIGATION_CRASH,
+              group: "router",
+              title: "Navigation Crash",
+              file: "velodom/page-router.ts",
+              line: 28,
+              hint: "Check page path, page module exports, and directive expressions used on the page.",
+              ownership: [
+                { kind: "application", name: "#app" },
+                { kind: "page", name: page }
+              ],
+              fatal: true
+            });
+          }
+          return;
+        }
+        const load404 = pageHtml[notFoundPage];
+        if (load404) {
+          const html = await awaitWithAbort(load404(), signal);
+          const layoutName = resolvePageLayoutName(pageConfigs[notFoundPage], layoutHtml);
+          const layoutTemplate = layoutName
+            ? await awaitWithAbort(layoutHtml[layoutName]?.(), signal)
+            : null;
+
+          assertRequestActive(signal);
+          applyPageSeo(pageConfigs[notFoundPage]?.seo, route.path);
+          app.innerHTML = layoutName && layoutTemplate
+            ? renderPageLayout(layoutTemplate, html, layoutName)
+            : html;
+        } else {
+          applyPageSeo(undefined, route.path);
+          app.innerHTML = `<h1>Page "${page}" not found</h1>`;
+        }
+        currentRoute = { ...route, page: notFoundPage, matched: false };
+        devtools?.setRoute(currentRoute);
+        activeLocationPath = getCurrentLocationPath();
+        restoreScrollPosition(currentRoute, scrollPositions, historyMode);
+        moveFocusAfterNavigation(currentRoute, historyMode);
+        return false;
+      } catch (recoveryError) {
+        if (signal.aborted) return false;
+        reportUserActionError(recoveryError, {
+          code: VD_ERROR.CODES.NAVIGATION_CRASH,
+          group: "router", title: "Navigation Recovery Failed",
+          file: "velodom/page-router.ts",
+          hint: "Check the error boundary and not-found page resources.", fatal: true
+        });
+        return false;
+      }
+    } finally {
+      if (!retained) await release(localCleanup, navigation?.signal || guardController.signal);
+      if (!retained && activePageCleanup === localCleanup) activePageCleanup = null;
+      if (navigationController === navigation) navigationController = null;
     }
   }
 
@@ -701,15 +770,19 @@ export function createPageRouter(
 
   /** Releases resources owned by this module instance. */
   async function destroy(): Promise<void> {
-    pageDataCache.clear();
+    latestNavigationId++;
+    latestGuardController?.abort();
+    navigationController?.abort();
+    pageDataCache.dispose();
     removeRouterListeners?.();
     removeRouterListeners = null;
     initialized = false;
 
-    if (activePageCleanup) {
-      await activePageCleanup();
-      activePageCleanup = null;
-    }
+    const cleanup = activePageCleanup;
+    activePageCleanup = null;
+    currentRoute = null;
+    activeLocationPath = "";
+    await cleanup?.();
   }
 
   return {

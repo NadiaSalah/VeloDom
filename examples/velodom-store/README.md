@@ -83,6 +83,13 @@ the next visit, not pushed into mounted UI. Private/admin loaders remain
 uncached. Public page invalidation and a complete mutation/refetch recipe are
 still C05 work; request-cache clearing alone does not clear the home page cache.
 
+The existing client data loaders forward the now-provided optional `signal` to
+the HTTP client. Core fences late results from a superseded navigation without
+special store syntax. Cached public reads share a transport signal with independent
+subscriber aborts; SWR survives page departure and tracked reads abort on app
+destruction. Private loaders remain uncached. App hooks must still forward/check
+`ctx.signal` before direct writes after awaits; abort never rolls back a server write.
+
 The full organization recipe, JS/TS snippets, configuration and deployment
 boundaries are in the repository handbook's **Organizing Larger Applications**
 section. `npm run package:consumer` copies this example and the teaching blog

@@ -44,3 +44,29 @@ test("removed cleanup callbacks do not run", async () => {
 
   assert.equal(called, false);
 });
+
+test("parent cancellation reaches child scopes and releases its listener on disposal", async t => {
+  const parent = new AbortController();
+  const remove = t.mock.method(parent.signal, "removeEventListener");
+  const lifecycle = createLifecycleScope({}, parent.signal);
+  let calls = 0;
+  lifecycle.context.onCleanup(() => { calls++; });
+  parent.abort();
+  assert.equal(lifecycle.context.signal.aborted, true);
+  await lifecycle.dispose();
+  await lifecycle.dispose();
+  assert.equal(calls, 1);
+  assert.equal(remove.mock.callCount(), 1);
+  assert.equal(createLifecycleScope({}, parent.signal).context.signal.aborted, true);
+});
+
+test("async cleanup registered by a late hook is immediately released and observed", async t => {
+  const errors = t.mock.method(console, "error", () => {});
+  const lifecycle = createLifecycleScope();
+  await lifecycle.dispose();
+  let released = false;
+  lifecycle.context.onCleanup(async () => { released = true; throw new Error("late release failed"); });
+  assert.equal(released, true);
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.ok(errors.mock.callCount() > 0);
+});

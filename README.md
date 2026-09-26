@@ -271,17 +271,28 @@ without renewing stale age. Internal invalidation fences late cache writes;
 app destruction clears identities. Changed files: page-data/router/types/
 constants, page-data unit/public-app/installed checks, root/package/AI guides
 and blog/store educational text. The superseded refresh helper was removed.
-Public page-data invalidation/cancellation and the full refresh recipe remain in C05, so
+Public page-data invalidation/refetch and the full refresh recipe remain in C05, so
 the commerce counter is intentionally still 4/10, not 5/10.
 Verification: 380 tests, docs/types/strict/lint, full build, six generated
 starter combinations, installed real consumers, package content/size and
 performance gates passed. Desktop/mobile Chromium production tests passed.
 Other engines and remote CI remain separate release evidence.
 
-The next C05 audit reproduced a remaining router race: a late uncached loader
-can overwrite the newer page's bindings while its URL stays unchanged. Loader
-signals/navigation ownership and the success/refetch recipe are not yet claimed
-complete; this is tracked explicitly in TODO/NOTES.
+The router race is now fixed: accepted navigation owns cancellation across
+resource/layout/data/style/module/hooks/fallbacks; stale results cannot overwrite
+the newer page. Client loaders receive optional `signal`, cached subscribers
+cancel independently and tracked SWR work aborts on app destruction. Captured
+component owners replace reused-root cleanup, async directive/loop release is
+awaited, and shared read cancellation has one Core implementation. Hash/guard
+behavior and destroy-before-onCleanup stay compatible. Related files: Core
+router/data/lifecycle/mount/directives/styles/error boundary/shared cancellation,
+types, 23 new regressions, installed runtime/TS checks, package/AI references,
+handbook and blog/store teaching content. All 403 tests, docs/types/lint, full
+build, six starter combinations, installed real consumers, npm content/size
+and performance gates pass. Desktop/mobile Chromium production checks also
+pass, including delayed catalog → cart cancellation. Other browser engines
+and remote CI remain release gates. The explicit public
+invalidation/refetch and mutation-success recipe remain open in C05 (4/10).
 
 See [docs/TODO.md](docs/TODO.md) for release gates and the separately counted
 V1 simplicity/organization follow-up, now **6/8 complete (75%)**. Prioritize

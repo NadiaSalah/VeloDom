@@ -31,6 +31,8 @@ export interface DirectiveRuntimeContext {
 
 /** Options accepted while preparing directives for one DOM subtree. */
 export interface DirectiveRuntimeOptions {
+  /** Private owner cancellation used during lazy setup and cleanup. */
+  signal?: AbortSignal;
   el?: Element;
   props?: Record<string, unknown>;
   page?: string;

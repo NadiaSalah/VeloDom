@@ -4,7 +4,8 @@ import {
   defineRequestRoute,
   defineResourceAdapter,
   createRequestCache,
-  type VeloDomApp
+  type VeloDomApp,
+  type PageDataLoader
 } from "velodom";
 import type {
   TestMountResult
@@ -23,6 +24,11 @@ const _testingTypeSmoke: TestMountResult | null = null;
 const _pageConfig = definePageConfig({ path: "/" });
 const _request = defineRequestRoute({ handler: () => ({ ok: true }) });
 const _requestCache = createRequestCache({ ttlMs: 30_000, maxEntries: 40, scope: () => "public-catalog" });
+const _pageData: PageDataLoader = async ({ signal, mode }) => {
+  if (mode !== "client") return { title: "Build fallback" };
+  const response = await fetch("/api/catalog", { signal });
+  return response.json();
+};
 const _plugin = definePlugin({ setup() {} });
 const _adapter = defineResourceAdapter({
   pages: { html: { home: async () => "<main></main>" } }
@@ -40,6 +46,7 @@ const app: VeloDomApp = createViteApp();
 void _testingTypeSmoke;
 void _pageConfig;
 void _request;
+void _pageData;
 void _requestCache.clear("GET /catalog");
 void _plugin;
 void _adapter;

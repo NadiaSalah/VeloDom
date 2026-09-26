@@ -116,6 +116,7 @@ export const applyLoops: DirectiveFeature = ({
         context.props
       )
     ): void | Promise<void> => {
+      if (!active) return;
       const fragment = document.createDocumentFragment();
       const prepared = entries.map(entry => prepareLoopItem(
         entry,
@@ -208,6 +209,7 @@ export const applyLoops: DirectiveFeature = ({
       const removed = rendered.filter(item => !reused.has(item));
       const clearing = disposeRenderedItems(removed);
       const finish = (): void | Promise<void> => {
+        if (!active) return;
         const nextRendered: RenderedLoopItem[] = [];
         const pendingMounts: Promise<void>[] = [];
         let cursor: Node = marker;
@@ -278,6 +280,7 @@ export const applyLoops: DirectiveFeature = ({
     };
 
     const update = (): void | Promise<void> => {
+      if (!active) return;
       if (isConditionallyInactive(el)) return;
 
       const items = evaluate(
@@ -340,7 +343,7 @@ export const applyLoops: DirectiveFeature = ({
 
       updateRunning = result
         .catch(error => {
-          reportLoopUpdateError(error, el, expression);
+          if (active) reportLoopUpdateError(error, el, expression);
         })
         .then(() => {
           updateRunning = null;
@@ -353,6 +356,12 @@ export const applyLoops: DirectiveFeature = ({
     };
 
     const unsubscribe = state._subscribe(scheduleUpdate);
+    // Register ownership before async nested setup, so abort cannot miss it.
+    cleanups.push(() => {
+      active = false;
+      return clearRenderedLoop(rendered);
+    });
+    cleanups.push(unsubscribe);
 
     try {
       await update();
@@ -364,12 +373,6 @@ export const applyLoops: DirectiveFeature = ({
     } finally {
       initializing = false;
     }
-
-    cleanups.push(() => {
-      active = false;
-      return clearRenderedLoop(rendered);
-    });
-    cleanups.push(unsubscribe);
 
     if (updateRequested) {
       updateRequested = false;

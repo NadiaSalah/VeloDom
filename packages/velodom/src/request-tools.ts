@@ -28,7 +28,7 @@ import {
 } from "./devtools/protocol.ts";
 import {
   assertRequestActive, isRequestAbortError, waitForRetryDelay
-} from "./requests/cancellation.ts";
+} from "./shared/cancellation.ts";
 /** Optional cache stays available here while its coordination is owned by one module. */
 export { createRequestCache } from "./requests/request-cache.ts";
 

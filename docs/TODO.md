@@ -141,9 +141,9 @@ documentation site is one consumer, not the framework's architectural boundary.
 The objective is to prove and improve store, administration, and business-app
 workflows without turning Core into an e-commerce backend or enterprise platform.
 
-**Progress: 3 of 10 milestones complete (30%).**
+**Progress: 4 of 10 milestones complete (40%).**
 
-`[######--------------] 30%`
+`[########------------] 40%`
 
 ### Existing foundations — reuse before adding
 
@@ -291,15 +291,25 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   invalidation, LRU, expiry, saturation, non-finite policies and public app
   teardown/SWR; the installed public createApp is also exercised. Removed the
   old unbounded refresh helper. No public invalidation/refetch API is claimed.
-  **Still open:** explicit public page-data invalidation/refetch and router loader
-  cancellation; the complete success/refetch recipe
+  **Navigation progress:** fixed the reproduced slow-loader overwrite across
+  template/layout/data/style/module/init/mounted and error-fallback awaits.
+  Accepted replacements own abort signals; blocked newer guards and same-page
+  hashes preserve the visible/accepted scope as appropriate. Client data loaders
+  receive optional signal (build/server may omit it); cached subscribers cancel
+  independently and the last abort fences shared work. SWR belongs to the cache
+  and tracked reads abort on app destruction. Components clean captured owners,
+  not the new DOM under a reused root; async directive/loop cleanup is awaited.
+  Twenty-three new regressions cover navigation, cleanup, lifecycle and data
+  cancellation; the installed public app and TS loader contract are checked too.
+  Removed duplicated shared-read cancellation and migrated its one utility to
+  shared Core. Destroy-before-onCleanup and old syntax/exports remain compatible.
+  **Still open:** explicit public page-data invalidation/refetch; the complete success/refetch recipe
   exercised against catalog/admin/account changes. Do not mark C05 complete
   based on the request-cache portion alone. CLI impact for these helper options
   is NONE; no generated global cache or starter policy is added.
-  **Next confirmed defect:** navigating slow loader → fast page → resolving
-  slow loader replaces the fast page's bindings while the URL stays fast.
-  The loader receives no signal. Fence navigation commits and cleanup across
-  resource/data/init/mount awaits before exposing a public refetch contract.
+  CLI classification for navigation cancellation is DEFAULT_INCLUDED: no new
+  prompts, controllers or generated cache policy. Existing templates need no
+  changes; JS/TS starters and real consumers are verified by the package gate.
 
 - [ ] **C06 — Composable complex forms and edit protection. V1.x; complexity:
   High; owner: optional forms integration and narrowly scoped router extension

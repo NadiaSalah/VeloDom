@@ -475,6 +475,33 @@ try {
   now = 31;
   await app.navigate("/");
   assert.equal(document.querySelector("h1").textContent, "Article 3");
+  await app.destroy();
+  let finish;
+  let started;
+  let signal;
+  const waiting = new Promise(resolve => { started = resolve; });
+  const read = new Promise(resolve => { finish = resolve; });
+  const navigationApp = createApp({ adapter: { pages: {
+    html: {
+      home: async () => '<h1>Home</h1>',
+      slow: async () => '<h1 data-vd-text="data.title"></h1>',
+      fast: async () => '<h1>Latest page</h1>'
+    },
+    data: { slow: async () => ({ load(context) {
+      signal = context.signal; started(); return read;
+    } }) }
+  } } });
+  try {
+    await navigationApp.mount();
+    const pending = navigationApp.navigate("/slow");
+    await waiting;
+    await navigationApp.navigate("/fast");
+    assert.equal(await pending, false);
+    assert.equal(signal.aborted, true);
+    finish({ title: "Obsolete page" });
+    await new Promise(resolve => setTimeout(resolve, 0));
+    assert.equal(document.querySelector("h1").textContent, "Latest page");
+  } finally { await navigationApp.destroy(); }
 } finally {
   await app.destroy();
   Date.now = originalNow;

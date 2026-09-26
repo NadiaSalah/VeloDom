@@ -294,6 +294,98 @@ test("saturated page read tracking bypasses caching instead of losing work", asy
   assert.equal(calls, 103);
 });
 
+test("cached page subscribers cancel independently, with the last abort fencing the read", async () => {
+  const cache = createPageDataCache();
+  const read = deferred();
+  let transport;
+  let calls = 0;
+  const module = { cache: { maxAgeMs: 500 }, load({ signal }) {
+    transport = signal; calls++; return calls === 1 ? read.promise : "fresh";
+  } };
+  const first = new AbortController();
+  const second = new AbortController();
+  const a = cache.load(module, { ...createContext(), signal: first.signal });
+  const b = cache.load(module, { ...createContext(), signal: second.signal });
+  await Promise.resolve();
+  first.abort();
+  await assert.rejects(a, { name: "AbortError" });
+  assert.equal(transport.aborted, false);
+  assert.equal(calls, 1);
+  second.abort();
+  await assert.rejects(b, { name: "AbortError" });
+  assert.equal(transport.aborted, true);
+  assert.equal(await cache.load(module, createContext()), "fresh");
+  read.resolve("obsolete");
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(await cache.load(module, createContext()), "fresh");
+  assert.equal(calls, 2);
+});
+
+test("one cached subscriber's abort cannot discard another subscriber's result", async () => {
+  const cache = createPageDataCache();
+  const read = deferred();
+  const controller = new AbortController();
+  let transport;
+  const module = { cache: { maxAgeMs: 500 }, load({ signal }) { transport = signal; return read.promise; } };
+  const departed = cache.load(module, { ...createContext(), signal: controller.signal });
+  const remaining = cache.load(module, createContext());
+  await Promise.resolve();
+  controller.abort();
+  await assert.rejects(departed, { name: "AbortError" });
+  assert.equal(transport.aborted, false);
+  read.resolve("shared");
+  assert.equal(await remaining, "shared");
+  assert.equal(await cache.load(module, createContext()), "shared");
+});
+
+test("a pre-aborted page load starts neither a module import nor application loader", async () => {
+  const controller = new AbortController();
+  controller.abort();
+  let calls = 0;
+  await assert.rejects(loadClientPageData(async () => { calls++; return { load: () => ++calls }; }, {
+    ...createContext(), signal: controller.signal
+  }), { name: "AbortError" });
+  await assert.rejects(createPageDataCache().load({ load: () => ++calls }, {
+    ...createContext(), signal: controller.signal
+  }), { name: "AbortError" });
+  assert.equal(calls, 0);
+});
+
+test("SWR survives page departure but app disposal cancels the tracked background read", async () => {
+  let now = 0;
+  let calls = 0;
+  let transport;
+  const read = deferred();
+  const cache = createPageDataCache(() => now);
+  const module = { cache: { maxAgeMs: 10, staleWhileRevalidateMs: 20 }, load({ signal }) {
+    transport = signal; return ++calls === 1 ? "original" : read.promise;
+  } };
+  assert.equal(await cache.load(module, createContext()), "original");
+  now = 20;
+  const page = new AbortController();
+  assert.equal(await cache.load(module, { ...createContext(), signal: page.signal }), "original");
+  page.abort();
+  assert.equal(transport.aborted, false);
+  cache.dispose();
+  assert.equal(transport.aborted, true);
+  read.resolve("late background");
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(await cache.load({ ...module, load: () => "remounted" }, createContext()), "remounted");
+});
+
+test("uncached page loaders receive the caller signal and release ignored-abort waits", async () => {
+  const controller = new AbortController();
+  const read = deferred();
+  let signal;
+  const result = createPageDataCache().load({ load(context) { signal = context.signal; return read.promise; } }, {
+    ...createContext(), signal: controller.signal
+  });
+  assert.equal(signal, controller.signal);
+  controller.abort();
+  await assert.rejects(result, { name: "AbortError" });
+  read.resolve("ignored abort");
+});
+
 function deferred() {
   let resolve;
   const promise = new Promise(done => { resolve = done; });

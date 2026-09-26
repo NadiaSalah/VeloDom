@@ -512,6 +512,49 @@ async function assertStorefrontSmoke(browser, target, origin) {
       ));
     });
 
+    await runInteractiveStep(context, target, "storefront-navigation-cancellation", async page => {
+      await page.goto(`${origin}/`);
+      await page.locator(".locale-button").waitFor();
+      let markStarted;
+      let release;
+      let markFinished;
+      const started = new Promise(resolve => { markStarted = resolve; });
+      const gate = new Promise(resolve => { release = resolve; });
+      const finished = new Promise(resolve => { markFinished = resolve; });
+      await page.route("**/__fixture-api/catalog?**", async route => {
+        if (new URL(route.request().url()).searchParams.get("category") !== "carry") {
+          await route.continue();
+          return;
+        }
+        markStarted();
+        await gate;
+        try {
+          await route.fulfill({ json: { items: [], categories: [], total: 0 } });
+        } catch (error) {
+          // Forwarded AbortSignal can cancel the intercepted request entirely.
+          if (!route.request().failure()) throw error;
+        } finally { markFinished(); }
+      });
+      try {
+        await page.locator('a.category-link:has-text("Carry")').click();
+        await started;
+        // Preparation leaves the mounted header usable while data is loading.
+        await page.locator('a.primary-link[href="/cart"]').click();
+        await page.waitForURL(`${origin}/cart`);
+        await page.locator(".locale-button").waitFor();
+        await waitForPageText(page, "Your guest cart.");
+        release();
+        await finished;
+        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+        if ((await page.locator("h1").textContent())?.trim() !== "Your guest cart.") {
+          throw new Error("A cancelled catalog read replaced the newer cart page.");
+        }
+      } finally {
+        release();
+        await page.unrouteAll({ behavior: "wait" });
+      }
+    });
+
     await context.addInitScript(() => {
       Storage.prototype.setItem = () => {
         throw new Error("storage blocked by browser policy");

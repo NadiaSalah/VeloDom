@@ -299,6 +299,14 @@ for older split component/request paths; prefer a complete slash/dot name.
 Only app-relative paths are router targets. Same-path hash navigation updates
 history and scrolls without remounting. Route context exposes:
 
+Core fences late results from cancelled resource/data/style/init/mounted/error
+fallback work. Forward `ctx.signal` in async page/component hooks and check it
+before application-owned writes after an await. A blocked newer guard preserves
+an accepted pending navigation; a newer accepted navigation cancels it.
+Cleanup owns captured component instances, not the current reused root.
+`destroy()` remains before `ctx.onCleanup()`; cancellation cannot force a
+non-settling user hook/cleanup or roll back already accepted writes.
+
 ```js
 export function init({ ctx, state }) {
   state.id = ctx.params.id;
@@ -333,6 +341,21 @@ export default {
 `data.js|ts` may export a page loader and optional cache policy. Build-time
 prerender/SEO entries remain in page config and are stripped from browser
 runtime output by the Vite plugin.
+
+```js
+// src/pages/catalog/data.js — uncached unless a public cache policy is exported
+export async function load({ signal }) {
+  const response = await fetch("/api/catalog", { signal });
+  if (!response.ok) throw new Error("Catalog read failed");
+  return response.json();
+}
+```
+
+The optional `PageDataContext.signal` exists on client loads; build/server
+contexts may omit it. Cached loads use a shared transport signal with independent
+subscriber cancellation; the last cancellation aborts/fences that read. SWR is
+cache-owned, not cancelled by page departure; tracked reads abort on app destroy.
+Core observes ignored-abort late work but never commits its stale result.
 
 For public data only, export `cache = { maxAgeMs: 30_000,
 staleWhileRevalidateMs: 120_000 }`. Times must be finite and non-negative.
