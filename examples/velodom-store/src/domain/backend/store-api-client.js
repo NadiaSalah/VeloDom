@@ -11,37 +11,60 @@
 
 import { requestJson } from "velodom";
 
+/** @typedef {import("./contracts.js").StoreRequestContext} StoreRequestContext */
+/** @typedef {import("./contracts.js").StoreQueryInput} StoreQueryInput */
+
+/** Public fixture origin/path; replace it explicitly with the application's backend. */
 export const STORE_API_BASE = "/__fixture-api";
 
-/** Reads the current no-store server session. */
+/**
+ * Reads the current no-store server session.
+ * @param {StoreQueryInput} [_input]
+ * @param {StoreRequestContext} [context]
+ * @returns {Promise<import("./contracts.js").StoreSession>}
+ */
 export function getStoreSession(_input = {}, context = {}) {
-  return requestJson(`${STORE_API_BASE}/session`, {
+  return /** @type {Promise<import("./contracts.js").StoreSession>} */ (requestJson(`${STORE_API_BASE}/session`, {
     credentials: "same-origin",
     signal: context.signal
-  });
+  }));
 }
 
-/** Replaces the current fixture session with one explicit demo account. */
+/**
+ * Replaces the current fixture session with one explicit demo account.
+ * @param {StoreQueryInput} [input]
+ * @param {StoreRequestContext} [context]
+ * @returns {Promise<import("./contracts.js").StoreSession>}
+ */
 export function loginStoreSession(input = {}, context = {}) {
-  return requestJson(`${STORE_API_BASE}/session/login`, {
+  return /** @type {Promise<import("./contracts.js").StoreSession>} */ (requestJson(`${STORE_API_BASE}/session/login`, {
     method: "POST",
     credentials: "same-origin",
     signal: context.signal,
     body: {
       account: readScalar(input.account)
     }
-  });
+  }));
 }
 
-/** Ends the current fixture session with its server-issued CSRF token. */
+/**
+ * Ends the current fixture session with its server-issued CSRF token.
+ * @param {StoreQueryInput} [_input]
+ * @param {StoreRequestContext} [context]
+ * @returns {Promise<import("./contracts.js").StoreSession>}
+ */
 export async function logoutStoreSession(_input = {}, context = {}) {
-  return requestPrivateJson("/session/logout", {
+  return /** @type {Promise<import("./contracts.js").StoreSession>} */ (requestPrivateJson("/session/logout", {
     method: "POST",
     body: {}
-  }, context);
+  }, context));
 }
 
-/** Expires the current session for a deterministic recovery demonstration. */
+/**
+ * Expires the current session for a deterministic recovery demonstration.
+ * @param {StoreQueryInput} [_input]
+ * @param {StoreRequestContext} [context]
+ */
 export async function expireStoreSession(_input = {}, context = {}) {
   return requestPrivateJson("/session/expire", {
     method: "POST",
@@ -49,7 +72,11 @@ export async function expireStoreSession(_input = {}, context = {}) {
   }, context);
 }
 
-/** Lists the public catalog through the replaceable HTTP boundary. */
+/**
+ * Lists the public catalog through the replaceable HTTP boundary.
+ * @param {StoreQueryInput} [input]
+ * @param {StoreRequestContext} [context]
+ */
 export function listCatalogFromServer(input = {}, context = {}) {
   return requestJson(withQuery("/catalog", input), {
     credentials: "same-origin",
@@ -57,7 +84,11 @@ export function listCatalogFromServer(input = {}, context = {}) {
   });
 }
 
-/** Resolves one public product through the replaceable HTTP boundary. */
+/**
+ * Resolves one public product through the replaceable HTTP boundary.
+ * @param {StoreQueryInput} [input]
+ * @param {StoreRequestContext} [context]
+ */
 export function getProductFromServer(input = {}, context = {}) {
   const id = encodeURIComponent(readScalar(input.id ?? input.params?.id));
 
@@ -67,19 +98,29 @@ export function getProductFromServer(input = {}, context = {}) {
   });
 }
 
-/** Requests authoritative currency, stock, price, and tax values. */
+/**
+ * Requests authoritative currency, stock, price, and tax values.
+ * @param {import("./contracts.js").QuoteInput} [input]
+ * @param {StoreRequestContext} [context]
+ * @returns {Promise<import("./contracts.js").StoreQuote>}
+ */
 export function quoteCartFromServer(input = {}, context = {}) {
-  return requestJson(`${STORE_API_BASE}/cart/quote`, {
+  return /** @type {Promise<import("./contracts.js").StoreQuote>} */ (requestJson(`${STORE_API_BASE}/cart/quote`, {
     method: "POST",
     credentials: "same-origin",
     signal: context.signal,
     body: input
-  });
+  }));
 }
 
-/** Creates one mock order using CSRF and an explicit idempotency key. */
+/**
+ * Creates one mock order using CSRF and an explicit idempotency key.
+ * @param {Partial<import("./contracts.js").CreateOrderInput>} [input]
+ * @param {StoreRequestContext} [context]
+ * @returns {Promise<import("./contracts.js").StoreOrder>}
+ */
 export function createOrderFromServer(input = {}, context = {}) {
-  return requestPrivateJson("/orders", {
+  return /** @type {Promise<import("./contracts.js").StoreOrder>} */ (requestPrivateJson("/orders", {
     method: "POST",
     headers: {
       "X-Idempotency-Key": readScalar(input.idempotencyKey)
@@ -89,20 +130,29 @@ export function createOrderFromServer(input = {}, context = {}) {
       currency: input.currency,
       expectedTotalCents: input.expectedTotalCents
     }
-  }, context);
+  }, context));
 }
 
-/** Reads one private order status; the server enforces owner and tenant scope. */
+/**
+ * Reads one private order status; the server enforces owner and tenant scope.
+ * @param {StoreQueryInput} [input]
+ * @param {StoreRequestContext} [context]
+ * @returns {Promise<import("./contracts.js").StoreOrder>}
+ */
 export function getOrderFromServer(input = {}, context = {}) {
   const id = encodeURIComponent(readScalar(input.id));
 
-  return requestJson(`${STORE_API_BASE}/orders/${id}`, {
+  return /** @type {Promise<import("./contracts.js").StoreOrder>} */ (requestJson(`${STORE_API_BASE}/orders/${id}`, {
     credentials: "same-origin",
     signal: context.signal
-  });
+  }));
 }
 
-/** Lists authorized admin products with server-side pagination. */
+/**
+ * Lists authorized admin products with server-side pagination.
+ * @param {StoreQueryInput} [input]
+ * @param {StoreRequestContext} [context]
+ */
 export function listAdminProductsFromServer(input = {}, context = {}) {
   return requestJson(withQuery("/admin/products", input), {
     credentials: "same-origin",
@@ -110,7 +160,11 @@ export function listAdminProductsFromServer(input = {}, context = {}) {
   });
 }
 
-/** Reads one authorized admin product record. */
+/**
+ * Reads one authorized admin product record.
+ * @param {StoreQueryInput} [input]
+ * @param {StoreRequestContext} [context]
+ */
 export function getAdminProductFromServer(input = {}, context = {}) {
   const id = encodeURIComponent(readScalar(input.id ?? input.params?.id));
 
@@ -120,7 +174,11 @@ export function getAdminProductFromServer(input = {}, context = {}) {
   });
 }
 
-/** Sends one CSRF-protected optimistic admin update. */
+/**
+ * Sends one CSRF-protected optimistic admin update.
+ * @param {StoreQueryInput} [input]
+ * @param {StoreRequestContext} [context]
+ */
 export function updateAdminProductOnServer(input = {}, context = {}) {
   const id = encodeURIComponent(readScalar(input.id));
 
@@ -130,7 +188,11 @@ export function updateAdminProductOnServer(input = {}, context = {}) {
   }, context);
 }
 
-/** Sends one CSRF-protected, explicitly confirmed bulk status update. */
+/**
+ * Sends one CSRF-protected, explicitly confirmed bulk status update.
+ * @param {StoreQueryInput} [input]
+ * @param {StoreRequestContext} [context]
+ */
 export function bulkUpdateAdminProductsOnServer(input = {}, context = {}) {
   return requestPrivateJson("/admin/products/bulk", {
     method: "POST",
@@ -138,9 +200,17 @@ export function bulkUpdateAdminProductsOnServer(input = {}, context = {}) {
   }, context);
 }
 
+/**
+ * Adds an app-owned CSRF header; authorization still happens on the backend.
+ * @param {string} path
+ * @param {import("velodom").JsonRequestOptions} options
+ * @param {StoreRequestContext} context
+ */
 async function requestPrivateJson(path, options, context) {
   const session = context?.session?.raw || await getStoreSession({}, context);
-  const csrfToken = String(session?.csrfToken || "").trim();
+  const csrfToken = String(
+    /** @type {{ csrfToken?: unknown } | null} */ (session)?.csrfToken || ""
+  ).trim();
 
   return requestJson(`${STORE_API_BASE}${path}`, {
     ...options,
@@ -153,6 +223,7 @@ async function requestPrivateJson(path, options, context) {
   });
 }
 
+/** @param {string} path @param {StoreQueryInput} input */
 function withQuery(path, input) {
   const query = new URLSearchParams();
 
@@ -168,6 +239,7 @@ function withQuery(path, input) {
   return `${STORE_API_BASE}${path}${text ? `?${text}` : ""}`;
 }
 
+/** @param {unknown} value */
 function readScalar(value) {
   const candidate = Array.isArray(value) ? value[0] : value;
 

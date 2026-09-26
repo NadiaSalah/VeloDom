@@ -38,6 +38,12 @@ size practical. The long static feature catalog may still produce an advisory
 template-size warning; it is not a compiler or runtime error. These lessons
 are teaching material, not additional Core APIs.
 
+`/features#architecture` explains feature-owned application modules, optional
+JSDoc/TS wire contracts, dependency direction and browser/server configuration.
+It follows the store reference rather than inventing a service registry.
+The repository package-consumer gate builds and inspects this site and the
+store from an installed local artifact outside the workspace.
+
 The binding lesson on `/playground#bindings` demonstrates ARIA boolean tokens,
 case-sensitive CSS variables, and removal of old object styles. The desktop
 sidebar scrolls within short viewports; reduced-motion preferences disable

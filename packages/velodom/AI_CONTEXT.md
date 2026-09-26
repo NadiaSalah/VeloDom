@@ -68,6 +68,15 @@ src/main.js      bootstrap
 Reusable framework behavior belongs in the package; business logic stays in
 the application. Import public package paths only.
 
+For larger apps, keep discovered resources in those same folders and use
+explicit application imports for feature-owned helpers (for example
+`src/domain/catalog`, `cart`, `auth`, `admin`, and `backend`). These are optional
+application names, not discovery conventions or a service registry. Shared
+helpers must not import page scripts; never import a server module into browser
+source. JS JSDoc and app-owned `.d.ts` contracts can support TS callers without
+duplicating the application. Types are not runtime input/response validation.
+Vite `base` handles assets, not automatic route/API path prefixes.
+
 ## Public Imports
 
 - `velodom`

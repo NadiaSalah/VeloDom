@@ -23,7 +23,7 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 | Approved authoring and rendering maturity | Implemented locally | Looped components, keyed updates, `.vd` lazy parity, and compiler cache; release verification remains separate |
 | Approved developer intelligence | Implemented locally | Shared project index, diagnostics, safe fixes, generated types, and CLI composition |
 | Approved optional extensions | Implemented locally | Seven bounded tooling/integration milestones complete; research remains excluded |
-| Commerce and large applications | Active validation / optional extensions | Storefront, admin workflow, and the C03 HTTP/session denial contract are complete |
+| Commerce and large applications | Active validation / optional extensions | Storefront, admin, HTTP/session and C04 organization/installed-consumer recipe are complete |
 | Hybrid rendering, AI, migration, CMS, and Edge | Research / Experimental | External or high-risk capabilities; never required by Core |
 
 ### Progress counter
@@ -45,7 +45,7 @@ state.
 This separately scoped quality/adoption work is detailed below; the completed
 implementation counters above do not mean these follow-ups or release gates are done.
 
-**Commerce and large-application track: 3 of 10 complete (30%).**
+**Commerce and large-application track: 4 of 10 complete (40%).**
 These new proposals do not change the completed baseline or the 6/8 simplicity
 counter. C01–C03 now provide storefront, administration, and real server-denial
 evidence without adding commerce policy to Core. Research
@@ -233,7 +233,7 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   gate crosses the actual HTTP adapter and rejects server-secret markers in
   client chunks. `src/api` contains browser calls only; CLI impact remains NONE.
 
-- [ ] **C04 — Large-team application organization recipe. V1 documentation;
+- [x] **C04 — Large-team application organization recipe. V1 documentation;
   complexity: Medium; owner: docs/examples; CLI: NONE.** Show feature-owned
   catalog/cart/account/admin modules, shared application UI, typed public
   contracts, and dependency direction while retaining existing `src/pages`,
@@ -245,6 +245,13 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   Value: teams can grow a project without giant page scripts or private Core
   imports. Acceptance: examples build using the installed npm artifact and
   existing inspection tools; no new module registry or mandatory global store.
+  Implemented in the handbook and blog architecture lesson against the actual
+  store boundaries, with app-owned wire types used by the JS HTTP client.
+  The package-consumer gate copies both real examples outside the workspace,
+  uses the installed local tarball for inspect/routes/doctor/build, checks
+  public-only imports and server-secret exclusion, and strictly checks a TS
+  caller plus the handbook's JS/TS snippets. Vite asset base is distinguished
+  from explicit routing/deployment paths. No runtime API or starter changed.
 
 ### P1 — Optional improvements after the reference workflows expose gaps
 

@@ -340,8 +340,9 @@ try {
       `- ${result.name}: ${formatKilobytes(result.totalJavaScriptBytes)} total JS, ${formatKilobytes(result.largestJavaScriptBytes)} largest chunk`
     );
   });
+  await assertReferenceConsumers(temporaryRoot, installedPackageRoot);
   console.log(
-    "Installed package and generated starter consumer checks passed."
+    "Installed package, generated starters, and reference consumers passed."
   );
 } finally {
   if (process.env.VELODOM_KEEP_CONSUMER !== "1") {
@@ -360,7 +361,7 @@ async function linkStarterDependencies(starterRoot, installedPackageRoot) {
   const linkType = process.platform === "win32" ? "junction" : "dir";
 
   await mkdir(starterModules, { recursive: true });
-  for (const name of ["velodom", "vite", "typescript", "tailwindcss"]) {
+  for (const name of ["velodom", "vite", "typescript", "tailwindcss", "daisyui"]) {
     const source = name === "velodom"
       ? installedPackageRoot
       : join(workspaceRoot, "node_modules", name);
@@ -383,6 +384,127 @@ async function linkStarterDependencies(starterRoot, installedPackageRoot) {
     await access(source);
     await symlink(source, join(starterModules, scope), linkType);
   }
+}
+
+async function assertReferenceConsumers(temporaryRoot, installedPackageRoot) {
+  const cases = [
+    { name: "velodom-blog", routes: ["/", "/features", "/reference", "/playground"] },
+    { name: "velodom-store", routes: ["/", "/products/:id", "/sign-in", "/admin/products/:id/edit"] }
+  ];
+
+  for (const example of cases) {
+    const sourceRoot = join(workspaceRoot, "examples", example.name);
+    const projectRoot = join(temporaryRoot, example.name);
+
+    // Copy authored files, not workspace dependencies or previous build output.
+    await cp(sourceRoot, projectRoot, {
+      recursive: true,
+      filter: path => !["node_modules", "dist", ".vite", ".velodom"].includes(basename(path))
+    });
+    await assertPublicImports(projectRoot);
+    await linkStarterDependencies(projectRoot, installedPackageRoot);
+
+    const cli = join(projectRoot, "node_modules", "velodom", "bin", "vd.js");
+    const inspect = await runProjectAnalysis(cli, "inspect", projectRoot);
+    const routes = await runProjectAnalysis(cli, "routes", projectRoot);
+    const doctor = await runProjectAnalysis(cli, "doctor", projectRoot);
+
+    if (!doctor.ok || doctor.issues.some(issue => issue.level === "error")) {
+      throw new Error(`${example.name} installed doctor reports errors: ${JSON.stringify(doctor.issues)}`);
+    }
+    for (const path of example.routes) {
+      if (!routes.some(route => route.path === path)) {
+        throw new Error(`${example.name} installed route explorer missed ${path}`);
+      }
+    }
+    for (const resource of [...inspect.pages, ...inspect.components, ...inspect.layouts]) {
+      if (!/^src\/(?:pages|components|layouts)\//.test(resource.source)) {
+        throw new Error(`Application helper was incorrectly discovered: ${resource.source}`);
+      }
+    }
+    if (example.name === "velodom-store") {
+      await assertStoreContracts(projectRoot);
+    }
+    await run(process.execPath, [
+      join(workspaceRoot, "node_modules", "vite", "bin", "vite.js"), "build"
+    ], { cwd: projectRoot });
+    await access(join(projectRoot, "dist", "index.html"));
+    const output = await readJavaScriptAssets(join(projectRoot, "dist", "assets"));
+
+    if (output.includes("velodom-store-server-fixture-secret-not-for-browser")) {
+      throw new Error("Store backend signing material entered a browser asset");
+    }
+    console.log(`- installed ${example.name}: ${routes.length} routes; inspect/doctor/build passed (${doctor.issues.length} advisory findings)`);
+  }
+}
+
+async function runProjectAnalysis(cli, command, projectRoot) {
+  return JSON.parse(await run(process.execPath, [
+    cli, command, "--root", projectRoot, "--json", "--no-logo"
+  ], { cwd: projectRoot }));
+}
+
+async function assertPublicImports(directory) {
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      await assertPublicImports(path);
+    } else if (/\.(?:js|ts|vd)$/.test(entry.name)) {
+      const source = await readFile(path, "utf8");
+      // Teaching text may name forbidden paths; only actual imports are checked.
+      const imports = source.matchAll(/\b(?:from\s*|import\s*\(?\s*)["']([^"']+)["']/g);
+
+      for (const [, specifier] of imports) {
+        if (/^velodom\/(?:lib|src|types)\//.test(specifier) || /(?:^|\/)packages\/velodom\//.test(specifier)) {
+          throw new Error(`Reference consumer imports package internals: ${path}: ${specifier}`);
+        }
+      }
+    }
+  }
+}
+
+async function assertStoreContracts(projectRoot) {
+  const fixtureRoot = join(projectRoot, "contract-check");
+  await mkdir(fixtureRoot);
+  await writeFile(join(fixtureRoot, "consumer.ts"), `
+import type { CartLine, CreateOrderInput, StoreQuote, StoreOrder } from "../src/domain/backend/contracts.js";
+import { createOrderFromServer, getStoreSession, quoteCartFromServer } from "../src/domain/backend/store-api-client.js";
+const lines: CartLine[] = [{ productId: "aurora-lamp", variantId: "midnight", quantity: 1 }];
+const quote: StoreQuote = await quoteCartFromServer({ lines }, { signal: new AbortController().signal });
+const input: CreateOrderInput = { lines, currency: quote.currency, expectedTotalCents: quote.totalCents, idempotencyKey: "intent-1234" };
+const order: StoreOrder = await createOrderFromServer(input);
+const session = await getStoreSession();
+if (session.authenticated) session.user.tenantId.toUpperCase();
+// @ts-expect-error Wire quantities must be numbers, even in JS callers with JSDoc.
+quoteCartFromServer({ lines: [{ productId: "aurora-lamp", variantId: "midnight", quantity: "1" }] });
+// @ts-expect-error The mock contract never represents a completed payment.
+const payment: "charged" = order.paymentStatus;
+void payment;
+`);
+  const handbook = await readFile(join(workspaceRoot, "docs", "README.md"), "utf8");
+  const lesson = handbook.split("### JavaScript first, optional typed contracts")[1]
+    ?.split("### Configuration and environments")[0];
+  const snippets = [...(lesson || "").matchAll(/```(js|ts)\r?\n([\s\S]*?)```/g)];
+
+  if (snippets.length !== 2) {
+    throw new Error("The organization lesson must retain checked JS and TS examples");
+  }
+  for (const [, language, code] of snippets) {
+    await writeFile(join(fixtureRoot, `lesson.${language}`), code);
+  }
+  await writeFile(join(fixtureRoot, "tsconfig.json"), JSON.stringify({
+    compilerOptions: {
+      allowJs: true, checkJs: true, strict: true, noEmit: true,
+      module: "ESNext", moduleResolution: "Bundler", target: "ES2022",
+      lib: ["ES2022", "DOM", "DOM.Iterable"], types: []
+    },
+    include: ["consumer.ts", "lesson.js", "lesson.ts"]
+  }));
+  await run(process.execPath, [
+    join(workspaceRoot, "node_modules", "typescript", "bin", "tsc"),
+    "--project", join(fixtureRoot, "tsconfig.json")
+  ], { cwd: projectRoot });
 }
 
 async function applyBeginnerJourney(starterRoot, installedPackageRoot) {

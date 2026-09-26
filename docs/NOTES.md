@@ -2,6 +2,42 @@
 
 ## Architectural Decisions
 
+### Feature-owned application organization — 2026-09-26
+
+- C04 documents the existing page/component/layout/API discovery and ordinary
+  explicitly imported `src/domain` modules. Shared modules never depend on
+  page scripts. Catalog/cart/auth/admin/backend boundaries remain app-owned;
+  no registry, DI container, global store requirement or Core policy was added.
+- App-owned `.d.ts` contracts describe cart/session/quote/order DTOs for the
+  JavaScript HTTP wrapper and optional TS callers. JSDoc response assertions
+  are static documentation, not response validation; backend validation and
+  authorization tests remain authoritative. The original optional-input
+  behavior of the wrappers is retained.
+- Browser env values (`VITE_*`) are public. Static `dist` output does not deploy
+  the local backend. Root hosting is the example default; Vite asset base does
+  not supply an undocumented route-prefix API. Subdirectory deployments must
+  coordinate route config, links, SEO, API/proxy paths and hosting explicitly.
+- CLI impact is `NONE`. Existing `inspect`, `routes` and `doctor` provide the
+  analysis. The local-tarball gate now copies both real consumers outside the
+  workspace and runs installed analysis/builds plus strict JS/TS contract and
+  handbook-snippet checks. Tooling dependencies are reused locally without a
+  registry download; VeloDom itself comes only from the installed artifact.
+- No implementation was superseded, so no compatibility code was removed.
+  Two missing explicit noopener attributes were fixed after installed doctor
+  exposed them. Remaining unused-handler/large-template warnings are advisory,
+  not grounds for deleting programmatic request handlers or teaching content.
+- Verification: all 345 automated tests and docs/type/strict/lint gates passed;
+  the six starter combinations and both installed reference consumers passed.
+  The teaching site has 7 routes and one advisory template-size finding; the
+  store has 9 routes and seven advisory dynamic/unused-handler findings.
+  Both production builds and artifact-content gates passed (326 VeloDom files,
+  662.6 KiB packed; 4 create-wrapper files, 1.7 KiB packed). This is local
+  source/package evidence, not publication or remote CI approval.
+- Production browser verification passed in desktop Chromium and mobile
+  Chromium, including the store HTTP/session/admin flows. Firefox/WebKit were
+  not selected for this local run; the strict remote release matrix remains a
+  separate gate rather than being inferred from these results.
+
 ### Replaceable backend/session contract — 2026-09-24
 
 - `src/api` remains a browser request convention. The store's new `server/`

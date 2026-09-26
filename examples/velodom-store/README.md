@@ -42,7 +42,7 @@ own authorized backend while retaining the same browser/server boundary.
 src/
   api/             stable client request names
   components/      navigation, product cards, and mock-boundary UI
-  domain/          shared catalog repository plus cart/admin policy
+  domain/          explicitly imported catalog/cart/auth/admin/backend modules
   layouts/         separate storefront and administration shells
   pages/           catalog, product, cart, checkout, admin, and not-found routes
   main.js          optional plugin composition
@@ -53,6 +53,35 @@ server/             local-only HTTP authority and Vite/Node adapters
 `src/domain` is an explicit application module, not a new VeloDom discovery
 folder. VeloDom still discovers only the documented pages, components,
 layouts, and API routes.
+
+## Team boundaries and optional types
+
+Pages own their drafts, accessible controls and route values. Shared components
+own presentation; `src/api` owns browser request names; feature modules own
+cart persistence, catalog contracts and account UX. Shared modules do not import
+page scripts. Server authorization stays in `server/`, never in a shared UI
+module. No service registry or mandatory global state is introduced.
+
+`src/domain/backend/contracts.d.ts` defines the app-owned cart, quote, session
+and mock-order wire types. The HTTP client uses JSDoc, so JavaScript remains
+the implementation while TypeScript consumers share checked contracts.
+Annotations/assertions are static only, not JSON validation. Backend validation
+and the fixture's authorization tests remain mandatory.
+
+Development/preview mounts the local fixture; a production `dist` deployment
+needs a separately deployed backend for `/__fixture-api` or a deliberately
+changed client origin/path. Public `VITE_*` configuration must never contain
+secrets. Build-time SEO snapshots are public data, not live stock or session
+state. This example targets `/`: Vite asset `base` does not automatically prefix
+routes, links or APIs for subdirectory hosting.
+
+The full organization recipe, JS/TS snippets, configuration and deployment
+boundaries are in the repository handbook's **Organizing Larger Applications**
+section. `npm run package:consumer` copies this example and the teaching blog
+outside the workspace, installs the local artifact, checks public-only imports,
+and runs the installed inspector, route explorer, doctor and production build.
+It also checks the JSDoc client through a strict TS consumer; tooling warnings
+remain advisory rather than evidence that a dynamic request is unused.
 
 `src/api` is a browser request convention, not a secret execution environment.
 It contains only endpoint calls and request shaping. The `server/` fixture owns

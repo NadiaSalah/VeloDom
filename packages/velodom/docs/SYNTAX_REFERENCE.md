@@ -7,6 +7,13 @@ input compiled/runtime output.
 
 ## Resource Conventions
 
+Only the documented resource folders below are discovered. Application helper
+folders such as `src/domain`, `src/content`, or `src/utils` are explicit ordinary
+imports, not a service registry. JS JSDoc and app-owned `.d.ts` files can share
+wire contracts with TS modules without a second implementation. Server modules
+must stay outside browser imports. Vite asset `base` does not automatically
+prefix page routes, navigation links, or API endpoints.
+
 ### Pages
 
 ```text

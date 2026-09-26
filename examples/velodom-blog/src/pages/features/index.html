@@ -258,7 +258,7 @@ state.openFeatured = () =&gt; {
         The VeloDom Store administration example adds an explicit reload action,
         focus restoration, server-style validation, and a confirmed bulk action
         over the same catalog data used by the public pages.
-        <a href="https://github.com/NadiaSalah/VeloDom/tree/main/examples/velodom-store/src/pages/admin" target="_blank" rel="noreferrer" class="font-bold text-indigo-700">Read the complete admin source ↗</a>
+        <a href="https://github.com/NadiaSalah/VeloDom/tree/main/examples/velodom-store/src/pages/admin" target="_blank" rel="noopener noreferrer" class="font-bold text-indigo-700">Read the complete admin source ↗</a>
       </p>
     </section>
 
@@ -768,6 +768,29 @@ inspectPluginConformance(integration, { target: "browser" });
 // Do not import velodom/lib/* or packages/velodom/src/*
 // Those are framework internals, not application APIs.</code></pre>
       </div>
+      <h3>Grow by feature ownership, not another module system.</h3>
+      <p class="mt-3">Keep discovered pages, components, layouts and API routes in their usual folders. Move reusable business behavior into explicitly imported application modules. The store reference separates catalog, cart, account UX and admin behavior; these folder names do not register framework services.</p>
+      <div class="code-window">
+        <div class="code-toolbar"><span>examples/velodom-store</span><span>application ownership</span></div>
+        <pre class="code-example" vd-pre><code>src/pages/              route UI, draft and recovery
+src/components/         shared presentation and explicit props/events
+src/layouts/            public/admin shells with one &lt;vd-page&gt;
+src/api/                browser request names
+src/domain/catalog/     public fixtures and backend/SEO helpers
+src/domain/cart/        guest ids and quantities; no saved prices
+src/domain/auth/        account/navigation UX, not server authorization
+src/domain/admin/       backend fixture validation/revision policy
+src/domain/backend/     HTTP client + app-owned contracts.d.ts
+server/                 independent HTTP authority
+
+// JavaScript can use JSDoc; TypeScript shares the same wire contracts.
+import { quoteCartFromServer } from "#app/domain/backend/store-api-client.js";
+const quote = await quoteCartFromServer({ lines: [
+  { productId: "aurora-lamp", variantId: "midnight", quantity: 1 }
+] });
+// Types describe the contract. They do not validate JSON or authorize a write.</code></pre>
+      </div>
+      <div class="callout"><strong>Deployment boundary:</strong> shared helpers must not import page scripts or server credentials. <code>VITE_*</code> values are public. A static build does not deploy a backend, and Vite asset <code>base</code> does not automatically prefix routes, links or API paths. The repository handbook checks the matching JavaScript/TypeScript lesson and both consumers against an installed local package.</div>
       <div class="callout"><strong>Explicit non-goals:</strong> VeloDom does not require JSX/TSX, a virtual DOM, a mandatory global store, SSR/hydration, a CSS framework, AI, or a React/Vue compatibility layer. Advanced server work remains optional planned research.</div>
     </section>
   </article>

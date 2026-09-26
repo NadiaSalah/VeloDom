@@ -233,12 +233,19 @@ startup failure still requires verification on the strict Linux CI runner.
 
 ## TODO
 
-The **Commerce and Large Applications** track is now **3/10 complete**. The
+The **Commerce and Large Applications** track is now **4/10 complete**. The
 storefront, administration workflow, and replaceable HTTP/session contract are
 implemented and verified, including real server denial, safe mock writes, and
-private cache boundaries. Continue with the measured large-dataset baseline,
-then evaluate optional data/form/scale
-improvements for V1.x. API-contract generation is deferred to a future major release; realtime,
+private cache boundaries. The handbook now explains feature-owned organization,
+dependency direction, optional app-owned JSDoc/TS contracts, public/server
+configuration and deployment paths. The installed-package gate builds and
+inspects both real consumers outside the workspace and type-checks the matching
+JS/TS lesson; no new runtime API, registry or starter was introduced.
+Files changed for this milestone: store HTTP client/contracts/README,
+`tools/scripts/package/check-package-consumer.mjs`, blog architecture lesson and
+README, package AI/syntax guides, and root handbook/roadmap/change records.
+Continue with C05's existing read/mutation lifecycle audit, then forms and
+measured scale work for V1.x. API-contract generation is deferred to a future major release; realtime,
 virtualization, and request-time rendering stay research. These are proposals,
 not new npm features. Payment, stock, authorization, and pricing remain
 application/server responsibilities; the documentation blog stays the teaching site.

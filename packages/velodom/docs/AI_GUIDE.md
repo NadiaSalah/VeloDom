@@ -69,6 +69,27 @@ export function init({ state }) {
 }
 ```
 
+## Growing an application without new framework machinery
+
+Keep `src/pages`, `components`, `layouts`, and `api` discovery unchanged. Put
+feature-owned helpers behind explicit imports, using any clear application
+folder name such as `domain`. Pages own presentation and drafts; shared modules
+must not import page scripts. Components communicate through documented props
+and events rather than another page's implementation. Domain types belong to
+the app, while framework lifecycle/request types come from `velodom`.
+
+Use JS JSDoc with `.d.ts` contracts or adopt TS one module at a time. Do not
+generate two versions of the application or describe static types as runtime
+validation. Separate server authority from browser wrappers; `VITE_*` values
+are public client configuration. A static build does not deploy a backend.
+Vite asset `base` does not automatically change page paths or `vd-nav` links;
+coordinate routes, SEO, API paths and hosting explicitly for subdirectories.
+
+The source repository's store example illustrates these boundaries and the
+educational blog explains them; neither full application ships in this package.
+Use installed `vd inspect`, `vd routes`, `vd doctor` and application builds to
+verify real conventions before introducing architecture abstractions.
+
 ## Validate Syntax
 
 Before using a directive:

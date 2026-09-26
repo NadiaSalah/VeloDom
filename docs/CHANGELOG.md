@@ -14,6 +14,13 @@ or claim that a matching package is available from a registry.
 
 ### Added
 
+- Completed C04 with a large-application organization recipe, optional
+  app-owned store wire contracts/JSDoc, explicit browser/server/deployment
+  boundaries, and matching educational/AI guidance. The installed-package gate
+  now inspects and builds both real reference consumers outside the workspace
+  and strictly checks the JS HTTP wrapper plus the handbook's JS/TS snippets.
+  Fixed two documentation links' explicit noopener attributes exposed by that
+  gate. No Core API, discovery rule, starter, dependency or version changed.
 - Completed the store backend/session boundary with a replaceable local HTTP
   fixture, server-session auth provider, guarded administration routes,
   authoritative cart tax/totals, CSRF-protected optimistic writes, idempotent

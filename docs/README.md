@@ -60,6 +60,7 @@ Source repository: [github.com/NadiaSalah/VeloDom](https://github.com/NadiaSalah
 - [Public Package Boundaries](#public-package-boundaries)
 - [Showcase Routes](#showcase-routes)
 - [Storefront Reference Consumer](#storefront-reference-consumer)
+- [Organizing Larger Applications](#organizing-larger-applications)
 - [Verification](#verification)
 - [Release Decision](#release-decision)
 - [Browser Support](#browser-support)
@@ -5169,6 +5170,145 @@ keyboard activation, mobile layout, RTL, quotation, mock checkout, admin URL
 search, failed/conflicting draft recovery, focus restoration, and confirmed
 bulk changes. See its application-level details in
 `examples/velodom-store/README.md`.
+
+## Organizing Larger Applications
+
+Grow the application, not the framework's discovery rules. Keep pages,
+components, layouts, and API routes where VeloDom already discovers them.
+Move reusable application behavior into explicitly imported, feature-owned
+modules when a page script grows. `domain` below is an application convention,
+not a special folder or automatic service registry.
+
+```text
+src/
+  pages/                    routes, page state, forms, loading/error/empty UI
+    home/                   catalog presentation
+    products/[id]/          public product presentation
+    cart/                   guest cart presentation
+    sign-in/                account/session presentation
+    admin/products/         list, detail and edit presentation
+  components/               shared UI; nested names remain supported
+    product-card/           catalog UI
+    store-nav/              shared navigation
+  layouts/                  public/admin shells with one <vd-page>
+  api/                      named browser request handlers and middleware
+  domain/                   explicit imports; not auto-discovered
+    catalog/                public fixture records and backend/SEO helpers
+    cart/                   guest ids/quantities and persistence
+    auth/                   account/navigation UX; never authorization authority
+    admin/                  backend fixture validation/revision policy
+    backend/                HTTP client and application wire contracts
+  main.js                   public VeloDom bootstrap/plugin composition
+server/                     separate backend authority; never browser imports
+```
+
+This is the actual store reference shape, not a required new starter. A larger
+team may put account/profile clients into `domain/account` or generic UI into
+`components/ui`; those names add no framework behavior.
+
+### Ownership and dependency direction
+
+| Layer | Owns | May depend on |
+| --- | --- | --- |
+| Page | Local draft, accessible UI, route/query values, recovery | Shared UI, feature modules, public `velodom` imports |
+| Component/layout | Reusable presentation, explicit props/events, shell | Public runtime, small application helpers; not another page's script |
+| `src/api` | Stable request names, browser request shaping | Application HTTP client, public request helpers |
+| Feature module | Cart model, formatting, account UX, domain contracts | Other explicit feature contracts and public package APIs |
+| Backend | Session, permission, tenant, price, inventory, write authority | Server-safe domain helpers and private server configuration |
+| Vite/build configuration | Compiler integration and public SEO snapshots | Public build-only package subpaths and reviewed build-time data |
+
+Avoid importing page scripts into shared modules: that reverses ownership and
+couples unrelated routes. Share a small function or contract instead. Use
+relative imports, the configured `@` alias, or the package's `#app/*` mapping;
+none bypass the browser/server boundary. There is no dependency-injection
+container, mandatory global store, or auto-discovered `services` folder.
+
+### JavaScript first, optional typed contracts
+
+`examples/velodom-store/src/domain/backend/contracts.d.ts` describes the
+example's wire values. Its JavaScript HTTP wrapper uses JSDoc, so editors and
+TypeScript callers see the same contracts without a duplicate TS application.
+An application may progressively rename a `script.js` to `script.ts` (remove
+the replaced file) or keep plain JS indefinitely.
+
+```js
+import { quoteCartFromServer } from "#app/domain/backend/store-api-client.js";
+
+/** @type {import("#app/domain/backend/contracts.js").CartLine[]} */
+const lines = [{ productId: "aurora-lamp", variantId: "midnight", quantity: 1 }];
+const quote = await quoteCartFromServer({ lines });
+console.log(quote.totalCents); // app-owned StoreQuote contract
+```
+
+```ts
+import type { PageScriptContext } from "velodom";
+import type { CartLine } from "#app/domain/backend/contracts.js";
+import { quoteCartFromServer } from "#app/domain/backend/store-api-client.js";
+
+type CheckoutState = { totalCents: number };
+
+export async function init({ state, ctx }: PageScriptContext<CheckoutState>) {
+  const lines: CartLine[] = [
+    { productId: "aurora-lamp", variantId: "midnight", quantity: 1 }
+  ];
+  const quote = await quoteCartFromServer({ lines }, { signal: ctx.signal });
+  if (!ctx.signal.aborted) state.totalCents = quote.totalCents;
+}
+```
+
+These are **application** imports and types, not exports from `velodom`.
+`.d.ts` and JSDoc disappear at runtime; the wrapper's response assertions
+describe the tested fixture contract, not JSON validation. A real backend must
+validate input and the application should validate untrusted responses as
+appropriate. Static types cannot enforce positive quantities, stock, money,
+CSRF, or authorization. Model authenticated/anonymous sessions separately,
+and keep cookies/signing secrets out of public DTOs. Framework lifecycle types
+are available from `velodom`; do not import internal type files.
+
+### Configuration and environments
+
+- Browser configuration is public. Vite's `import.meta.env.VITE_*` values are
+  embedded in client output; only non-secret origins, labels, and public flags
+  belong there. `src/api` is also browser code.
+- Server secrets belong to the independently deployed backend's environment
+  and secret-management policy, never application imports or browser env flags.
+  Importing a server module from a page defeats that separation.
+- Development and local preview mount the store's deterministic HTTP fixture
+  through `server/vite-backend-plugin.js`. `vite build` emits static client
+  files, not a deployed backend. Deploying `dist` alone does not deploy session,
+  catalog, quote, or order endpoints. Replace the fixture with a backend/reverse
+  proxy; configure cross-origin credentials/CORS/CSRF deliberately if needed.
+- Build-time SEO entries use reviewed public fixture snapshots. Runtime reads
+  use the HTTP client. Do not load private account/admin data into static HTML
+  or imply a build snapshot is live inventory.
+- The examples target the site root (`/`). Vite `base` rewrites asset URLs; it
+  does **not** automatically prefix VeloDom route paths, `vd-nav` links, or API
+  endpoints. For `/shop/`, explicitly coordinate page `config.path`, links,
+  canonical/SEO paths, proxy endpoints, host SPA fallback and asset base. Do not
+  invent a `routerBase` option. Root hosting is the simplest supported recipe;
+  subdirectory behavior needs deployment tests for that configuration.
+
+### Verify boundaries with the installed package
+
+```bash
+vd inspect --json
+vd routes --json
+vd doctor --json
+npm run build
+```
+
+`inspect` shows discovered resources, `routes` shows actual paths, and `doctor`
+checks static references/configuration. Advisory unused-handler findings can
+be legitimate for programmatic calls; inspect them rather than deleting code
+blindly. These commands do not prove backend authorization or dynamic behavior.
+
+Repository maintainers run `npm run package:consumer`: it installs a local
+tarball, checks the six generated starter combinations, then copies both real
+reference applications into an isolated directory. The installed package runs
+their inspection/route/doctor/build gates, rejects private package imports and
+server-secret markers in client chunks, and strictly type-checks the JS store
+HTTP wrapper with a TS caller. Framework syntax, CLI flags, package exports,
+starter selection, and runtime weight are unchanged by this recipe.
 
 ## Verification
 
