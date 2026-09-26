@@ -1,0 +1,75 @@
+<main class="page-main">
+  <div class="page-frame session-grid">
+    <section class="content-card session-card">
+      <p class="eyebrow">Replaceable session contract</p>
+      <h1>Choose a fixture account.</h1>
+      <p class="lede">
+        These identities exist only in the local backend fixture. UI guards
+        improve navigation, while the server independently enforces every role,
+        tenant, and resource decision.
+      </p>
+
+      <p vd-show="sessionLoading" class="status-panel" aria-live="polite">Reading the server session…</p>
+      <div vd-if="sessionError !== ''" class="status-panel error" role="alert">{{ sessionError }}</div>
+      <div vd-if="Boolean(session?.authenticated)" class="status-panel success" role="status">
+        <strong>Signed in as {{ session.user.name }}</strong>
+        <p>{{ session.user.tenantId }} tenant · {{ session.roles.join(', ') }}</p>
+      </div>
+      <p vd-if="!sessionLoading && !session?.authenticated" class="status-panel">
+        No authenticated fixture session.
+      </p>
+
+      <div class="account-grid" aria-label="Fixture accounts">
+        <button class="account-card" type="button" vd-request="session.login" vd-request-config="{ params: { account: 'admin-north' }, target: 'session', autoState: true, onSuccess: handleLoginSuccess }">
+          <strong>North administrator</strong>
+          <span>Allowed into the administration workspace.</span>
+        </button>
+        <button class="account-card" type="button" vd-request="session.login" vd-request-config="{ params: { account: 'editor-north' }, target: 'session', autoState: true, onSuccess: handleLoginSuccess }">
+          <strong>North editor</strong>
+          <span>Authenticated, but denied the administrator role.</span>
+        </button>
+        <button class="account-card" type="button" vd-request="session.login" vd-request-config="{ params: { account: 'customer-north' }, target: 'session', autoState: true, onSuccess: handleLoginSuccess }">
+          <strong>North customer</strong>
+          <span>Can create and read only their own mock orders.</span>
+        </button>
+        <button class="account-card" type="button" vd-request="session.login" vd-request-config="{ params: { account: 'admin-south' }, target: 'session', autoState: true, onSuccess: handleLoginSuccess }">
+          <strong>South administrator</strong>
+          <span>Has the role, but is denied north-tenant records.</span>
+        </button>
+      </div>
+
+      <p vd-if="actionResultError !== ''" class="status-panel error" role="alert">{{ actionResultError }}</p>
+      <p vd-if="actionMessage !== ''" class="status-panel success" role="status">{{ actionMessage }}</p>
+
+      <div class="stack-actions">
+        <button
+          class="button button-secondary"
+          type="button"
+          vd-request="session.expire"
+          vd-request-config="{ target: 'actionResult', autoState: true, onSuccess: handleExpireSuccess }"
+          vd-bind:disabled="actionResultLoading || !session?.authenticated"
+        >Expire session</button>
+        <button
+          class="button button-secondary"
+          type="button"
+          vd-request="session.logout"
+          vd-request-config="{ target: 'actionResult', autoState: true, onSuccess: handleLogoutSuccess }"
+          vd-bind:disabled="actionResultLoading || !session?.authenticated"
+        >Sign out</button>
+        <a class="button button-primary" vd-href="returnTo" vd-nav>Continue</a>
+      </div>
+    </section>
+
+    <aside class="content-card boundary-card" aria-labelledby="session-boundary-title">
+      <p class="eyebrow">Security boundary</p>
+      <h2 id="session-boundary-title">What stays on the server</h2>
+      <ul>
+        <li>HTTP-only session identity and expiry.</li>
+        <li>Role, resource-owner, and tenant authorization.</li>
+        <li>CSRF checks for state-changing requests.</li>
+        <li>Authoritative price, currency, stock, tax, and order state.</li>
+      </ul>
+      <p>No payment provider or credential is included in the browser bundle.</p>
+    </aside>
+  </div>
+</main>

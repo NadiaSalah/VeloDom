@@ -11,12 +11,22 @@
 import "./style.css";
 import {
   createDirectionPlugin,
+  createServerSessionAuthProvider,
   createValidationPlugin
 } from "velodom";
 import { mountVeloDom } from "velodom/vite";
 import { cart } from "#app/domain/cart/cart-store.js";
 
 await mountVeloDom({
+  auth: {
+    defaultProvider: "store-session",
+    providers: {
+      "store-session": createServerSessionAuthProvider({
+        sessionUrl: "/__fixture-api/session",
+        credentials: "same-origin"
+      })
+    }
+  },
   plugins: [
     cart.plugin,
     createValidationPlugin(),

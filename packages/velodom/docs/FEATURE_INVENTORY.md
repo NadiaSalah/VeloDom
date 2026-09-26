@@ -39,7 +39,7 @@ before use.
 | Global/page guards | Routing | Stable | `beforeEach`, `beforeEnter` | async arrays | public guard types | Yes |
 | Page data loader | Data | Stable | page `data.js|ts` | direct app request | public loader types | Yes |
 | Page data cache policy | Data | Supported | `maxAgeMs`, SWR | none | cache policy type | Yes |
-| File request routes | Requests | Stable | `src/api/**` | route registry | Vite adapter | Yes |
+| File request routes | Requests | Stable | `src/api/**` browser modules | route registry; separate trusted backend | Vite adapter | Yes |
 | Declarative requests | Requests | Stable | `vd-request` family | direct `requestJson` | request APIs | Yes |
 | Request middleware | Requests | Stable | `src/api/middleware.js` | inline function | middleware APIs | Yes |
 | Request auth providers | Auth | Stable | app provider registry | server/local demo providers | auth APIs | Yes |

@@ -2,6 +2,40 @@
 
 ## Architectural Decisions
 
+### Replaceable backend/session contract — 2026-09-24
+
+- `src/api` remains a browser request convention. The store's new `server/`
+  fixture is connected only through Vite dev/preview and the repository browser
+  harness; its session signing secret and Node imports are rejected if they
+  appear in browser build assets. Production consumers replace the fixture with
+  their own backend rather than moving trust into Core.
+- The server independently enforces HTTP-only sessions, expiry, role, resource
+  ownership, tenant scope, CSRF, optimistic revisions, authoritative USD price,
+  stock and tax, and order state. Private responses are `private, no-store` and
+  vary by cookie. Mock order creation requires an idempotency key, rejects
+  submitted-total tampering and duplicates, and never imports a payment SDK.
+- The public UI adds a no-index session fixture page, guard-protected admin
+  routes, server-backed catalog/cart/admin loaders, and a no-charge mock order
+  result. Client guards are documented as usability only. CLI impact is
+  `NONE`: this is an application integration example, not a generated starter
+  or new public framework capability.
+- Replaced the superseded local `createMockCheckout()` path and its test with
+  server-contract coverage. The new tests exercise denial, expiry/logout,
+  account replacement, private cache headers, total tampering, idempotency,
+  resource isolation, and cancellation; the browser gate crosses the actual
+  Node HTTP adapter for customer checkout and guarded administration.
+- The completion audit added a concurrent duplicate-write regression: the
+  idempotency decision now occurs after async quotation, immediately before the
+  single-process commit. The backend repeats order-role checks, rejects invalid
+  quantities, and validates aggregated duplicate-option stock. Real backends
+  still need an atomic database/provider idempotency contract.
+- Passed the full source/type/lint documentation checks, all 343 baseline tests
+  plus the two additional contract regressions, the installed package/six-starter
+  build matrix, both example builds, performance gates, desktop/mobile Chromium,
+  and the real npm dry-run content/size audit. Browser checks reject server-only
+  markers and keep expected 409/500 logs confined to the intentional edit
+  recovery scenario.
+
 ### Administration workflow over the shared store domain — 2026-09-24
 
 - Extended `examples/velodom-store` instead of creating a second admin consumer

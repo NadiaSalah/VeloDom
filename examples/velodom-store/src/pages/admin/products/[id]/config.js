@@ -7,9 +7,12 @@
  * ----------------------------------------
  */
 
+import { requireAdminPage } from "#app/domain/auth/admin-guard.js";
+
 export default {
   path: "/admin/products/:id",
   layout: "admin",
+  beforeEnter: requireAdminPage,
   seo: {
     title: "Admin Product Detail | VeloDom Store",
     description: "Inspect a product record in the VeloDom administration example.",

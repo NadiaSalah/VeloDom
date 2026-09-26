@@ -375,6 +375,11 @@ Request directives:
 
 Cross-page writes must be explicitly allowed by page config. Request routes may
 declare auth, roles, named/custom middleware, and auth-failure redirects.
+Files under `src/api` are browser application modules, not secret server
+routes. Client auth/roles/guards improve UX only. Keep credentials, session and
+CSRF enforcement, tenant/resource authorization, authoritative business data,
+and sensitive transitions on an application backend. Retry a write only when
+that backend defines safe idempotency semantics.
 
 ## Forms
 

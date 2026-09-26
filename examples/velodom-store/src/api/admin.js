@@ -3,14 +3,14 @@
  * Module: Store Administration Request Routes
  * ----------------------------------------
  *
- * Exposes application-owned administration handlers through VeloDom request
- * discovery. The later backend-contract milestone adds session authorization.
+ * Keeps declarative request names stable while administration crosses the
+ * replaceable HTTP boundary. Authorization remains server-owned.
  * ----------------------------------------
  */
 
 export {
-  bulkUpdateAdminProducts,
-  getAdminProduct,
-  listAdminProducts,
-  updateAdminProduct
-} from "#app/domain/admin/admin-service.js";
+  bulkUpdateAdminProductsOnServer as bulkUpdateAdminProducts,
+  getAdminProductFromServer as getAdminProduct,
+  listAdminProductsFromServer as listAdminProducts,
+  updateAdminProductOnServer as updateAdminProduct
+} from "#app/domain/backend/store-api-client.js";

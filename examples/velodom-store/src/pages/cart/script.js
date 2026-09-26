@@ -8,7 +8,7 @@
  * ----------------------------------------
  */
 
-import { quoteCart } from "#app/domain/catalog/catalog-service.js";
+import { quoteCartFromServer } from "#app/domain/backend/store-api-client.js";
 import {
   cart,
   cartModel
@@ -30,7 +30,10 @@ export async function init({ state }) {
     state.persistenceNotice = cart.state.persistenceNotice;
 
     try {
-      const quote = await quoteCart({ lines: cart.state.lines });
+      const quote = await quoteCartFromServer({
+        currency: "USD",
+        lines: cart.state.lines
+      });
 
       state.quote = quote;
       state.quoteLines = quote.lines.map(line => ({

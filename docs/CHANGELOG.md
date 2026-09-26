@@ -14,12 +14,19 @@ or claim that a matching package is available from a registry.
 
 ### Added
 
+- Completed the store backend/session boundary with a replaceable local HTTP
+  fixture, server-session auth provider, guarded administration routes,
+  authoritative cart tax/totals, CSRF-protected optimistic writes, idempotent
+  no-charge mock orders, owner/role/tenant denial, expiry/logout/account-change
+  behavior, private-cache headers, and abortable reads. Browser output is
+  checked for server-only secrets; focused contract and production browser
+  coverage close commerce milestones C02 and C03 without changing Core APIs.
 - Extended `examples/velodom-store` with a separate administration layout and
   shared catalog repository: URL-backed server pagination, detail/edit routes,
   native validation, optimistic revision conflict recovery, focus-restored
   request feedback, readable statuses, and confirmed bulk publication actions.
   Deterministic unit/browser coverage proves failed/conflicting drafts remain
-  intact. Actual session/role denial remains the explicit C03 backend milestone.
+  intact. The completed C03 fixture now supplies actual session/role denial.
 - Added the separate `examples/velodom-store` public-package consumer with
   deterministic catalog/product/cart/quote data, URL-backed filtering,
   versioned id/quantity-only persistence, direct product SEO entries, RTL, and

@@ -784,6 +784,69 @@ h1 {
   font-size: .85rem;
 }
 
+.session-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(17rem, .65fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.session-card,
+.boundary-card {
+  padding: clamp(1.25rem, 4vw, 2.25rem);
+}
+
+.session-card h1 {
+  font-size: clamp(2.35rem, 6vw, 4.7rem);
+}
+
+.account-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .8rem;
+  margin-block: 1.5rem;
+}
+
+.account-card {
+  display: grid;
+  gap: .45rem;
+  min-height: 8.5rem;
+  border: 1px solid var(--border);
+  border-radius: 1.1rem;
+  padding: 1.1rem;
+  background: var(--surface);
+  color: var(--ink);
+  text-align: start;
+  cursor: pointer;
+}
+
+.account-card:hover,
+.account-card:focus-visible {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.account-card strong {
+  font-size: 1rem;
+}
+
+.account-card span,
+.boundary-card p,
+.boundary-card li {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.boundary-card h2 {
+  margin-block: 0 .8rem;
+}
+
+.boundary-card ul {
+  display: grid;
+  gap: .55rem;
+  padding-inline-start: 1.2rem;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -822,6 +885,10 @@ h1 {
 
   .admin-sidebar-note {
     display: none;
+  }
+
+  .session-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -870,6 +937,10 @@ h1 {
   .form-actions .button,
   .dialog-actions .button {
     width: 100%;
+  }
+
+  .account-grid {
+    grid-template-columns: 1fr;
   }
 }
 

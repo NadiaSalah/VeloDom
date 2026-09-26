@@ -10,6 +10,7 @@
 import { defineConfig } from "vite";
 import { fileURLToPath, URL } from "node:url";
 import { velodom } from "velodom/vite-plugin";
+import { storeBackendFixturePlugin } from "./server/vite-backend-plugin.js";
 
 export default defineConfig({
   root: fileURLToPath(new URL(".", import.meta.url)),
@@ -24,5 +25,5 @@ export default defineConfig({
   server: {
     historyApiFallback: true
   },
-  plugins: [velodom()]
+  plugins: [storeBackendFixturePlugin(), velodom()]
 });

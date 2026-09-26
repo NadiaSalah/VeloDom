@@ -8,7 +8,7 @@
  * ----------------------------------------
  */
 
-import { quoteCart } from "#app/domain/catalog/catalog-service.js";
+import { quoteCartFromServer } from "#app/domain/backend/store-api-client.js";
 import {
   cart,
   cartModel
@@ -70,7 +70,10 @@ export function init({ state, data }) {
         quantity
       );
 
-      await quoteCart({ lines: prospectiveLines });
+      await quoteCartFromServer({
+        currency: "USD",
+        lines: prospectiveLines
+      });
       cartModel.add(data.id, state.selectedVariantId, quantity);
       state.cartMessage = cart.state.persistenceNotice
         || "Added after a fresh mock stock and price check.";

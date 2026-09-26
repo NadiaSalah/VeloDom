@@ -2162,6 +2162,19 @@ VeloDom separates:
 - declarative request triggers in HTML
 - generic request/auth/middleware execution in Core
 
+`src/api` is compiled into the browser application. Its name means
+"application request layer," not "trusted server route." Never place database
+credentials, signing keys, payment secrets, authorization decisions, or
+authoritative price/stock/tax logic there. Keep those in a separately deployed
+backend and let `src/api` call it with `requestJson`.
+
+For private resources, the backend must independently verify the session,
+resource owner, role, and tenant; enforce CSRF/session expiry; and send
+`Cache-Control: private, no-store` plus an appropriate `Vary` header. Client
+guards and request `roles` remain navigation/UX policy only. Sensitive writes
+need explicit idempotency semantics; do not apply automatic retry to order or
+payment transitions unless the server contract makes repetition safe.
+
 ### HTTP Handler
 
 ```js
@@ -5116,10 +5129,11 @@ control uses the optional direction plugin, whose `ctx.direction` controller
 is available to both page and component hooks.
 
 The guest cart persists only a versioned list of product option ids and
-quantities. Product names, stock, and prices are recalculated through a local
-deterministic fixture before mutations and checkout. The final handoff states
-that it creates no order and takes no payment. Real pricing, inventory, tax,
-sessions, authorization, and provider event verification stay on an
+quantities. Product names, stock, prices, currency, and tax are recalculated by
+a deterministic local HTTP backend before mutations and checkout. The final
+handoff records a mock order with an idempotency key and explicitly takes no
+payment. The fixture keeps its session/signing authority outside the browser;
+real provider credentials and event verification still belong to an
 application backend.
 
 The separate `admin` layout reuses that catalog repository and provides:
@@ -5134,8 +5148,12 @@ The separate `admin` layout reuses that catalog repository and provides:
   markup, and status words in addition to color.
 
 These routes are marked `noindex,nofollow`. They demonstrate a client workflow,
-not backend security: C03 adds a replaceable HTTP/session fixture and proves
-actual denial in addition to hiding or guarding UI.
+plus an explicit replaceable HTTP/session contract. The server fixture repeats
+role, owner, tenant, CSRF, expiry, price/currency/stock/tax, revision, and order
+transition checks independently of UI guards. Integration tests prove denied
+and tampered writes, duplicate idempotency keys, private-cache headers, account
+changes, and pending-request cancellation; no payment SDK or secret enters the
+browser build.
 
 Run it independently from the workspace root:
 

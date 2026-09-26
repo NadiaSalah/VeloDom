@@ -238,6 +238,12 @@ Do not:
 - use client guards as authorization
 - edit packaged starter files in `node_modules`
 
+Treat `src/api` as browser-owned request organization, not hidden server code.
+Generate a separate backend boundary for credentials, session/CSRF enforcement,
+tenant/resource authorization, authoritative business totals, and sensitive
+state transitions. Do not add payment credentials to a VeloDom client or retry
+non-idempotent writes without an explicit server contract.
+
 ## Completion Checklist
 
 - syntax is listed in the canonical reference

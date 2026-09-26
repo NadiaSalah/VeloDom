@@ -215,6 +215,14 @@ absolute app path redirect.
 
 Application request routes live in `src/api`. Trigger them declaratively:
 
+`src/api` is discovered into the browser application; it is not a secret
+server boundary. Keep credentials, authorization, CSRF/session policy,
+authoritative pricing/inventory/tax, and sensitive state transitions on a real
+backend. Browser guards and route `roles` improve UX but never replace server
+checks. Use idempotency keys for sensitive writes and enable retry only when the
+endpoint contract makes repetition safe. The repository's
+`examples/velodom-store` demonstrates this separation with a local fixture.
+
 ```html
 <button
   vd-request="posts.list"

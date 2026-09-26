@@ -233,10 +233,11 @@ startup failure still requires verification on the strict Linux CI runner.
 
 ## TODO
 
-The **Commerce and Large Applications** track remains **1/10 complete** while
-the `C02` admin workflow is implemented and verified but intentionally stays
-open until `C03` proves real server authorization denial. Continue with that
-backend/session boundary, then evaluate optional data/form/scale
+The **Commerce and Large Applications** track is now **3/10 complete**. The
+storefront, administration workflow, and replaceable HTTP/session contract are
+implemented and verified, including real server denial, safe mock writes, and
+private cache boundaries. Continue with the measured large-dataset baseline,
+then evaluate optional data/form/scale
 improvements for V1.x. API-contract generation is deferred to a future major release; realtime,
 virtualization, and request-time rendering stay research. These are proposals,
 not new npm features. Payment, stock, authorization, and pricing remain

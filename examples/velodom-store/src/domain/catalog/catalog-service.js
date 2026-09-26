@@ -73,7 +73,28 @@ export async function getProduct(input = {}) {
 export async function quoteCart(input = {}) {
   await applyFixtureBehavior(input);
   const requestedLines = Array.isArray(input.lines) ? input.lines : [];
-  const lines = requestedLines.map(requested => quoteLine(requested));
+  const grouped = new Map();
+
+  for (const requested of requestedLines) {
+    const productId = String(requested?.productId || "").trim();
+    const variantId = String(requested?.variantId || "").trim();
+    const quantity = Number(requested?.quantity);
+
+    if (!Number.isSafeInteger(quantity) || quantity < 1) {
+      throw new Error("Choose a positive whole-number quantity for every cart item.");
+    }
+
+    const key = JSON.stringify([productId, variantId]);
+    const existing = grouped.get(key);
+    grouped.set(key, {
+      productId,
+      variantId,
+      quantity: (existing?.quantity || 0) + quantity
+    });
+  }
+
+  // Validate total option quantity, so duplicate input rows cannot bypass stock.
+  const lines = [...grouped.values()].map(requested => quoteLine(requested));
 
   return {
     currency: STORE_CURRENCY,
@@ -82,22 +103,6 @@ export async function quoteCart(input = {}) {
     totalCents: lines.reduce((total, line) => total + line.lineTotalCents, 0),
     quotedAt: "2026-09-21T00:00:00.000Z",
     mock: true
-  };
-}
-
-/** Creates a visibly mocked handoff after a fresh authoritative quotation. */
-export async function createMockCheckout(input = {}) {
-  const quote = await quoteCart(input);
-
-  if (quote.lines.length === 0) {
-    throw new Error("Add at least one available item before checkout.");
-  }
-
-  return {
-    id: `mock-${quote.lines.map(line => line.productId).join("-")}`,
-    status: "mock-handoff",
-    message: "Simulation complete. No order was created and no payment was taken.",
-    quote
   };
 }
 

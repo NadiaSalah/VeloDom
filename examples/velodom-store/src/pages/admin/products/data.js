@@ -7,8 +7,8 @@
  * ----------------------------------------
  */
 
-import { listAdminProducts } from "#app/domain/admin/admin-service.js";
+import { listAdminProductsFromServer } from "#app/domain/backend/store-api-client.js";
 
-export async function load({ query }) {
-  return listAdminProducts(query);
+export async function load({ query, signal }) {
+  return listAdminProductsFromServer(query, { signal });
 }

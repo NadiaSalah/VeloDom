@@ -3,7 +3,7 @@
     <section class="content-card checkout-card">
       <p class="eyebrow">Mock checkout handoff</p>
       <h1>No payment can occur here.</h1>
-      <p class="lede">This final step sends only the cart ids and quantities to a deterministic local handler, which requotes them again and returns a simulation result.</p>
+      <p class="lede">This final step sends only cart ids and quantities to the local HTTP fixture. The server recalculates stock, currency, price, tax, and the mock order total.</p>
 
       <vd-component name="mock-boundary"></vd-component>
 
@@ -17,8 +17,9 @@
         </li>
       </ul>
       <div vd-if="!preparing && prepareError === '' && quoteLines.length > 0" class="cart-summary">
-        <span>Mock total</span>
-        <strong>{{ total }}</strong>
+        <span>Server subtotal</span><strong>{{ subtotal }}</strong>
+        <span>Server tax</span><strong>{{ tax }}</strong>
+        <span>Mock order total</span><strong>{{ total }}</strong>
       </div>
 
       <div class="stack-actions">
@@ -27,17 +28,24 @@
           vd-if="!preparing && prepareError === '' && quoteLines.length > 0"
           type="button"
           class="button button-primary"
-          vd-request="checkout.createMock"
-          vd-params="{ lines: cartLines }"
+          vd-request="orders.create"
+          vd-params="{
+            lines: cartLines,
+            currency: 'USD',
+            expectedTotalCents: totalCents,
+            idempotencyKey
+          }"
           vd-target="checkoutResult"
           vd-auto-state
-        >{{ checkoutLoading ? "Simulating…" : "Complete mock handoff" }}</button>
+          vd-bind:disabled="checkoutLoading || Boolean(checkoutResult?.id)"
+        >{{ checkoutLoading ? "Recording…" : "Create mock order" }}</button>
       </div>
 
       <p vd-if="checkoutError !== ''" class="status-panel error" role="alert">{{ checkoutError }}</p>
       <div vd-if="Boolean(checkoutResult?.message)" class="status-panel success" role="status">
-        <strong>Simulation result: {{ checkoutResult.status }}</strong>
+        <strong>Mock order {{ checkoutResult.id }} · {{ checkoutResult.status }}</strong>
         <p>{{ checkoutResult.message }}</p>
+        <p>Payment status: {{ checkoutResult.paymentStatus }}</p>
       </div>
     </section>
   </div>

@@ -3,15 +3,13 @@
  * Module: Storefront Request Routes
  * ----------------------------------------
  *
- * Exposes the app-owned catalog, quotation, and mock-checkout handlers through
- * VeloDom request discovery. A real deployment would replace these fixtures
- * with calls to an authorized backend.
+ * Exposes browser-safe calls to the replaceable catalog and quotation HTTP
+ * contract. Authoritative business policy remains in the server fixture.
  * ----------------------------------------
  */
 
 export {
-  createMockCheckout,
-  getProduct,
-  listCatalog,
-  quoteCart
-} from "#app/domain/catalog/catalog-service.js";
+  getProductFromServer as getProduct,
+  listCatalogFromServer as listCatalog,
+  quoteCartFromServer as quoteCart
+} from "#app/domain/backend/store-api-client.js";

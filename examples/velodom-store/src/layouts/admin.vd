@@ -10,8 +10,8 @@
           <a href="/" vd-nav>Public catalog</a>
         </nav>
         <p class="admin-sidebar-note">
-          Local fixture only. Session and backend denial behavior is introduced
-          in the next integration milestone.
+          Local fixture only. The HTTP boundary independently enforces session,
+          role, tenant, CSRF, and optimistic revision policy.
         </p>
       </aside>
       <section class="admin-workspace" aria-label="Administration workspace">

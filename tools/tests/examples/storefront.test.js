@@ -11,7 +11,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  createMockCheckout,
   getProduct,
   listCatalog,
   quoteCart
@@ -82,24 +81,6 @@ test("storefront direct product lookup and quotations use fixture authority", as
       }]
     }),
     /only 0 available/
-  );
-});
-
-test("mock checkout requotes and never claims a real transaction", async () => {
-  const result = await createMockCheckout({
-    lines: [{
-      productId: "focus-timer",
-      variantId: "orange",
-      quantity: 1
-    }]
-  });
-
-  assert.equal(result.status, "mock-handoff");
-  assert.match(result.message, /No order was created/);
-  assert.equal(result.quote.totalCents, 3600);
-  await assert.rejects(
-    () => createMockCheckout({ lines: [] }),
-    /Add at least one/
   );
 });
 

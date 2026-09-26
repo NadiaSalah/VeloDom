@@ -296,7 +296,7 @@ export default {
 };</code></pre>
         </div>
       </div>
-      <div class="callout"><strong>Ownership:</strong> VeloDom orchestrates a route; your application owns endpoint URLs, validation, domain data, and every server-side authorization decision.</div>
+      <div class="callout"><strong>Ownership:</strong> <code>src/api</code> is browser code. Keep database credentials, payment secrets, permission decisions, and authoritative business totals on a separately deployed backend. This folder organizes the calls to that backend.</div>
     </section>
 
     <section id="auth" class="doc-section">
@@ -341,6 +341,16 @@ await mountVeloDom({
 };</code></pre>
       </div>
       <div class="callout"><strong>Security boundary:</strong> the provider improves client UX and request coordination. The server must still verify the session, role, CSRF policy, and resource ownership.</div>
+      <p class="mt-4">
+        The repository's <code class="inline-code">examples/velodom-store</code>
+        runs a separate local HTTP fixture for sessions, catalog quotations,
+        administration, and mock order status. It demonstrates tenant/owner
+        denial, session expiry, CSRF checks, authoritative currency/price/stock/tax,
+        and duplicate-write protection. Run <code class="inline-code">npm run dev:store</code>
+        from the source checkout and open <code class="inline-code">/sign-in</code>.
+        Mock orders never charge money. Production credentials and provider
+        event verification belong to your backend.
+      </p>
     </section>
 
     <section id="cache" class="doc-section">

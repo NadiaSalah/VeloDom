@@ -23,7 +23,7 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 | Approved authoring and rendering maturity | Implemented locally | Looped components, keyed updates, `.vd` lazy parity, and compiler cache; release verification remains separate |
 | Approved developer intelligence | Implemented locally | Shared project index, diagnostics, safe fixes, generated types, and CLI composition |
 | Approved optional extensions | Implemented locally | Seven bounded tooling/integration milestones complete; research remains excluded |
-| Commerce and large applications | Active validation / optional extensions | Storefront is complete; the admin workflow is implemented locally and awaits the C03 server-denial contract before milestone closure |
+| Commerce and large applications | Active validation / optional extensions | Storefront, admin workflow, and the C03 HTTP/session denial contract are complete |
 | Hybrid rendering, AI, migration, CMS, and Edge | Research / Experimental | External or high-risk capabilities; never required by Core |
 
 ### Progress counter
@@ -45,10 +45,10 @@ state.
 This separately scoped quality/adoption work is detailed below; the completed
 implementation counters above do not mean these follow-ups or release gates are done.
 
-**Commerce and large-application track: 1 of 10 complete (10%).**
+**Commerce and large-application track: 3 of 10 complete (30%).**
 These new proposals do not change the completed baseline or the 6/8 simplicity
-counter. C02's application workflow is implemented and verified, but remains
-open until C03 supplies its required real server-denial evidence. Research
+counter. C01–C03 now provide storefront, administration, and real server-denial
+evidence without adding commerce policy to Core. Research
 experiments are tracked separately and are not implementation promises.
 
 ### Status vocabulary
@@ -141,9 +141,9 @@ documentation site is one consumer, not the framework's architectural boundary.
 The objective is to prove and improve store, administration, and business-app
 workflows without turning Core into an e-commerce backend or enterprise platform.
 
-**Progress: 1 of 10 milestones complete (10%).**
+**Progress: 3 of 10 milestones complete (30%).**
 
-`[##------------------] 10%`
+`[######--------------] 30%`
 
 ### Existing foundations — reuse before adding
 
@@ -182,13 +182,14 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   routes, keyed product components, a versioned id/quantity-only guest cart,
   fresh price/stock checks, and a non-transactional checkout handoff. Unit tests
   cover filter/pagination, authoritative pricing/stock, invalid/unavailable
-  persistence, and mock checkout. Desktop/mobile browser journeys cover
+  persistence, while C03 replaces the original local checkout helper with the
+  HTTP mock-order contract. Desktop/mobile browser journeys cover
   Back/Forward filters, keyboard add-to-cart, refresh persistence, blocked
   storage, direct routes, mock checkout, responsive overflow, and RTL. The
   example exposed and fixed the existing direction-context gap for components;
   no commerce API, directive, starter, or dependency entered Core.
 
-- [ ] **C02 — Administration and business workflow example. V1 validation;
+- [x] **C02 — Administration and business workflow example. V1 validation;
   complexity: Medium; owner: application/example; CLI: NONE initially.** Add
   a focused admin area to the same reference consumer rather than a second
   copy of its domain/data layer. Demonstrate list/detail/edit, server-paginated
@@ -205,10 +206,10 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   validated edit forms preserve drafts across deterministic failure/conflict;
   revision reload recovers explicitly; and a native dialog confirms keyboard-
   operable bulk publication changes. Unit and Chromium browser coverage prove
-  readable non-color status, focus restoration, and recovery. Keep this item
-  open until C03 exercises actual server authorization denial and UI guards.
+  readable non-color status, focus restoration, and recovery. C03 now exercises
+  actual server authorization denial and UI guards, closing this milestone.
 
-- [ ] **C03 — Backend, session, and safe-write integration contract. V1
+- [x] **C03 — Backend, session, and safe-write integration contract. V1
   documentation/integration tests; complexity: High; owner: application backend
   plus fixtures; CLI: NONE.** Teach that `src/api` discovery is a client request
   convention, not a secret server execution boundary. Specify a small
@@ -224,6 +225,13 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   production boundary without making Core a backend. Acceptance: a deterministic
   local backend fixture rejects unauthorized/tampered/duplicate writes and
   produces no real charges; no provider SDK or secret enters a browser bundle.
+  Implemented by the store's local-only Fetch-compatible backend plus Vite/Node
+  adapters, server-session provider, guarded admin pages, authoritative quote,
+  and idempotent mock-order flow. Focused tests cover resource/role/tenant and
+  CSRF denial, expiry/logout/account changes, private no-store responses,
+  tampered totals, duplicate keys, and aborted reads. The production browser
+  gate crosses the actual HTTP adapter and rejects server-secret markers in
+  client chunks. `src/api` contains browser calls only; CLI impact remains NONE.
 
 - [ ] **C04 — Large-team application organization recipe. V1 documentation;
   complexity: Medium; owner: docs/examples; CLI: NONE.** Show feature-owned

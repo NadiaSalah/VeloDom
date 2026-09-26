@@ -11,6 +11,7 @@
 
 import {
   access,
+  readdir,
   readFile,
   stat
 } from "node:fs/promises";
@@ -28,6 +29,8 @@ import {
   firefox,
   webkit
 } from "@playwright/test";
+import { createStoreBackendFixture } from "../../../examples/velodom-store/server/backend-fixture.js";
+import { handleStoreBackendNodeRequest } from "../../../examples/velodom-store/server/node-backend.js";
 
 const projectRoot = resolve(
   fileURLToPath(new URL("../../..", import.meta.url))
@@ -47,15 +50,25 @@ const selectedTargets = getSelectedTargets(targetRegistry);
 
 await access(join(distRoot, "index.html"));
 await access(join(storeDistRoot, "index.html"));
+await assertStoreBrowserBoundary(storeDistRoot);
 
 const server = await createStaticServer(distRoot);
-const storeServer = await createStaticServer(storeDistRoot);
+const storeBackend = createStoreBackendFixture();
+const storeServer = await createStaticServer(
+  storeDistRoot,
+  (request, response) => handleStoreBackendNodeRequest(
+    request,
+    response,
+    storeBackend
+  )
+);
 const results = [];
 
 try {
   await assertStaticSeo(server.origin, storeServer.origin);
 
   for (const target of selectedTargets) {
+    storeBackend.reset();
     results.push(await runBrowserTarget(
       target,
       server.origin,
@@ -421,6 +434,26 @@ async function assertStaticSeo(origin, storeOrigin) {
   assertIncludes(adminHtml, 'name="robots" content="noindex,nofollow"');
 }
 
+async function assertStoreBrowserBoundary(root) {
+  const entries = await readdir(join(root, "assets"), {
+    withFileTypes: true
+  });
+  const javascript = await Promise.all(entries
+    .filter(entry => entry.isFile() && entry.name.endsWith(".js"))
+    .map(entry => readFile(join(root, "assets", entry.name), "utf8")));
+  const source = javascript.join("\n");
+
+  for (const forbidden of [
+    "velodom-store-server-fixture-secret-not-for-browser",
+    "node:crypto",
+    "SERVER_SIGNING_SECRET"
+  ]) {
+    if (source.includes(forbidden)) {
+      throw new Error(`Store browser build leaked server-only marker: ${forbidden}`);
+    }
+  }
+}
+
 async function assertStorefrontSmoke(browser, target, origin) {
   const context = await browser.newContext(target.contextOptions);
 
@@ -461,10 +494,16 @@ async function assertStorefrontSmoke(browser, target, origin) {
       await page.locator('a.primary-link[href="/cart"]').click();
       await waitForPageText(page, "Confirmed items");
       await waitForPageText(page, "Aurora desk lamp");
-      await page.locator('a[href="/checkout"]').click();
+      await page.goto(`${origin}/sign-in?returnTo=/checkout&reason=checkout`);
+      await waitForPageText(page, "Choose a fixture account.");
+      await page.locator(".locale-button").waitFor();
+      await page.locator('button:has-text("North customer")').click();
+      await waitForPageText(page, "Signed in as Casey Customer");
+      await page.locator('a:has-text("Continue")').click();
       await waitForPageText(page, "No payment can occur here.");
-      await page.locator('button:has-text("Complete mock handoff")').click();
-      await waitForPageText(page, "No order was created and no payment was taken.");
+      await page.locator('button:has-text("Create mock order")').click();
+      await waitForPageText(page, "No charge or payment provider was used.");
+      await waitForPageText(page, "Payment status: not-charged");
 
       await page.locator(".locale-button").click();
       await page.waitForFunction(() => (
@@ -493,6 +532,12 @@ async function assertStorefrontSmoke(browser, target, origin) {
       "storefront-administration",
       async page => {
         await page.goto(`${origin}/admin/products`);
+        await page.waitForURL(url => url.pathname === "/sign-in");
+        await waitForPageText(page, "Choose a fixture account.");
+        await page.locator(".locale-button").waitFor();
+        await page.locator('button:has-text("North administrator")').click();
+        await waitForPageText(page, "Signed in as Nora Admin");
+        await page.locator('a:has-text("Continue")').click();
         await waitForPageText(page, "Search a server-paginated list");
         // The SEO fallback can expose page text before the async page module and
         // its model bindings finish mounting. The shared component appears only
@@ -559,7 +604,6 @@ async function assertStorefrontSmoke(browser, target, origin) {
         await waitForPageText(page, "Server-paginated product records");
 
         const firstRow = page.locator(".admin-table tbody tr").first();
-        const firstProductName = await firstRow.locator("th strong").innerText();
 
         await firstRow.locator('input[type="checkbox"]').check();
         await page.locator("#bulk-action-trigger").click();
@@ -568,14 +612,17 @@ async function assertStorefrontSmoke(browser, target, origin) {
         await waitForPageText(page, "1 product archived.");
         await page.waitForFunction(() => document.activeElement?.id === "bulk-success");
 
-        const updatedRow = page.locator(".admin-table tbody tr")
-          .filter({ hasText: firstProductName });
+        const updatedRow = page.locator(".admin-table tbody tr").first();
         if ((await updatedRow.locator(".status-badge").innerText()).trim().toLowerCase() !== "archived") {
           throw new Error("Bulk status was not expressed as readable text.");
         }
       },
       {
-        expectedConsoleErrors: ["[VeloDom] API Request Failed"]
+        expectedConsoleErrors: [
+          "[VeloDom] API Request Failed",
+          "500 (Internal Server Error)",
+          "409 (Conflict)"
+        ]
       }
     );
   } finally {
@@ -853,9 +900,11 @@ function readPositiveDuration(value, fallback) {
   return Math.floor(duration);
 }
 
-async function createStaticServer(root) {
+async function createStaticServer(root, requestHandler = null) {
   const server = createServer(async (request, response) => {
     try {
+      if (requestHandler && await requestHandler(request, response)) return;
+
       const url = new URL(request.url || "/", "http://127.0.0.1");
       const file = await resolveStaticFile(root, url.pathname);
       const source = await readFile(file);

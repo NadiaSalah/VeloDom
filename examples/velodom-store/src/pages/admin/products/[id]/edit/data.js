@@ -7,8 +7,8 @@
  * ----------------------------------------
  */
 
-import { getAdminProduct } from "#app/domain/admin/admin-service.js";
+import { getAdminProductFromServer } from "#app/domain/backend/store-api-client.js";
 
-export async function load({ params }) {
-  return getAdminProduct({ id: params.id });
+export async function load({ params, signal }) {
+  return getAdminProductFromServer({ id: params.id }, { signal });
 }
