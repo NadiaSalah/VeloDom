@@ -358,8 +358,9 @@ await mountVeloDom({
       <h2>Cache public data deliberately; retry only failures that are safe to repeat.</h2>
       <p class="mt-3">
         Page data may use a small memory cache for public, repeat-visited
-        routes. Request caching and retries are explicit helpers, so protected
-        account data and mutations never become cached accidentally.
+        routes. Request caching and retries are explicit helpers. Mutations
+        bypass the request cache; the application must keep private session and
+        no-store endpoints outside it.
       </p>
       <div class="grid gap-5 lg:grid-cols-2">
         <div class="code-window">
@@ -379,15 +380,20 @@ export const cache = {
           <div class="code-toolbar"><span>src/api/posts.js</span><span>GET cache + retry</span></div>
           <pre class="code-example" vd-pre><code>import { createRequestCache, withRequestRetry } from "velodom";
 
-const cache = createRequestCache({ ttlMs: 30_000 });
+const cache = createRequestCache({
+  ttlMs: 30_000, maxEntries: 40, scope: "public-posts"
+});
 
 export const getOne = withRequestRetry(
-  ({ id }) =&gt; cache.requestJson(`/api/posts/${id}`),
+  ({ id }, context) =&gt; cache.requestJson(`/api/posts/${id}`, {
+    signal: context.signal
+  }),
   { retries: 2, delayMs: 250 }
 );</code></pre>
         </div>
       </div>
-      <div class="callout"><strong>Safe default:</strong> the request cache stores only GET-like requests without a body. Do not cache private session data; do not blindly retry writes such as checkout or create actions.</div>
+      <p class="mt-3">The optional request cache coalesces concurrent GET reads with independent cancellation, uses bounded LRU retention (100 entries by default), and fences older cache writes after <code>clear()</code>. Clear only after a confirmed successful mutation, then explicitly reload the UI. A failed write preserves the last good read.</p>
+      <div class="callout"><strong>Privacy and freshness:</strong> headers and credentials affect request identity, but HttpOnly cookie changes and HTTP cache headers are not inferred. Session/no-store endpoints stay uncached. For explicitly permitted private read caching, an app-owned scope must include tenant/user/session identity and be cleared on auth changes. Page-data caching is separate and public-only here. Legacy <code>ttlMs: 0</code> means until clear/eviction; prefer a finite TTL. Never blindly retry checkout/create actions.</div>
     </section>
 
     <section id="rtl" class="doc-section">

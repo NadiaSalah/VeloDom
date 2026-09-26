@@ -14,6 +14,13 @@ or claim that a matching package is available from a registry.
 
 ### Added
 
+- Hardened the existing optional request cache with bounded LRU/in-flight
+  retention, GET coalescing with independent cancellation, header/credential
+  identity, explicit private-scope fencing and pending-write invalidation.
+  Moved cache coordination to one Core module and removed its superseded
+  helpers while retaining public imports, custom keys and zero-TTL behavior.
+  Added ten regression tests and installed-consumer option checks; C05 remains
+  open for page-data/router/retry auditing rather than claiming full completion.
 - Completed C04 with a large-application organization recipe, optional
   app-owned store wire contracts/JSDoc, explicit browser/server/deployment
   boundaries, and matching educational/AI guidance. The installed-package gate

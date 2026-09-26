@@ -231,6 +231,7 @@ export const VD_SHARED_STATE = Object.freeze({
 /** Defaults used by optional cache, retry, and devtools helpers. */
 export const VD_OPTIONAL_TOOLS = Object.freeze({
   DEFAULT_CACHE_TTL_MS: 0,
+  DEFAULT_CACHE_MAX_ENTRIES: 100,
   DEFAULT_DEVTOOLS_GLOBAL: "__VELODOM_DEVTOOLS__",
   DEFAULT_RETRIES: 1,
   DEFAULT_RETRY_DELAY_MS: 0,

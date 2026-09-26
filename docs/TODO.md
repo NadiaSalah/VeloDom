@@ -267,6 +267,20 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   hand-written request coordination. Acceptance: concurrency, abort, failed
   mutation, account-switch and memory-bound tests; reuse one request engine,
   preserve existing helpers, and add no automatic global fetch/store behavior.
+  **Progress:** the request-cache audit reproduced five old failures, now fixed:
+  late writes after clear, duplicate concurrent reads, private scope switch-back,
+  header/credential collisions, and unbounded retention. The existing helper
+  now has bounded LRU/in-flight tracking, independently cancellable coalesced
+  GETs, explicit scope fencing, and compatible base-key invalidation. Ten
+  regression tests also cover total cancellation, failures, TTL, custom-key
+  races, and saturation; installed TS consumption checks the new options.
+  Its superseded implementation/helpers were removed, and package/AI/blog
+  docs distinguish request caching from public-only page-data freshness.
+  **Still open:** page-data SWR/coalescing/invalidation and router loader
+  cancellation; abortable retry waiting; the complete success/refetch recipe
+  exercised against catalog/admin/account changes. Do not mark C05 complete
+  based on the request-cache portion alone. CLI impact for these helper options
+  is NONE; no generated global cache or starter policy is added.
 
 - [ ] **C06 — Composable complex forms and edit protection. V1.x; complexity:
   High; owner: optional forms integration and narrowly scoped router extension

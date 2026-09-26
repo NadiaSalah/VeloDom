@@ -122,6 +122,12 @@ applications.
 
 ## Documentation Shipped With the Package
 
+Optional `createRequestCache` coordinates only explicitly cached GET reads:
+finite `ttlMs`, bounded `maxEntries`, independent cancellation and app-owned
+`scope`/`clear()` invalidation. Session/no-store endpoints stay uncached;
+post-write UI refresh is explicit and separate from page-data caching. See the
+syntax guide for exact options and compatibility behavior.
+
 - [Quick Start](docs/QUICK_START.md) — verified setup and first edits.
 - [Syntax Reference](docs/SYNTAX_REFERENCE.md) — canonical public syntax.
 - [Feature Inventory](docs/FEATURE_INVENTORY.md) — implemented feature status.

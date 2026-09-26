@@ -2,6 +2,48 @@
 
 ## Architectural Decisions
 
+### Request-cache concurrency and invalidation — 2026-09-26
+
+- C05's first implementation scope is the existing opt-in request helper.
+  Five failing regressions proved invalidated reads could repopulate cache,
+  parallel GETs were duplicated, account switch-back could reuse stale work,
+  headers/credentials collided, and retention was unbounded.
+- One `requests/request-cache.ts` module now owns coordination, while
+  `request-tools.ts` keeps the compatible re-export. The old implementation,
+  key/cacheability helpers and unused imports were removed. All HTTP work still
+  uses `requests/http-client.ts`; no second fetch engine, global listener or
+  automatically enabled cache was introduced.
+- `maxEntries` bounds LRU results and tracked reads; saturation bypasses caching.
+  Default capacity is 100. Legacy zero TTL still means until clear/eviction;
+  finite TTL is recommended. Each read has per-consumer cancellation and one
+  transport controller; the final abort cancels transport and fences completion.
+- Identity includes explicit application scope, headers and credentials.
+  Scope changes and `clear` detach pending entries, preventing late cache
+  repopulation even after switching back or starting a newer same-key read.
+  Original callers still receive awaited results and own UI identity checks.
+  Custom/legacy base keys remain accepted by `clear`.
+- Session/no-store endpoints in the store remain uncached. The JSON helper
+  cannot infer response cache policy or HttpOnly-cookie changes; private read
+  caching requires explicit backend/application permission, identity scope and
+  logout invalidation. No automatic auth observer or page-cache invalidation
+  is claimed. The separate router/page-data/SWR and retry-wait audit is still
+  open; C05 is not marked complete.
+- CLI impact: `NONE`. Templates contain no active use of this optional cache
+  and need no global configuration or dependency. The installed fixture checks
+  option declarations; examples and package/root/AI docs teach the same finite
+  cache, explicit invalidation and private-session boundary.
+- Verification: all 355 automated tests passed, including ten new focused
+  cache regressions; docs/types/strict/lint and the full build passed. The local
+  artifact's runtime/declarations, six starter combinations and both real
+  consumers passed installed-package checks. Performance budgets passed with
+  119.7 KiB initial and 240.2 KiB total teaching-site JavaScript. Artifact gates
+  passed at 329 files / 667.8 KiB packed for VeloDom and 4 files / 1.7 KiB for
+  the creation wrapper. This is local evidence, not publication or remote CI.
+- The installed artifact also passed a real `velodom` import smoke test for
+  concurrent GET coalescing and pending-write invalidation. Desktop/mobile
+  Chromium production flows passed after the cache change. Other browser
+  engines still require their separate strict release matrix.
+
 ### Feature-owned application organization — 2026-09-26
 
 - C04 documents the existing page/component/layout/API discovery and ordinary

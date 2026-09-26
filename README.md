@@ -250,6 +250,20 @@ virtualization, and request-time rendering stay research. These are proposals,
 not new npm features. Payment, stock, authorization, and pricing remain
 application/server responsibilities; the documentation blog stays the teaching site.
 
+C05 is now partially implemented: the existing opt-in request cache has bounded
+LRU retention, coalesced GET reads, independent cancellation, header/credential
+identity, explicit session/tenant scope and invalidation fences. Its old cache
+implementation/helpers were replaced by one focused Core module; public
+imports, custom keys, `clear()` and legacy zero-TTL semantics are preserved.
+Updated files include cache/types/constants, regression and installed-consumer
+checks, package AI/syntax/inventory guides and the blog's cache lesson.
+Page-data invalidation/cancellation and retry-wait auditing remain in C05, so
+the commerce counter is intentionally still 4/10, not 5/10.
+Verification: 355 tests, docs/types/strict/lint, full build, six generated
+starter combinations, installed real consumers, package content/size and
+performance gates passed. Desktop/mobile Chromium production tests passed.
+Other engines and remote CI remain separate release evidence.
+
 See [docs/TODO.md](docs/TODO.md) for release gates and the separately counted
 V1 simplicity/organization follow-up, now **6/8 complete (75%)**. Prioritize
 independent developer observation and evidence-led guide navigation before

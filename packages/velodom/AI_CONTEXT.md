@@ -77,6 +77,14 @@ source. JS JSDoc and app-owned `.d.ts` contracts can support TS callers without
 duplicating the application. Types are not runtime input/response validation.
 Vite `base` handles assets, not automatic route/API path prefixes.
 
+`createRequestCache` is optional: set finite `ttlMs`, bounded `maxEntries` and
+an explicit scope when permitted private reads are cached. It coalesces GETs,
+isolates consumer cancellation and fences pending completions on `clear()` or
+scope changes. Clear after successful writes, then explicitly refetch UI.
+Use uncached `requestJson` for session/no-store endpoints. No HttpOnly cookie
+change, HTTP cache policy or page-data invalidation is inferred automatically.
+Legacy `ttlMs: 0` remains retained-until-clear/eviction; default capacity is 100.
+
 ## Public Imports
 
 - `velodom`

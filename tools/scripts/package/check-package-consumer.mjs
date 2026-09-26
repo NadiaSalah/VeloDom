@@ -193,6 +193,7 @@ try {
   ]) {
     await access(join(installedPackageRoot, file));
   }
+  await assertInstalledRequestCache(consumerRoot);
 
   const starterCases = [
     {
@@ -436,6 +437,30 @@ async function assertReferenceConsumers(temporaryRoot, installedPackageRoot) {
     }
     console.log(`- installed ${example.name}: ${routes.length} routes; inspect/doctor/build passed (${doctor.issues.length} advisory findings)`);
   }
+}
+
+async function assertInstalledRequestCache(consumerRoot) {
+  const path = join(consumerRoot, "cache-smoke.mjs");
+  await writeFile(path, `
+import assert from "node:assert/strict";
+import { createRequestCache } from "velodom";
+let finish;
+let calls = 0;
+globalThis.fetch = () => {
+  calls++;
+  return new Promise(resolve => { finish = resolve; });
+};
+const cache = createRequestCache({ ttlMs: 5000, maxEntries: 2, scope: "public" });
+const first = cache.requestJson("https://fixture.test/catalog");
+const second = cache.requestJson("https://fixture.test/catalog");
+assert.equal(calls, 1);
+cache.clear("GET https://fixture.test/catalog");
+finish(new Response('{"revision":1}'));
+assert.deepEqual(await first, { revision: 1 });
+assert.deepEqual(await second, { revision: 1 });
+assert.equal(cache.size, 0);
+`);
+  await run(process.execPath, [path], { cwd: consumerRoot });
 }
 
 async function runProjectAnalysis(cli, command, projectRoot) {

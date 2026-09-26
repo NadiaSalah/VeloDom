@@ -88,6 +88,213 @@ test("request retry wrapper retries explicit handler failures", async () => {
   assert.equal(attempts, 3);
 });
 
+test("clearing the request cache fences an older pending read", async t => {
+  const originalFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = originalFetch; });
+  const cache = createRequestCache();
+  let finish;
+  globalThis.fetch = () => new Promise(resolve => { finish = resolve; });
+  const pending = cache.requestJson("/catalog");
+
+  cache.clear();
+  finish(jsonResponse({ revision: 1 }));
+  assert.deepEqual(await pending, { revision: 1 });
+  assert.equal(cache.size, 0, "a stale completion must not repopulate an invalidated cache");
+});
+
+test("identical pending GETs coalesce with independently abortable consumers", async t => {
+  const originalFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = originalFetch; });
+  let calls = 0;
+  let finish;
+  let transportSignal;
+  globalThis.fetch = (_url, options) => {
+    calls++;
+    transportSignal = options.signal;
+    return new Promise(resolve => { finish = resolve; });
+  };
+  const cache = createRequestCache();
+  const controller = new AbortController();
+  const first = cache.requestJson("/catalog", { signal: controller.signal });
+  const rejected = assert.rejects(first, { name: "AbortError" });
+  const second = cache.requestJson("/catalog");
+
+  controller.abort();
+  assert.equal(calls, 1);
+  assert.equal(transportSignal.aborted, false, "one consumer cannot abort another's read");
+  finish(jsonResponse({ revision: 2 }));
+  await rejected;
+  assert.deepEqual(await second, { revision: 2 });
+  assert.equal(cache.size, 1);
+});
+
+test("scope changes fence private pending responses, including switch-back", async t => {
+  const originalFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = originalFetch; });
+  let scope = "north:user-a:session-1";
+  const completions = [];
+  globalThis.fetch = () => new Promise(resolve => { completions.push(resolve); });
+  const cache = createRequestCache({ scope: () => scope });
+  const first = cache.requestJson("/account");
+  scope = "south:user-b:session-2";
+  const second = cache.requestJson("/account");
+  scope = "north:user-a:session-1";
+  const third = cache.requestJson("/account");
+
+  completions[0](jsonResponse({ user: "old-a" }));
+  await first;
+  assert.equal(cache.size, 0);
+  completions[1](jsonResponse({ user: "b" }));
+  await second;
+  assert.equal(cache.size, 0);
+  completions[2](jsonResponse({ user: "new-a" }));
+  assert.deepEqual(await third, { user: "new-a" });
+  assert.deepEqual(await cache.requestJson("/account"), { user: "new-a" });
+});
+
+test("cache identity includes request headers and credentials", async t => {
+  const originalFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = originalFetch; });
+  let calls = 0;
+  globalThis.fetch = async () => jsonResponse({ calls: ++calls });
+  const cache = createRequestCache();
+  const url = "/account";
+
+  assert.deepEqual(await cache.requestJson(url, { headers: { Authorization: "A" } }), { calls: 1 });
+  assert.deepEqual(await cache.requestJson(url, { headers: { authorization: "B" } }), { calls: 2 });
+  assert.deepEqual(await cache.requestJson(url, { headers: { authorization: "A" } }), { calls: 1 });
+  assert.deepEqual(await cache.requestJson(url, { headers: { Authorization: "A" }, credentials: "omit" }), { calls: 3 });
+  cache.clear("GET /account");
+  assert.equal(cache.size, 0, "the legacy default base key clears every header variant");
+});
+
+test("request cache bounds memory using LRU and rejects aborted cache hits", async t => {
+  const originalFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = originalFetch; });
+  let calls = 0;
+  globalThis.fetch = async () => jsonResponse({ calls: ++calls });
+  const cache = createRequestCache({ maxEntries: 2 });
+  await cache.requestJson("/one");
+  await cache.requestJson("/two");
+  await cache.requestJson("/one");
+  await cache.requestJson("/three");
+  assert.equal(cache.size, 2);
+  assert.deepEqual(await cache.requestJson("/one"), { calls: 1 });
+  assert.deepEqual(await cache.requestJson("/two"), { calls: 4 });
+  const controller = new AbortController();
+  controller.abort();
+  await assert.rejects(cache.requestJson("/two", { signal: controller.signal }), { name: "AbortError" });
+  assert.equal(calls, 4);
+});
+
+function jsonResponse(value) {
+  return new Response(JSON.stringify(value), {
+    headers: { "Content-Type": "application/json" }
+  });
+}
+
+test("the last cancellation aborts transport and fences ignored-abort completion", async t => {
+  const originalFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = originalFetch; });
+  let transportSignal;
+  let finish;
+  globalThis.fetch = (_url, options) => {
+    transportSignal = options.signal;
+    return new Promise(resolve => { finish = resolve; });
+  };
+  const cache = createRequestCache();
+  const controller = new AbortController();
+  const pending = cache.requestJson("/catalog", { signal: controller.signal });
+  const rejected = assert.rejects(pending, { name: "AbortError" });
+  controller.abort();
+  assert.equal(transportSignal.aborted, true);
+  finish(jsonResponse({ ignoredAbort: true }));
+  await rejected;
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(cache.size, 0);
+});
+
+test("failed reads are evicted and failed writes preserve cached reads until explicit clear", async t => {
+  const originalFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = originalFetch; });
+  let calls = 0;
+  globalThis.fetch = async (_url, options) => {
+    calls++;
+    return options.method === "POST" || calls === 1
+      ? new Response('{"message":"failed"}', { status: 500 })
+      : jsonResponse({ revision: calls });
+  };
+  const cache = createRequestCache();
+  await assert.rejects(cache.requestJson("/catalog"));
+  assert.equal(cache.size, 0);
+  assert.deepEqual(await cache.requestJson("/catalog"), { revision: 2 });
+  await assert.rejects(cache.requestJson("/catalog", { method: "POST", body: {} }));
+  assert.deepEqual(await cache.requestJson("/catalog"), { revision: 2 });
+  assert.equal(calls, 3);
+  cache.clear("GET /catalog");
+  assert.deepEqual(await cache.requestJson("/catalog"), { revision: 4 });
+});
+
+test("custom-key invalidation fences old work without deleting a newer read", async t => {
+  const originalFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = originalFetch; });
+  const completions = [];
+  globalThis.fetch = () => new Promise(resolve => { completions.push(resolve); });
+  const cache = createRequestCache({ key: () => "catalog" });
+  const first = cache.requestJson("/catalog");
+  cache.clear("catalog");
+  const second = cache.requestJson("/catalog");
+  completions[0](jsonResponse({ revision: 1 }));
+  await first;
+  assert.equal(cache.size, 0);
+  completions[1](jsonResponse({ revision: 2 }));
+  await second;
+  assert.deepEqual(await cache.requestJson("/catalog"), { revision: 2 });
+});
+
+test("TTL pruning, disabled cache and option validation retain the legacy zero-TTL contract", async t => {
+  const originalFetch = globalThis.fetch;
+  const originalNow = Date.now;
+  t.after(() => { globalThis.fetch = originalFetch; Date.now = originalNow; });
+  let now = 1_000;
+  let calls = 0;
+  Date.now = () => now;
+  globalThis.fetch = async () => jsonResponse({ calls: ++calls });
+  const cache = createRequestCache({ ttlMs: 10 });
+  await cache.requestJson("/catalog");
+  now += 10;
+  assert.equal(cache.size, 0);
+  await cache.requestJson("/catalog");
+  const retained = createRequestCache({ ttlMs: 0 });
+  await retained.requestJson("/forever");
+  now += 1_000_000;
+  assert.deepEqual(await retained.requestJson("/forever"), { calls: 3 });
+  const disabled = createRequestCache({ maxEntries: 0 });
+  await disabled.requestJson("/disabled");
+  await disabled.requestJson("/disabled");
+  assert.equal(disabled.size, 0);
+  assert.equal(calls, 5);
+  assert.throws(() => createRequestCache({ maxEntries: -1 }), /maxEntries/);
+  assert.throws(() => createRequestCache({ maxEntries: 1.5 }), /maxEntries/);
+  assert.throws(() => createRequestCache({ ttlMs: Infinity }), /TTL/);
+});
+
+test("bounded in-flight tracking bypasses saturated entries instead of dropping reads", async t => {
+  const originalFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = originalFetch; });
+  const completions = [];
+  globalThis.fetch = () => new Promise(resolve => { completions.push(resolve); });
+  const cache = createRequestCache({ maxEntries: 1 });
+  const first = cache.requestJson("/one");
+  const second = cache.requestJson("/two");
+  completions[1](jsonResponse({ id: 2 }));
+  assert.deepEqual(await second, { id: 2 });
+  assert.equal(cache.size, 0);
+  completions[0](jsonResponse({ id: 1 }));
+  await first;
+  assert.equal(cache.size, 1);
+});
+
 test("request retry wrapper stops when shouldRetry rejects the error", async () => {
   let attempts = 0;
   const handler = withRequestRetry(async () => {

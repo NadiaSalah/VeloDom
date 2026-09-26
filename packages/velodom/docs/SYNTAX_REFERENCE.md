@@ -388,6 +388,28 @@ CSRF enforcement, tenant/resource authorization, authoritative business data,
 and sensitive transitions on an application backend. Retry a write only when
 that backend defines safe idempotency semantics.
 
+## Optional Request Cache
+
+`createRequestCache({ ttlMs: 5000, maxEntries: 40, scope: "public" })` wraps the
+existing JSON client only when explicitly used. GET reads without a body
+coalesce; headers/credentials affect identity. Each caller's abort is isolated;
+the last cancellation aborts transport. Mutations remain uncached.
+
+`clear()` invalidates stored and pending completion writes. With the default
+key use `clear("GET /api/catalog")`, or pass the custom key function's value.
+Clear after a successful write, then explicitly refetch UI. An awaited stale
+result is still returned to its original caller and must not be applied to a
+different route/account. Failed writes do not auto-invalidate.
+
+`maxEntries` defaults to 100 (LRU); zero disables caching. Saturated in-flight
+tracking bypasses caching. Use a finite TTL; legacy zero retains values until
+clear/eviction. Private/session/no-store endpoints should use `requestJson`
+directly. The helper does not inspect HTTP cache headers or HttpOnly cookies.
+For explicitly permitted private caching, supply a `scope` string or getter
+including tenant/user/session epoch and clear on auth changes. Scope changes
+fence old work, including switch-back; they do not guard page state updates.
+Page-data caching is independent and currently recommended for public data only.
+
 ## Forms
 
 ```html

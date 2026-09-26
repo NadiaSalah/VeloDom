@@ -551,7 +551,12 @@ export interface SharedStateHandle<
 
 /** Options for the optional request cache wrapper. */
 export interface RequestCacheOptions {
+  /** Freshness in milliseconds; legacy zero means retained until clear/eviction. */
   ttlMs?: number;
+  /** Maximum retained results and tracked reads; zero disables caching. Default 100. */
+  maxEntries?: number;
+  /** App-owned public/session/tenant scope; a change fences previous pending reads. */
+  scope?: string | (() => string);
   key?: (
     url: RequestInfo | URL,
     options?: UnknownRecord
@@ -564,6 +569,7 @@ export interface RequestCache {
     url: RequestInfo | URL,
     options?: UnknownRecord
   ): Promise<unknown>;
+  /** Invalidates all entries or a base key, including pending completion writes. */
   clear(key?: string): void;
   readonly size: number;
 }

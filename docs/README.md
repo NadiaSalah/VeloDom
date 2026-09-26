@@ -4171,7 +4171,9 @@ import {
 } from "velodom";
 
 const apiCache = createRequestCache({
-  ttlMs: 30_000
+  ttlMs: 30_000,
+  maxEntries: 40,
+  scope: "public-posts"
 });
 
 export const routes = {
@@ -4195,6 +4197,60 @@ The cache wrapper and retry wrapper are application-owned helpers. They do not
 change declarative request behavior unless the user explicitly uses them in an
 API route or request module. The devtools bridge only installs a browser global
 when its plugin is registered.
+
+The request cache is opt-in and memory-only. It coalesces identical concurrent
+GET reads; headers and credentials are part of identity. Each consumer can
+cancel independently; the transport is aborted only when all consumers cancel.
+Results and tracked in-flight reads are bounded by `maxEntries` (default 100);
+saturated tracking passes new requests through uncached. `maxEntries: 0`
+disables caching. Expired entries are pruned on access and `size` inspection;
+retained results use LRU eviction. Configure a finite TTL for ordinary reads:
+the compatibility default `ttlMs: 0` retains a value until clear/eviction, not
+until a freshness timeout.
+
+Invalidate only after the backend confirms an intentional mutation, then
+explicitly refresh the relevant UI. Failed writes leave the last good read
+untouched; the cache never implements optimistic updates or confirms stock or
+payment ownership.
+
+```js
+import { createRequestCache, requestJson } from "velodom";
+
+const catalogCache = createRequestCache({ ttlMs: 5_000, maxEntries: 40 });
+
+export function list(params, context) {
+  return catalogCache.requestJson("/api/catalog", { signal: context.signal });
+}
+
+export async function save(params, context) {
+  const saved = await requestJson("/api/catalog", {
+    method: "PUT", body: params, signal: context.signal
+  });
+  catalogCache.clear(); // only after success; UI reload remains explicit
+  return saved;
+}
+```
+
+`clear()` also fences pending completion writes: an older caller still receives
+its awaited result, but that result cannot repopulate the invalidated cache or
+overwrite a newer read. `clear("GET /api/catalog")` retains the legacy default
+base-key convention and clears every header/credential variant. With a custom
+`key`, pass that returned base key to `clear`.
+
+Do not wrap private session/no-store endpoints in this helper. It uses the
+existing JSON transport and does **not** infer HTTP cache policy or see HttpOnly
+cookie changes. If the backend/application explicitly permits private read
+caching, supply an application-owned scope, for example
+`scope: () => tenantId + ':' + userId + ':' + sessionEpoch`, and clear on
+login/logout/account changes. A changed scope clears old entries and fences
+pending reads, including switch-back to a previous scope. Scope observation
+occurs on request/completion/size access, not via a global auth listener. Abort
+old page work and check current identity before updating UI; invalidation alone
+is not a guard against displaying a result already awaited by a caller.
+
+Request-cache policy is separate from page-data freshness. Until the page-data
+lifecycle audit is complete, keep page-data caching public-only; do not infer
+that request-cache invalidation clears a router's page-data cache.
 
 For local development only, an application that registered the bridge can
 explicitly import `mountDevtoolsInspector` from `velodom/devtools`. It renders a

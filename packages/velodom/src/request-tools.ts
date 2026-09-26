@@ -11,19 +11,13 @@
 import {
   VD_OPTIONAL_TOOLS
 } from "./constants.ts";
-import {
-  requestJson as sendJsonRequest
-} from "./requests/http-client.ts";
 import type {
   DevtoolsPluginOptions,
   DevtoolsBridge,
   DevtoolsSnapshot,
   PluginContext,
-  RequestCache,
-  RequestCacheOptions,
   RequestRetryOptions,
   RouteHandler,
-  UnknownRecord,
   VeloDomPlugin
 } from "./types.ts";
 import {
@@ -32,77 +26,8 @@ import {
 import {
   VELODOM_DEVTOOLS_PROTOCOL_VERSION
 } from "./devtools/protocol.ts";
-import type {
-  JsonRequestOptions
-} from "./requests/http-client.ts";
-
-interface CacheEntry {
-  expiresAt: number;
-  value: unknown;
-}
-
-/**
- * Creates an application-owned request cache around requestJson().
- *
- * Only GET-like requests without a body are cached. Mutating requests always
- * pass through to the underlying HTTP client.
- */
-export function createRequestCache(
-  options: RequestCacheOptions = {}
-): RequestCache {
-  const entries = new Map<string, CacheEntry>();
-  const ttlMs = normalizeNonNegativeNumber(
-    options.ttlMs,
-    VD_OPTIONAL_TOOLS.DEFAULT_CACHE_TTL_MS
-  );
-  const createKey = typeof options.key === "function"
-    ? options.key
-    : createDefaultCacheKey;
-
-  return Object.freeze({
-    async requestJson(
-      url: RequestInfo | URL,
-      requestOptions: UnknownRecord = {}
-    ) {
-      const jsonOptions = requestOptions as JsonRequestOptions;
-
-      if (!isCacheableRequest(jsonOptions)) {
-        return sendJsonRequest(url, jsonOptions);
-      }
-
-      const key = createKey(url, requestOptions);
-      const cached = entries.get(key);
-
-      if (cached && cached.expiresAt > Date.now()) {
-        return cached.value;
-      }
-
-      const value = await sendJsonRequest(url, jsonOptions);
-
-      entries.set(key, {
-        value,
-        expiresAt: ttlMs > 0
-          ? Date.now() + ttlMs
-          : Number.POSITIVE_INFINITY
-      });
-
-      return value;
-    },
-
-    clear(key?: string) {
-      if (key === undefined) {
-        entries.clear();
-        return;
-      }
-
-      entries.delete(key);
-    },
-
-    get size() {
-      return entries.size;
-    }
-  });
-}
+/** Optional cache stays available here while its coordination is owned by one module. */
+export { createRequestCache } from "./requests/request-cache.ts";
 
 /** Wraps an application request route handler with explicit retry behavior. */
 export function withRequestRetry(
@@ -216,27 +141,6 @@ function isDevtoolsBridge(value: unknown): value is DevtoolsBridge {
     && typeof value === "object"
     && typeof (value as DevtoolsBridge).inspect === "function"
     && typeof (value as DevtoolsBridge).subscribe === "function";
-}
-
-/** Creates the default cache key. */
-function createDefaultCacheKey(
-  url: RequestInfo | URL,
-  options: UnknownRecord = {}
-) {
-  const method = String(
-    options.method || VD_OPTIONAL_TOOLS.GET_METHOD
-  ).toUpperCase();
-
-  return `${method} ${String(url)}`;
-}
-
-/** Evaluates the `isCacheableRequest()` condition for the supplied input. */
-function isCacheableRequest(options: JsonRequestOptions) {
-  const method = String(
-    options.method || VD_OPTIONAL_TOOLS.GET_METHOD
-  ).toUpperCase();
-
-  return method === VD_OPTIONAL_TOOLS.GET_METHOD && options.body === undefined;
 }
 
 /** Normalizes the retry count. */

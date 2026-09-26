@@ -92,6 +92,14 @@ verify real conventions before introducing architecture abstractions.
 
 ## Validate Syntax
 
+For read/mutation recipes, reuse `createRequestCache` rather than inventing a
+fetch engine. Set finite TTL/capacity, clear only after successful mutation and
+explicitly refetch. In-flight deduplication isolates aborts; clearing/scope
+changes prevent late cache writes, not stale UI assignments. For permitted
+private read caching, include tenant/user/session epoch in app-owned scope and
+clear/abort on auth changes. Session/no-store endpoints remain uncached. Do not
+claim it automatically clears the separate router page-data cache.
+
 Before using a directive:
 
 1. Find it in `SYNTAX_REFERENCE.md`.

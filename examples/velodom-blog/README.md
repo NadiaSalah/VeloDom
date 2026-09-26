@@ -44,6 +44,11 @@ It follows the store reference rather than inventing a service registry.
 The repository package-consumer gate builds and inspects this site and the
 store from an installed local artifact outside the workspace.
 
+`/features#cache` teaches the existing request helper's bounded retention,
+coalesced GETs, independent aborts and explicit invalidation/scope rules.
+It distinguishes request-cache policy from public-only page-data freshness and
+does not claim automatic private-session caching or post-write UI refresh.
+
 The binding lesson on `/playground#bindings` demonstrates ARIA boolean tokens,
 case-sensitive CSS variables, and removal of old object styles. The desktop
 sidebar scrolls within short viewports; reduced-motion preferences disable
