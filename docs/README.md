@@ -1287,7 +1287,22 @@ export const cache = {
 The cache belongs to one running VeloDom app, is keyed by page, route, and
 query, and disappears on a full refresh. During the optional stale window the
 current navigation receives the previous public value while VeloDom refreshes
-the value for the next visit. It never reads or stores cookies, headers,
+the value for the next visit. Cached reads of the same route/query share one
+pending load; uncached pages still load independently. Each app retains at
+most 100 LRU values and tracks at most 100 pending reads. Expired values are
+pruned, and excess distinct reads run uncached rather than being discarded.
+Destroying the app clears stored/pending cache identities.
+
+A failed background refresh keeps the previous value only within its original
+stale window; it does not reset that value's age or produce an unhandled promise
+rejection. After expiry, navigation waits for a new load and propagates failures
+to the normal page error boundary. Background success updates the next visit,
+not the already-mounted page. There is currently no public page-cache clear or
+refetch API; `createRequestCache().clear()` does not invalidate this cache.
+Keep immediately mutation-sensitive pages uncached while that explicit router
+integration remains on the roadmap.
+
+Page-data caching never reads or stores cookies, headers,
 credentials, or secrets. Keep user-specific data uncached or own that policy
 in an application server/API.
 

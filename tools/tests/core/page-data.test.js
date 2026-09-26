@@ -122,6 +122,189 @@ test("page data cache rejects unsafe policy values", async () => {
   );
 });
 
+test("uncached page loaders remain independent", async () => {
+  let calls = 0;
+  const module = { load: () => ++calls };
+  const cache = createPageDataCache();
+  assert.deepEqual(await Promise.all([
+    cache.load(module, createContext()), cache.load(module, createContext())
+  ]), [1, 2]);
+});
+
+test("cached cold reads coalesce until their shared load settles", async () => {
+  let calls = 0;
+  const read = deferred();
+  const module = { cache: { maxAgeMs: 500 }, load: () => { calls++; return read.promise; } };
+  const cache = createPageDataCache();
+  const first = cache.load(module, createContext());
+  const second = cache.load(module, createContext());
+  await Promise.resolve();
+  assert.equal(calls, 1);
+  read.resolve("public article");
+  assert.deepEqual(await Promise.all([first, second]), ["public article", "public article"]);
+  assert.equal(await cache.load(module, createContext()), "public article");
+  assert.equal(calls, 1);
+});
+
+test("stale page reads share one refresh and use its result on the next visit", async () => {
+  let now = 0;
+  let calls = 0;
+  const refresh = deferred();
+  const cache = createPageDataCache(() => now);
+  const module = {
+    cache: { maxAgeMs: 10, staleWhileRevalidateMs: 100 },
+    load: () => ++calls === 1 ? "old article" : refresh.promise
+  };
+  assert.equal(await cache.load(module, createContext()), "old article");
+  now = 20;
+  assert.deepEqual(await Promise.all([
+    cache.load(module, createContext()), cache.load(module, createContext())
+  ]), ["old article", "old article"]);
+  assert.equal(calls, 2);
+  refresh.resolve("updated article");
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(await cache.load(module, createContext()), "updated article");
+  assert.equal(calls, 2);
+});
+
+test("background page refresh failure retains freshness age without unhandled rejection", async () => {
+  let now = 0;
+  let calls = 0;
+  const failure = new Error("temporary public read failure");
+  const cache = createPageDataCache(() => now);
+  const module = {
+    cache: { maxAgeMs: 10, staleWhileRevalidateMs: 20 },
+    load: () => {
+      if (++calls === 1) return "old article";
+      throw failure;
+    }
+  };
+  assert.equal(await cache.load(module, createContext()), "old article");
+  now = 20;
+  assert.equal(await cache.load(module, createContext()), "old article");
+  await new Promise(resolve => setTimeout(resolve, 0));
+  now = 31;
+  await assert.rejects(cache.load(module, createContext()), error => error === failure);
+  assert.equal(calls, 3);
+});
+
+test("failed cached cold loads release coordination so the next read can recover", async () => {
+  let calls = 0;
+  const failure = new Error("read failed");
+  const cache = createPageDataCache();
+  const module = {
+    cache: { maxAgeMs: 500 },
+    load: () => { if (++calls === 1) throw failure; return "recovered"; }
+  };
+  await assert.rejects(cache.load(module, createContext()), error => error === failure);
+  assert.equal(await cache.load(module, createContext()), "recovered");
+  assert.equal(calls, 2);
+});
+
+test("page invalidation fences late reads and preserves unrelated page entries", async () => {
+  const old = deferred();
+  let calls = 0;
+  const cache = createPageDataCache();
+  const module = {
+    cache: { maxAgeMs: 500 },
+    load: () => ++calls === 1 ? old.promise : "new article"
+  };
+  const context = createContext();
+  const unrelated = { ...context, page: "home", route: { ...context.route, path: "/" } };
+  let unrelatedCalls = 0;
+  const home = { cache: { maxAgeMs: 500 }, load: () => ++unrelatedCalls };
+  await cache.load(home, unrelated);
+  const pending = cache.load(module, context);
+  cache.clear(context.page);
+  assert.equal(await cache.load(module, context), "new article");
+  old.resolve("old article");
+  assert.equal(await pending, "old article");
+  assert.equal(await cache.load(module, context), "new article");
+  assert.equal(await cache.load(home, unrelated), 1);
+  assert.equal(unrelatedCalls, 1);
+});
+
+test("full page invalidation removes every query variant and pending identity", async () => {
+  let calls = 0;
+  const old = deferred();
+  const cache = createPageDataCache();
+  const module = {
+    cache: { maxAgeMs: 500 },
+    load: () => ++calls === 2 ? old.promise : calls
+  };
+  const context = createContext();
+  assert.equal(await cache.load(module, context), 1);
+  const pending = cache.load(module, { ...context, query: { filter: "popular" } });
+  cache.clear();
+  assert.equal(await cache.load(module, context), 3);
+  assert.equal(await cache.load(module, { ...context, query: { filter: "popular" } }), 4);
+  old.resolve(2);
+  assert.equal(await pending, 2);
+  assert.equal(await cache.load(module, { ...context, query: { filter: "popular" } }), 4);
+});
+
+test("page cache retains at most 100 LRU route variants", async () => {
+  let calls = 0;
+  const cache = createPageDataCache();
+  const module = { cache: { maxAgeMs: 60_000 }, load: () => ++calls };
+  const context = index => ({ ...createContext(), query: { page: String(index) } });
+  for (let index = 0; index < 100; index++) await cache.load(module, context(index));
+  assert.equal(await cache.load(module, context(0)), 1);
+  await cache.load(module, context(100));
+  assert.equal(await cache.load(module, context(0)), 1);
+  assert.equal(await cache.load(module, context(1)), 102);
+  assert.equal(calls, 102);
+});
+
+test("expired page entries are pruned instead of consuming retention capacity", async () => {
+  let now = 0;
+  let calls = 0;
+  const cache = createPageDataCache(() => now);
+  const module = { cache: { maxAgeMs: 10, staleWhileRevalidateMs: 10 }, load: () => ++calls };
+  const context = index => ({ ...createContext(), query: { page: String(index) } });
+  for (let index = 0; index < 100; index++) await cache.load(module, context(index));
+  now = 21;
+  assert.equal(await cache.load(module, context(100)), 101);
+  assert.equal(await cache.load(module, context(0)), 102);
+});
+
+test("page cache rejects explicit non-finite stale windows", async () => {
+  const cache = createPageDataCache();
+  for (const value of [NaN, Infinity, -Infinity]) {
+    await assert.rejects(cache.load({
+      cache: { maxAgeMs: 10, staleWhileRevalidateMs: value }, load: () => null
+    }, createContext()), /non-negative staleWhileRevalidateMs/);
+  }
+});
+
+test("saturated page read tracking bypasses caching instead of losing work", async () => {
+  let calls = 0;
+  const read = deferred();
+  const cache = createPageDataCache();
+  const module = { cache: { maxAgeMs: 500 }, load: () => { calls++; return read.promise; } };
+  const context = index => ({ ...createContext(), query: { page: String(index) } });
+  const tracked = Array.from({ length: 100 }, (_, index) => cache.load(module, context(index)));
+  const shared = cache.load(module, context(0));
+  const bypassed = [cache.load(module, context(100)), cache.load(module, context(100))];
+  await Promise.resolve();
+  assert.equal(calls, 102);
+  read.resolve("loaded");
+  assert.equal((await Promise.all([...tracked, shared, ...bypassed])).length, 103);
+  await cache.load(module, context(100));
+  assert.equal(calls, 103);
+});
+
+function deferred() {
+  let resolve;
+  const promise = new Promise(done => { resolve = done; });
+  return { promise, resolve };
+}
+
+function createContext() {
+  const route = createRoute();
+  return { page: route.page, route, params: route.params, query: route.query, meta: {} };
+}
+
 function createRoute() {
   return {
     hash: "",

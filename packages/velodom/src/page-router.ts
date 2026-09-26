@@ -701,6 +701,7 @@ export function createPageRouter(
 
   /** Releases resources owned by this module instance. */
   async function destroy(): Promise<void> {
+    pageDataCache.clear();
     removeRouterListeners?.();
     removeRouterListeners = null;
     initialized = false;

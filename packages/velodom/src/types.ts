@@ -239,11 +239,11 @@ export type PageDataLoader = (
   context: PageDataContext
 ) => MaybePromise<unknown>;
 
-/** Opt-in in-memory freshness policy exported by a page `data.js` module. */
+/** Opt-in public page freshness; app-local LRU retains up to 100 route variants. */
 export interface PageDataCachePolicy {
   /** Time in milliseconds for which a loaded value is served as fresh. */
   maxAgeMs: number;
-  /** Optional extra period that serves stale data while refreshing the next visit. */
+  /** Extra period serving stale data; shared refresh failures do not reset its age. */
   staleWhileRevalidateMs?: number;
 }
 

@@ -2,6 +2,51 @@
 
 ## Architectural Decisions
 
+### Bounded public page-data freshness — 2026-09-26
+
+- Seven failing regressions exposed duplicate cold/SWR loads, an unhandled
+  background rejection, no invalidation fence and unbounded retained/tracked
+  values. The existing opt-in cache now retains 100 LRU values, tracks 100
+  pending identities, prunes expiry and bypasses storage when tracking is full.
+  Matching reads share work; uncached loaders remain independent. No second
+  fetch engine or default/global data service was introduced.
+- Successful background refresh is still next-visit only. Failure is observed
+  without changing loadedAt; after the original stale window the normal awaited
+  read/error boundary handles failure. Tests also cover an explicitly non-finite
+  stale duration that the old `|| 0` default silently accepted.
+- Private internal clear(page?)/clear-all fences old completions without
+  discarding original caller results; app destroy clears cache identities.
+  These are not new public imports or a documented application refetch API.
+  Navigation cancellation and explicit public invalidation/refetch remain
+  separate C05 work. Keep session/admin/immediately write-sensitive data
+  uncached. Request-cache invalidation never implies page-data invalidation.
+- The superseded refresh helper was removed rather than retained alongside
+  another implementation. Core types describe the same existing cache policy;
+  package exports, compiler syntax, dependencies and versions are unchanged.
+- CLI classification: NONE. Templates do not opt into page-data cache; the
+  store's public home loader keeps its existing 5s/15s policy and private
+  loaders remain uncached. Blog/store docs, package syntax/inventory/AI guides
+  and the handbook teach the same lifetime/failure and API limitations.
+- Thirteen new source regressions include public createApp SWR/teardown; a
+  tarball consumer checks the compiled public app against the same failed
+  background refresh/recovery sequence using the existing DOM test environment.
+- Verification: all 380 tests passed, including the thirteen new cases;
+  docs/types/strict/lint, full builds, installed runtime smoke checks, six
+  generated starters and both installed real consumers passed. Desktop/mobile
+  Chromium production flows and package content/size gates passed. VeloDom's
+  artifact contains 332 files / 673.0 KiB packed; the creation wrapper contains
+  4 files / 1.7 KiB packed. Bundle budgets passed (120.6 KiB initial / 242.3 KiB
+  total teaching-site JS). Rendering benchmark timings varied under local load;
+  no speed improvement or backend-scale performance claim is made.
+- The next router audit independently reproduced a remaining defect with an
+  uncached slow loader: navigate /slow, await /fast, then resolve /slow →
+  heading changes from "Fast page" to "Obsolete slow page", URL remains /fast,
+  and the obsolete navigation returns true. The data context has no signal.
+  This was not repaired by cache coordination; C05 remains open for navigation
+  ownership/cancellation and the explicit mutation/refetch contract. Other
+  browser engines still require separate strict release evidence. No publish,
+  push, dependency change or version bump was performed.
+
 ### Unified retry and middleware cancellation — 2026-09-26
 
 - Source tests reproduced pre-aborted handler execution, repeated AbortError,

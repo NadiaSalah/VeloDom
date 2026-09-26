@@ -6,8 +6,9 @@
  * Resolves conventional page data modules in the browser and transfers
  * explicitly supplied build data through safe JSON script markers. The module
  * contains no fetching policy: applications own data access. An optional,
- * per-app in-memory freshness cache avoids repeat client loads only when a
- * page explicitly opts in.
+ * per-app cache bounds retained public values and pending reads, coalesces
+ * matching loads, and handles optional background refresh failure without
+ * changing the original freshness age. Caching remains explicitly opt-in.
  * ----------------------------------------
  */
 
@@ -26,13 +27,22 @@ interface PageDataModule extends UnknownRecord {
 }
 
 interface CachedPageData {
+  page: string;
   data: unknown;
   loadedAt: number;
+  retainedUntil: number;
+}
+
+interface PendingPageData {
+  page: string;
+  promise: Promise<unknown>;
 }
 
 /** Holds the private cache used by one browser router instance. */
 export interface PageDataCache {
   load(module: PageDataModule, context: Omit<PageDataContext, "mode">): Promise<unknown>;
+  /** Invalidates stored and pending variants without cancelling original callers. */
+  clear(page?: string): void;
 }
 
 /** Resolves the preferred `load` export or default export from a page data module. */
@@ -56,6 +66,58 @@ export function createPageDataCache(
   now: () => number = Date.now
 ): PageDataCache {
   const entries = new Map<string, CachedPageData>();
+  const pending = new Map<string, PendingPageData>();
+
+  /** Drops expired values without changing their original freshness timestamp. */
+  function prune(): void {
+    const timestamp = now();
+    for (const [key, entry] of entries) {
+      if (timestamp > entry.retainedUntil) entries.delete(key);
+    }
+  }
+
+  /** Shares a read and uses task identity to fence invalidation and newer work. */
+  function refresh(
+    key: string,
+    module: PageDataModule,
+    context: Omit<PageDataContext, "mode">,
+    policy: Required<PageDataCachePolicy>
+  ): Promise<unknown> {
+    const current = pending.get(key);
+    if (current) return current.promise;
+
+    // Saturation must not discard a legitimate navigation or retain more work.
+    if (pending.size >= VD_PAGE_DATA.CACHE_MAX_ENTRIES) {
+      return runPageDataLoader(module, context);
+    }
+    const task: PendingPageData = {
+      page: context.page,
+      promise: Promise.resolve(undefined)
+    };
+    pending.set(key, task);
+    // Register coordination before app code runs, including synchronous loaders.
+    task.promise = Promise.resolve().then(() => runPageDataLoader(module, context))
+      .then(data => {
+        if (pending.get(key) === task) {
+          prune();
+          const loadedAt = now();
+          entries.delete(key);
+          entries.set(key, {
+            page: context.page, data, loadedAt,
+            retainedUntil: loadedAt + policy.maxAgeMs + policy.staleWhileRevalidateMs
+          });
+          while (entries.size > VD_PAGE_DATA.CACHE_MAX_ENTRIES) {
+            const oldest = entries.keys().next().value;
+            if (oldest === undefined) break;
+            entries.delete(oldest);
+          }
+        }
+        return data;
+      }).finally(() => {
+        if (pending.get(key) === task) pending.delete(key);
+      });
+    return task.promise;
+  }
 
   return {
     async load(module, context) {
@@ -66,8 +128,14 @@ export function createPageDataCache(
       }
 
       const key = createCacheKey(context);
+      prune();
       const entry = entries.get(key);
       const age = entry ? Math.max(0, now() - entry.loadedAt) : Infinity;
+
+      if (entry) {
+        entries.delete(key);
+        entries.set(key, entry);
+      }
 
       if (entry && age <= policy.maxAgeMs) {
         return entry.data;
@@ -77,11 +145,26 @@ export function createPageDataCache(
 
       if (entry && age <= staleLimit) {
         // Keep navigation immediate; the refreshed value is used on the next visit.
-        void refreshPageData(entries, key, module, context, now);
+        // Background failure leaves the prior age intact. Once the stale window
+        // expires, navigation awaits a read and surfaces its failure normally.
+        void refresh(key, module, context, policy).catch(() => undefined);
         return entry.data;
       }
 
-      return refreshPageData(entries, key, module, context, now);
+      return refresh(key, module, context, policy);
+    },
+    clear(page) {
+      if (page === undefined) {
+        entries.clear();
+        pending.clear();
+        return;
+      }
+      for (const [key, entry] of entries) {
+        if (entry.page === page) entries.delete(key);
+      }
+      for (const [key, task] of pending) {
+        if (task.page === page) pending.delete(key);
+      }
     }
   };
 }
@@ -196,24 +279,6 @@ async function runPageDataLoader(
   });
 }
 
-/** Refreshes the page data. */
-async function refreshPageData(
-  entries: Map<string, CachedPageData>,
-  key: string,
-  module: PageDataModule,
-  context: Omit<PageDataContext, "mode">,
-  now: () => number
-) {
-  const data = await runPageDataLoader(module, context);
-
-  entries.set(key, {
-    data,
-    loadedAt: now()
-  });
-
-  return data;
-}
-
 /** Resolves the cache policy. */
 function resolveCachePolicy(
   module: PageDataModule,
@@ -226,7 +291,7 @@ function resolveCachePolicy(
   }
 
   const maxAgeMs = Number(module.cache.maxAgeMs);
-  const staleWhileRevalidateMs = Number(module.cache.staleWhileRevalidateMs || 0);
+  const staleWhileRevalidateMs = Number(module.cache.staleWhileRevalidateMs ?? 0);
 
   if (!Number.isFinite(maxAgeMs) || maxAgeMs < 0) {
     throw new TypeError(`Page data cache for "${page}" needs a non-negative maxAgeMs`);

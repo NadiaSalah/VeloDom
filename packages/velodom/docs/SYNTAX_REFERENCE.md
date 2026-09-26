@@ -334,6 +334,18 @@ export default {
 prerender/SEO entries remain in page config and are stripped from browser
 runtime output by the Vite plugin.
 
+For public data only, export `cache = { maxAgeMs: 30_000,
+staleWhileRevalidateMs: 120_000 }`. Times must be finite and non-negative.
+The app-local cache retains up to 100 LRU page/route/query values and tracks up
+to 100 pending loads; matching cached reads share a load. Saturated tracking
+bypasses caching, not the read. Without `cache`, loads remain independent.
+SWR returns the prior value within its original stale window and refreshes the
+next visit; background failures are observed without renewing freshness or
+patching mounted state. Expired/cold loads propagate failures normally.
+App destruction clears cache identities. There is no public page-cache clear/
+refetch API yet; request-cache clearing is separate. Keep private/session and
+immediately mutation-sensitive page data uncached.
+
 ## Requests
 
 Application routes are discovered below `src/api`. Use file routes for simple

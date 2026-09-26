@@ -283,11 +283,23 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   and completion effects after an async success callback are fenced. Twelve
   additional regressions cover wrapper/middleware/directive cancellation and
   listener cleanup; replaced duplicate/uncancellable wait helpers.
-  **Still open:** page-data SWR/coalescing/invalidation and router loader
+  **Page-data progress:** the existing opt-in public cache now bounds LRU values
+  and tracked reads at 100, coalesces matching cold/SWR reads, prunes expiry and
+  observes background failure without renewing its original stale age. Internal
+  page/all invalidation fences late cache writes; app destroy clears identities.
+  Thirteen new regressions cover freshness, recovery, uncached independence,
+  invalidation, LRU, expiry, saturation, non-finite policies and public app
+  teardown/SWR; the installed public createApp is also exercised. Removed the
+  old unbounded refresh helper. No public invalidation/refetch API is claimed.
+  **Still open:** explicit public page-data invalidation/refetch and router loader
   cancellation; the complete success/refetch recipe
   exercised against catalog/admin/account changes. Do not mark C05 complete
   based on the request-cache portion alone. CLI impact for these helper options
   is NONE; no generated global cache or starter policy is added.
+  **Next confirmed defect:** navigating slow loader → fast page → resolving
+  slow loader replaces the fast page's bindings while the URL stays fast.
+  The loader receives no signal. Fence navigation commits and cleanup across
+  resource/data/init/mount awaits before exposing a public refetch contract.
 
 - [ ] **C06 — Composable complex forms and edit protection. V1.x; complexity:
   High; owner: optional forms integration and narrowly scoped router extension

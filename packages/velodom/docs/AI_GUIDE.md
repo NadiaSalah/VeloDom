@@ -100,6 +100,13 @@ private read caching, include tenant/user/session epoch in app-owned scope and
 clear/abort on auth changes. Session/no-store endpoints remain uncached. Do not
 claim it automatically clears the separate router page-data cache.
 
+Page-data caching is opt-in and public-only, with 100-value LRU/100-read limits
+and matching-read coalescing. SWR updates the next visit; a failed background
+refresh keeps the original stale-window age and is observed without an
+unhandled rejection. Expired/cold errors propagate normally. There is not yet a
+public page-cache invalidation/refetch API. Keep immediately write-sensitive
+and private loaders uncached; do not generate private `page-data` imports.
+
 Retry only safe operations. `withRequestRetry` and declarative retries exclude
 AbortError/aborted contexts, stop waiting on abort and clean up listeners/timers.
 Pass the existing context signal into the transport; do not add another

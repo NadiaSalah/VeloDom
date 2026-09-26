@@ -227,6 +227,14 @@ or claim that a matching package is available from a registry.
 
 ### Fixed
 
+- Bounded opt-in public page-data retention and pending-read tracking at 100,
+  coalesced matching cold/SWR loads, and observed background refresh failures
+  without extending the original freshness age. Added internal invalidation
+  fences and app-destroy cleanup, rejected non-finite stale windows, and removed
+  the old unbounded refresh helper. Thirteen regressions plus an installed
+  public-app smoke check cover the behavior. Public invalidation/refetch and
+  loader navigation cancellation remain open in C05; no new directive/API/CLI.
+
 - Forwarded the optional direction controller from the current page context to
   component lifecycle hooks and synchronized the public TypeScript context, so
   documented `ctx.direction` behavior now matches pages and components.

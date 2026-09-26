@@ -128,6 +128,12 @@ finite `ttlMs`, bounded `maxEntries`, independent cancellation and app-owned
 post-write UI refresh is explicit and separate from page-data caching. See the
 syntax guide for exact options and compatibility behavior.
 
+Public page-data freshness is separately opt-in: bounded 100-value LRU/100-read
+tracking, coalesced matching loads and optional next-visit SWR. Failed background
+refresh does not renew freshness; expired/cold errors propagate normally.
+App destruction clears it. There is no public page-cache invalidation API yet;
+keep private and immediately write-sensitive page loaders uncached.
+
 Retries use abortable waits and never repeat AbortError/aborted requests;
 middleware preserves cancellation and does not start another operation after
 abort. Forward the request signal to I/O. Cancellation cannot roll back an

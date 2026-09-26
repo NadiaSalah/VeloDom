@@ -75,6 +75,14 @@ secrets. Build-time SEO snapshots are public data, not live stock or session
 state. This example targets `/`: Vite asset `base` does not automatically prefix
 routes, links or APIs for subdirectory hosting.
 
+The home loader opts into public page freshness (5 seconds fresh, 15 additional
+seconds stale). Matching cached reads coalesce, app-local retention is bounded
+at 100 values/100 tracked reads, and failed background refresh keeps its original
+age rather than renewing stale catalog data. A successful refresh is used on
+the next visit, not pushed into mounted UI. Private/admin loaders remain
+uncached. Public page invalidation and a complete mutation/refetch recipe are
+still C05 work; request-cache clearing alone does not clear the home page cache.
+
 The full organization recipe, JS/TS snippets, configuration and deployment
 boundaries are in the repository handbook's **Organizing Larger Applications**
 section. `npm run package:consumer` copies this example and the teaching blog

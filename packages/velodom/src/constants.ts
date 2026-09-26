@@ -97,6 +97,7 @@ export const VD_PAGE_DATA = Object.freeze({
   SCRIPT_SELECTOR: "script[data-vd-page-data]",
   STATE_KEY: "data",
   CACHE_KEY_PREFIX: "page-data:",
+  CACHE_MAX_ENTRIES: 100,
   MODES: Object.freeze({
     BUILD: "build",
     CLIENT: "client",

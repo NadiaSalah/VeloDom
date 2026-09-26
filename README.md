@@ -265,12 +265,23 @@ middleware/router/cancellation/types/constants, request regression tests and
 the handbook/package/blog cancellation guidance.
 The administration browser journey now waits for mounted bindings before
 editing/selecting, preventing premature actions on visible but unbound markup.
-Page-data invalidation/cancellation and the full refresh recipe remain in C05, so
+The opt-in public page-data cache now also bounds LRU values and tracked reads
+at 100, shares matching loads, prunes expiry and handles background failure
+without renewing stale age. Internal invalidation fences late cache writes;
+app destruction clears identities. Changed files: page-data/router/types/
+constants, page-data unit/public-app/installed checks, root/package/AI guides
+and blog/store educational text. The superseded refresh helper was removed.
+Public page-data invalidation/cancellation and the full refresh recipe remain in C05, so
 the commerce counter is intentionally still 4/10, not 5/10.
-Verification: 367 tests, docs/types/strict/lint, full build, six generated
+Verification: 380 tests, docs/types/strict/lint, full build, six generated
 starter combinations, installed real consumers, package content/size and
 performance gates passed. Desktop/mobile Chromium production tests passed.
 Other engines and remote CI remain separate release evidence.
+
+The next C05 audit reproduced a remaining router race: a late uncached loader
+can overwrite the newer page's bindings while its URL stays unchanged. Loader
+signals/navigation ownership and the success/refetch recipe are not yet claimed
+complete; this is tracked explicitly in TODO/NOTES.
 
 See [docs/TODO.md](docs/TODO.md) for release gates and the separately counted
 V1 simplicity/organization follow-up, now **6/8 complete (75%)**. Prioritize

@@ -362,6 +362,7 @@ await mountVeloDom({
         bypass the request cache; the application must keep private session and
         no-store endpoints outside it.
       </p>
+      <p class="mt-3">Page caching retains at most 100 LRU route/query values and tracks 100 pending reads. Matching cached reads share a load; uncached pages remain independent. SWR refreshes the next visit, not the mounted UI. Failed background refresh keeps the original stale-window age; expired/cold failures reach the page boundary. App destruction clears it. No public page-cache refetch API exists yet, so keep immediately write-sensitive pages uncached.</p>
       <div class="grid gap-5 lg:grid-cols-2">
         <div class="code-window">
           <div class="code-toolbar"><span>src/pages/catalog/data.js</span><span>page data cache</span></div>
@@ -677,6 +678,7 @@ await lab.refresh();</code></pre>
         failure should look. None of these features creates a hidden server or
         a second rendering model.
       </p>
+      <p class="mt-3">Public page freshness is optional and bounded. A failed background refresh never renews stale data or creates an unhandled promise rejection; once the stale window expires, the next navigation waits for a new load. Request-cache invalidation does not clear page data.</p>
       <div class="grid gap-5 lg:grid-cols-2">
         <div class="code-window">
           <div class="code-toolbar"><span>src/pages/catalog/data.js</span><span>initial public data</span></div>

@@ -48,6 +48,9 @@ store from an installed local artifact outside the workspace.
 coalesced GETs, independent aborts and explicit invalidation/scope rules.
 It distinguishes request-cache policy from public-only page-data freshness and
 does not claim automatic private-session caching or post-write UI refresh.
+The page-data lesson now covers 100-value LRU/100-read limits, matching-load
+coalescing, next-visit SWR and safe failure/expiry behavior. Request-cache and
+page-data freshness remain separate, with no public page refetch API yet.
 
 The same lesson explains abortable retry waiting, signal forwarding and
 middleware cancellation. Late completion notifications are suppressed after a

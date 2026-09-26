@@ -28,7 +28,7 @@ import {
   resolve,
   sep
 } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawn } from "node:child_process";
 import { Window } from "happy-dom";
 
@@ -194,6 +194,7 @@ try {
     await access(join(installedPackageRoot, file));
   }
   await assertInstalledRequestTools(consumerRoot);
+  await assertInstalledPageData(consumerRoot);
 
   const starterCases = [
     {
@@ -437,6 +438,50 @@ async function assertReferenceConsumers(temporaryRoot, installedPackageRoot) {
     }
     console.log(`- installed ${example.name}: ${routes.length} routes; inspect/doctor/build passed (${doctor.issues.length} advisory findings)`);
   }
+}
+
+async function assertInstalledPageData(consumerRoot) {
+  const path = join(consumerRoot, "page-data-smoke.mjs");
+  const domHelper = pathToFileURL(join(workspaceRoot, "tools", "test-support", "dom.js")).href;
+  await writeFile(path, `
+import assert from "node:assert/strict";
+import { createApp } from "velodom";
+import { installDom } from ${JSON.stringify(domHelper)};
+const removeDom = installDom();
+const originalNow = Date.now;
+let now = 0;
+let calls = 0;
+Date.now = () => now;
+document.body.innerHTML = '<div id="app"></div>';
+const data = {
+  cache: { maxAgeMs: 10, staleWhileRevalidateMs: 20 },
+  load() {
+    if (++calls === 2) throw new Error("background read failed");
+    return { title: "Article " + calls };
+  }
+};
+const app = createApp({ adapter: { pages: {
+  html: { home: async () => '<h1 data-vd-text="data.title"></h1>' },
+  data: { home: async () => data }
+} } });
+try {
+  await app.mount();
+  assert.equal(document.querySelector("h1").textContent, "Article 1");
+  now = 20;
+  await app.navigate("/");
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(document.querySelector("h1").textContent, "Article 1");
+  assert.equal(calls, 2);
+  now = 31;
+  await app.navigate("/");
+  assert.equal(document.querySelector("h1").textContent, "Article 3");
+} finally {
+  await app.destroy();
+  Date.now = originalNow;
+  removeDom();
+}
+`);
+  await run(process.execPath, [path], { cwd: consumerRoot });
 }
 
 async function assertInstalledRequestTools(consumerRoot) {
