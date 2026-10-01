@@ -2,6 +2,34 @@
 
 ## Architectural Decisions
 
+### Native edit protection and progressive-form ownership — 2026-10-01
+
+- C06 remains open. The Store uses a small app-owned dirty baseline and the
+  existing `router.beforeEach` contract. Rejected app navigation and Back keep
+  both URL and draft; a confirmed departure releases its `beforeunload`
+  listener. Browsers control whether a native unload dialog appears. Only real
+  product fields affect dirty state, not the fixture response-mode selector.
+- The optional progressive plugin already forwarded native multipart
+  `FormData`; no JSON uploader was added. Two failing tests exposed missing
+  detached-form abort and ignored-abort completion fences. It now observes DOM
+  removals only while a form request is pending, aborts/removes that owner,
+  suppresses late success/redirect, and clears loading on teardown. Server
+  field messages receive stable IDs and `aria-errormessage` links without
+  replacing authored descriptions. Redirect failure after an accepted submit
+  leaves success visible; it does not claim rollback. `vd-form` and
+  `vd-request` are alternative submit paths, as corrected in package docs.
+- CLI classification NONE: no prompt, starter field policy, required schema
+  package, new directive, export, dependency or version. The initial guard,
+  multipart and form tests are passing; complete C06 still needs repeatable/
+  multi-step and cancellable validation recipes plus their acceptance gates.
+  Local evidence for this slice: 422 source tests, docs/types/strict/lint,
+  full build, six starter combinations, both installed real consumers,
+  desktop/mobile Chromium including a dismissed unsaved-edit prompt, and npm
+  dry-run content/size gates pass. The package is 335 files / 690.0 KiB
+  packed / 2929.9 KiB installed; the create wrapper is 4 files / 1.7 KiB.
+  Runtime budget is 370.7 KiB/380 KiB and blog JS is 126.8 KiB initial /
+  250.8 KiB total. Other engines and remote CI remain unverified here.
+
 ### Explicit page-data freshness and confirmed-write separation — 2026-10-01
 
 - C05 closes on the existing loader/cache rather than a second request layer.

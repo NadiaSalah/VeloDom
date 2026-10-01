@@ -42,6 +42,9 @@ The cache lesson distinguishes request-cache clearing from explicit page-data
 invalidation/refetch after a confirmed write. Its snippet updates mounted
 `state.data`; the store consumer is the executable admin/catalog/account
 reference for separate write and post-write-read failure handling.
+The forms lesson keeps native `vd-form` separate from declarative `vd-request`,
+and points to the store's application-owned unsaved-edit guard. Multipart
+uploads and server field errors remain optional progressive-form behavior.
 
 `/features#architecture` explains feature-owned application modules, optional
 JSDoc/TS wire contracts, dependency direction and browser/server configuration.

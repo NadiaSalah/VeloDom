@@ -333,6 +333,20 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   browser restrictions still apply. Value: usable checkout/admin forms without
   a new form DSL. Acceptance: accessible focus/errors, retained values on failure,
   stale validation ignored, no duplicate listeners, server validation retained.
+  **Progress:** the Store reference now composes the existing global router
+  guard with an application-owned dirty baseline: app links and blocked Back
+  preserve the draft, a confirmed departure releases it, and `beforeunload`
+  is registered only while the mounted edit is dirty. The optional progressive
+  form bridge links server field messages accessibly, forwards native multipart
+  `FormData`, aborts removed forms, fences ignored-abort late success/redirect,
+  and keeps an accepted submit successful if only redirecting fails. No new
+  directive, global form store or required schema dependency was introduced.
+  **Still open:** repeatable/multi-step form recipes, cancellable async field
+  validation with stale-result tests, optional schema-adapter evaluation, and
+  final acceptance evidence for those remaining recipes. The currently
+  implemented edit/upload slice passes source, installed-package and desktop/
+  mobile Chromium checks.
+  CLI impact remains NONE; generated projects still use native form defaults.
 
 - [ ] **C07 — Measured large-project reliability. V1.x; complexity: Medium;
   owner: existing build/test tooling; CLI: NONE.** Extend current benchmarks and

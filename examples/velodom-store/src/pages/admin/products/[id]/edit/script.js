@@ -9,6 +9,7 @@
  */
 
 import { invalidateCatalogPages } from "#app/domain/catalog/catalog-freshness.js";
+import { protectEditDraft } from "#app/domain/forms/unsaved-edit.js";
 
 export const state = {
   draft: {
@@ -30,14 +31,22 @@ export const state = {
 
 export function init({ state, data, ctx }) {
   applyServerRecord(state, data);
+  let savedDraft = { ...state.draft };
+  const editProtection = protectEditDraft(ctx.route.path);
+  ctx.onCleanup(editProtection.release);
 
   state.markDirty = () => {
-    state.dirty = true;
-    state.saveResult = null;
+    state.dirty = ["name", "summary", "status"].some(key => (
+      state.draft[key] !== savedDraft[key]
+    ));
+    editProtection.setDirty(state.dirty);
+    if (state.dirty) state.saveResult = null;
   };
   state.handleSaveSuccess = ({ result }) => {
     invalidateCatalogPages(ctx);
     applyServerRecord(state, result.product);
+    savedDraft = { ...state.draft };
+    editProtection.setDirty(false);
     state.saveResult = result;
     focusAfterRender("#save-status", ctx.signal);
   };
@@ -49,6 +58,8 @@ export function init({ state, data, ctx }) {
       if (ctx.signal.aborted) return;
       // This button explicitly asks to replace the draft, unlike background reads.
       applyServerRecord(state, result);
+      savedDraft = { ...state.draft };
+      editProtection.setDirty(false);
       state.saveResult = {
         message: `Reloaded revision ${result.revision}; the previous draft was replaced.`
       };

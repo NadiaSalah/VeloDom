@@ -100,6 +100,17 @@ private read caching, include tenant/user/session epoch in app-owned scope and
 clear/abort on auth changes. Session/no-store endpoints remain uncached. Do not
 claim it automatically clears the separate router page-data cache.
 
+Keep complex forms native and application-owned. `vd-form` plus the optional
+progressive plugin preserves `action`/GET/POST/`FormData`; `vd-request` is a
+different submit path and should not be placed on the same form. Server field
+errors are linked/focused by the plugin. Multipart upload needs native
+`enctype="multipart/form-data"` and a server; there is no built-in progress or
+resume. Pending enhanced forms abort on removal or teardown, but abort does
+not roll back a server-accepted write. For unsaved edits, compose the existing
+global router guard and a page-owned dirty baseline, plus a best-effort native
+unload prompt. Do not generate a global form store or claim native dialogs are
+guaranteed.
+
 Page-data caching is opt-in and public-only, with 100-value LRU/100-read limits
 and matching-read coalescing. SWR updates the next visit; a failed background
 refresh keeps the original stale-window age and is observed without an

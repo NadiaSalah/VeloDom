@@ -312,6 +312,21 @@ six generated JS/TS starters, both installed consumers, package size/content
 and desktop/mobile Chromium production checks pass. Firefox, WebKit and remote
 CI remain distinct release gates, not implied by these results.
 
+C06 has begun but is not counted complete: the Store edit now uses an
+application-owned dirty baseline plus the existing router guard for app links
+and Back, with a best-effort unload prompt removed on cleanup. The optional
+progressive form plugin now aborts detached uploads, fences late ignored-abort
+success, associates server errors with fields accessibly, and distinguishes an
+accepted submit from redirect failure. The package syntax guide no longer
+combines `vd-form` and `vd-request` on one form. Files changed: Store bootstrap,
+edit script and form guard, progressive forms Core, source/browser tests,
+handbook/package/AI/blog/store docs, roadmap, notes and changelog. No new
+directive/export/dependency/CLI prompt/version. Repeatable/multi-step forms,
+cancellable async validation and the final C06 acceptance gate remain open.
+The implemented C06 slice passes 422 source tests, docs/types/lint, full
+build, installed consumers, package budget and desktop/mobile Chromium; these
+checks do not mark the whole C06 milestone complete.
+
 See [docs/TODO.md](docs/TODO.md) for release gates and the separately counted
 V1 simplicity/organization follow-up, now **6/8 complete (75%)**. Prioritize
 independent developer observation and evidence-led guide navigation before

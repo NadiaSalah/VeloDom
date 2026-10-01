@@ -473,7 +473,7 @@ Page-data caching is independent and currently recommended for public data only.
 ## Forms
 
 ```html
-<form vd-form vd-request="posts.create" vd-validate>
+<form vd-form action="/contact" method="post" vd-validate>
   <input name="title" aria-describedby="title-error" required>
   <small id="title-error" vd-form-error="title"></small>
   <p vd-form-status aria-live="polite"></p>
@@ -481,9 +481,20 @@ Page-data caching is independent and currently recommended for public data only.
 </form>
 ```
 
-`vd-form` enables native form payload handling. `vd-validate` opts into the
-optional validation plugin. `vd-form-error` and `vd-form-status` expose safe
-server/native feedback locations.
+Install `createProgressiveFormsPlugin()` to enhance `vd-form` native GET/POST
+submission; without it, the standard HTML action still works. `vd-request`
+is a separate declarative API-route path: do not combine it with `vd-form` on
+one form. `vd-validate` opts into the optional validation plugin. Server
+`{ errors: { title: "message" } }` fields are rendered as safe text, marked
+`aria-invalid`, linked with `aria-errormessage`, and focused. Original
+`aria-describedby` is preserved. A missing error-element ID is generated.
+`vd-form-status` receives safe loading/success/error text. For uploads, use
+native `enctype="multipart/form-data"` and a named file input; the optional
+plugin forwards `FormData` without JSON conversion. Form removal or plugin
+teardown aborts pending work and fences late success/redirect effects. Aborted
+requests cannot undo accepted server writes, and redirect failure after an
+accepted write is reported as a navigation problem, not a failed submit.
+Progress/resume and server file policy remain application/backend concerns.
 
 ## Direction
 

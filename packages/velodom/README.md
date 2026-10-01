@@ -147,6 +147,14 @@ reads abort on app destruction. No setup option or controller is required.
 Cancellation cannot undo direct application state/DOM writes or accepted backend
 writes; check the signal before direct writes after an await.
 
+Optional `createProgressiveFormsPlugin()` enhances native `vd-form` GET/POST
+forms; it is an alternative to `vd-request`, not a second handler on the same
+form. Server field messages link to invalid inputs accessibly. Native
+`multipart/form-data` forwards `FormData` to the application backend; detached
+forms and app teardown abort pending work and suppress late completion effects.
+An accepted write remains successful if only its redirect fails. Unsaved-edit
+confirmation is an app-owned `router.beforeEach` recipe, not Core form state.
+
 Retries use abortable waits and never repeat AbortError/aborted requests;
 middleware preserves cancellation and does not start another operation after
 abort. Forward the request signal to I/O. Cancellation cannot roll back an

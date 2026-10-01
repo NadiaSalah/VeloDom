@@ -617,6 +617,20 @@ async function assertStorefrontSmoke(browser, target, origin) {
         const nameInput = page.locator("#product-name");
 
         await nameInput.fill("Focus recovery timer");
+        await waitForPageText(page, "Unsaved Changes");
+        const blockedLink = page.locator('a:has-text("Cancel")').click();
+        const leavePrompt = await page.waitForEvent("dialog");
+        if (leavePrompt.type() !== "confirm" || !leavePrompt.message().includes("unsaved product changes")) {
+          throw new Error("Dirty edit did not expose an explicit discard decision.");
+        }
+        await leavePrompt.dismiss();
+        await blockedLink;
+        if (new URL(page.url()).pathname !== "/admin/products/focus-timer/edit") {
+          throw new Error("Dismissing the unsaved-edit prompt still left the edit page.");
+        }
+        if (await nameInput.inputValue() !== "Focus recovery timer") {
+          throw new Error("Blocked navigation lost the unsaved product draft.");
+        }
         await page.locator('select[name="mode"]').selectOption("error");
         await page.locator('button:has-text("Save product")').click();
         await waitForPageText(page, "Your draft is still available.");

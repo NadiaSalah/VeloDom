@@ -143,7 +143,8 @@ documentation blog. Storefront coverage includes Back/Forward filters, direct
 product entry, refresh/blocked persistence, quotation, mock checkout, mobile,
 keyboard activation, and RTL. Administration coverage includes URL search,
 failed/conflicting draft preservation, revision reload, successful edit,
-focus restoration, confirmed bulk status changes, a customer-to-admin guard
+focus restoration, confirmed bulk status changes, app-link/Back dirty-edit
+protection with a best-effort native unload prompt, a customer-to-admin guard
 redirect, and authenticated HTTP requests. Focused backend-contract tests prove
 role/resource/tenant denial, CSRF, expiry/logout/account replacement, private
 cache isolation, tamper detection, duplicate-write rejection, and cancellation.

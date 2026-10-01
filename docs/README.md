@@ -2667,7 +2667,7 @@ createApp({
 <form vd-form action="/contact" method="post">
   <label>Email <input name="email" type="email" required></label>
   <input type="hidden" name="csrf" value="application-issued-token">
-  <small vd-form-error="email"></small>
+  <small id="email-error" vd-form-error="email"></small>
   <button type="submit">Send</button>
   <p vd-form-status aria-live="polite"></p>
 </form>
@@ -2682,14 +2682,39 @@ markers:
 - `data-vd-form-loading`: present only while the request is active.
 - `vd-form-status`: receives a safe text status message.
 - `vd-form-error="fieldName"`: receives a server field error from
-  `{ errors: { fieldName: "message" } }` JSON responses.
-- `data-vd-form-field-error` and `aria-invalid`: applied to invalid controls.
+  `{ errors: { fieldName: "message" } }` JSON responses. The plugin connects
+  that message with `aria-errormessage` (assigning a unique ID if omitted).
+- `data-vd-form-field-error` and `aria-invalid`: applied to invalid controls;
+  the first invalid field receives focus. Existing `aria-describedby` remains.
+
+`vd-form` and `vd-request` are alternative submission paths: do not put both on
+the same form. The progressive plugin owns native `action`, GET/POST and
+`FormData`. For a file upload use ordinary HTML
+`<form vd-form method="post" enctype="multipart/form-data">` with a named
+file input and a server endpoint; the plugin passes the original `FormData`
+to `fetch` without a JSON or manual multipart content type. An application
+can supply its own transport via the plugin's `fetch` option. Pending enhanced
+submissions are aborted on app teardown or form removal (including route
+replacement). A transport ignoring abort cannot emit late success/redirect
+effects. Neither abort nor a failed redirect rolls back a server-accepted
+write; a redirect failure retains success with a navigation warning. Browser
+upload progress/resume and backend file policy are not supplied by VeloDom.
 
 The server keeps ownership of validation, session cookies, CSRF policy, and
 redirect responses. A standard HTTP redirect or a successful JSON
 `{ redirect: "/thanks" }` follows normally. For custom CSRF headers or a
 custom redirect integration, pass `headers` or `onRedirect` to
 `createProgressiveFormsPlugin()`.
+
+For a dirty edit, use the existing `router.beforeEach` guard in application
+bootstrap and a page-owned draft tracker rather than a global framework form
+store. The store reference implements `confirmEditDeparture` in
+`src/domain/forms/unsaved-edit.js`: it asks before app links and Back while
+the edit is dirty, returns `false` when the user keeps editing, and registers
+`beforeunload` only for a dirty mounted draft. Save/reload/discard removes the
+prompt. Native unload dialogs are best-effort and browser-controlled; never
+rely on them to save data. Its product form compares only real edit fields, not
+the fixture response selector. A failed/conflicting write keeps that draft.
 
 ### Recipe: Create, Update, and Delete Forms
 

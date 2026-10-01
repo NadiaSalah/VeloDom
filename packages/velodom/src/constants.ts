@@ -216,6 +216,7 @@ export const VD_VALIDATION = Object.freeze({
 export const VD_FORMS = Object.freeze({
   ERROR_ATTRIBUTE: "data-vd-form-error",
   ERROR_FIELD_ATTRIBUTE: "data-vd-form-field-error",
+  ERROR_ID_PREFIX: "vd-form-error-",
   ERROR_EVENT: "vd:form-error",
   FORM_SELECTOR: `form${VD.selector(VD.FORM)}`,
   LOADING_ATTRIBUTE: "data-vd-form-loading",

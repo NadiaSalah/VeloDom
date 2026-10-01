@@ -14,6 +14,14 @@ or claim that a matching package is available from a registry.
 
 ### Added
 
+- Began C06 without a form DSL: the store's edit page now composes an
+  application-owned dirty baseline with existing route guards for links/Back
+  and a best-effort native unload prompt. Optional progressive forms now
+  associate server field errors accessibly, abort detached uploads, fence
+  ignored-abort completions, and keep accepted-submit success distinct from a
+  redirect failure. Corrected the package syntax guide's misleading combined
+  `vd-form`/`vd-request` example. Repeatable/multi-step and async-validation
+  work remains open; no new public import, directive or CLI option.
 - Added explicit app and page/component-context page-data invalidation/refetch
   over the existing public-only loader cache. Fresh reads update mounted
   `state.data` without remounting or replacing drafts; concurrent reads

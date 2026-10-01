@@ -16,8 +16,10 @@ import {
 } from "velodom";
 import { mountVeloDom } from "velodom/vite";
 import { cart } from "#app/domain/cart/cart-store.js";
+import { confirmEditDeparture } from "#app/domain/forms/unsaved-edit.js";
 
 await mountVeloDom({
+  router: { beforeEach: confirmEditDeparture },
   auth: {
     defaultProvider: "store-session",
     providers: {

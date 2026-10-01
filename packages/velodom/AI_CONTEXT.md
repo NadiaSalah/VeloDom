@@ -77,6 +77,16 @@ source. JS JSDoc and app-owned `.d.ts` contracts can support TS callers without
 duplicating the application. Types are not runtime input/response validation.
 Vite `base` handles assets, not automatic route/API path prefixes.
 
+For complex edits, compare an application-owned draft against its last saved
+record and compose existing `router.beforeEach` for links/Back; register a
+best-effort `beforeunload` listener only while the mounted draft is dirty, and
+release it on save/reload/page cleanup. The store's `src/domain/forms/unsaved-edit.js`
+is a reference, not a framework API. Optional progressive `vd-form` and
+declarative `vd-request` are alternative submit paths. The progressive plugin
+uses native `FormData` for multipart uploads, links server field errors to
+controls, and aborts detached submissions. It does not provide upload
+progress/resume or backend validation/authority.
+
 `createRequestCache` is optional: set finite `ttlMs`, bounded `maxEntries` and
 an explicit scope when permitted private reads are cached. It coalesces GETs,
 isolates consumer cancellation and fences pending completions on `clear()` or

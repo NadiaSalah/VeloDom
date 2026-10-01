@@ -32,6 +32,9 @@ interface FormResponseError extends Error {
   data: unknown;
 }
 
+const managedErrorMessages = new WeakMap<HTMLElement, string>();
+let nextErrorId = 0;
+
 /**
  * Creates an optional enhancement bridge for forms marked with `vd-form`.
  *
@@ -52,6 +55,19 @@ export function createProgressiveFormsPlugin(
   return {
     setup(pluginContext) {
       const activeRequests = new Map<HTMLFormElement, AbortController>();
+      // Only observe while a form owns a request; routed page replacement must
+      // release a detached upload even though the plugin itself stays mounted.
+      const observer = typeof MutationObserver === "function"
+        ? new MutationObserver(() => {
+          for (const [form, controller] of activeRequests) {
+            if (form.isConnected) continue;
+            controller.abort();
+            setFormState(form, "idle", "");
+            activeRequests.delete(form);
+          }
+          if (activeRequests.size === 0) observer?.disconnect();
+        })
+        : null;
 
       const onSubmit = (event: Event) => {
         const form = getProgressiveForm(event.target, selector);
@@ -76,11 +92,15 @@ export function createProgressiveFormsPlugin(
 
         const controller = new AbortController();
         activeRequests.set(form, controller);
+        if (activeRequests.size === 1) {
+          observer?.observe(document, { childList: true, subtree: true });
+        }
         void submitForm(form, controller, pluginContext.navigate, transport, options)
           .finally(() => {
             if (activeRequests.get(form) === controller) {
               activeRequests.delete(form);
             }
+            if (activeRequests.size === 0) observer?.disconnect();
           });
       };
 
@@ -88,7 +108,11 @@ export function createProgressiveFormsPlugin(
 
       return () => {
         document.removeEventListener(VD_FORMS.SUBMIT_EVENT, onSubmit, true);
-        activeRequests.forEach(controller => controller.abort());
+        observer?.disconnect();
+        activeRequests.forEach((controller, form) => {
+          controller.abort();
+          setFormState(form, "idle", "");
+        });
         activeRequests.clear();
       };
     }
@@ -103,17 +127,18 @@ async function submitForm(
   transport: typeof fetch,
   options: ProgressiveFormsPluginOptions
 ) {
-  const request = createRequestContext(form);
-
   clearFieldErrors(form);
   setFormState(form, "loading", "Sending…");
 
   try {
+    const request = createRequestContext(form);
     const response = await transport(
       requestUrl(request).toString(),
       createFetchOptions(request, controller, options)
     );
+    if (!canCommitForm(form, controller)) return;
     const data = await readResponseData(response);
+    if (!canCommitForm(form, controller)) return;
 
     if (!response.ok) {
       throw createResponseError(response, data);
@@ -132,10 +157,17 @@ async function submitForm(
     }));
 
     if (redirect) {
-      await followRedirect(redirect, context, navigate, options);
+      try {
+        await followRedirect(redirect, context, navigate, options);
+      } catch {
+        // A failed redirect is not a failed server write; keep success visible.
+        if (canCommitForm(form, controller)) {
+          setFormState(form, "success", "Submitted, but navigation could not be completed.");
+        }
+      }
     }
   } catch (error) {
-    if (controller.signal.aborted) return;
+    if (!canCommitForm(form, controller)) return;
 
     const responseError = error as Partial<FormResponseError>;
     const data = responseError.data;
@@ -151,6 +183,14 @@ async function submitForm(
       }
     }));
   }
+}
+
+/** Prevents a detached or aborted form from reporting a late request result. */
+function canCommitForm(form: HTMLFormElement, controller: AbortController): boolean {
+  if (controller.signal.aborted) return false;
+  if (form.isConnected) return true;
+  controller.abort();
+  return false;
 }
 
 /** Returns the progressive form. */
@@ -331,6 +371,10 @@ function clearFieldErrors(form: HTMLFormElement) {
   getNamedControls(form).forEach(control => {
     control.removeAttribute(VD_FORMS.ERROR_FIELD_ATTRIBUTE);
     control.removeAttribute("aria-invalid");
+    if (managedErrorMessages.get(control) === control.getAttribute("aria-errormessage")) {
+      control.removeAttribute("aria-errormessage");
+    }
+    managedErrorMessages.delete(control);
   });
 }
 
@@ -355,6 +399,16 @@ function markInvalidFields(form: HTMLFormElement, errors: Record<string, string>
   form.querySelectorAll(`[${VD_FORMS.ERROR_ATTRIBUTE}]`).forEach(element => {
     const name = element.getAttribute(VD_FORMS.ERROR_ATTRIBUTE) || "";
     element.textContent = errors[name] || "";
+    if (!errors[name]) return;
+    if (!element.id) {
+      do { element.id = `${VD_FORMS.ERROR_ID_PREFIX}${++nextErrorId}`; }
+      while (document.getElementById(element.id) !== element);
+    }
+    controls.filter(control => control.getAttribute("name") === name).forEach(control => {
+      if (control.hasAttribute("aria-errormessage")) return;
+      control.setAttribute("aria-errormessage", element.id);
+      managedErrorMessages.set(control, element.id);
+    });
   });
 
   const firstInvalid = controls.find(control => (
