@@ -88,6 +88,12 @@ test("admin resources enforce session, role, tenant, and CSRF independently", as
 
   assert.equal(accepted.response.status, 200);
   assert.equal(accepted.body.product.name, "Aurora server lamp");
+  const savedDetail = await call(backend, "/admin/products/aurora-lamp", admin);
+
+  assert.equal(savedDetail.response.status, 200);
+  assert.equal(savedDetail.body.name, "Aurora server lamp");
+  assert.equal(savedDetail.body.revision, accepted.body.product.revision);
+  assertPrivateNoStore(savedDetail.response);
 });
 
 test("mock order writes validate totals, isolate owners, and reject duplicate keys", async () => {

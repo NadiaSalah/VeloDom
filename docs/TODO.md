@@ -669,6 +669,11 @@ Current release work is governance rather than a new framework feature:
   rerun these gates on that versioned commit before closing this checkbox.
   Owner decision on 2026-10-01: keep both local manifests at `1.0.0` and
   postpone publication; do not bump the version merely to close this gate.
+  A later documentation-only `28a501d` CI run failed intermittently in the
+  WebKit Store administration detail journey. The public annotation identified
+  the route but not whether the fresh private read or DOM render was stale;
+  the browser and HTTP-contract tests now assert those boundaries separately.
+  A new strict CI run is required before describing current `main` as green.
 - [ ] Verify the `velodom` and `create-velodom` registry names and versions at
   release time. Public registry snapshot on 2026-10-01: `velodom` is an
   unpublished tombstone with no active dist-tag, while `create-velodom` returns

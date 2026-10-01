@@ -249,6 +249,14 @@ chosen later; any official changelog section and tag must use that approved
 version, not the unpublished `1.0.0`. [TODO](docs/TODO.md), [release policy](docs/RELEASING.md),
 and [NOTES](docs/NOTES.md) record this boundary.
 
+The latest documentation-only CI run exposed an intermittent WebKit failure in
+the Store administration journey. Repository browser and HTTP tests now check
+the accepted-save → fresh private detail read → visible heading sequence
+separately, so a future failure identifies which boundary regressed. Local
+WebKit and focused backend checks pass; a fresh strict CI result is still
+required. This changed only `tools/scripts/browser/check-browser-e2e.mjs` and
+`tools/tests/examples/store-backend.test.js`, not Core or the example app.
+
 ## TODO
 
 The local V1 implementation and approved 15/15 maturity milestones are complete.

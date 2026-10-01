@@ -4868,6 +4868,11 @@ When a selected target fails in GitHub Actions, the test prints a concise
 annotation with the browser, failed step, URL, and root error. Page-body
 snapshots stay in the detailed job log and are not copied into annotations.
 The annotation improves diagnosis; it does not turn a failed matrix green.
+The Store administration journey additionally checks that an accepted save
+is followed by a successful private detail GET containing the new revision
+and by a matching visible detail heading. This distinguishes stale backend
+data from a client navigation/rendering failure without relaxing the browser
+gate or increasing its timeout.
 
 ### Editor intelligence
 

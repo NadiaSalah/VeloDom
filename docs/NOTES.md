@@ -1661,6 +1661,18 @@ both TODO items open until those follow-up checks pass.
   rerun the full gate on the selected publishable version. The owner decided
   on 2026-10-01 to keep both local manifests at `1.0.0` and defer publication;
   this is a deliberate release pause, not a passed registry gate.
+- A later documentation-only `28a501d` [strict run](https://github.com/NadiaSalah/VeloDom/actions/runs/36878886713)
+  failed in WebKit's `storefront-administration` step after navigating to
+  `/admin/products/focus-timer`; the public annotation reported a 30-second
+  wait for updated page text. One verbose and four repeated local WebKit runs
+  passed, so neither a stable runtime defect nor a harmless CI flake is
+  established. The browser gate now observes the private detail GET after an
+  accepted save, asserts that its response contains the saved name, then waits
+  for the matching detail heading. The backend HTTP test separately proves
+  post-write detail freshness and `private, no-store` headers. This is a
+  diagnostic/contract strengthening, not a timeout increase or a claim that
+  the intermittent root cause is fixed. CLI impact: `NONE`; Core, templates,
+  package exports, and generated projects are unchanged.
 
 ## Handoff Guidance
 

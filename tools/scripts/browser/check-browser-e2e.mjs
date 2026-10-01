@@ -666,8 +666,25 @@ async function assertStorefrontSmoke(browser, target, origin) {
         await page.locator('button:has-text("Save product")').click();
         await waitForPageText(page, "saved as revision 3");
         await page.waitForFunction(() => document.activeElement?.id === "save-status");
+        // A successful write is not enough: the private detail route must
+        // perform a fresh server read before presenting the saved record.
+        const detailRead = page.waitForResponse(response => (
+          response.request().method() === "GET"
+          && new URL(response.url()).pathname
+            === "/__fixture-api/admin/products/focus-timer"
+        ));
         await page.locator('a:has-text("Cancel")').click();
-        await waitForPageText(page, "Focus recovery timer");
+        const detailResponse = await detailRead;
+        if (!detailResponse.ok()) {
+          throw new Error(`Admin detail read failed after save: ${detailResponse.status()}`);
+        }
+        const savedDetail = await detailResponse.json();
+        if (savedDetail.name !== "Focus recovery timer") {
+          throw new Error("Admin detail read returned a stale product after save.");
+        }
+        await page.locator("main.admin-page .admin-heading h1")
+          .filter({ hasText: "Focus recovery timer" })
+          .waitFor();
         await page.locator('a:has-text("Product administration")').click();
         await waitForPageText(page, "Server-paginated product records");
         // The static table caption appears before async directives are bound.

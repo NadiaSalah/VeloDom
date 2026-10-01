@@ -21,6 +21,11 @@ publication; no version, tag, or registry state changed.
 
 ### Added
 
+- Strengthened the Store administration browser gate after an intermittent
+  WebKit failure: a saved product must be returned by a fresh private detail
+  GET and rendered in the detail heading. The HTTP fixture test asserts the
+  same post-write read contract. No timeout, Core API, or example behavior was
+  changed; the underlying intermittent cause remains under verification.
 - Added concise GitHub Actions annotations for failed browser targets. They
   identify the target, step, URL, and root error without exposing page-body
   snapshots in the public annotation; the strict matrix still fails normally.
