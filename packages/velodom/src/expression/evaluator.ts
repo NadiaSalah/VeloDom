@@ -334,9 +334,9 @@ function resolveIdentifier(
     };
   }
 
-  if (name === "event" || name === "props" || name === "el") {
+  if (name === "event" || name === "$event" || name === "props" || name === "el") {
     return {
-      value: scope[name],
+      value: name === "$event" ? scope.event : scope[name],
       receiver: scope
     };
   }
@@ -426,6 +426,7 @@ function isStateExpression(
     root.name === "state"
     || (
       root.name !== "event"
+      && root.name !== "$event"
       && root.name !== "props"
       && root.name !== "el"
       && root.name in scope.state

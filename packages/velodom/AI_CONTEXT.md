@@ -86,6 +86,10 @@ declarative `vd-request` are alternative submit paths. The progressive plugin
 uses native `FormData` for multipart uploads, links server field errors to
 controls, and aborts detached submissions. It does not provide upload
 progress/resume or backend validation/authority.
+The repository blog's `/forms` page demonstrates repeatable keyed fields,
+native multi-step constraints, touched state and an application-owned latest-
+only async check. Its reserved-name check is local teaching data, not backend
+uniqueness. No schema package or global form state is required.
 
 `createRequestCache` is optional: set finite `ttlMs`, bounded `maxEntries` and
 an explicit scope when permitted private reads are cached. It coalesces GETs,

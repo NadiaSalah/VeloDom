@@ -82,6 +82,20 @@ test("method calls retain their receiver", () => {
   );
 });
 
+test("event directives expose $event without allowing event mutation", () => {
+  const event = { target: { value: "reader" } };
+  const values = [];
+  const scope = {
+    event,
+    state: { remember(value) { values.push(value); } }
+  };
+  evaluateExpression("remember($event.target.value)", scope);
+  assert.deepEqual(values, ["reader"]);
+  assert.equal(evaluateExpression("event.target.value", scope), "reader");
+  assert.throws(() => evaluateExpression("$event.target.value++", scope),
+    /only change application state/);
+});
+
 test("template literals are evaluated from AST nodes", () => {
   assert.equal(
     evaluateExpression("`Post #${post.id}: ${post.title}`", {

@@ -45,7 +45,7 @@ state.
 This separately scoped quality/adoption work is detailed below; the completed
 implementation counters above do not mean these follow-ups or release gates are done.
 
-**Commerce and large-application track: 5 of 10 complete (50%).**
+**Commerce and large-application track: 6 of 10 complete (60%).**
 These new proposals do not change the completed baseline or the 6/8 simplicity
 counter. C01–C03 now provide storefront, administration, and real server-denial
 evidence without adding commerce policy to Core. Research
@@ -141,9 +141,9 @@ documentation site is one consumer, not the framework's architectural boundary.
 The objective is to prove and improve store, administration, and business-app
 workflows without turning Core into an e-commerce backend or enterprise platform.
 
-**Progress: 5 of 10 milestones complete (50%).**
+**Progress: 6 of 10 milestones complete (60%).**
 
-`[##########----------] 50%`
+`[############--------] 60%`
 
 ### Existing foundations — reuse before adding
 
@@ -320,7 +320,7 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   prompts, controllers or generated cache policy. Existing templates need no
   changes; JS/TS starters and real consumers are verified by the package gate.
 
-- [ ] **C06 — Composable complex forms and edit protection. V1.x; complexity:
+- [x] **C06 — Composable complex forms and edit protection. V1.x; complexity:
   High; owner: optional forms integration and narrowly scoped router extension
   only if needed; CLI: NONE initially.** Build on native constraints and the
   existing validation plugin: field/server-error mapping, dirty/touched state,
@@ -341,12 +341,16 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   `FormData`, aborts removed forms, fences ignored-abort late success/redirect,
   and keeps an accepted submit successful if only redirecting fails. No new
   directive, global form store or required schema dependency was introduced.
-  **Still open:** repeatable/multi-step form recipes, cancellable async field
-  validation with stale-result tests, optional schema-adapter evaluation, and
-  final acceptance evidence for those remaining recipes. The currently
-  implemented edit/upload slice passes source, installed-package and desktop/
-  mobile Chromium checks.
-  CLI impact remains NONE; generated projects still use native form defaults.
+  The separate `/forms` lesson now proves keyed repeatable fields, two native
+  editing steps, touched/dirty feedback, latest-only async validation and
+  cleanup on departure. The documented `$event` alias was repaired in the
+  expression evaluator and verified by direct DOM and production-browser
+  tests. A schema adapter was evaluated but not added: native constraints,
+  application state and authoritative server validation meet the reference
+  cases without a dependency or form DSL. CLI impact remains NONE; six
+  generated JS/TS starter combinations retain native form defaults. All 426
+  source tests, full build, installed consumers and desktop/mobile Chromium
+  pass; Firefox/WebKit and remote CI remain separate release evidence.
 
 - [ ] **C07 — Measured large-project reliability. V1.x; complexity: Medium;
   owner: existing build/test tooling; CLI: NONE.** Extend current benchmarks and

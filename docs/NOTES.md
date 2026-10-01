@@ -2,9 +2,9 @@
 
 ## Architectural Decisions
 
-### Native edit protection and progressive-form ownership — 2026-10-01
+### Completed C06 native-form composition and event parity — 2026-10-01
 
-- C06 remains open. The Store uses a small app-owned dirty baseline and the
+- C06 is complete. The Store uses a small app-owned dirty baseline and the
   existing `router.beforeEach` contract. Rejected app navigation and Back keep
   both URL and draft; a confirmed departure releases its `beforeunload`
   listener. Browsers control whether a native unload dialog appears. Only real
@@ -18,17 +18,29 @@
   replacing authored descriptions. Redirect failure after an accepted submit
   leaves success visible; it does not claim rollback. `vd-form` and
   `vd-request` are alternative submit paths, as corrected in package docs.
+- The blog's lazy `/forms` route is the application-owned recipe: two native
+  editable steps plus a review, stable-key contact rows, touched feedback and
+  one latest-only async check. It aborts on newer values/page cleanup and
+  fences transports that ignore abort. Server validation remains authoritative.
+  A schema adapter was evaluated and deferred because the reference cases do
+  not justify a dependency or a Core form DSL. The browser check exposed the
+  existing documented `$event` alias was unresolved in safe expressions; the
+  evaluator now maps it to the current event and rejects state-style mutation.
+  Direct expression, compiled DOM and production browser tests cover it.
 - CLI classification NONE: no prompt, starter field policy, required schema
-  package, new directive, export, dependency or version. The initial guard,
-  multipart and form tests are passing; complete C06 still needs repeatable/
-  multi-step and cancellable validation recipes plus their acceptance gates.
-  Local evidence for this slice: 422 source tests, docs/types/strict/lint,
+  package, new directive, export, dependency or version. The package docs and
+  generated starters retain native form defaults; six JS/TS variants pass.
+  The earlier edit/upload slice passed 422 source tests. Complete C06 now
+  passes 426 source tests, docs/types/strict/lint,
   full build, six starter combinations, both installed real consumers,
   desktop/mobile Chromium including a dismissed unsaved-edit prompt, and npm
   dry-run content/size gates pass. The package is 335 files / 690.0 KiB
   packed / 2929.9 KiB installed; the create wrapper is 4 files / 1.7 KiB.
-  Runtime budget is 370.7 KiB/380 KiB and blog JS is 126.8 KiB initial /
-  250.8 KiB total. Other engines and remote CI remain unverified here.
+  Runtime budget is 370.9 KiB/380 KiB and blog JS is 127.5 KiB initial /
+  259.5 KiB total. The optional lazy form lesson raised only the total blog
+  JS budget from 256 to 264 KiB; the 130 KiB initial ceiling is unchanged and
+  a chunk-isolation assertion proves the lesson stays lazy. Other engines and
+  remote CI remain unverified here.
 
 ### Explicit page-data freshness and confirmed-write separation — 2026-10-01
 

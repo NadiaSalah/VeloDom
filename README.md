@@ -233,7 +233,7 @@ startup failure still requires verification on the strict Linux CI runner.
 
 ## TODO
 
-The **Commerce and Large Applications** track is now **5/10 complete**. The
+The **Commerce and Large Applications** track is now **6/10 complete**. The
 storefront, administration workflow, and replaceable HTTP/session contract are
 implemented and verified, including real server denial, safe mock writes, and
 private cache boundaries. The handbook now explains feature-owned organization,
@@ -244,8 +244,7 @@ JS/TS lesson; no new runtime API, registry or starter was introduced.
 Files changed for this milestone: store HTTP client/contracts/README,
 `tools/scripts/package/check-package-consumer.mjs`, blog architecture lesson and
 README, package AI/syntax guides, and root handbook/roadmap/change records.
-Continue with C06 native-form composition and edit protection, then measured
-scale work for V1.x. API-contract generation is deferred to a future major release; realtime,
+Continue with C07 measured scale work for V1.x. API-contract generation is deferred to a future major release; realtime,
 virtualization, and request-time rendering stay research. These are proposals,
 not new npm features. Payment, stock, authorization, and pricing remain
 application/server responsibilities; the documentation blog stays the teaching site.
@@ -312,7 +311,7 @@ six generated JS/TS starters, both installed consumers, package size/content
 and desktop/mobile Chromium production checks pass. Firefox, WebKit and remote
 CI remain distinct release gates, not implied by these results.
 
-C06 has begun but is not counted complete: the Store edit now uses an
+C06 is complete: the Store edit now uses an
 application-owned dirty baseline plus the existing router guard for app links
 and Back, with a best-effort unload prompt removed on cleanup. The optional
 progressive form plugin now aborts detached uploads, fences late ignored-abort
@@ -321,11 +320,20 @@ accepted submit from redirect failure. The package syntax guide no longer
 combines `vd-form` and `vd-request` on one form. Files changed: Store bootstrap,
 edit script and form guard, progressive forms Core, source/browser tests,
 handbook/package/AI/blog/store docs, roadmap, notes and changelog. No new
-directive/export/dependency/CLI prompt/version. Repeatable/multi-step forms,
-cancellable async validation and the final C06 acceptance gate remain open.
-The implemented C06 slice passes 422 source tests, docs/types/lint, full
-build, installed consumers, package budget and desktop/mobile Chromium; these
-checks do not mark the whole C06 milestone complete.
+directive/export/dependency/CLI prompt/version. The blog's `/forms` lesson
+now demonstrates keyed repeatable contacts, two native editing steps,
+touched feedback and cancellable latest-only async validation without a form
+DSL. Its browser test exposed a real mismatch: documented `$event` was not
+resolved by the expression evaluator. The alias now resolves to the current
+event and cannot be updated as state. Direct DOM and browser regressions prove
+input, submission, and repeatable rows. A schema adapter remains deferred
+until repeated real integrations justify it. The form lesson is a lazy route;
+the measured total blog JS budget changed from 256 to 264 KiB while the
+initial 130 KiB limit stays fixed. Updated files include the blog page/helper,
+Core evaluator, form/event/source/browser tests, budget check, root/package/AI
+guides, roadmap and engineering notes. C06 passes 426 source tests,
+docs/types/strict/lint, full build, six starter variants, both installed
+consumers, package budget and desktop/mobile Chromium production checks.
 
 See [docs/TODO.md](docs/TODO.md) for release gates and the separately counted
 V1 simplicity/organization follow-up, now **6/8 complete (75%)**. Prioritize

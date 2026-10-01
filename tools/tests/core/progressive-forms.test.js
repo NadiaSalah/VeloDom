@@ -204,21 +204,29 @@ test("ignored-abort form transport cannot emit success or redirect after cleanup
 });
 
 test("removing an enhanced form aborts its pending upload without app teardown", async () => {
-  document.body.innerHTML = '<form data-vd-form action="/upload" method="post" enctype="multipart/form-data"><input name="title" value="Draft"></form>';
+  document.body.innerHTML = '<form data-vd-form action="/upload" method="post" enctype="multipart/form-data"><input name="title" value="Draft"><input name="attachment" type="file"></form>';
   let signal;
   let body;
+  let headers;
   const manager = createPluginManager([createProgressiveFormsPlugin({
     fetch: async (_url, options) => {
       signal = options.signal;
       body = options.body;
+      headers = options.headers;
       return new Promise(() => {});
     }
   })]);
   const form = document.querySelector("form");
+  const files = new window.DataTransfer();
+  files.items.add(new window.File(["hello"], "notes.txt", { type: "text/plain" }));
+  form.querySelector('input[type="file"]').files = files.files;
   await manager.setup();
   submit(form);
   await waitFor(() => assert.ok(signal));
   assert.equal(body instanceof FormData, true);
+  assert.equal(body.get("attachment").name, "notes.txt");
+  assert.equal(body.get("attachment").size, 5);
+  assert.equal(headers, undefined);
   form.remove();
   await waitFor(() => assert.equal(signal.aborted, true));
   await manager.destroy();

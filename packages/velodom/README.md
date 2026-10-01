@@ -154,6 +154,10 @@ form. Server field messages link to invalid inputs accessibly. Native
 forms and app teardown abort pending work and suppress late completion effects.
 An accepted write remains successful if only its redirect fails. Unsaved-edit
 confirmation is an app-owned `router.beforeEach` recipe, not Core form state.
+For custom native form handlers, `vd-on:submit="save($event)"` receives the
+current DOM event; `event` remains an alias. Keep touched state, repeated field
+IDs and cancellable async checks in the application. The repository blog's
+`/forms` route demonstrates this composition without a schema dependency.
 
 Retries use abortable waits and never repeat AbortError/aborted requests;
 middleware preserves cancellation and does not start another operation after

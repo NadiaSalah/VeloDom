@@ -321,6 +321,9 @@ async function assertInteractiveSmoke(browser, target, origin) {
     await runInteractiveStep(context, target, "single-file", async page => {
       await assertSingleFilePage(page, origin);
     });
+    await runInteractiveStep(context, target, "native-form-recipes", async page => {
+      await assertNativeFormRecipes(page, origin);
+    });
     await runInteractiveStep(context, target, "requests", async page => {
       await assertRequestExamples(page, origin);
     });
@@ -789,6 +792,33 @@ async function assertSingleFilePage(page, origin) {
 
     return button?.innerText.includes("1");
   });
+}
+
+async function assertNativeFormRecipes(page, origin) {
+  await page.goto(`${origin}/forms`);
+  await waitForPageText(page, "A bigger form, without a form DSL.");
+  const name = page.locator("#lesson-name");
+  await name.fill("admin");
+  await waitForPageText(page, "This demo name is reserved.");
+  await name.fill("Reader");
+  await page.locator("#lesson-name-error").waitFor({ state: "hidden" });
+  await page.locator('button:has-text("Continue to contacts")').click();
+  await waitForFormStep(page, 2);
+  await page.locator('input[type="email"]').first().fill("reader@example.test");
+  await page.locator('button:has-text("Add another email")').click();
+  await page.locator('input[type="email"]').nth(1).fill("second@example.test");
+  await page.locator('button:has-text("Review draft")').click();
+  await waitForFormStep(page, 3);
+  await waitForPageText(page, "second@example.test");
+  await page.locator('button:has-text("Start again")').click();
+  await waitForFormStep(page, 1);
+}
+
+async function waitForFormStep(page, step) {
+  // CSS uppercases the rendered label; textContent retains the source value.
+  await page.waitForFunction(expected => (
+    document.querySelector('p[aria-live="polite"]')?.textContent?.includes(expected)
+  ), `Step ${step} of 3`);
 }
 
 async function assertRequestExamples(page, origin) {

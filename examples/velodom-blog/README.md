@@ -26,6 +26,7 @@ share the documentation app's Tailwind UI or become another starter.
 | `/` | Two-file beginner walkthrough, learning path, and package/site boundaries |
 | `/features` | Guided lessons for the framework capabilities |
 | `/playground` | Live state, keyed loop reconciliation, components, refs, and request list states |
+| `/forms` | Native multi-step/repeatable-field lesson with cancellable local async validation |
 | `/reference` | Source-verified public package catalog |
 | `/single-file` | Optional `.vd` authoring example |
 | `/blog/posts/:id` | Dynamic route and content detail |
@@ -45,6 +46,9 @@ reference for separate write and post-write-read failure handling.
 The forms lesson keeps native `vd-form` separate from declarative `vd-request`,
 and points to the store's application-owned unsaved-edit guard. Multipart
 uploads and server field errors remain optional progressive-form behavior.
+Its `/forms` route also proves keyed repeatable contacts, two native editing
+steps, touched feedback and latest-only local async validation. The check is
+not a uniqueness service: the backend must validate submitted values again.
 
 `/features#architecture` explains feature-owned application modules, optional
 JSDoc/TS wire contracts, dependency direction and browser/server configuration.

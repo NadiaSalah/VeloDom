@@ -2716,6 +2716,42 @@ prompt. Native unload dialogs are best-effort and browser-controlled; never
 rely on them to save data. Its product form compares only real edit fields, not
 the fixture response selector. A failed/conflicting write keeps that draft.
 
+### Recipe: Repeatable Fields, Steps, and Latest-Only Validation
+
+The `/forms` teaching page is a runnable, local-only example of a larger form.
+It uses two ordinary HTML forms for the editable steps and a final review
+section. Native `required`, `minlength` and `type="email"` constraints remain
+visible; `reportValidity()` prevents advancing an invalid step. The page keeps
+`step`, a small touched map and draft values in page state, without a Core
+form store. Repeated contacts have stable IDs and immutable array updates:
+
+```html
+<div vd-for="contact in contacts" vd-key="contact.id">
+  <input type="email" name="email" required vd-value="contact.email"
+    vd-on:input="updateContact(contact.id, $event.target.value)">
+</div>
+```
+
+```js
+state.updateContact = (id, email) => {
+  state.contacts = state.contacts.map(contact =>
+    contact.id === id ? { ...contact, email } : contact
+  );
+};
+```
+
+A small application-owned `createLatestValidation(check, ctx.signal)` aborts
+the previous field check. It also checks ownership after the await, so even a
+transport that ignores abort cannot display an old result over a newer value.
+Register its `cancel()` with `ctx.onCleanup`; do not hold a validation promise
+or listener past page departure. The lesson's 100 ms reserved-name check is
+local and intentionally does **not** prove uniqueness. A real backend must
+validate again on submit. This pattern composes native constraints, the optional
+validation plugin and server field errors rather than requiring a schema
+package. We evaluated a schema adapter for V1.x but did not add one: the
+current reference cases need no new dependency or form DSL. Revisit only with
+concrete repeated schema-integration demand.
+
 ### Recipe: Create, Update, and Delete Forms
 
 Use the same small pattern for CRUD screens:

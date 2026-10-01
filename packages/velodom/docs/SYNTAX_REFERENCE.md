@@ -495,6 +495,11 @@ teardown aborts pending work and fences late success/redirect effects. Aborted
 requests cannot undo accepted server writes, and redirect failure after an
 accepted write is reported as a navigation problem, not a failed submit.
 Progress/resume and server file policy remain application/backend concerns.
+Repeatable fields and multi-step drafts use normal page state, keyed `vd-for`
+rows, native constraints and application handlers; they are not new Core
+directives. An app may cancel its own async validator with `ctx.signal` and
+discard late results after an await. See the repository's `/forms` lesson;
+schema validation and backend authority remain application choices.
 
 ## Direction
 

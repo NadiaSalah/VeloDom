@@ -25,7 +25,7 @@ before use.
 | Two-way model | Directives | Stable | `vd-model` | `data-vd-model` legacy | compiler/runtime | Yes |
 | Bindings | Directives | Stable | `vd-bind:*` | target shorthands | compiler/runtime | Yes |
 | Class/style/attr maps | Directives | Stable | `vd-class/style/attr` | `vd-bind:*` | compiler/runtime | Yes |
-| DOM events | Directives | Stable | `vd-on:event` | modifiers | compiler/runtime | Yes |
+| DOM events | Directives | Stable | `vd-on:event`; `$event` or `event` in handlers | modifiers | compiler/runtime | Yes |
 | Element refs | Lifecycle | Stable | `vd-ref` | grouped/keyed refs | lifecycle context | Yes |
 | Component props | Components | Stable | `vd-prop-*`, `vd-props` | none | component context | Yes |
 | Component expose | Components | Stable | `init` expose result | refs | component context | Yes |

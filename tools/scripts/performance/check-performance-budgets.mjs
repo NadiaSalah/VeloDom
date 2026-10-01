@@ -28,7 +28,8 @@ const packageLibRoot = path.join(
 );
 const budgets = Object.freeze({
   distInitialJsBytes: 130 * 1024,
-  distTotalJsBytes: 256 * 1024,
+  // The optional forms lesson adds one lazy page; entry stays at 130 KiB.
+  distTotalJsBytes: 264 * 1024,
   distLargestJsChunkBytes: 120 * 1024,
   distLargestJsChunkGzipBytes: 45 * 1024,
   packageTotalJsBytes: 380 * 1024,
@@ -74,6 +75,7 @@ const packageRuntimeStats = await readRuntimeModuleStats(packageStats);
 
 await assertDevelopmentToolsAbsent(distFiles);
 await assertSingleFilePageIsLazy(distFiles);
+await assertFormsLessonIsLazy(distFiles);
 
 checkBudget(
   "dist initial JavaScript",
@@ -311,6 +313,20 @@ async function assertSingleFilePageIsLazy(files) {
     fail(
       "The showcase .vd page must compile into one lazy single-file chunk instead of the application entry."
     );
+  }
+}
+
+/** Keeps the optional form recipe out of the application entry graph. */
+async function assertFormsLessonIsLazy(files) {
+  const marker = "A bigger form, without a form DSL.";
+  const matches = [];
+  for (const file of files) {
+    if ((await readFile(file, "utf8")).includes(marker)) matches.push(file);
+  }
+  // The synthetic budget fixture intentionally has no teaching route.
+  if (matches.length === 0) return;
+  if (matches.length !== 1 || !/^forms-.*\.js$/.test(path.basename(matches[0]))) {
+    fail("The optional forms lesson must remain in one lazy forms page chunk.");
   }
 }
 

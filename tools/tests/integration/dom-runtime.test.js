@@ -256,6 +256,22 @@ test("model and event modifiers synchronize state and remove listeners", async (
   assert.equal(state.submitted, 1);
 });
 
+test("compiled event directives pass the current DOM event through $event", async () => {
+  const root = document.createElement("div");
+  root.innerHTML = compileTemplate('<input vd-on:input="remember($event.target.value)">').html;
+  const state = createState({ value: "" });
+  state.remember = value => { state.value = value; };
+  const cleanup = await applyDirectives(root, state);
+  try {
+    const input = root.querySelector("input");
+    input.value = "reader";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    assert.equal(state.value, "reader");
+  } finally {
+    cleanup();
+  }
+});
+
 test("runtime manifests activate only selected directive features", async () => {
   const root = document.createElement("div");
   root.innerHTML = `

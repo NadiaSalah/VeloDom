@@ -110,6 +110,13 @@ not roll back a server-accepted write. For unsaved edits, compose the existing
 global router guard and a page-owned dirty baseline, plus a best-effort native
 unload prompt. Do not generate a global form store or claim native dialogs are
 guaranteed.
+For a repeatable list, use stable IDs with `vd-for`/`vd-key` and reassign the
+array when one row changes. For steps, keep a small page-owned step/draft and
+call native `reportValidity()` before advancing. An optional async field
+validator should abort its prior check and ignore a late response even when
+transport ignores abort; clean it with `ctx.onCleanup`. The `/forms` lesson is
+local-only; a backend must revalidate submissions. Do not imply an optional
+schema adapter already exists.
 
 Page-data caching is opt-in and public-only, with 100-value LRU/100-read limits
 and matching-read coalescing. SWR updates the next visit; a failed background
