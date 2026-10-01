@@ -233,159 +233,40 @@ startup failure still requires verification on the strict Linux CI runner.
 
 ## TODO
 
-The **Commerce and Large Applications** track is now **8/10 complete**. The
-storefront, administration workflow, and replaceable HTTP/session contract are
-implemented and verified, including real server denial, safe mock writes, and
-private cache boundaries. The handbook now explains feature-owned organization,
-dependency direction, optional app-owned JSDoc/TS contracts, public/server
-configuration and deployment paths. The installed-package gate builds and
-inspects both real consumers outside the workspace and type-checks the matching
-JS/TS lesson; no new runtime API, registry or starter was introduced.
-Files changed for this milestone: store HTTP client/contracts/README,
-`tools/scripts/package/check-package-consumer.mjs`, blog architecture lesson and
-README, package AI/syntax guides, and root handbook/roadmap/change records.
-Continue with C08 only after independent starter-usability evidence. C10 API-
-contract generation is deferred to
-a future major release; realtime,
-virtualization, and request-time rendering stay research. These are proposals,
-not new npm features. Payment, stock, authorization, and pricing remain
-application/server responsibilities; the documentation blog stays the teaching site.
+The local V1 implementation and approved 15/15 maturity milestones are complete.
+The separate simplicity/adoption track is **6/8 (75%)**, and the commerce and
+large-application track is **8/10 (80%)**. These counters do not mean the first
+official release has been published.
 
-C05 is now partially implemented: the existing opt-in request cache has bounded
-LRU retention, coalesced GET reads, independent cancellation, header/credential
-identity, explicit session/tenant scope and invalidation fences. Its old cache
-implementation/helpers were replaced by one focused Core module; public
-imports, custom keys, `clear()` and legacy zero-TTL semantics are preserved.
-Updated files include cache/types/constants, regression and installed-consumer
-checks, package AI/syntax/inventory guides and the blog's cache lesson.
-Retry-wait/middleware cancellation is now verified too: pre-aborted requests,
-AbortError, cancelled waits and late completion notifications no longer start
-another application operation. The two wait implementations were consolidated;
-no API signatures or CLI options changed. Related files: Core request helpers,
-middleware/router/cancellation/types/constants, request regression tests and
-the handbook/package/blog cancellation guidance.
-The administration browser journey now waits for mounted bindings before
-editing/selecting, preventing premature actions on visible but unbound markup.
-The opt-in public page-data cache now also bounds LRU values and tracked reads
-at 100, shares matching loads, prunes expiry and handles background failure
-without renewing stale age. Internal invalidation fences late cache writes;
-app destruction clears identities. Changed files: page-data/router/types/
-constants, page-data unit/public-app/installed checks, root/package/AI guides
-and blog/store educational text. The superseded refresh helper was removed.
-C05 now adds explicit `app`/page/component `ctx` methods:
-`invalidatePageData(page?)` clears variants of a discovered logical page (or
-all pages) without fetching; `refetchPageData()` reads the mounted loader,
-updates `state.data` and preserves DOM/drafts. Concurrent explicit reads
-coalesce, and failed reads retain last good data. The store invalidates public
-catalog/product pages after confirmed admin writes, refetches filtered list
-rows/totals, and retries a failed read without repeating the accepted write.
-Account changes clear public page data; private session/admin loads stay
-uncached. No automatic mutation observer, private cache, new CLI prompt,
-package export or dependency was added. Changed areas: Core page-data router/
-runtime/context/types, store catalog/admin/auth scripts and UI, source/installed
-consumer/browser tests, root/package/AI/teaching docs. Superseded manual list
-patch/reload code was removed; retained request routes remain supported.
-Verification: 380 tests, docs/types/strict/lint, full build, six generated
-starter combinations, installed real consumers, package content/size and
-performance gates passed. Desktop/mobile Chromium production tests passed.
-Other engines and remote CI remain separate release evidence.
+The remaining decisions are evidence-led:
 
-The router race is now fixed: accepted navigation owns cancellation across
-resource/layout/data/style/module/hooks/fallbacks; stale results cannot overwrite
-the newer page. Client loaders receive optional `signal`, cached subscribers
-cancel independently and tracked SWR work aborts on app destruction. Captured
-component owners replace reused-root cleanup, async directive/loop release is
-awaited, and shared read cancellation has one Core implementation. Hash/guard
-behavior and destroy-before-onCleanup stay compatible. Related files: Core
-router/data/lifecycle/mount/directives/styles/error boundary/shared cancellation,
-types, 23 new regressions, installed runtime/TS checks, package/AI references,
-handbook and blog/store teaching content. All 403 tests, docs/types/lint, full
-build, six starter combinations, installed real consumers, npm content/size
-and performance gates pass. Desktop/mobile Chromium production checks also
-pass, including delayed catalog → cart cancellation. Other browser engines
-and remote CI remain release gates. The explicit public
-invalidation/refetch and mutation-success recipe are now complete in C05
-(5/10); focus moves to C06. The C05 test/build/browser/pack results are
-recorded in [engineering notes](docs/NOTES.md). No source, starter, or
-package version has been published by this work.
-Current local evidence: 418 source tests, docs/types/strict/lint, full build,
-six generated JS/TS starters, both installed consumers, package size/content
-and desktop/mobile Chromium production checks pass. Firefox, WebKit and remote
-CI remain distinct release gates, not implied by these results.
+- Observe 3–5 independent developers using the existing Minimal path and a
+  small catalog/dashboard task. Record setup friction and whether they can find
+  request, auth, and RTL guidance. This is needed before closing P1 validation,
+  splitting the guide (P2), or promoting a Store/Admin starter (C08).
+- Keep C10 local OpenAPI contract generation and fine-grained dependency
+  tracking in future-major/research. The current `vd types` discovers request
+  names but cannot infer response contracts; the reactive/rendering audit found
+  no measured reason for a second tracking layer. Neither is a V1 command,
+  runtime API, or dependency.
+- Select the exact initial-release commit, run the complete package/performance
+  and strict cross-browser CI gates on it, verify both registry package states,
+  and obtain explicit owner approval before publishing or tagging. Local
+  Chromium/WebKit checks have passed; local Firefox graphics startup did not
+  reach a test, so the Linux CI result is still required.
 
-C06 is complete: the Store edit now uses an
-application-owned dirty baseline plus the existing router guard for app links
-and Back, with a best-effort unload prompt removed on cleanup. The optional
-progressive form plugin now aborts detached uploads, fences late ignored-abort
-success, associates server errors with fields accessibly, and distinguishes an
-accepted submit from redirect failure. The package syntax guide no longer
-combines `vd-form` and `vd-request` on one form. Files changed: Store bootstrap,
-edit script and form guard, progressive forms Core, source/browser tests,
-handbook/package/AI/blog/store docs, roadmap, notes and changelog. No new
-directive/export/dependency/CLI prompt/version. The blog's `/forms` lesson
-now demonstrates keyed repeatable contacts, two native editing steps,
-touched feedback and cancellable latest-only async validation without a form
-DSL. Its browser test exposed a real mismatch: documented `$event` was not
-resolved by the expression evaluator. The alias now resolves to the current
-event and cannot be updated as state. Direct DOM and browser regressions prove
-input, submission, and repeatable rows. A schema adapter remains deferred
-until repeated real integrations justify it. The form lesson is a lazy route;
-the measured total blog JS budget changed from 256 to 264 KiB while the
-initial 130 KiB limit stays fixed. Updated files include the blog page/helper,
-Core evaluator, form/event/source/browser tests, budget check, root/package/AI
-guides, roadmap and engineering notes. C06 passes 426 source tests,
-docs/types/strict/lint, full build, six starter variants, both installed
-consumers, package budget and desktop/mobile Chromium production checks.
+The current documentation audit updated this README, [TODO](docs/TODO.md),
+[NOTES](docs/NOTES.md), and [CHANGELOG](docs/CHANGELOG.md). It removed stale
+progress claims from this entry point and recorded the P1/C08 observation
+protocol and C10/reactivity feasibility decisions. It changed no framework
+source, public API, CLI, starter, or dependency. The last recorded implementation
+gate passed 431 source tests, full build, six JS/TS starter variants, both
+installed consumers, desktop/mobile Chromium and WebKit, and npm dry-run
+content/size checks; this audit does not claim a new strict CI run.
 
-C07 now has reproducible large-project evidence. The existing compiler-cache
-benchmark includes 80 nested pages and 32 shared components, verifies cold/
-warm reuse and targeted invalidation, and records local timings without
-machine-specific speed claims. A generated consumer receives first, repeated
-and `/preview/`-base production builds; all retain 124 JavaScript chunks in
-the local fixture. A 160-visit runtime test checks deep links, auth-guard
-changes, component rendering, event listener removal and page-owner cleanup.
-Existing cache-bound tests and the Store browser journey remain in the gate.
-The fixture also samples 100 small local catalog/admin reads; this is not a
-database, browser-throughput or concurrent-shopper benchmark. Files changed:
-compiler/build benchmark scripts, integration regression, root npm scripts,
-README and the roadmap/engineering records. No framework runtime, public
-API, CLI option, starter or package version changed.
-
-C09 adds an optional Store-owned diagnostics recipe, deliberately not wired
-into the default app. Explicit public request hooks and recoverable boundary
-context can send sampled metadata to a caller-selected sink; raw params,
-sessions, cart/payment values, messages, stacks and URLs are excluded. Abort
-and teardown remove pending listeners, and sink failures cannot fail the user
-action. The handbook and teaching site explain private source-map handling
-and the client-only correlation ID. Changed files: Store diagnostics helper/
-README, blog production lesson/README, source tests, handbook and roadmap/
-engineering records. No Core API, mandatory collector, network traffic,
-CLI prompt, starter change, dependency or version bump.
-Current C09 verification: 431 source tests, full build and installed consumers,
-six JS/TS starter variants, desktop/mobile Chromium, and npm dry-run content/
-size checks pass. Other browser engines and remote CI are separate release gates.
-The strict local browser audit also passed desktop/mobile WebKit after its form
-scenario waited for the reactive step marker before typing; the static SEO
-heading alone can appear before handlers bind. Firefox did not reach any test:
-its local headless graphics compositor timed out (`RenderCompositorSWGL`), so
-the required strict Linux CI result remains independent release evidence.
-
-See [docs/TODO.md](docs/TODO.md) for release gates and the separately counted
-V1 simplicity/organization follow-up, now **6/8 complete (75%)**. Prioritize
-independent developer observation and evidence-led guide navigation before
-splitting documentation. Real developer
-feedback before adding capabilities. Near-term work includes:
-
-- preserve source-backed Vite/Rollup chunk attribution and regression coverage;
-- run the complete package and browser gates on the final commit;
-- inspect both npm dry-run tarballs for unexpected files or size growth;
-- publish `velodom` first and `create-velodom` second only after explicit owner
-  approval, then verify `npm create velodom@latest` from the registry;
-- keep advanced SSR, islands, migrations, and optional AI providers behind
-  separate architecture and runtime-budget reviews.
-- keep the experimental Lab read-only; evaluate a full playground, flame
-  charts, browser extension, or source-writing tools only as separate bounded
-  follow-up work.
+See [the roadmap](docs/TODO.md) for every open checkbox, including the separate
+research proposals, and [engineering notes](docs/NOTES.md) for measured
+limitations and decision criteria.
 
 ## Handoff Notes
 

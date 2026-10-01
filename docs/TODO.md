@@ -124,11 +124,15 @@ These tasks reuse current contracts, not new directives or a new runtime layer.
   first-page time, unclear errors, manual setup steps, and production surprises.
   Obtain voluntary feedback; automated tests cannot close this task. Use that
   evidence to choose simplifications rather than claiming ecosystem maturity.
+  A bounded observation protocol is recorded in `NOTES.md`; no independent
+  participant results exist yet, so this remains open.
 - [ ] **P2 / V1.x / Medium:** Break the long teaching guide into smaller lessons
   only when navigation/usability evidence justifies it. Preserve existing
   `/features#...` links, keep syntax/inventory authoritative, and retain literal
   code + live examples. Do not duplicate the handbook in a second package doc
   tree or split the framework into more npm packages merely to reduce file count.
+  The same study should record whether learners can find the existing
+  request/auth/RTL lessons before changing navigation or splitting routes.
 
 Existing SSR/islands/AI/migration proposals remain in Research below; this track
 does not promote them. Release approval and full browser CI remain the existing
@@ -388,7 +392,9 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   public-only imports, portable docs, and visible mock/backend setup; no secret
   prompts, payment activation or dependency installation without explicit choice.
   There is no Store/Admin starter option today; do not document future flags
-  as current commands.
+  as current commands. The `NOTES.md` study protocol measures which Store
+  setup steps independent beginners repeat; no usability result or starter
+  promotion is claimed yet.
 
 - [x] **C09 — Opt-in production diagnostics recipe. V1.x; complexity: Medium;
   owner: application integration, then generic hooks only for confirmed gaps;
@@ -423,6 +429,14 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   runtime RPC/server-actions layer. Acceptance: deterministic output, explicit
   generated-file ownership, no overwrite of user handlers, no network fetch
   without consent, and installed-consumer tests. No CLI command is promised yet.
+  **Feasibility audit:** `vd types` currently discovers local request names but
+  deliberately types their payloads as `unknown`; first-party feature ownership
+  hashes do not yet own generated API files. A real local OpenAPI importer must
+  handle references, media types and security descriptions without executing
+  auth policy in the browser. No schema-backed consumer or user evidence exists
+  here to justify the dependency/maintenance cost, so no V1 generator, flag,
+  handler rewrite or network fetch is introduced. Detailed decision in
+  `NOTES.md`; this remains future-major research, not a completed capability.
 
 ### Services that must not be built into Core
 
@@ -845,7 +859,9 @@ of concept are required before promoting any item to a later release.
 - [ ] Investigate fine-grained dependency tracking as an internal optimization
   only. Shallow state remains the default; do not introduce a required signals
   API or wake unrelated subscriptions without proving semantics, cleanup, and
-  runtime-size benefits.
+  runtime-size benefits. Current source and rendering-budget audit in
+  `NOTES.md` found no measured need for a second tracking layer; this remains
+  research until a reproducible user workload identifies one.
 - [ ] Evaluate an opt-in hybrid server-rendering boundary and route rendering
   modes that keep static output the default for applications that explicitly
   need request-time HTML.

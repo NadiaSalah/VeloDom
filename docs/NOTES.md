@@ -2,6 +2,41 @@
 
 ## Architectural Decisions
 
+### Open roadmap gates: usability, API contracts, and reactivity — 2026-10-01
+
+- P1/C08 require independent observation, not another automated fixture.
+  Invite 3–5 volunteers including beginners. Give each the current Minimal
+  first-page/component/build journey, then one small catalog or dashboard task
+  using the existing supported starter. Record time to a working first page,
+  commands/files edited, unclear diagnostics, production-build surprises and
+  which Store reference files they would actually reuse. Ask them to find the
+  request, auth and RTL lessons using current navigation; record failed paths
+  before deciding P2 guide splitting. Do not collect credentials or treat
+  staff/agent reenactment as independent developer evidence. Promote C08 only
+  if repeated observed setup friction is reduced by a small editable starter
+  prototype without increasing the beginner default; then run packed JS/TS
+  and option-combination gates. No participant data has been collected here.
+- C10 is not a V1 implementation task. `vd types` emits project-discovered
+  request names with `unknown` values; `.velodom/features.json` protects files
+  created by optional feature installers, not API-contract output. A separate
+  local OpenAPI adapter would need a validated reference/media-type subset,
+  deterministic ownership and refusal to overwrite user handlers; it must
+  leave plain JS/manual routes valid and server validation authoritative. The
+  [OpenAPI specification](https://spec.openapis.org/oas/) includes reusable
+  references and security descriptions, so treating a document as a simple
+  route-name list would be misleading. There is no local schema-backed
+  consumer or usability evidence that warrants a generator or CLI command now.
+  Revisit in a future major release after a real schema and ownership tests
+  exist; no network fetch, package dependency or browser runtime is added.
+- Current `reactive.ts` intentionally notifies shallow-state subscribers for
+  each assignment; `watch` filters its callback after selecting the new value.
+  The local rendering benchmark reports 100-binding median 7.294 ms and
+  stable 160-item loop median 12.391 ms, while the browser-reachable package
+  runtime is 370.9/380 KiB. These machine-local numbers do not prove a
+  bottleneck or headroom for a dependency graph. Do not add required signals,
+  deep observation, or a second tracking system without a traced workload,
+  semantic/cleanup proof and measured net runtime-size benefit.
+
 ### Strict local browser audit and form readiness — 2026-10-01
 
 - The new `/forms` browser scenario originally typed after seeing a static

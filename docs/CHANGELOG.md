@@ -14,6 +14,9 @@ or claim that a matching package is available from a registry.
 
 ### Added
 
+- Recorded the feasibility boundary for future API-contract generation and
+  fine-grained reactivity, plus an independent-developer observation protocol
+  for the still-open starter/navigation decisions. No new runtime or CLI API.
 - Stabilized the `/forms` browser gate by waiting for its reactive step marker
   before typing; this does not change the framework or page's public syntax.
 - Added an opt-in Store-owned production diagnostics recipe over existing
