@@ -679,7 +679,8 @@ Current release work is governance rather than a new framework feature:
   clean directory. Publication is explicitly deferred by the owner while the
   local package version remains `1.0.0`.
 - [ ] Create the first official Git tag/GitHub release and move verified notes
-  from `Unreleased` into the dated `1.0.0` changelog section.
+  from `Unreleased` into a dated changelog section matching the approved,
+  publishable V1 version. Do not tag the unpublished `1.0.0` as a new release.
 
 ## Next Stable Release — Approved Maturity Scope
 

@@ -35,7 +35,7 @@ Before the first official public V1 release:
 - minor releases may add features or make documented breaking changes;
 - every breaking change must be called out in `CHANGELOG.md`.
 
-After `1.0.0`:
+After the first official public V1 release:
 
 - patch releases contain backward-compatible fixes;
 - minor releases add backward-compatible features;

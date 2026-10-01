@@ -245,7 +245,8 @@ records `velodom` as unpublished, and npm does not allow `velodom@1.0.0` to
 be published again. You chose to keep both local manifests at `1.0.0` and
 postpone publication. No version, package, or tag was changed. The release
 checks must be repeated on the exact publishable commit if a new version is
-chosen later. [TODO](docs/TODO.md), [release policy](docs/RELEASING.md),
+chosen later; any official changelog section and tag must use that approved
+version, not the unpublished `1.0.0`. [TODO](docs/TODO.md), [release policy](docs/RELEASING.md),
 and [NOTES](docs/NOTES.md) record this boundary.
 
 ## TODO

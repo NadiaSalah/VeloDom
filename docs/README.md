@@ -5759,11 +5759,11 @@ happy-dom.
 
 ## Release Decision
 
-The repository is aligned as the local source candidate for the first official
-`1.0.0` release. No official release or registry availability is inferred from
-the source tree. [Current Release Decision](#current-release-decision) records
-the verification and explicit owner-approval requirements before publishing or
-tagging.
+The repository is aligned as the local V1 source baseline, but its current
+`1.0.0` manifest cannot be republished after the earlier npm unpublish. No
+official release or registry availability is inferred from the source tree.
+[Current Release Decision](#current-release-decision) records the verification
+and explicit owner-approval requirements before publishing or tagging.
 
 ## Browser Support
 

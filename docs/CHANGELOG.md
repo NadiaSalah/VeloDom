@@ -395,4 +395,5 @@ intentionally not part of the official public release history.
 
 No official public release is represented above yet. When V1 is deliberately
 released, move the verified user-visible entries from `Unreleased` into a
-dated `1.0.0` section and record only that official release onward.
+dated section for the approved publishable version and record only that
+official release onward. Do not reuse the unpublished `velodom@1.0.0` version.
