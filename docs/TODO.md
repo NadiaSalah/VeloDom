@@ -124,8 +124,8 @@ These tasks reuse current contracts, not new directives or a new runtime layer.
   first-page time, unclear errors, manual setup steps, and production surprises.
   Obtain voluntary feedback; automated tests cannot close this task. Use that
   evidence to choose simplifications rather than claiming ecosystem maturity.
-  A bounded observation protocol is recorded in `NOTES.md`; no independent
-  participant results exist yet, so this remains open.
+  A repeatable, unfilled observation sheet is recorded in `NOTES.md`; no
+  independent participant results exist yet, so this remains open.
 - [ ] **P2 / V1.x / Medium:** Break the long teaching guide into smaller lessons
   only when navigation/usability evidence justifies it. Preserve existing
   `/features#...` links, keep syntax/inventory authoritative, and retain literal

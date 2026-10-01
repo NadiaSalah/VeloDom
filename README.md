@@ -243,7 +243,8 @@ The remaining decisions are evidence-led:
 - Observe 3–5 independent developers using the existing Minimal path and a
   small catalog/dashboard task. Record setup friction and whether they can find
   request, auth, and RTL guidance. This is needed before closing P1 validation,
-  splitting the guide (P2), or promoting a Store/Admin starter (C08).
+  splitting the guide (P2), or promoting a Store/Admin starter (C08). A blank,
+  repeatable observation sheet is in [engineering notes](docs/NOTES.md).
 - Keep C10 local OpenAPI contract generation in future-major research. The
   current `vd types` discovers request names but cannot infer response
   contracts. Fine-grained reactivity and hybrid SSR research were evaluated
@@ -262,11 +263,12 @@ The remaining decisions are evidence-led:
 The current documentation audit updated this README, [TODO](docs/TODO.md),
 [NOTES](docs/NOTES.md), and [CHANGELOG](docs/CHANGELOG.md). It removed stale
 progress claims from this entry point and recorded the P1/C08 observation
-protocol and C10/reactivity/hybrid-rendering feasibility decisions. It changed
-no framework source, public API, CLI, starter, or dependency. The last recorded
-implementation gate passed 431 source tests, full build, six JS/TS starter
-variants, both installed consumers, desktop/mobile Chromium and WebKit, and
-npm dry-run content/size checks; this audit does not claim a new strict CI run.
+protocol and its unfilled study sheet, plus C10/reactivity/hybrid-rendering
+feasibility decisions. It changed no framework source, public API, CLI,
+starter, or dependency. The last recorded implementation gate passed 431 source
+tests, full build, six JS/TS starter variants, both installed consumers,
+desktop/mobile Chromium and WebKit, and npm dry-run content/size checks; this
+audit does not claim a new strict CI run.
 
 See [the roadmap](docs/TODO.md) for open checkboxes and the separate research
 decisions, and [engineering notes](docs/NOTES.md) for measured limitations and

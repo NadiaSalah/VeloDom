@@ -16,6 +16,51 @@
   if repeated observed setup friction is reduced by a small editable starter
   prototype without increasing the beginner default; then run packed JS/TS
   and option-combination gates. No participant data has been collected here.
+
+#### P1 observation sheet (unfilled)
+
+Use one fixed commit/package artifact and record its SHA. Before registry
+publication, follow the source-checkout command in
+`packages/velodom/docs/QUICK_START.md`; label those results **pre-release
+local setup**, not npm registry onboarding. Give the participant the Quick
+Start without explaining the answers. Set up Node/dependencies first and time
+that separately so first-page time is comparable.
+
+1. Starting from Minimal + JavaScript + plain CSS, change the home heading,
+   make the counter respond to a click, create/render `welcome-note), change
+   one ordinary CSS rule, then build and preview. Start the first-page timer
+   when they open the generated project; stop it when the first working page
+   appears. Record build/preview separately.
+2. Add a small `/inventory` page with three local records, a category filter,
+   and an empty result. A local array is enough; do not ask participants for
+   credentials, a real checkout, or a backend. Note every Store reference
+   file or pattern they choose to copy, and which setup steps they repeat.
+3. Without direct URLs, ask them to locate the existing request, auth, and RTL
+   lessons. Record the route/click path, elapsed time, failed searches and
+   whether each answer was found.
+
+Copy this blank record once per participant, using an anonymous ID and consent
+for any optional screen recording:
+
+```text
+Participant ID / prior framework experience:
+Tested commit / OS / Node / distribution mode:
+Prerequisite setup minutes (separate from first-page time):
+First working page minutes / component / CSS / build / preview result:
+Inventory task completed? Steps copied from the Store reference:
+Unclear error text or manual setup; exact command and file:
+Request / auth / RTL lesson path, time, and missed attempts:
+Observer interventions and production-only surprises:
+Participant's preferred simplification, in their own words:
+```
+
+Summarize repeated issues only after 3–5 independent records exist. If at
+least two participants encounter the same navigation problem, test a small
+navigation change before splitting guides (P2). If at least two independently
+repeat the same Store setup work, prototype the smallest opt-in starter and
+compare its steps/build against the current path before C08 promotion. Keep
+both TODO items open until those follow-up checks pass.
+
 - C10 is not a V1 implementation task. `vd types` emits project-discovered
   request names with `unknown` values; `.velodom/features.json` protects files
   created by optional feature installers, not API-contract output. A separate
