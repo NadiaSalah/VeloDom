@@ -364,6 +364,11 @@ CLI prompt, starter change, dependency or version bump.
 Current C09 verification: 431 source tests, full build and installed consumers,
 six JS/TS starter variants, desktop/mobile Chromium, and npm dry-run content/
 size checks pass. Other browser engines and remote CI are separate release gates.
+The strict local browser audit also passed desktop/mobile WebKit after its form
+scenario waited for the reactive step marker before typing; the static SEO
+heading alone can appear before handlers bind. Firefox did not reach any test:
+its local headless graphics compositor timed out (`RenderCompositorSWGL`), so
+the required strict Linux CI result remains independent release evidence.
 
 See [docs/TODO.md](docs/TODO.md) for release gates and the separately counted
 V1 simplicity/organization follow-up, now **6/8 complete (75%)**. Prioritize

@@ -797,6 +797,8 @@ async function assertSingleFilePage(page, origin) {
 async function assertNativeFormRecipes(page, origin) {
   await page.goto(`${origin}/forms`);
   await waitForPageText(page, "A bigger form, without a form DSL.");
+  // The static SEO fallback can show the heading before the page binds events.
+  await waitForFormStep(page, 1);
   const name = page.locator("#lesson-name");
   await name.fill("admin");
   await waitForPageText(page, "This demo name is reserved.");

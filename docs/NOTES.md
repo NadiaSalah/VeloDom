@@ -2,6 +2,20 @@
 
 ## Architectural Decisions
 
+### Strict local browser audit and form readiness — 2026-10-01
+
+- The new `/forms` browser scenario originally typed after seeing a static
+  heading. On one WebKit desktop run the HTML appeared before event binding,
+  so the reserved-name assertion timed out. The browser test now waits for the
+  reactive `Step 1 of 3` marker first; desktop WebKit passed twice afterward,
+  and Mobile WebKit passed. No Core handler or application form behavior was
+  changed for this test race.
+- Chromium desktop/mobile passed previously on this exact C09 build. Strict
+  Firefox locally still fails before any scenario because headless startup
+  logs `RenderCompositorSWGL failed mapping default framebuffer` and times
+  out. This is environment evidence, not proof of a Firefox framework bug or
+  a passing release matrix. CI on the final commit is still required.
+
 ### Optional production diagnostics boundary — 2026-10-01
 
 - C09 is an application-owned, unmounted recipe in the Store, not a Core

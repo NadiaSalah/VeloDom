@@ -14,6 +14,8 @@ or claim that a matching package is available from a registry.
 
 ### Added
 
+- Stabilized the `/forms` browser gate by waiting for its reactive step marker
+  before typing; this does not change the framework or page's public syntax.
 - Added an opt-in Store-owned production diagnostics recipe over existing
   request hooks and recoverable boundaries. It samples allowlisted metadata,
   isolates sink failures and disposes pending work; no collector is mounted

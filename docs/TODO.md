@@ -642,7 +642,10 @@ Current release work is governance rather than a new framework feature:
 - [x] Provide a strict Chromium, Firefox, WebKit, and Mobile WebKit workflow;
   local graphics limitations do not weaken the required release CI run.
 - [ ] Choose the exact initial-release commit and run every package, build,
-  performance, and strict browser gate on that commit.
+  performance, and strict browser gate on that commit. Current local WebKit
+  desktop/mobile and Chromium desktop/mobile pass, while Firefox local startup
+  is blocked by `RenderCompositorSWGL` graphics failure before any scenario;
+  strict Linux CI on the selected final commit remains required.
 - [ ] Verify the `velodom` and `create-velodom` registry names and versions at
   release time; local documentation must not guess their current availability.
 - [ ] Obtain explicit owner approval, publish `velodom` first, then publish the
