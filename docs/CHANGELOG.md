@@ -14,6 +14,11 @@ or claim that a matching package is available from a registry.
 
 ### Added
 
+- Added an opt-in Store-owned production diagnostics recipe over existing
+  request hooks and recoverable boundaries. It samples allowlisted metadata,
+  isolates sink failures and disposes pending work; no collector is mounted
+  by default and no Core telemetry API or dependency was added. Documentation
+  covers explicit sink choice, private source maps and client-only IDs.
 - Added C07 larger-project regression evidence: a deterministic 80-page,
   32-component compiler graph with warm/invalidation checks; repeated real
   Vite builds including `/preview/` asset base; and 160 route mounts checking

@@ -216,7 +216,10 @@ Application `errorBoundary` callbacks receive `context.diagnostic`, a
 stack, and hierarchical ownership. Use this record for logging or display, but
 keep fallback/retry decisions in the application. A custom development host
 may explicitly mount `mountVeloDomErrorOverlay` from `velodom/devtools`; never
-add it to a production entry or treat it as the recovery boundary.
+add it to a production entry or treat it as the recovery boundary. For optional
+production diagnostics, compose public request hooks and `errorBoundary` in
+application code with explicit redaction, sampling, cleanup and a chosen sink;
+the Store recipe is not a Core export or default network collector.
 
 ## Use Public Package Exports
 

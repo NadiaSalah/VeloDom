@@ -4739,6 +4739,49 @@ behavior.
 The current global `error` and `unhandledrejection` handlers still treat
 unexpected failures as fatal.
 
+### Optional production diagnostics recipe
+
+The Store reference includes an application-owned
+`src/domain/diagnostics/production-diagnostics.js` helper. Merely importing it
+starts no collector and sends no request. If a real application chooses a
+trusted sink, compose its request hooks and boundary reporter explicitly:
+
+```js
+import { mountVeloDom } from "velodom/vite";
+import { createProductionDiagnostics } from "./domain/diagnostics/production-diagnostics.js";
+
+const diagnostics = createProductionDiagnostics({
+  sampleRate: 0.05,
+  sink: report => navigator.sendBeacon(
+    "/your-owned-diagnostics-endpoint",
+    JSON.stringify(report)
+  )
+});
+
+await mountVeloDom({
+  requestHooks: diagnostics.requestHooks,
+  errorBoundary(context) {
+    diagnostics.recordBoundary(context);
+    return "This page could not load. Please try again.";
+  }
+});
+window.addEventListener("pagehide", () => diagnostics.destroy(), { once: true });
+```
+
+The copied recipe emits only an ephemeral local correlation ID, static logical
+route/page names, a stable diagnostic code/group, request stage/outcome, and
+duration. It does **not** forward params, session/cart/payment values, error
+messages, stacks, form bodies, responses, raw URLs, or credentials. Aborted
+requests lose their pending timer; `destroy()` releases remaining listeners.
+Sink failure never breaks request or boundary recovery. The ID correlates
+client-side before/after hooks only; passing an ID to a backend is a separate
+application/backend contract. Application source maps should be retained/uploaded to a
+private monitoring system with access controls, not published as public
+artifacts merely to improve diagnostics. VeloDom Lab remains development-only.
+This recipe covers request hooks and recoverable boundaries, not every global
+fatal error. A real service needs its own retention, consent, and sampling
+policy; no telemetry account or network call is configured by VeloDom.
+
 Frontend auth and roles improve application UX only. A backend must enforce
 real access control.
 

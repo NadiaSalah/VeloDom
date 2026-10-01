@@ -575,6 +575,22 @@ const posts = await loadContentCollection({
         </div>
       </div>
       <div class="callout"><strong>Terminology matters:</strong> static SEO HTML and prerender output are not request-time SSR. Client takeover is not hydration. <code>velodom/node</code> adapts Node HTTP to Fetch-style application handlers; it does not render templates or manage sessions automatically.</div>
+      <div class="code-window mt-6">
+        <div class="code-toolbar"><span>optional production diagnostics</span><span>application-owned recipe</span></div>
+        <pre class="code-example" vd-pre><code>const diagnostics = createProductionDiagnostics({
+  sampleRate: 0.05,
+  sink: report =&gt; sendToYourTrustedEndpoint(report)
+});
+
+await mountVeloDom({
+  requestHooks: diagnostics.requestHooks,
+  errorBoundary(context) {
+    diagnostics.recordBoundary(context);
+    return "This page could not load.";
+  }
+});</code></pre>
+      </div>
+      <p class="mt-4 text-sm leading-6 text-slate-600">The Store reference keeps this helper unmounted by default. It sends only allowlisted code, logical route, outcome and timing to a sink you explicitly own; no params, sessions, cart or payment values, messages, stacks or automatic network call. Keep application source maps private and dispose the observer when the app closes. This is not a new Core export or Lab production mode.</p>
     </section>
 
     <section id="pwa" class="doc-section">

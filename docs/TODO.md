@@ -45,7 +45,7 @@ state.
 This separately scoped quality/adoption work is detailed below; the completed
 implementation counters above do not mean these follow-ups or release gates are done.
 
-**Commerce and large-application track: 7 of 10 complete (70%).**
+**Commerce and large-application track: 8 of 10 complete (80%).**
 These new proposals do not change the completed baseline or the 6/8 simplicity
 counter. C01–C03 now provide storefront, administration, and real server-denial
 evidence without adding commerce policy to Core. Research
@@ -141,9 +141,9 @@ documentation site is one consumer, not the framework's architectural boundary.
 The objective is to prove and improve store, administration, and business-app
 workflows without turning Core into an e-commerce backend or enterprise platform.
 
-**Progress: 7 of 10 milestones complete (70%).**
+**Progress: 8 of 10 milestones complete (80%).**
 
-`[##############------] 70%`
+`[################----] 80%`
 
 ### Existing foundations — reuse before adding
 
@@ -390,7 +390,7 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   There is no Store/Admin starter option today; do not document future flags
   as current commands.
 
-- [ ] **C09 — Opt-in production diagnostics recipe. V1.x; complexity: Medium;
+- [x] **C09 — Opt-in production diagnostics recipe. V1.x; complexity: Medium;
   owner: application integration, then generic hooks only for confirmed gaps;
   CLI: NONE.** Reuse structured error reports, existing boundaries, and request
   lifecycle hooks to forward redacted errors/timing/correlation IDs to an
@@ -400,6 +400,17 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   without mandatory telemetry or a framework monitoring account. Acceptance:
   normal imports create no collector/network traffic, redaction fixtures pass,
   handlers clean up, and observability failure never breaks a user action.
+  **Evidence:** the Store ships an unmounted application-owned recipe over
+  public request hooks and recoverable boundary context. It samples and emits
+  only allowlisted code, logical page/route, stage, outcome, local ephemeral
+  correlation ID and duration; raw params, session/cart/payment values,
+  messages, stacks and URLs never reach the sink. Abort and destroy release
+  pending timers/listeners; broken or rejected sinks do not affect actions.
+  Source tests include a real declarative request and sensitive-data fixtures.
+  The handbook and teaching site show explicit opt-in wiring, private source
+  maps and the limits of the client-only ID. Normal app imports produce no
+  collector or traffic. CLI impact NONE; no Core hook, export, dependency,
+  starter prompt or package-version change.
 
 ### P2 — Defer until contracts and users justify it
 

@@ -49,6 +49,9 @@ uploads and server field errors remain optional progressive-form behavior.
 Its `/forms` route also proves keyed repeatable contacts, two native editing
 steps, touched feedback and latest-only local async validation. The check is
 not a uniqueness service: the backend must validate submitted values again.
+The production lesson now points to the Store's optional, application-owned
+redacted diagnostics recipe. It is not enabled in either example and is not a
+Core telemetry service.
 
 `/features#architecture` explains feature-owned application modules, optional
 JSDoc/TS wire contracts, dependency direction and browser/server configuration.

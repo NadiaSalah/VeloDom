@@ -35,6 +35,8 @@ own authorized backend while retaining the same browser/server boundary.
   and administration writes;
 - independent role, owner, tenant, CSRF, expiry, and optimistic-revision denial;
 - private `no-store` session/resource responses and abortable pending reads.
+- an unmounted, opt-in diagnostics recipe that samples only redacted request
+  and recoverable-boundary metadata; the example sends no telemetry by default.
 
 ## Structure
 
@@ -53,6 +55,14 @@ server/             local-only HTTP authority and Vite/Node adapters
 `src/domain` is an explicit application module, not a new VeloDom discovery
 folder. VeloDom still discovers only the documented pages, components,
 layouts, and API routes.
+
+`src/domain/diagnostics/production-diagnostics.js` is not imported by this
+app's bootstrap. Copy and configure it only after choosing your own authorized
+sink, then compose its `requestHooks` and `recordBoundary` with the app's
+existing recovery UI. It excludes params, sessions, cart/payment values,
+messages, stacks, response data and raw URLs, and releases pending timers on
+abort/teardown. The handbook shows the opt-in wiring and private source-map
+policy. It is application code, not a new package export or monitoring service.
 
 ## Team boundaries and optional types
 

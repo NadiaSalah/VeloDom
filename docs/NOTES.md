@@ -2,6 +2,30 @@
 
 ## Architectural Decisions
 
+### Optional production diagnostics boundary — 2026-10-01
+
+- C09 is an application-owned, unmounted recipe in the Store, not a Core
+  collector, Lab production mode, CLI option, or required monitoring account.
+  Public `requestHooks` and `errorBoundary` already provide the necessary
+  integration points. A sink is explicitly supplied by the application;
+  importing the helper or mounting the normal Store sends no telemetry.
+- Only stable logical route/page names, diagnostic code/group, stage/outcome,
+  ephemeral local correlation ID and duration can be emitted. No params,
+  sessions, raw URLs, messages, source stacks, cart/payment data or response
+  bodies cross the recipe boundary. A local ID is not a backend trace header;
+  propagating one requires a separate backend contract. Private source maps
+  and retention/consent policy belong to the chosen monitoring deployment.
+- Abort/destroy release timer ownership. Both synchronous throws and rejected
+  sink promises are contained so user actions and fallback UI are unaffected.
+  Source tests include direct redaction fixtures and one real declarative
+  request hook integration. CLI classification NONE; public Core/types/exports,
+  templates, generated projects, npm contents and package version are unchanged.
+  Current evidence: 431 source tests, docs/types/strict/lint, full build, six
+  JS/TS starter combinations, both installed example consumers, desktop/mobile
+  Chromium browser checks, 260.5/264 KiB total lazy teaching-site JavaScript,
+  and both npm dry-run content/size gates pass. Firefox/WebKit and remote CI
+  remain separate release evidence.
+
 ### Larger-project evidence and non-goals — 2026-10-01
 
 - C07 uses the existing compiler cache and Vite build rather than a second

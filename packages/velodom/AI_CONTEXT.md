@@ -38,6 +38,10 @@ server start.
 The generated project is user-owned. Never edit `node_modules/velodom`.
 The repository's `examples/velodom-blog` is the complete educational website,
 and `examples/velodom-store` is a separate storefront/admin reference consumer.
+The Store's production diagnostics helper is an unmounted application recipe:
+use public request hooks and the recoverable error boundary only after the
+application explicitly chooses a redacted sink. VeloDom does not start
+telemetry or ship that helper as a package export.
 Its native forms, revision conflicts, bulk confirmation, cart, and checkout are
 application patterns rather than Core APIs. Neither example is the generated
 Blog starter or part of the npm artifact. Package docs

@@ -233,7 +233,7 @@ startup failure still requires verification on the strict Linux CI runner.
 
 ## TODO
 
-The **Commerce and Large Applications** track is now **7/10 complete**. The
+The **Commerce and Large Applications** track is now **8/10 complete**. The
 storefront, administration workflow, and replaceable HTTP/session contract are
 implemented and verified, including real server denial, safe mock writes, and
 private cache boundaries. The handbook now explains feature-owned organization,
@@ -244,8 +244,8 @@ JS/TS lesson; no new runtime API, registry or starter was introduced.
 Files changed for this milestone: store HTTP client/contracts/README,
 `tools/scripts/package/check-package-consumer.mjs`, blog architecture lesson and
 README, package AI/syntax guides, and root handbook/roadmap/change records.
-Continue with C09 opt-in production diagnostics while C08 starter promotion
-awaits independent usability evidence. API-contract generation is deferred to
+Continue with C08 only after independent starter-usability evidence. C10 API-
+contract generation is deferred to
 a future major release; realtime,
 virtualization, and request-time rendering stay research. These are proposals,
 not new npm features. Payment, stock, authorization, and pricing remain
@@ -350,6 +350,20 @@ database, browser-throughput or concurrent-shopper benchmark. Files changed:
 compiler/build benchmark scripts, integration regression, root npm scripts,
 README and the roadmap/engineering records. No framework runtime, public
 API, CLI option, starter or package version changed.
+
+C09 adds an optional Store-owned diagnostics recipe, deliberately not wired
+into the default app. Explicit public request hooks and recoverable boundary
+context can send sampled metadata to a caller-selected sink; raw params,
+sessions, cart/payment values, messages, stacks and URLs are excluded. Abort
+and teardown remove pending listeners, and sink failures cannot fail the user
+action. The handbook and teaching site explain private source-map handling
+and the client-only correlation ID. Changed files: Store diagnostics helper/
+README, blog production lesson/README, source tests, handbook and roadmap/
+engineering records. No Core API, mandatory collector, network traffic,
+CLI prompt, starter change, dependency or version bump.
+Current C09 verification: 431 source tests, full build and installed consumers,
+six JS/TS starter variants, desktop/mobile Chromium, and npm dry-run content/
+size checks pass. Other browser engines and remote CI are separate release gates.
 
 See [docs/TODO.md](docs/TODO.md) for release gates and the separately counted
 V1 simplicity/organization follow-up, now **6/8 complete (75%)**. Prioritize
