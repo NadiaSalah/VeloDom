@@ -673,7 +673,9 @@ Current release work is governance rather than a new framework feature:
   WebKit Store administration detail journey. The public annotation identified
   the route but not whether the fresh private read or DOM render was stale;
   the browser and HTTP-contract tests now assert those boundaries separately.
-  A new strict CI run is required before describing current `main` as green.
+  [Strict CI on the test-bearing `7e33aba` commit](https://github.com/NadiaSalah/VeloDom/actions/runs/36881005404)
+  passed all five targets. The earlier intermittent failure's cause remains
+  unproven, and a future publishable commit still needs its own full gate.
 - [ ] Verify the `velodom` and `create-velodom` registry names and versions at
   release time. Public registry snapshot on 2026-10-01: `velodom` is an
   unpublished tombstone with no active dist-tag, while `create-velodom` returns

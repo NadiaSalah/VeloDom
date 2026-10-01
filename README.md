@@ -253,8 +253,10 @@ The latest documentation-only CI run exposed an intermittent WebKit failure in
 the Store administration journey. Repository browser and HTTP tests now check
 the accepted-save → fresh private detail read → visible heading sequence
 separately, so a future failure identifies which boundary regressed. Local
-WebKit and focused backend checks pass; a fresh strict CI result is still
-required. This changed only `tools/scripts/browser/check-browser-e2e.mjs` and
+WebKit and focused backend checks pass, and [strict CI on `7e33aba`](https://github.com/NadiaSalah/VeloDom/actions/runs/36881005404)
+passed all browser targets. The preceding intermittent failure's root cause
+remains unproven; any future publishable commit needs its own full gate. This
+changed only `tools/scripts/browser/check-browser-e2e.mjs` and
 `tools/tests/examples/store-backend.test.js`, not Core or the example app.
 
 ## TODO

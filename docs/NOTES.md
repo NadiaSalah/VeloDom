@@ -1673,6 +1673,10 @@ both TODO items open until those follow-up checks pass.
   diagnostic/contract strengthening, not a timeout increase or a claim that
   the intermittent root cause is fixed. CLI impact: `NONE`; Core, templates,
   package exports, and generated projects are unchanged.
+- The test-bearing `7e33aba` [strict Linux run](https://github.com/NadiaSalah/VeloDom/actions/runs/36881005404)
+  passed build, regression tests, package audit and all five browser targets.
+  This confirms the stronger read/render assertion runs in CI; it does not
+  explain the earlier one-off timeout or authorize the deferred npm release.
 
 ## Handoff Guidance
 
