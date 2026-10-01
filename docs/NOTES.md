@@ -36,6 +36,70 @@
   bottleneck or headroom for a dependency graph. Do not add required signals,
   deep observation, or a second tracking system without a traced workload,
   semantic/cleanup proof and measured net runtime-size benefit.
+- Hybrid-rendering research triage found two existing, deliberately separate
+  paths: build-only `config.prerender` emits public route HTML with client
+  takeover, while `velodom/node` passes a Fetch request to an application
+  handler and buffers its response. It does not render VeloDom templates or
+  hydrate them. A public category/product page with bounded freshness can be
+  rebuilt statically; current stock/pricing authority remains a live backend
+  request. An authenticated account page needs per-request session/tenant
+  isolation and private no-store headers, not a personalized static file.
+  Combining those paths into framework SSR would require a server-only route
+  renderer, deterministic expression/directive semantics, safe per-request
+  data serialization, explicit cache policy, and a tested browser takeover or
+  hydration boundary. The current package has none of that public contract.
+  Keep static output the default and any future rendering integration in an
+  opt-in server subpath; the present build-only path adds zero hydration
+  runtime, whereas a new renderer has no measured budget or workload yet.
+  No automatic SSR, route-mode flag, CLI prompt, or prototype is promoted.
+- Islands/partial hydration would first need a reliable server-rendered or
+  resumable fragment contract; VeloDom currently has neither. Folder and
+  `.vd` pages already load route chunks lazily, and build-time static HTML is
+  replaced on client takeover. Adding per-component bootstraps now would
+  duplicate that path without a proven interaction/LCP gain. Any future
+  prototype must use ordinary HTML, remain opt-in, and measure added browser
+  bytes plus nested component/event/cleanup parity. No island syntax is added.
+- The optional `velodom/node` bridge buffers a Fetch `Response` with
+  `arrayBuffer()` and ends one Node response; it does not propagate streaming
+  backpressure. Edge environments already expose their own Fetch request
+  handler boundary and cannot import `node:http`. A future transport-specific
+  adapter would need abort/backpressure/header/cookie tests against a named
+  target, remain separately exported, and keep auth/cache policy application-
+  owned. There is no target runtime or measured need here, so no adapter is
+  promoted and no existing Node semantics are silently changed.
+- `vd inspect css` already reports route attribution, duplicate rules,
+  possible unused selectors, and RTL advice without rewriting output.
+  Critical-CSS extraction would need the final Vite/Rollup CSS graph plus
+  accurate cascade, media/supports, dynamic-class, font and route-ownership
+  handling; source-level selector advice is not safe extraction input. No
+  route-specific LCP measurement currently shows the build complexity is
+  worthwhile. Keep this a separate opt-in build-plugin experiment after a
+  reproducible slow route, preserving ordinary CSS and zero runtime cost.
+- AI/provider and migration research: current `vd` intelligence and `vd fix`
+  are deterministic, offline, and source-limited. A provider-based review/
+  generation CLI would need explicit credentials/consent, redaction, local or
+  custom provider support, reviewable diffs and no automatic source writes;
+  it belongs outside required Core and has no demonstrated workflow yet.
+  HTML/React/Vue migration would need representative fixture pairs, a
+  documented unsupported-syntax report, and human-reviewed ordinary folder
+  output; no compatibility runtime or guessed transformation is justified.
+- CMS and locale research: `velodom/content` already accepts typed external
+  records through an application-owned build loader; a vendor SDK would only
+  add credential/deployment policy without a named consumer. The localization
+  subpath produces explicit dictionaries, locale paths and SEO entries but
+  intentionally does not choose a visitor's language. Cookie/domain negotiation,
+  full ICU syntax and request-time translations require a server/product policy
+  and separate privacy/cache tests. Keep both boundaries external until a
+  concrete integration proves repetition that generic helpers cannot remove.
+- Virtual-list and realtime research: C07's 160-item keyed-loop fixture
+  measures update/correctness, not an accessibility-tested unbounded viewport;
+  the Store already pages catalog and admin results. No virtualizer is justified
+  without a real workload showing pagination inadequate and focus/screen-reader
+  preservation. The Store backend fixture has no event stream. Native
+  EventSource/WebSocket plus page-owned cleanup and explicit refetch would be
+  the first application experiment; it must prove reconnect, session changes,
+  missed-event recovery and bounded buffers before any reusable helper. Neither
+  capability enters Core or the default starter based on this research triage.
 
 ### Strict local browser audit and form readiness — 2026-10-01
 

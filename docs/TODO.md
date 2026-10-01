@@ -855,49 +855,79 @@ completed local work does not imply publication or replace release gates.
 Research items are deliberately not promises and must not become Core runtime
 dependencies. A written design, runtime-budget comparison, and an opt-in proof
 of concept are required before promoting any item to a later release.
+Checked research entries below mean their current go/no-go evaluation is done;
+they do **not** mean the proposed capability was implemented or released.
 
-- [ ] Investigate fine-grained dependency tracking as an internal optimization
+- [x] Investigate fine-grained dependency tracking as an internal optimization
   only. Shallow state remains the default; do not introduce a required signals
   API or wake unrelated subscriptions without proving semantics, cleanup, and
   runtime-size benefits. Current source and rendering-budget audit in
-  `NOTES.md` found no measured need for a second tracking layer; this remains
-  research until a reproducible user workload identifies one.
-- [ ] Evaluate an opt-in hybrid server-rendering boundary and route rendering
+  `NOTES.md` found no measured need for a second tracking layer. Research
+  triage is complete with **no promotion**; reopen only for a reproducible
+  user workload and measured net benefit.
+- [x] Evaluate an opt-in hybrid server-rendering boundary and route rendering
   modes that keep static output the default for applications that explicitly
   need request-time HTML.
   Use public product/category freshness and authenticated-account isolation as
   evaluation cases. Compare explicit static rebuilds with request-time needs;
   never cache personalized pricing/account HTML across users. Commerce does not
   automatically promote this research to an implemented V1 SSR/hydration promise.
-- [ ] Evaluate compiler-generated islands or partial hydration only if ordinary
+  The current static prerender plus app-owned Node response can cover those
+  separate needs, but there is no template-to-server/hydration contract. The
+  `NOTES.md` boundary review concludes **no promotion** without a real
+  request-time workload, server-only proof of concept, privacy tests, and an
+  opt-in runtime budget. No SSR API or starter was added.
+- [x] Evaluate compiler-generated islands or partial hydration only if ordinary
   HTML remains the authoring surface, no mandatory virtual DOM is introduced,
-  and pages that do not opt in pay no hydration cost.
-- [ ] Evaluate streaming and Edge adapters as separate contracts, not hidden
-  behavior in the browser package.
-- [ ] Evaluate critical-CSS extraction only as a deterministic build plugin;
+  and pages that do not opt in pay no hydration cost. Current route-level lazy
+  chunks and client takeover have no island-resume protocol; the boundary
+  audit in `NOTES.md` records **no promotion** without a traced workload and
+  an opt-in browser-size/correctness proof.
+- [x] Evaluate streaming and Edge adapters as separate contracts, not hidden
+  behavior in the browser package. The Node bridge buffers responses by design;
+  Edge transport is not a Node adapter. **No promotion** without an actual
+  target runtime, backpressure/abort tests, and an application-owned security
+  policy; see `NOTES.md`.
+- [x] Evaluate critical-CSS extraction only as a deterministic build plugin;
   never make it a framework styling system or require a particular CSS tool.
-- [ ] Evaluate an optional AI-provider interface and separate CLI review,
+  Current CSS intelligence is advisory and source-based. **No promotion**
+  without route-specific LCP evidence and a cascade-safe, opt-in build proof;
+  see `NOTES.md`.
+- [x] Evaluate an optional AI-provider interface and separate CLI review,
   explain, generate, or migration helpers. Support local/custom providers and
   never require API keys, network access, telemetry, or AI to use VeloDom.
-- [ ] Evaluate HTML-to-VeloDom, React-to-VeloDom, and Vue-to-VeloDom migration
+  Current decision: **no promotion** without a separately installed provider,
+  consent/security design, reviewable output and demonstrated demand; keep
+  deterministic offline `vd` commands unchanged.
+- [x] Evaluate HTML-to-VeloDom, React-to-VeloDom, and Vue-to-VeloDom migration
   helpers that output ordinary reviewable folders, never a compatibility
-  runtime or an automatic source rewrite without review.
-- [ ] Evaluate external CMS/deployment adapters that map typed records through
+  runtime or an automatic source rewrite without review. Current decision:
+  **no promotion**; existing `vd fix` handles narrow VeloDom aliases only,
+  and cross-framework conversion needs real fixture coverage and human review.
+- [x] Evaluate external CMS/deployment adapters that map typed records through
   `velodom/content` without credentials or remote browser fetching in Core.
-- [ ] Evaluate locale negotiation, cookie/domain locale policy, full ICU
+  Current decision: **no vendor adapter promotion**; the existing build-time
+  typed external loader already covers the generic contract.
+- [x] Evaluate locale negotiation, cookie/domain locale policy, full ICU
   parsing, and request-time translation providers outside the build-time
-  localization helpers.
-- [ ] **Commerce/large-data research; complexity: High; CLI: NONE:** Evaluate an
+  localization helpers. Current decision: **no promotion** without a concrete
+  server/domain policy and isolation tests; current locale paths/dictionaries
+  stay build-time and application-owned.
+- [x] **Commerce/large-data research; complexity: High; CLI: NONE:** Evaluate an
   optional virtual-list integration only when C07 measurements show pagination
   is insufficient. Prove keyed state/focus, keyboard/screen-reader behavior,
   variable-height rows, cleanup, and memory limits; never change default
-  `vd-for` semantics or hide important indexable content by default.
-- [ ] **Business-app realtime research; complexity: Medium–High; CLI: NONE:**
+  `vd-for` semantics or hide important indexable content by default. Current
+  C07 fixture and Store use bounded pagination, not an unbounded list workload;
+  **no promotion** until a real list and accessibility proof justify it.
+- [x] **Business-app realtime research; complexity: Medium–High; CLI: NONE:**
   Evaluate app-owned SSE/WebSocket recipes for order notifications and dashboards
   with reconnect/backoff, authentication changes, missed-event recovery,
   bounded buffering, and cleanup. Start with native APIs and existing lifecycle
   hooks; do not add a required connection, hosted broker, or stock/transaction
-  consistency guarantee to Core.
+  consistency guarantee to Core. Current decision: **no Core promotion**;
+  an application with a real event backend should first prove a native,
+  page-owned connection and server-authoritative refetch recipe.
 
 ## V1 Explicit Non-Goals — Rejected
 
