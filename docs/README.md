@@ -12,7 +12,10 @@ Source repository: [github.com/NadiaSalah/VeloDom](https://github.com/NadiaSalah
 
 > Project status: the VeloDom package source is version `1.0.0` and lives at
 > `packages/velodom`; public API names are protected by package-boundary tests.
-> Registry publication is a separate owner-authorized action. Verify the
+> Registry publication is a separate owner-authorized action. The earlier
+> unpublished `velodom@1.0.0` cannot be republished under npm's immutable
+> name/version policy. The owner chose to retain local `1.0.0` and postpone
+> publication; a future release needs a separate version decision. Verify the
 > current [npm package page](https://www.npmjs.com/package/velodom) immediately
 > before giving registry-dependent release instructions.
 

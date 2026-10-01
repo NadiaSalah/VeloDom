@@ -18,8 +18,8 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 | Developer intelligence | V1 — Implemented | `vd` inspection commands, compiler language helpers, testing utilities |
 | VeloDom Lab | V1 — Experimental / Implemented slice | Optional Vite UI, safe protocol, runtime/compiler inspectors, production-leak test |
 | Public package source | V1 — Implemented | Local `1.0.0` manifests, exports, package docs, starters, and consumer checks |
-| Browser release gate | V1 — Current | Strict CI workflow exists; rerun it on the exact initial-release commit |
-| npm registry state | External verification | No official release is represented; verify name/version state before first publication |
+| Browser release gate | V1 — Current | All five strict Linux targets passed on `d98aaac`; rerun after a publishable version is selected |
+| npm registry state | External verification | `velodom@1.0.0` was previously unpublished and cannot be reused; select a new version before publication |
 | Approved authoring and rendering maturity | Implemented locally | Looped components, keyed updates, `.vd` lazy parity, and compiler cache; release verification remains separate |
 | Approved developer intelligence | Implemented locally | Shared project index, diagnostics, safe fixes, generated types, and CLI composition |
 | Approved optional extensions | Implemented locally | Seven bounded tooling/integration milestones complete; research remains excluded |
@@ -655,21 +655,29 @@ Current release work is governance rather than a new framework feature:
   lockfile while preserving successful npm 11 local development.
 - [x] Provide a strict Chromium, Firefox, WebKit, and Mobile WebKit workflow;
   local graphics limitations do not weaken the required release CI run.
-- [ ] Choose the exact initial-release commit and run every package, build,
-  performance, and strict browser gate on that commit. Current local WebKit
-  desktop/mobile and Chromium desktop/mobile pass, while Firefox local startup
-  is blocked by `RenderCompositorSWGL` graphics failure before any scenario;
-  strict Linux CI on the selected final commit remains required. The
-  documentation-only `7934bba` push passed build, regression tests and npm
-  artifact audit, but its strict browser step failed after the prior `0f935aa`
-  run passed. The detailed log was not accessible through the public API;
-  browser-target annotations are being added so the next run exposes the
-  actual failing step before any release decision.
+- [ ] Choose a **publishable** exact initial-release commit and run every
+  package, build, performance, and strict browser gate on it. Technical
+  verification passed on `d98aaac`: [strict Linux CI](https://github.com/NadiaSalah/VeloDom/actions/runs/36876173251)
+  completed build (including benchmark/performance budgets), regression tests,
+  npm artifact audit, and all five Chromium/Firefox/WebKit desktop/mobile
+  targets; local `npm run pack:check` also passed both installed consumers,
+  six generated JS/TS starter combinations, the `create-velodom` wrapper, and
+  tarball size/content checks. The preceding documentation-only `7934bba`
+  browser run failed without an accessible detailed log; this passing rerun
+  did not establish its cause. Current `velodom@1.0.0` cannot be republished
+  after its earlier unpublish, so select and approve a new V1 version, then
+  rerun these gates on that versioned commit before closing this checkbox.
+  Owner decision on 2026-10-01: keep both local manifests at `1.0.0` and
+  postpone publication; do not bump the version merely to close this gate.
 - [ ] Verify the `velodom` and `create-velodom` registry names and versions at
-  release time; local documentation must not guess their current availability.
+  release time. Public registry snapshot on 2026-10-01: `velodom` is an
+  unpublished tombstone with no active dist-tag, while `create-velodom` returns
+  404. This does not prove ownership or guarantee either name is publishable;
+  recheck with the owner's npm account immediately before release.
 - [ ] Obtain explicit owner approval, publish `velodom` first, then publish the
   matching `create-velodom`, and smoke-test `npm create velodom@latest` from a
-  clean directory.
+  clean directory. Publication is explicitly deferred by the owner while the
+  local package version remains `1.0.0`.
 - [ ] Create the first official Git tag/GitHub release and move verified notes
   from `Unreleased` into the dated `1.0.0` changelog section.
 

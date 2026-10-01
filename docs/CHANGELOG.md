@@ -12,6 +12,13 @@ The current repository is the V1 source baseline. Its package manifests use
 `1.0.0`, but this changelog does not yet represent an official public release
 or claim that a matching package is available from a registry.
 
+Release readiness: the `d98aaac` strict Linux run and local packed-consumer
+checks passed. The public npm registry still records an unpublished
+`velodom@1.0.0`; that name/version combination cannot be reused. A new V1
+version and fresh exact-commit gates require owner approval before this section
+can move into a dated release. The owner chose to keep local `1.0.0` and defer
+publication; no version, tag, or registry state changed.
+
 ### Added
 
 - Added concise GitHub Actions annotations for failed browser targets. They

@@ -1647,6 +1647,20 @@ both TODO items open until those follow-up checks pass.
   target, excluding page-body snapshots. Diagnose the next strict run from
   those annotations before changing runtime behavior or closing the release
   gate. CLI impact: `NONE`; no generated-project or npm package file changes.
+- The follow-up `d98aaac` [strict Linux run](https://github.com/NadiaSalah/VeloDom/actions/runs/36876173251)
+  succeeded for build, regression tests, artifact audit, and all five browser
+  targets. Local `npm run pack:check` on that clean commit passed the packed
+  `velodom` and `create-velodom` consumers, all six generated starter variants,
+  and size/content budgets (335 files / 690.8 KiB packed for `velodom`; four
+  files / 1.7 KiB for `create-velodom`). The prior one-off browser failure's
+  root cause remains unknown; a passing rerun alone does not diagnose it.
+  The public npm registry snapshot on 2026-10-01 has an unpublished `velodom`
+  tombstone and no active dist-tag; `create-velodom` returns 404. npm's immutable
+  name/version policy prevents reusing `velodom@1.0.0`. Do not bump the
+  manifests, publish, or tag without the owner's version/release decision;
+  rerun the full gate on the selected publishable version. The owner decided
+  on 2026-10-01 to keep both local manifests at `1.0.0` and defer publication;
+  this is a deliberate release pause, not a passed registry gate.
 
 ## Handoff Guidance
 

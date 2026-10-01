@@ -22,8 +22,14 @@ Current repository package identity: `1.0.0`. The manifest declares
 `publishConfig.access = public`, but repository state does not prove registry
 availability. Verify the [npm package page](https://www.npmjs.com/package/velodom)
 and dist-tags immediately before and after any approved publication.
+The public registry currently records `velodom` as unpublished. Because npm
+never permits reuse of an unpublished name/version pair, `velodom@1.0.0`
+cannot be the next publishable artifact. Keep the V1 product identity, but
+select a new version with the owner before changing either package manifest.
+On 2026-10-01 the owner chose to retain both local `1.0.0` manifests and defer
+publication. Do not infer permission to bump, publish, or tag from passing CI.
 
-Before the first official `1.0.0` release:
+Before the first official public V1 release:
 
 - patch releases fix bugs without intentionally changing public behavior;
 - minor releases may add features or make documented breaking changes;
@@ -187,10 +193,12 @@ VeloDom does not ship browser polyfills by default.
 
 ## Current Release Decision
 
-VeloDom source is prepared as the planned first official `1.0.0`. The package manifest, public exports,
-CLI binaries, tarball allowlist, consumer fixture, generated starter,
-production build, and GitHub Actions browser matrix are release gates. Passing
-them prepares a release; it does not prove or perform registry publication.
+VeloDom source is prepared for the first official public V1 release. The
+current local package manifests still say `1.0.0`, which cannot be republished
+for `velodom`. The package manifest, public exports, CLI binaries, tarball
+allowlist, consumer fixture, generated starter, production build, and GitHub
+Actions browser matrix are release gates. Passing them prepares a release; it
+does not prove or perform registry publication.
 
 ### Publication Policy
 
@@ -201,8 +209,9 @@ them prepares a release; it does not prove or perform registry publication.
 
 ## Initial Publication Gates
 
-- Complete the final package/tarball/browser gates for the exact release
-  commit and verify registry name/version availability.
+- Select an unused version for both packages, complete the final
+  package/tarball/browser gates for that exact release commit, and verify
+  registry name/version ownership and availability.
 - Obtain explicit owner approval for the exact publish/tag command.
 - Publish and verify `velodom` before `create-velodom`, because the wrapper's
   dependency must already resolve. Then smoke-test `npm create velodom@latest`

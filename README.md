@@ -228,18 +228,25 @@ release commit is verified, approved, tagged, and published deliberately.
 
 See [maintenance notes](docs/NOTES.md) for this change's checks and measured
 artifact sizes. A passing local package check is not npm publication or a
-successful remote workflow. The previously observed local Firefox graphics
-startup failure still requires verification on the strict Linux CI runner.
+successful remote workflow. Local Firefox still cannot start on this graphics
+device, but strict Linux CI verified the Firefox target on `d98aaac`.
 
 The repository browser check now reports failed targets as concise GitHub
-Actions annotations without copying page-body text into them. This changes
+Actions annotations without copying page-body text into them. This changed
 only repository test diagnostics: `tools/scripts/browser/check-browser-e2e.mjs`
-and its annotation helper/test were updated; Core, the CLI, starters, and
-examples were not. The `7934bba` CI run passed build, regression tests and
-package audit but failed in its strict browser step, whose public log was not
-available. The release browser gate remains open pending a diagnosed, passing
-run on the final release commit. [TODO](docs/TODO.md), [CHANGELOG](docs/CHANGELOG.md),
-and [NOTES](docs/NOTES.md) record the decision and current evidence.
+and its annotation helper/test; Core, CLI, starters, and examples did not
+change. [The `d98aaac` CI run](https://github.com/NadiaSalah/VeloDom/actions/runs/36876173251)
+passed build (including performance budgets), regression tests, package audit,
+and the strict five-target browser matrix. Local `npm run pack:check` passed
+both packed package consumers and six JS/TS starter combinations.
+
+Publication remains blocked by version selection: the public npm registry
+records `velodom` as unpublished, and npm does not allow `velodom@1.0.0` to
+be published again. You chose to keep both local manifests at `1.0.0` and
+postpone publication. No version, package, or tag was changed. The release
+checks must be repeated on the exact publishable commit if a new version is
+chosen later. [TODO](docs/TODO.md), [release policy](docs/RELEASING.md),
+and [NOTES](docs/NOTES.md) record this boundary.
 
 ## TODO
 
@@ -264,11 +271,12 @@ The remaining decisions are evidence-led:
   promotion. The remaining AI, migration, CMS, locale, virtualization and
   realtime research was evaluated against existing generic helpers and actual
   example workloads; none is promoted into Core, a V1 command, or a dependency.
-- Select the exact initial-release commit, run the complete package/performance
-  and strict cross-browser CI gates on it, verify both registry package states,
-  and obtain explicit owner approval before publishing or tagging. Local
-  Chromium/WebKit checks have passed; local Firefox graphics startup did not
-  reach a test, so the Linux CI result is still required.
+- Choose a publishable V1 version and rerun the complete package/performance
+  and strict cross-browser gates on that exact commit. The current `1.0.0`
+  manifest cannot be republished for `velodom`, despite the passing `d98aaac`
+  technical gate. Publication is deferred by owner decision; reverify both
+  registry package states with the owner account and obtain separate approval
+  before any future publishing or tagging.
 
 The current documentation audit updated this README, [TODO](docs/TODO.md),
 [NOTES](docs/NOTES.md), and [CHANGELOG](docs/CHANGELOG.md). It removed stale
