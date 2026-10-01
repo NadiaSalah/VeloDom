@@ -38,6 +38,11 @@ size practical. The long static feature catalog may still produce an advisory
 template-size warning; it is not a compiler or runtime error. These lessons
 are teaching material, not additional Core APIs.
 
+The cache lesson distinguishes request-cache clearing from explicit page-data
+invalidation/refetch after a confirmed write. Its snippet updates mounted
+`state.data`; the store consumer is the executable admin/catalog/account
+reference for separate write and post-write-read failure handling.
+
 `/features#architecture` explains feature-owned application modules, optional
 JSDoc/TS wire contracts, dependency direction and browser/server configuration.
 It follows the store reference rather than inventing a service registry.
@@ -50,7 +55,8 @@ It distinguishes request-cache policy from public-only page-data freshness and
 does not claim automatic private-session caching or post-write UI refresh.
 The page-data lesson now covers 100-value LRU/100-read limits, matching-load
 coalescing, next-visit SWR and safe failure/expiry behavior. Request-cache and
-page-data freshness remain separate, with no public page refetch API yet.
+page-data freshness remain separate. The explicit page-data controls and the
+confirmed-write/read-failure recipe now appear in the cache lesson.
 
 `/features#quality` now forwards optional client loader `signal` and explains
 navigation ownership across async resources/hooks/fallbacks, independent cached

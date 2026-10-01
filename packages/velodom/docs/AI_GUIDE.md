@@ -103,9 +103,13 @@ claim it automatically clears the separate router page-data cache.
 Page-data caching is opt-in and public-only, with 100-value LRU/100-read limits
 and matching-read coalescing. SWR updates the next visit; a failed background
 refresh keeps the original stale-window age and is observed without an
-unhandled rejection. Expired/cold errors propagate normally. There is not yet a
-public page-cache invalidation/refetch API. Keep immediately write-sensitive
-and private loaders uncached; do not generate private `page-data` imports.
+unhandled rejection. Expired/cold errors propagate normally. After a confirmed
+write, `ctx.invalidatePageData("home")` clears all variants of a discovered
+logical page; `await ctx.refetchPageData()` re-reads only the mounted loader and
+updates `state.data` without replacing drafts or remounting. Both also exist
+on `app`. Handle an accepted write plus failed refetch as a read error; retry
+the read, never blindly repeat the mutation. Private/session loaders stay
+uncached; do not generate private `page-data` imports.
 
 Forward optional `data.load({ signal })` to I/O; build/server contexts can omit
 it. Shared cached reads use a transport signal, not one subscriber's signal.

@@ -131,8 +131,13 @@ syntax guide for exact options and compatibility behavior.
 Public page-data freshness is separately opt-in: bounded 100-value LRU/100-read
 tracking, coalesced matching loads and optional next-visit SWR. Failed background
 refresh does not renew freshness; expired/cold errors propagate normally.
-App destruction clears it. There is no public page-cache invalidation API yet;
-keep private and immediately write-sensitive page loaders uncached.
+App destruction clears it. `app.invalidatePageData("home")` (also on page/
+component `ctx`) clears all route/query variants for a discovered logical page;
+omitting the name clears all pages. It never fetches. `await
+ctx.refetchPageData()` freshly reads the current page loader and updates
+`state.data` without remounting or erasing a draft. Invoke these controls only
+after a confirmed mutation, handle read failure separately, and retry the read
+rather than repeating the write. Private/session loaders remain uncached.
 
 Client page loaders receive optional `signal` (build/server may omit it).
 Forward it to I/O, and use `ctx.signal` in async page/component hooks. Core

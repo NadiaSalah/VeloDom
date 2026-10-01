@@ -38,7 +38,8 @@ before use.
 | Route prefetch | Routing | Supported | `vd-prefetch` | none | router | Yes |
 | Global/page guards | Routing | Stable | `beforeEach`, `beforeEnter` | async arrays | public guard types | Yes |
 | Page data loader | Data | Stable | page `data.js|ts`, optional client `signal`; cancelled navigation results fenced | build/server may omit signal | public loader types | Yes |
-| Page data cache policy | Data | Supported | public-only `maxAgeMs`, SWR; bounded LRU/coalescing, background-failure age preserved; no public invalidation yet | none | cache policy type | Yes |
+| Page data cache policy | Data | Supported | public-only `maxAgeMs`, SWR; bounded LRU/coalescing and background-failure age preserved | none | cache policy type | Yes |
+| Explicit page data freshness | Data | Supported | `app`/page or component `ctx`: `invalidatePageData(page?)`, `refetchPageData()` | no automatic post-write refetch or private cache | public app/context types | Yes |
 | File request routes | Requests | Stable | `src/api/**` browser modules | route registry; separate trusted backend | Vite adapter | Yes |
 | Declarative requests | Requests | Stable | `vd-request` family | direct `requestJson` | request APIs | Yes |
 | Request middleware | Requests | Stable | `src/api/middleware.js` | inline function | middleware APIs | Yes |

@@ -651,6 +651,22 @@ async function assertStorefrontSmoke(browser, target, origin) {
         await page.locator(".locale-button").waitFor();
 
         const firstRow = page.locator(".admin-table tbody tr").first();
+        const previousStatus = await firstRow.locator(".status-badge").innerText();
+        let bulkWrites = 0;
+        let failNextRead = true;
+        const listPattern = "**/__fixture-api/admin/products**";
+        await page.route(listPattern, async route => {
+          const request = route.request();
+          const path = new URL(request.url()).pathname;
+          if (path.endsWith("/bulk") && request.method() === "POST") bulkWrites++;
+          if (path === "/__fixture-api/admin/products" && request.method() === "GET" && failNextRead) {
+            failNextRead = false;
+            await route.fulfill({
+              status: 500, contentType: "application/json",
+              body: JSON.stringify({ message: "The post-write list read is unavailable." })
+            });
+          } else await route.continue();
+        });
 
         await firstRow.locator('input[type="checkbox"]').check();
         await waitForPageText(page, "1 product selected");
@@ -658,7 +674,19 @@ async function assertStorefrontSmoke(browser, target, origin) {
         await page.locator("#bulk-confirm-dialog").waitFor({ state: "visible" });
         await page.locator('#bulk-confirm-dialog button:has-text("Confirm action")').click();
         await waitForPageText(page, "1 product archived.");
-        await page.waitForFunction(() => document.activeElement?.id === "bulk-success");
+        await waitForPageText(page, "The post-write list read is unavailable.");
+        await page.waitForFunction(() => document.activeElement?.id === "admin-feedback");
+        if (await firstRow.locator(".status-badge").innerText() !== previousStatus) {
+          throw new Error("A failed refresh replaced the last confirmed list.");
+        }
+        await page.locator('button:has-text("Retry list read")').click();
+        await page.locator("#admin-feedback").waitFor({ state: "hidden" });
+        await page.waitForFunction(() => (
+          document.querySelector(".admin-table tbody tr .status-badge")?.textContent
+            ?.trim().toLowerCase() === "archived"
+        ));
+        if (bulkWrites !== 1) throw new Error("Retrying a list read repeated the accepted write.");
+        await page.unroute(listPattern);
 
         const updatedRow = page.locator(".admin-table tbody tr").first();
         if ((await updatedRow.locator(".status-badge").innerText()).trim().toLowerCase() !== "archived") {

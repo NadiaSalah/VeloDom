@@ -2,6 +2,42 @@
 
 ## Architectural Decisions
 
+### Explicit page-data freshness and confirmed-write separation — 2026-10-01
+
+- C05 closes on the existing loader/cache rather than a second request layer.
+  `invalidatePageData(page?)` takes a discovered logical page name, clears all
+  its query variants (or every page), and aborts matching explicit refreshes.
+  It never fetches or remounts. `refetchPageData()` only reads the mounted
+  loader, coalesces concurrent calls even without cache, and commits only
+  current successful data to `state.data`. An initial navigation invalidated
+  mid-read retries before committing. Refresh failure retains the last good
+  value/draft; departure/destroy fence late ignored-abort results.
+- The store keeps policy outside Core: accepted admin edits/bulk writes clear
+  public catalog/product data; the private list refetches authoritative rows,
+  totals and paging while preserving an unsubmitted filter draft. A post-write
+  read failure leaves write success visible and retries only the GET. Rejected
+  writes do not clear anything. Login/logout/expiry invalidate public page
+  variants; private session and admin reads are never page-cached. The old
+  manual bulk-row patch and one-off edit reload request were removed, while
+  the named request route remains supported for other consumers.
+- CLI classification DEFAULT_INCLUDED: methods ship on the existing app/
+  context; no new prompt, template fetch policy, directive, package export,
+  dependency, or version. Package-consumer smoke checks installed runtime and
+  JS/TS context types. Generated Minimal/Blog/Empty projects require no
+  migration. The blog's cache/reference lesson and repository/package/AI docs
+  now teach the same explicit success-then-refresh contract.
+- Verification: all 418 source tests pass, including eleven focused Core
+  refresh and four real HTTP-consumer tests. Docs consistency, normal/strict
+  type checks, lint, full build, six JS/TS starter combinations and both
+  installed real consumers pass. The installed package smoke proves public
+  invalidate/refetch behavior and context types. Desktop/mobile Chromium
+  production journeys pass, including an accepted bulk write, failed GET,
+  read-only retry and one-write assertion. Dry-run content/size gates pass:
+  VeloDom 335 files / 687.6 KiB packed / 2920.4 KiB installed; create wrapper
+  4 files / 1.7 KiB packed. JavaScript budgets pass at 126.8 KiB initial /
+  250.4 KiB total blog and 368.4 KiB package runtime. Other browser engines
+  and remote CI remain separate release evidence; no push/publish/version bump.
+
 ### Navigation ownership and loader cancellation — 2026-09-26
 
 - Six initial regressions reproduced late template/CSS/data/init commits,

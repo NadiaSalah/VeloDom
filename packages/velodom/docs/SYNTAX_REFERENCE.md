@@ -365,9 +365,24 @@ bypasses caching, not the read. Without `cache`, loads remain independent.
 SWR returns the prior value within its original stale window and refreshes the
 next visit; background failures are observed without renewing freshness or
 patching mounted state. Expired/cold loads propagate failures normally.
-App destruction clears cache identities. There is no public page-cache clear/
-refetch API yet; request-cache clearing is separate. Keep private/session and
-immediately mutation-sensitive page data uncached.
+App destruction clears cache identities. For confirmed post-write freshness,
+use the public app or page/component `ctx` controls:
+
+```js
+ctx.invalidatePageData("catalog"); // discovered logical page name, not URL
+const fresh = await ctx.refetchPageData(); // mounted page; updates state.data
+```
+
+Omit the name to invalidate all pages. Invalidation clears retained and pending
+route/query variants, but never fetches or patches the mounted UI. Refresh
+coalesces concurrent explicit reads, including uncached loaders; it returns the
+result and updates only `state.data`, not application draft fields, lifecycle
+hooks or browser history. A page without a loader resolves `undefined`.
+Errors leave the last good mounted data intact; abort on departure/destroy
+fences late commits. Refresh requires a mounted page, and unknown page names/
+URLs are rejected. A confirmed write followed by a failed read is still a
+successful write: show the read error and retry only refetch. Keep private and
+session page loaders uncached. Request-cache clearing remains separate.
 
 ## Requests
 

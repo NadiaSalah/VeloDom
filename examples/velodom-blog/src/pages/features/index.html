@@ -362,7 +362,7 @@ await mountVeloDom({
         bypass the request cache; the application must keep private session and
         no-store endpoints outside it.
       </p>
-      <p class="mt-3">Page caching retains at most 100 LRU route/query values and tracks 100 pending reads. Matching cached reads share a load; uncached pages remain independent. SWR refreshes the next visit, not the mounted UI. Failed background refresh keeps the original stale-window age; expired/cold failures reach the page boundary. App destruction clears it. No public page-cache refetch API exists yet, so keep immediately write-sensitive pages uncached.</p>
+      <p class="mt-3">Page caching retains at most 100 LRU route/query values and tracks 100 pending reads. Matching cached reads share a load; uncached pages remain independent. SWR refreshes the next visit, not the mounted UI. Failed background refresh keeps the original stale-window age; expired/cold failures reach the page boundary. App destruction clears it. After a confirmed write, invalidate the logical page and explicitly refetch the mounted loader; private/session reads remain uncached.</p>
       <div class="grid gap-5 lg:grid-cols-2">
         <div class="code-window">
           <div class="code-toolbar"><span>src/pages/catalog/data.js</span><span>page data cache</span></div>
@@ -392,6 +392,23 @@ export const getOne = withRequestRetry(
   { retries: 2, delayMs: 250 }
 );</code></pre>
         </div>
+      </div>
+      <div class="code-window mt-5">
+        <div class="code-toolbar"><span>src/pages/catalog/script.js</span><span>confirmed write → fresh read</span></div>
+        <pre class="code-example" vd-pre><code>export function init({ state, ctx }) {
+  state.readError = "";
+  state.afterSaveSuccess = async () =&gt; {
+    ctx.invalidatePageData("catalog"); // logical page name, not /catalog
+    try {
+      await ctx.refetchPageData(); // state.data updates without remounting
+    } catch (error) {
+      if (!ctx.signal.aborted) state.readError = error.message;
+    }
+  };
+}
+
+// Call afterSaveSuccess only after the server confirms the write.
+// On read failure keep the success message and draft; retry the read only.</code></pre>
       </div>
       <p class="mt-3">The optional request cache coalesces concurrent GET reads with independent cancellation, uses bounded LRU retention (100 entries by default), and fences older cache writes after <code>clear()</code>. Clear only after a confirmed successful mutation, then explicitly reload the UI. A failed write preserves the last good read.</p>
       <p class="mt-3">Both retry forms use abortable waiting and never repeat <code>AbortError</code> or a cancelled request. Middleware stops before the next operation after cancellation. Forward <code>context.signal</code> to I/O; custom work that ignores it cannot be forcibly stopped. A binding disposed/replaced during an async success callback no longer sends late completion notifications. Aborting does not undo state already applied or a write accepted by the backend: use status and idempotency to recover.</p>
@@ -678,7 +695,7 @@ await lab.refresh();</code></pre>
         failure should look. None of these features creates a hidden server or
         a second rendering model.
       </p>
-      <p class="mt-3">Public page freshness is optional and bounded. A failed background refresh never renews stale data or creates an unhandled promise rejection; once the stale window expires, the next navigation waits for a new load. Request-cache invalidation does not clear page data.</p>
+      <p class="mt-3">Public page freshness is optional and bounded. A failed background refresh never renews stale data or creates an unhandled promise rejection; once the stale window expires, the next navigation waits for a new load. Request-cache invalidation does not clear page data. The explicit <code>invalidatePageData(page?)</code> and <code>refetchPageData()</code> controls belong to the app/page context, not the request cache.</p>
       <p class="mt-3">Forward the optional client loader <code>signal</code> to I/O, and use <code>ctx.signal</code> in async hooks. New accepted navigation cancels the pending replacement and Core fences late results; blocked guards preserve the accepted load. Same-page hash links keep the mounted scope. Cached subscribers cancel independently; SWR survives departure, while tracked reads abort on app destruction. Code ignoring abort can still write directly to state, DOM, or a backend.</p>
       <div class="grid gap-5 lg:grid-cols-2">
         <div class="code-window">

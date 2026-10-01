@@ -1319,10 +1319,43 @@ A failed background refresh keeps the previous value only within its original
 stale window; it does not reset that value's age or produce an unhandled promise
 rejection. After expiry, navigation waits for a new load and propagates failures
 to the normal page error boundary. Background success updates the next visit,
-not the already-mounted page. There is currently no public page-cache clear or
-refetch API; `createRequestCache().clear()` does not invalidate this cache.
-Keep immediately mutation-sensitive pages uncached while that explicit router
-integration remains on the roadmap.
+not the already-mounted page. `createRequestCache().clear()` does not invalidate
+this separate page-data cache.
+
+For explicit freshness after a **confirmed** write, use the public app or
+page/component `ctx` controls:
+
+```js
+// src/pages/catalog/script.js
+export function init({ state, ctx }) {
+  state.readError = "";
+  state.afterSaveSuccess = async () => {
+    ctx.invalidatePageData("catalog"); // discovered page name, not /catalog
+    try {
+      await ctx.refetchPageData(); // current page's data.js; updates state.data
+    } catch (error) {
+      if (!ctx.signal.aborted) state.readError = error.message;
+    }
+  };
+}
+```
+
+Call that handler only from a successful mutation callback. A failed write
+must not invalidate; an accepted write followed by a failed read remains an
+accepted write. Keep the last good `state.data` and user draft, show a separate
+read error, and retry only `ctx.refetchPageData()`, never the write. Invalidation
+alone clears stored/pending route-and-query variants but does not fetch, remount,
+or patch the visible page. Pass no argument to invalidate all discovered pages;
+an unknown name/URL is rejected. A refresh coalesces concurrent explicit calls
+even for uncached loaders; it returns the new loader result and updates only the
+mounted `state.data`, without rerunning `init()`, `mounted()`, guards or navigation.
+If the page has no loader, refresh resolves to `undefined`. Refresh before mount
+or after departure/destroy rejects; cancellation prevents late Core commits.
+Forward `signal` into I/O and check `ctx.signal` before application-owned writes
+after awaits. Derived application fields initialized from old `data` do not
+magically recompute: update those from the returned value if needed. Private
+session/admin loaders remain uncached; never infer cookie or tenant scope from
+this public-only page cache. Request-cache and page-data invalidation are distinct.
 
 Page-data caching never reads or stores cookies, headers,
 credentials, or secrets. Keep user-specific data uncached or own that policy
@@ -2774,20 +2807,27 @@ prevent stale writes. Request failures update `updateError` without replacing
   {{ updateError }}
 </p>
 
-<button
-  type="button"
-  vd-request="posts.getOne"
-  vd-params="{ id: editDraft.id }"
-  vd-target="reloadResult"
-  vd-auto-state
->Reload server version</button>
+<button type="button" vd-on:click="reloadFromServer()">
+  Reload server version
+</button>
 ```
 
-The administration route in `examples/velodom-store` executes this exact
-pattern against a deterministic local revision fixture. Its application script
-restores focus to status text and copies a reloaded record into the draft only
-after the user requests recovery. C03 in the roadmap adds real HTTP/session
-denial; the client example does not claim that a route guard is authorization.
+```js
+// Optional page data.js loads the server record for this edit page.
+export function init({ state, ctx }) {
+  state.reloadFromServer = async () => {
+    const record = await ctx.refetchPageData();
+    if (ctx.signal.aborted) return;
+    state.editDraft = { ...record }; // explicit user choice replaces the draft
+  };
+}
+```
+
+The administration route in `examples/velodom-store` uses this explicit
+reload choice against a real local HTTP fixture and restores focus to the
+result. Refresh alone updates `state.data`, not a user's edit fields; only the
+button handler copies the authoritative record into the draft. Its backend
+enforces session/role/tenant policy; a client route guard is not authorization.
 
 Delete actions can be buttons because they usually need only one parameter:
 
@@ -4304,9 +4344,9 @@ occurs on request/completion/size access, not via a global auth listener. Abort
 old page work and check current identity before updating UI; invalidation alone
 is not a guard against displaying a result already awaited by a caller.
 
-Request-cache policy is separate from page-data freshness. Until the page-data
-lifecycle audit is complete, keep page-data caching public-only; do not infer
-that request-cache invalidation clears a router's page-data cache.
+Request-cache policy is separate from page-data freshness. Keep page-data
+caching public-only; use explicit `invalidatePageData()` on its own after a
+confirmed write. Request-cache invalidation never clears router page data.
 
 For local development only, an application that registered the bridge can
 explicitly import `mountDevtoolsInspector` from `velodom/devtools`. It renders a

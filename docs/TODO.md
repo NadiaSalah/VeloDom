@@ -45,7 +45,7 @@ state.
 This separately scoped quality/adoption work is detailed below; the completed
 implementation counters above do not mean these follow-ups or release gates are done.
 
-**Commerce and large-application track: 4 of 10 complete (40%).**
+**Commerce and large-application track: 5 of 10 complete (50%).**
 These new proposals do not change the completed baseline or the 6/8 simplicity
 counter. C01–C03 now provide storefront, administration, and real server-denial
 evidence without adding commerce policy to Core. Research
@@ -141,9 +141,9 @@ documentation site is one consumer, not the framework's architectural boundary.
 The objective is to prove and improve store, administration, and business-app
 workflows without turning Core into an e-commerce backend or enterprise platform.
 
-**Progress: 4 of 10 milestones complete (40%).**
+**Progress: 5 of 10 milestones complete (50%).**
 
-`[########------------] 40%`
+`[##########----------] 50%`
 
 ### Existing foundations — reuse before adding
 
@@ -151,7 +151,7 @@ workflows without turning Core into an e-commerce backend or enterprise platform
 | --- | --- | --- |
 | Pages, dynamic routes, query context, layouts, guards, lazy routes | Catalog, product details, account and admin shells | Complete non-blog journeys; unsaved-edit handling is evaluated in C06 |
 | `createSharedState`, shallow reactive state, keyed lists | Cart count, selected variants, editable collections | Explicit immutable/reassignment patterns; cart persistence is app-owned |
-| Request routes, middleware, cancellation, retry, cache helpers, page data policies | Search, catalog reads, account requests, mutations | Consistent post-mutation refresh and privacy scope in C05; not a second request engine |
+| Request routes, middleware, cancellation, retry, cache helpers, page data policies | Search, catalog reads, account requests, mutations | C05 completed explicit confirmed-write invalidation/refetch and privacy scope; no second request engine |
 | Native validation/progressive forms and error boundaries | Address forms, login, product editing, recovery | Complex form composition in C06; client validation is not backend validation |
 | Localization, native `Intl`, RTL, assets and static SEO/content hooks | Translated catalog, currency display, responsive product images | Real application examples and freshness policy, not a new translation or image service |
 | Project Index, types, build reports, testing helpers and Lab | Team development, large route trees, debugging | Measured scale and production integration evidence in C07/C09 |
@@ -255,7 +255,7 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
 
 ### P1 — Optional improvements after the reference workflows expose gaps
 
-- [ ] **C05 — Coherent read/mutation lifecycle. V1.x; complexity: High;
+- [x] **C05 — Coherent read/mutation lifecycle. V1.x; complexity: High;
   owner: generic request/data helpers only if recipes prove insufficient;
   CLI: NONE.** Audit current cache/page-data/retry/cancellation contracts first.
   Design explicit invalidation/refetch after a successful mutation, bounded
@@ -290,7 +290,7 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   Thirteen new regressions cover freshness, recovery, uncached independence,
   invalidation, LRU, expiry, saturation, non-finite policies and public app
   teardown/SWR; the installed public createApp is also exercised. Removed the
-  old unbounded refresh helper. No public invalidation/refetch API is claimed.
+  old unbounded refresh helper.
   **Navigation progress:** fixed the reproduced slow-loader overwrite across
   template/layout/data/style/module/init/mounted and error-fallback awaits.
   Accepted replacements own abort signals; blocked newer guards and same-page
@@ -303,10 +303,19 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   cancellation; the installed public app and TS loader contract are checked too.
   Removed duplicated shared-read cancellation and migrated its one utility to
   shared Core. Destroy-before-onCleanup and old syntax/exports remain compatible.
-  **Still open:** explicit public page-data invalidation/refetch; the complete success/refetch recipe
-  exercised against catalog/admin/account changes. Do not mark C05 complete
-  based on the request-cache portion alone. CLI impact for these helper options
-  is NONE; no generated global cache or starter policy is added.
+  **Completion:** the public app and page/component `ctx` now offer explicit
+  logical-page/all invalidation and mounted-page refetch over the existing
+  loader/cache. Concurrent explicit refreshes coalesce even without cache;
+  failed reads preserve mounted data/drafts, while abort, departure, destroy
+  and invalidation fence late commits. The real store confirms catalog/admin
+  freshness after accepted edits/bulk writes, preserves success on a failed
+  post-write read, retries only the GET, and invalidates on account changes;
+  rejected writes do neither. Core and HTTP-consumer tests exercise concurrency,
+  cancellation, failed mutation, account switch and cache bounds. No implicit
+  write interception, second request engine, private page cache, global store,
+  rollback or automatic optimistic UI was added. CLI classification for the
+  public controls is DEFAULT_INCLUDED; no prompt or generated policy is needed.
+  Existing helper option CLI impact remains NONE.
   CLI classification for navigation cancellation is DEFAULT_INCLUDED: no new
   prompts, controllers or generated cache policy. Existing templates need no
   changes; JS/TS starters and real consumers are verified by the package gate.

@@ -42,10 +42,9 @@ import {
 import { validateResourceAdapter } from "./resource-adapter.ts";
 import { applyPageSeo } from "./seo.ts";
 import {
-  consumePageDataTransfer,
-  createPageDataCache,
-  loadClientPageData
+  consumePageDataTransfer
 } from "./page-data.ts";
+import { createPageDataRuntime, type PageDataOwner } from "./page-data-runtime.ts";
 import {
   DEVTOOLS_CONTEXT,
   getDevtoolsRuntimeSession
@@ -97,6 +96,8 @@ interface PageRuntimeContext {
   getPageState(pageName: string): PageState;
   hasPage(pageName: string): boolean;
   navigate(path: string): unknown | Promise<unknown>;
+  invalidatePageData(page?: string): void;
+  refetchPageData(): Promise<unknown>;
   on: PageEventHub["on"];
   off: PageEventHub["off"];
   once: PageEventHub["once"];
@@ -104,6 +105,8 @@ interface PageRuntimeContext {
 }
 
 interface PageRouter {
+  invalidatePageData(page?: string): void;
+  refetchPageData(): Promise<unknown>;
   destroy(): Promise<void>;
   init(): Promise<boolean | void>;
   navigate(
@@ -135,7 +138,6 @@ export function createPageRouter(
   const pageConfigs = pageResources.configs || Object.create(null);
   const pageStyles = pageResources.styles || Object.create(null);
   const pageData = pageResources.data || Object.create(null);
-  const pageDataCache = createPageDataCache();
   const pageManifests = pageResources.manifests || Object.create(null);
   const layoutHtml = layoutResources.html || Object.create(null);
   const layoutStyles = layoutResources.styles || Object.create(null);
@@ -145,6 +147,8 @@ export function createPageRouter(
     pageConfigs,
     pageStateRegistry: Object.create(null)
   };
+  const pageDataRuntime = createPageDataRuntime(pageData, runtime.availablePages);
+  let activeDataOwner: PageDataOwner | null = null;
   const routeTable = createRouteTable(
     [...runtime.availablePages],
     pageConfigs
@@ -179,6 +183,7 @@ export function createPageRouter(
     }
     let navigation: AbortController | null = null;
     let lifecycle: PageLifecycle | null = null;
+    let dataOwner: PageDataOwner | null = null;
     let localCleanup: PageCleanup | null = null;
     let retained = false;
     let historyCommitted = false;
@@ -305,10 +310,17 @@ export function createPageRouter(
       navigationController = navigation;
       const signal = navigation.signal;
       const state = getOrCreatePageState(page, runtime);
+      const initialDataRevision = pageDataRuntime.revision(page);
       const events = createPageEventHub();
       lifecycle = createLifecycleScope(createPageContext(
         state, events, runtime, route,
-        targetPath => load(targetPath, "", VD_ROUTER.HISTORY_PUSH), devtools
+        targetPath => load(targetPath, "", VD_ROUTER.HISTORY_PUSH), devtools,
+        pageDataRuntime.invalidate,
+        async () => {
+          assertRequestActive(lifecycle?.context.signal);
+          if (!dataOwner) throw new Error("Page data refresh requires a mounted page");
+          return dataOwner.refetch();
+        }
       ), signal);
       lifecycle.context.direction = appContext.direction;
       const ctx = lifecycle.context;
@@ -320,6 +332,8 @@ export function createPageRouter(
       let hookArgs: ModuleHookArguments | null = null;
       localCleanup = onceAsync(async () => {
         lifecycle?.abort();
+        dataOwner?.dispose();
+        if (activeDataOwner === dataOwner) activeDataOwner = null;
         const errors: unknown[] = [];
         const attempts: PageCleanup[] = [
           () => directionCleanup?.(),
@@ -389,19 +403,23 @@ export function createPageRouter(
       );
       const data = initialPageData.found
         ? initialPageData.data
-        : await loadClientPageData(pageData[page], {
+        : await pageDataRuntime.load({
           page, route, params: route.params, query: route.query,
           meta: route.meta, signal
-        }, pageDataCache);
+        });
       const loadModule = pageModules[page];
       pageModule = loadModule ? await awaitWithAbort(loadModule(), signal) : null;
       assertRequestActive(signal);
+      // An explicit successful-write invalidation can race initial preparation.
+      // Retry the accepted location; never commit a detached pre-write value.
+      if (initialDataRevision !== pageDataRuntime.revision(page)) return load(path, pagePath, historyMode);
 
       const previousCleanup = activePageCleanup;
       activePageCleanup = null;
       if (previousCleanup) await awaitWithAbort(previousCleanup(), signal);
       else await awaitWithAbort(disposeTree(app), signal);
       assertRequestActive(signal);
+      if (initialDataRevision !== pageDataRuntime.revision(page)) return load(path, pagePath, historyMode);
       commitHistory();
 
       applyPageSeo(pageConfigs[page]?.seo, route.path);
@@ -424,6 +442,7 @@ export function createPageRouter(
       );
 
       assertRequestActive(signal);
+      if (initialDataRevision !== pageDataRuntime.revision(page)) return load(path, pagePath, historyMode);
       state.__vdPageName = page;
       state.components = {};
       pageScopeCleanup = devtools?.registerScope({
@@ -434,6 +453,13 @@ export function createPageRouter(
         state
       }) || null;
       state[VD_PAGE_DATA.STATE_KEY] = data;
+      dataOwner = pageDataRuntime.createOwner({
+        page, route, params: route.params, query: route.query,
+        meta: route.meta, signal: ctx.signal
+      }, value => {
+        if (activeDataOwner === dataOwner) state[VD_PAGE_DATA.STATE_KEY] = value;
+      });
+      activeDataOwner = dataOwner;
       directionCleanup = attachDirectionToPageState(
         state,
         appContext.direction
@@ -773,7 +799,8 @@ export function createPageRouter(
     latestNavigationId++;
     latestGuardController?.abort();
     navigationController?.abort();
-    pageDataCache.dispose();
+    pageDataRuntime.dispose();
+    activeDataOwner = null;
     removeRouterListeners?.();
     removeRouterListeners = null;
     initialized = false;
@@ -786,6 +813,11 @@ export function createPageRouter(
   }
 
   return {
+    invalidatePageData: pageDataRuntime.invalidate,
+    async refetchPageData() {
+      if (!activeDataOwner) throw new Error("Page data refresh requires a mounted page");
+      return activeDataOwner.refetch();
+    },
     destroy,
     init,
     navigate
@@ -982,7 +1014,9 @@ function createPageContext(
   runtime: PageRouterRuntime,
   route: RouteLocation,
   navigate: (path: string) => unknown | Promise<unknown>,
-  devtools: DevtoolsRuntimeSession | null
+  devtools: DevtoolsRuntimeSession | null,
+  invalidatePageData: (page?: string) => void,
+  refetchPageData: () => Promise<unknown>
 ): PageRuntimeContext {
   return {
     [DEVTOOLS_CONTEXT]: devtools,
@@ -1004,6 +1038,8 @@ function createPageContext(
       return hasRegisteredPage(pageName, runtime);
     },
     navigate,
+    invalidatePageData,
+    refetchPageData,
     on: events.on,
     off: events.off,
     once: events.once,

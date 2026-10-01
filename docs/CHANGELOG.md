@@ -14,6 +14,16 @@ or claim that a matching package is available from a registry.
 
 ### Added
 
+- Added explicit app and page/component-context page-data invalidation/refetch
+  over the existing public-only loader cache. Fresh reads update mounted
+  `state.data` without remounting or replacing drafts; concurrent reads
+  coalesce, and failed/aborted reads retain last good state. Store admin writes
+  and account changes now invalidate affected public catalog pages; the list
+  refetches authoritative filters/totals and retries a failed post-write GET
+  without resending the accepted mutation. Removed superseded manual row patch
+  and one-off edit reload handler; retained public request-route compatibility.
+  Added Core, real HTTP-consumer, installed-package and browser regressions.
+  No new standalone export, CLI prompt, dependency or version bump.
 - Fixed stale navigation commits across resource/layout/data/style/module/hook
   and fallback awaits. Client PageDataContext now offers optional signal;
   cached read cancellation is subscriber-aware, SWR stays cache-owned, and app

@@ -42,16 +42,18 @@
         id="bulk-action-trigger"
         class="button button-secondary"
         type="button"
-        vd-bind:disabled="selectedIds.length === 0"
+        vd-bind:disabled="selectedIds.length === 0 || bulkLoading || adminLoading"
         vd-on:click="openBulkConfirmation()"
       >Review action</button>
     </div>
   </div>
 
-  <p vd-show="adminLoading" class="status-panel" aria-live="polite">Loading products…</p>
-  <div vd-if="adminError !== ''" class="status-panel error" role="alert">
-    <strong>Products unavailable.</strong>
+  <p vd-show="adminLoading" class="status-panel" aria-live="polite">Reading the latest products…</p>
+  <div id="admin-feedback" vd-if="adminError !== ''" class="status-panel error" role="alert" tabindex="-1">
+    <strong>The latest list could not be read.</strong>
     <p>{{ adminError }}</p>
+    <p>The last confirmed data remains visible. A read failure does not undo an accepted write.</p>
+    <button class="button button-secondary" type="button" vd-on:click="refreshList()" vd-bind:disabled="adminLoading">Retry list read</button>
   </div>
   <div
     id="bulk-feedback"
@@ -86,6 +88,7 @@
           <td>
             <input
               type="checkbox"
+              vd-bind:disabled="bulkLoading || adminLoading"
               vd-checked="selectedIds.includes(product.id)"
               vd-attr="{ 'aria-label': 'Select ' + product.name }"
               vd-on:change="toggleProductSelection(product.id, event.target.checked)"

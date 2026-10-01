@@ -233,7 +233,7 @@ startup failure still requires verification on the strict Linux CI runner.
 
 ## TODO
 
-The **Commerce and Large Applications** track is now **4/10 complete**. The
+The **Commerce and Large Applications** track is now **5/10 complete**. The
 storefront, administration workflow, and replaceable HTTP/session contract are
 implemented and verified, including real server denial, safe mock writes, and
 private cache boundaries. The handbook now explains feature-owned organization,
@@ -244,8 +244,8 @@ JS/TS lesson; no new runtime API, registry or starter was introduced.
 Files changed for this milestone: store HTTP client/contracts/README,
 `tools/scripts/package/check-package-consumer.mjs`, blog architecture lesson and
 README, package AI/syntax guides, and root handbook/roadmap/change records.
-Continue with C05's existing read/mutation lifecycle audit, then forms and
-measured scale work for V1.x. API-contract generation is deferred to a future major release; realtime,
+Continue with C06 native-form composition and edit protection, then measured
+scale work for V1.x. API-contract generation is deferred to a future major release; realtime,
 virtualization, and request-time rendering stay research. These are proposals,
 not new npm features. Payment, stock, authorization, and pricing remain
 application/server responsibilities; the documentation blog stays the teaching site.
@@ -271,8 +271,19 @@ without renewing stale age. Internal invalidation fences late cache writes;
 app destruction clears identities. Changed files: page-data/router/types/
 constants, page-data unit/public-app/installed checks, root/package/AI guides
 and blog/store educational text. The superseded refresh helper was removed.
-Public page-data invalidation/refetch and the full refresh recipe remain in C05, so
-the commerce counter is intentionally still 4/10, not 5/10.
+C05 now adds explicit `app`/page/component `ctx` methods:
+`invalidatePageData(page?)` clears variants of a discovered logical page (or
+all pages) without fetching; `refetchPageData()` reads the mounted loader,
+updates `state.data` and preserves DOM/drafts. Concurrent explicit reads
+coalesce, and failed reads retain last good data. The store invalidates public
+catalog/product pages after confirmed admin writes, refetches filtered list
+rows/totals, and retries a failed read without repeating the accepted write.
+Account changes clear public page data; private session/admin loads stay
+uncached. No automatic mutation observer, private cache, new CLI prompt,
+package export or dependency was added. Changed areas: Core page-data router/
+runtime/context/types, store catalog/admin/auth scripts and UI, source/installed
+consumer/browser tests, root/package/AI/teaching docs. Superseded manual list
+patch/reload code was removed; retained request routes remain supported.
 Verification: 380 tests, docs/types/strict/lint, full build, six generated
 starter combinations, installed real consumers, package content/size and
 performance gates passed. Desktop/mobile Chromium production tests passed.
@@ -292,7 +303,14 @@ build, six starter combinations, installed real consumers, npm content/size
 and performance gates pass. Desktop/mobile Chromium production checks also
 pass, including delayed catalog → cart cancellation. Other browser engines
 and remote CI remain release gates. The explicit public
-invalidation/refetch and mutation-success recipe remain open in C05 (4/10).
+invalidation/refetch and mutation-success recipe are now complete in C05
+(5/10); focus moves to C06. The C05 test/build/browser/pack results are
+recorded in [engineering notes](docs/NOTES.md). No source, starter, or
+package version has been published by this work.
+Current local evidence: 418 source tests, docs/types/strict/lint, full build,
+six generated JS/TS starters, both installed consumers, package size/content
+and desktop/mobile Chromium production checks pass. Firefox, WebKit and remote
+CI remain distinct release gates, not implied by these results.
 
 See [docs/TODO.md](docs/TODO.md) for release gates and the separately counted
 V1 simplicity/organization follow-up, now **6/8 complete (75%)**. Prioritize

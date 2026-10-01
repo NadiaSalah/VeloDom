@@ -88,9 +88,15 @@ Legacy `ttlMs: 0` remains retained-until-clear/eviction; default capacity is 100
 Page `data.js|ts` caching is separately public-only: up to 100 LRU route/query
 values and 100 tracked reads, shared matching loads, optional next-visit SWR.
 Failed background refresh does not renew the original age; expired/cold read
-errors propagate normally. Destroy clears cache identities. No public page
-invalidation/refetch API exists yet; keep private or immediately write-sensitive
-loaders uncached. Request-cache clearing does not clear page data.
+errors propagate normally. Destroy clears cache identities. After a confirmed
+write, call `ctx.invalidatePageData("home")` with a discovered logical page name
+(or omit it for all pages), then `await ctx.refetchPageData()` for the mounted
+page. `app` offers the same methods. Invalidation alone does not fetch or update
+UI; refetch updates only `state.data` and returns the loader result, without
+remounting or overwriting application drafts. Keep a failed write distinct from
+an accepted write followed by a failed read; retry only the latter read.
+Private/session loaders remain uncached. Request-cache clearing does not clear
+page data, and neither cache infers HttpOnly cookie/tenant changes.
 
 Client `data.load()` receives optional `signal`; build/server contexts may omit
 it. Forward it to I/O. Cached subscribers cancel independently; the final abort

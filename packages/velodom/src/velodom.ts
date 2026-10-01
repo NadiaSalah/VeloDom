@@ -55,7 +55,9 @@ export function createApp(options: VeloDomAppOptions): VeloDomApp {
       await router.destroy();
       await plugins.destroy();
     },
-    navigate
+    navigate,
+    invalidatePageData: router.invalidatePageData,
+    refetchPageData: router.refetchPageData
   });
 
   return app;

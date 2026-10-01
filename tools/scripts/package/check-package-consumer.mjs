@@ -475,6 +475,17 @@ try {
   now = 31;
   await app.navigate("/");
   assert.equal(document.querySelector("h1").textContent, "Article 3");
+  const heading = document.querySelector("h1");
+  app.invalidatePageData("home");
+  assert.equal(calls, 3);
+  const values = await Promise.all([app.refetchPageData(), app.refetchPageData()]);
+  assert.equal(calls, 4);
+  assert.equal(values[0].title, "Article 4");
+  assert.equal(values[1].title, "Article 4");
+  assert.equal(document.querySelector("h1"), heading);
+  assert.equal(heading.textContent, "Article 4");
+  await app.navigate("/");
+  assert.equal(calls, 4);
   await app.destroy();
   let finish;
   let started;

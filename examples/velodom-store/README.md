@@ -80,8 +80,15 @@ seconds stale). Matching cached reads coalesce, app-local retention is bounded
 at 100 values/100 tracked reads, and failed background refresh keeps its original
 age rather than renewing stale catalog data. A successful refresh is used on
 the next visit, not pushed into mounted UI. Private/admin loaders remain
-uncached. Public page invalidation and a complete mutation/refetch recipe are
-still C05 work; request-cache clearing alone does not clear the home page cache.
+uncached. Successful admin edits and bulk writes now call the app-owned
+`invalidateCatalogPages(ctx)` helper for the discovered `home` and
+`products/[id]` pages; the admin list then uses `ctx.refetchPageData()` to
+read authoritative filtered rows and totals without remounting. Rejected writes
+never invalidate. A successful write followed by a failed list read leaves the
+success message and last good list visible; **Retry list read** repeats only
+the GET. Successful login/logout/expiry clears all public page variants while
+session/admin reads stay uncached. This is explicit app policy, not automatic
+framework auth or HTTP caching. Request-cache clearing does not clear page data.
 
 The existing client data loaders forward the now-provided optional `signal` to
 the HTTP client. Core fences late results from a superseded navigation without

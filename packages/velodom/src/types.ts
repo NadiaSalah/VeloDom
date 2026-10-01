@@ -666,6 +666,10 @@ export interface VeloDomApp {
   mount(): Promise<unknown>;
   destroy(): Promise<void>;
   navigate(path: string, pagePath?: string): Promise<unknown>;
+  /** Clears page-data variants by logical name, or all pages; never fetches/remounts. */
+  invalidatePageData(page?: string): void;
+  /** Freshly reads the mounted page's data; updates state.data without remounting. */
+  refetchPageData(): Promise<unknown>;
   direction?: DirectionController;
   shared?: Record<string, SharedState>;
 }
@@ -692,6 +696,10 @@ export interface PageScriptContext<
     params: Record<string, string>;
     query: Record<string, string | string[]>;
     meta: UnknownRecord;
+    /** Explicit invalidation; logical page names, no argument means all pages. */
+    invalidatePageData: VeloDomApp["invalidatePageData"];
+    /** Re-reads this page's data without replacing drafts, DOM or hooks. */
+    refetchPageData: VeloDomApp["refetchPageData"];
     /** Present when the optional direction plugin is installed. */
     direction?: DirectionController;
   };

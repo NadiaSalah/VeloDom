@@ -61,7 +61,7 @@
     <section id="runtime" class="doc-section">
       <p class="eyebrow">02 · runtime and authoring</p>
       <h2>Small defaults, explicit advanced composition.</h2>
-      <p class="mt-3"><code class="inline-code">mountVeloDom()</code> is the beginner path. The main package exposes lower-level application, reactive, authoring, direction, shared-state, validation, progressive-form, plugin, cache, retry, and devtools helpers when a project needs them.</p>
+      <p class="mt-3"><code class="inline-code">mountVeloDom()</code> is the beginner path. The main package exposes lower-level application, reactive, authoring, direction, shared-state, validation, progressive-form, plugin, cache, retry, and devtools helpers when a project needs them. The returned app and page/component context also support <code class="inline-code">invalidatePageData(page?)</code> and <code class="inline-code">refetchPageData()</code> for explicit confirmed-write freshness; these are methods, not standalone package exports.</p>
       <div class="code-window">
         <div class="code-toolbar"><span>runtime values</span><span>velodom</span></div>
         <pre class="code-example" vd-pre><code>import {

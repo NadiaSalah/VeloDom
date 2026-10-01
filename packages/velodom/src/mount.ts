@@ -81,6 +81,8 @@ interface ComponentPageContext {
   getPageState?: (pageName: string) => ComponentState;
   hasPage?: (pageName: string) => boolean;
   navigate?: (path: string) => unknown | Promise<unknown>;
+  invalidatePageData?: (page?: string) => void;
+  refetchPageData?: () => Promise<unknown>;
   emit?: PageEventHub["emit"];
   on?: PageEventHub["on"];
   off?: PageEventHub["off"];
@@ -989,6 +991,11 @@ function createComponentContext(
     query: pageCtx?.query || {},
     meta: pageCtx?.meta || {},
     direction: pageCtx?.direction,
+    invalidatePageData: page => pageCtx?.invalidatePageData?.(page),
+    refetchPageData: async () => {
+      if (!pageCtx?.refetchPageData) throw new Error("Page data refresh requires a mounted page");
+      return pageCtx.refetchPageData();
+    },
     get components() {
       return pageCtx?.components || {};
     },

@@ -4,9 +4,12 @@
  * ----------------------------------------
  *
  * Keeps search/pagination in the URL and coordinates an explicit native-dialog
- * confirmation before a bulk publication request.
+ * confirmation before a bulk publication request. Confirmed writes invalidate
+ * public catalog reads and refetch the private list without remounting its UI.
  * ----------------------------------------
  */
+
+import { invalidateCatalogPages } from "#app/domain/catalog/catalog-freshness.js";
 
 export const state = {
   adminResult: null,
@@ -38,7 +41,7 @@ export function init({ state, data, ctx }) {
 
     if (state.selectedIds.length === 0) {
       state.bulkError = "Select at least one product before opening confirmation.";
-      focusAfterRender("#bulk-feedback");
+      focusAfterRender("#bulk-feedback", ctx.signal);
       return;
     }
 
@@ -46,29 +49,34 @@ export function init({ state, data, ctx }) {
   };
   state.closeBulkConfirmation = () => {
     document.querySelector("#bulk-confirm-dialog")?.close?.();
-    focusAfterRender("#bulk-action-trigger");
+    focusAfterRender("#bulk-action-trigger", ctx.signal);
   };
-  state.handleBulkSuccess = ({ result }) => {
-    const updatedById = new Map(
-      result.products.map(product => [product.id, product])
-    );
-
-    state.adminResult = {
-      ...state.adminResult,
-      items: state.adminResult.items.map(product => (
-        updatedById.get(product.id) || product
-      ))
-    };
+  state.refreshList = async () => {
+    state.adminLoading = true;
+    state.adminError = "";
+    try {
+      const result = await ctx.refetchPageData();
+      if (!ctx.signal.aborted) applyAdminResult(state, result, false);
+    } catch (error) {
+      // A failed read is not a failed write. Keep the last confirmed list visible.
+      if (!ctx.signal.aborted) state.adminError = error?.message || "The latest list could not be read.";
+    } finally {
+      if (!ctx.signal.aborted) state.adminLoading = false;
+    }
+  };
+  state.handleBulkSuccess = async () => {
+    invalidateCatalogPages(ctx);
     state.selectedIds = [];
     updateSelectionLabel(state);
     state.closeBulkConfirmation();
-    focusAfterRender("#bulk-success");
+    await state.refreshList();
+    focusAfterRender(state.adminError ? "#admin-feedback" : "#bulk-success", ctx.signal);
   };
 
   let previousBulkError = "";
   const unsubscribe = state._subscribe(() => {
     if (state.bulkError && state.bulkError !== previousBulkError) {
-      focusAfterRender("#bulk-feedback");
+      focusAfterRender("#bulk-feedback", ctx.signal);
     }
     previousBulkError = state.bulkError;
   });
@@ -76,10 +84,12 @@ export function init({ state, data, ctx }) {
   ctx.onCleanup(unsubscribe);
 }
 
-function applyAdminResult(state, result) {
+function applyAdminResult(state, result, initializeFilters = true) {
   state.adminResult = result;
-  state.queryText = result.filters.q;
-  state.selectedStatus = result.filters.status;
+  if (initializeFilters) {
+    state.queryText = result.filters.q;
+    state.selectedStatus = result.filters.status;
+  }
   state.previousHref = createAdminHref(result.filters, result.filters.page - 1);
   state.nextHref = createAdminHref(result.filters, result.filters.page + 1);
 }
@@ -105,8 +115,8 @@ function createAdminHref(filters, page) {
   return query ? `/admin/products?${query}` : "/admin/products";
 }
 
-function focusAfterRender(selector) {
+function focusAfterRender(selector, signal) {
   requestAnimationFrame(() => {
-    document.querySelector(selector)?.focus?.();
+    if (!signal.aborted) document.querySelector(selector)?.focus?.();
   });
 }

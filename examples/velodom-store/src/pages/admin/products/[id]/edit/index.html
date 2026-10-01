@@ -88,14 +88,8 @@
       <button
         class="button button-secondary"
         type="button"
-        vd-request="admin.getProduct"
-        vd-request-config="{
-          params: { id: draft.id },
-          target: 'reloadResult',
-          autoState: true,
-          onSuccess: handleReloadSuccess
-        }"
-        vd-bind:disabled="reloadLoading"
+        vd-on:click="reloadRecord()"
+        vd-bind:disabled="reloadLoading || saveLoading"
       >{{ reloadLoading ? 'Reloading…' : 'Reload server version' }}</button>
       <a class="button button-secondary" vd-href="detailHref" vd-nav>Cancel</a>
     </div>

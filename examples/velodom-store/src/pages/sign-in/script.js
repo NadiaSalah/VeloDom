@@ -31,25 +31,30 @@ export async function init({ state, ctx }) {
     state.sessionError = "";
 
     try {
-      state.session = await getStoreSession();
+      const session = await getStoreSession({}, { signal: ctx.signal });
+      if (!ctx.signal.aborted) state.session = session;
     } catch (error) {
-      state.sessionError = error?.message || "The server session could not be read.";
+      if (!ctx.signal.aborted) state.sessionError = error?.message || "The server session could not be read.";
     } finally {
-      state.sessionLoading = false;
+      if (!ctx.signal.aborted) state.sessionLoading = false;
     }
   };
 
   state.handleLoginSuccess = ({ result }) => {
+    ctx.invalidatePageData();
     state.session = result;
     state.actionMessage = "The fixture account changed. Continue to exercise server authorization.";
   };
   state.handleLogoutSuccess = ({ result }) => {
+    ctx.invalidatePageData();
     state.session = result;
     state.actionMessage = "The server session ended.";
   };
   state.handleExpireSuccess = async () => {
+    ctx.invalidatePageData();
+    state.session = null;
     await refresh();
-    state.actionMessage = "The server expired the session; the next private request will require sign-in.";
+    if (!ctx.signal.aborted) state.actionMessage = "The server expired the session; the next private request will require sign-in.";
   };
 
   await refresh();

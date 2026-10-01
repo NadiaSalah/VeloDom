@@ -8,6 +8,8 @@
  * ----------------------------------------
  */
 
+import { invalidateCatalogPages } from "#app/domain/catalog/catalog-freshness.js";
+
 export const state = {
   draft: {
     id: "",
@@ -21,7 +23,6 @@ export const state = {
   saveResult: null,
   saveLoading: false,
   saveError: "",
-  reloadResult: null,
   reloadLoading: false,
   reloadError: "",
   detailHref: "/admin/products"
@@ -35,23 +36,35 @@ export function init({ state, data, ctx }) {
     state.saveResult = null;
   };
   state.handleSaveSuccess = ({ result }) => {
+    invalidateCatalogPages(ctx);
     applyServerRecord(state, result.product);
     state.saveResult = result;
-    focusAfterRender("#save-status");
+    focusAfterRender("#save-status", ctx.signal);
   };
-  state.handleReloadSuccess = ({ result }) => {
-    applyServerRecord(state, result);
-    state.saveResult = {
-      message: `Reloaded revision ${result.revision}; the previous draft was replaced.`
-    };
-    state.saveError = "";
-    focusAfterRender("#save-status");
+  state.reloadRecord = async () => {
+    state.reloadLoading = true;
+    state.reloadError = "";
+    try {
+      const result = await ctx.refetchPageData();
+      if (ctx.signal.aborted) return;
+      // This button explicitly asks to replace the draft, unlike background reads.
+      applyServerRecord(state, result);
+      state.saveResult = {
+        message: `Reloaded revision ${result.revision}; the previous draft was replaced.`
+      };
+      state.saveError = "";
+      focusAfterRender("#save-status", ctx.signal);
+    } catch (error) {
+      if (!ctx.signal.aborted) state.reloadError = error?.message || "The server version could not be read. Your draft remains available.";
+    } finally {
+      if (!ctx.signal.aborted) state.reloadLoading = false;
+    }
   };
 
   let previousSaveError = "";
   const unsubscribe = state._subscribe(() => {
     if (state.saveError && state.saveError !== previousSaveError) {
-      focusAfterRender("#save-error");
+      focusAfterRender("#save-error", ctx.signal);
     }
     previousSaveError = state.saveError;
   });
@@ -72,8 +85,8 @@ function applyServerRecord(state, product) {
   state.writeMode = "normal";
 }
 
-function focusAfterRender(selector) {
+function focusAfterRender(selector, signal) {
   requestAnimationFrame(() => {
-    document.querySelector(selector)?.focus?.();
+    if (!signal.aborted) document.querySelector(selector)?.focus?.();
   });
 }

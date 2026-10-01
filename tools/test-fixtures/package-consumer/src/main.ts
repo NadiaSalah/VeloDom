@@ -5,7 +5,9 @@ import {
   defineResourceAdapter,
   createRequestCache,
   type VeloDomApp,
-  type PageDataLoader
+  type PageDataLoader,
+  type PageScriptContext,
+  type ComponentScriptContext
 } from "velodom";
 import type {
   TestMountResult
@@ -42,6 +44,12 @@ const _imageInspection: AssetImageInspection | null = null;
 const _devtoolsOptions: DevtoolsInspectorOptions = {};
 const _viteOptions: ViteAppOptions = {};
 const app: VeloDomApp = createViteApp();
+const _invalidate: (page?: string) => void = app.invalidatePageData;
+const _refetch: () => Promise<unknown> = app.refetchPageData;
+function _refreshFromContext({ ctx }: PageScriptContext | ComponentScriptContext): Promise<unknown> {
+  ctx.invalidatePageData("home");
+  return ctx.refetchPageData();
+}
 
 void _testingTypeSmoke;
 void _pageConfig;
@@ -54,4 +62,7 @@ void _imageAttributes;
 void _imageInspection;
 void _devtoolsOptions;
 void _viteOptions;
+void _invalidate;
+void _refetch;
+void _refreshFromContext;
 void app.mount();
