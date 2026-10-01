@@ -14,6 +14,9 @@ or claim that a matching package is available from a registry.
 
 ### Added
 
+- Added concise GitHub Actions annotations for failed browser targets. They
+  identify the target, step, URL, and root error without exposing page-body
+  snapshots in the public annotation; the strict matrix still fails normally.
 - Recorded the feasibility boundary for future API-contract generation and
   fine-grained reactivity, evaluated the hybrid-rendering boundary without
   promotion, and triaged islands, streaming/Edge transport, and critical CSS.

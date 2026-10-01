@@ -4861,6 +4861,11 @@ and rejects unexpected `pageerror`/`console.error` output. `happy-dom` tests are
 fast checks, not a replacement for real browsers. VeloDom does not ship browser
 polyfills by default.
 
+When a selected target fails in GitHub Actions, the test prints a concise
+annotation with the browser, failed step, URL, and root error. Page-body
+snapshots stay in the detailed job log and are not copied into annotations.
+The annotation improves diagnosis; it does not turn a failed matrix green.
+
 ### Editor intelligence
 
 The compiler API can power any editor without making an editor mandatory:

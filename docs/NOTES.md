@@ -1638,6 +1638,15 @@ both TODO items open until those follow-up checks pass.
   build sizes. Package runtime budgets traverse imports from `velodom` and
   `velodom/vite`, so optional compiler, Node, CLI, devtools, and build modules
   are no longer misclassified as application startup code.
+- The `0f935aa` strict Linux browser run passed, but the next documentation-only
+  `7934bba` run failed in the browser step while build, regression tests, and
+  package audit passed. This is not enough evidence to classify a framework
+  regression or an environmental flake. The public job API exposed only a
+  generic exit-code annotation and required authorization for its detailed
+  log. Repository browser tooling now emits one concise annotation per failed
+  target, excluding page-body snapshots. Diagnose the next strict run from
+  those annotations before changing runtime behavior or closing the release
+  gate. CLI impact: `NONE`; no generated-project or npm package file changes.
 
 ## Handoff Guidance
 

@@ -659,7 +659,12 @@ Current release work is governance rather than a new framework feature:
   performance, and strict browser gate on that commit. Current local WebKit
   desktop/mobile and Chromium desktop/mobile pass, while Firefox local startup
   is blocked by `RenderCompositorSWGL` graphics failure before any scenario;
-  strict Linux CI on the selected final commit remains required.
+  strict Linux CI on the selected final commit remains required. The
+  documentation-only `7934bba` push passed build, regression tests and npm
+  artifact audit, but its strict browser step failed after the prior `0f935aa`
+  run passed. The detailed log was not accessible through the public API;
+  browser-target annotations are being added so the next run exposes the
+  actual failing step before any release decision.
 - [ ] Verify the `velodom` and `create-velodom` registry names and versions at
   release time; local documentation must not guess their current availability.
 - [ ] Obtain explicit owner approval, publish `velodom` first, then publish the

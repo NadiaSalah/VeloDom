@@ -31,6 +31,7 @@ import {
 } from "@playwright/test";
 import { createStoreBackendFixture } from "../../../examples/velodom-store/server/backend-fixture.js";
 import { handleStoreBackendNodeRequest } from "../../../examples/velodom-store/server/node-backend.js";
+import { formatBrowserFailureAnnotations } from "./ci-annotations.mjs";
 
 const projectRoot = resolve(
   fileURLToPath(new URL("../../..", import.meta.url))
@@ -82,6 +83,12 @@ try {
   const passed = results.filter(result => result.status === "passed");
 
   if (failed.length > 0) {
+    if (process.env.GITHUB_ACTIONS === "true") {
+      for (const annotation of formatBrowserFailureAnnotations(failed)) {
+        console.log(annotation);
+      }
+    }
+
     throw new Error(
       `VeloDom browser E2E failed for: ${failed.map(result => result.name).join(", ")}`
     );

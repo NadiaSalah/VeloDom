@@ -231,6 +231,16 @@ artifact sizes. A passing local package check is not npm publication or a
 successful remote workflow. The previously observed local Firefox graphics
 startup failure still requires verification on the strict Linux CI runner.
 
+The repository browser check now reports failed targets as concise GitHub
+Actions annotations without copying page-body text into them. This changes
+only repository test diagnostics: `tools/scripts/browser/check-browser-e2e.mjs`
+and its annotation helper/test were updated; Core, the CLI, starters, and
+examples were not. The `7934bba` CI run passed build, regression tests and
+package audit but failed in its strict browser step, whose public log was not
+available. The release browser gate remains open pending a diagnosed, passing
+run on the final release commit. [TODO](docs/TODO.md), [CHANGELOG](docs/CHANGELOG.md),
+and [NOTES](docs/NOTES.md) record the decision and current evidence.
+
 ## TODO
 
 The local V1 implementation and approved 15/15 maturity milestones are complete.
