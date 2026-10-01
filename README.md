@@ -233,7 +233,7 @@ startup failure still requires verification on the strict Linux CI runner.
 
 ## TODO
 
-The **Commerce and Large Applications** track is now **6/10 complete**. The
+The **Commerce and Large Applications** track is now **7/10 complete**. The
 storefront, administration workflow, and replaceable HTTP/session contract are
 implemented and verified, including real server denial, safe mock writes, and
 private cache boundaries. The handbook now explains feature-owned organization,
@@ -244,7 +244,9 @@ JS/TS lesson; no new runtime API, registry or starter was introduced.
 Files changed for this milestone: store HTTP client/contracts/README,
 `tools/scripts/package/check-package-consumer.mjs`, blog architecture lesson and
 README, package AI/syntax guides, and root handbook/roadmap/change records.
-Continue with C07 measured scale work for V1.x. API-contract generation is deferred to a future major release; realtime,
+Continue with C09 opt-in production diagnostics while C08 starter promotion
+awaits independent usability evidence. API-contract generation is deferred to
+a future major release; realtime,
 virtualization, and request-time rendering stay research. These are proposals,
 not new npm features. Payment, stock, authorization, and pricing remain
 application/server responsibilities; the documentation blog stays the teaching site.
@@ -334,6 +336,20 @@ Core evaluator, form/event/source/browser tests, budget check, root/package/AI
 guides, roadmap and engineering notes. C06 passes 426 source tests,
 docs/types/strict/lint, full build, six starter variants, both installed
 consumers, package budget and desktop/mobile Chromium production checks.
+
+C07 now has reproducible large-project evidence. The existing compiler-cache
+benchmark includes 80 nested pages and 32 shared components, verifies cold/
+warm reuse and targeted invalidation, and records local timings without
+machine-specific speed claims. A generated consumer receives first, repeated
+and `/preview/`-base production builds; all retain 124 JavaScript chunks in
+the local fixture. A 160-visit runtime test checks deep links, auth-guard
+changes, component rendering, event listener removal and page-owner cleanup.
+Existing cache-bound tests and the Store browser journey remain in the gate.
+The fixture also samples 100 small local catalog/admin reads; this is not a
+database, browser-throughput or concurrent-shopper benchmark. Files changed:
+compiler/build benchmark scripts, integration regression, root npm scripts,
+README and the roadmap/engineering records. No framework runtime, public
+API, CLI option, starter or package version changed.
 
 See [docs/TODO.md](docs/TODO.md) for release gates and the separately counted
 V1 simplicity/organization follow-up, now **6/8 complete (75%)**. Prioritize

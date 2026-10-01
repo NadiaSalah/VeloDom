@@ -45,7 +45,7 @@ state.
 This separately scoped quality/adoption work is detailed below; the completed
 implementation counters above do not mean these follow-ups or release gates are done.
 
-**Commerce and large-application track: 6 of 10 complete (60%).**
+**Commerce and large-application track: 7 of 10 complete (70%).**
 These new proposals do not change the completed baseline or the 6/8 simplicity
 counter. C01–C03 now provide storefront, administration, and real server-denial
 evidence without adding commerce policy to Core. Research
@@ -141,9 +141,9 @@ documentation site is one consumer, not the framework's architectural boundary.
 The objective is to prove and improve store, administration, and business-app
 workflows without turning Core into an e-commerce backend or enterprise platform.
 
-**Progress: 6 of 10 milestones complete (60%).**
+**Progress: 7 of 10 milestones complete (70%).**
 
-`[############--------] 60%`
+`[##############------] 70%`
 
 ### Existing foundations — reuse before adding
 
@@ -352,7 +352,7 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   source tests, full build, installed consumers and desktop/mobile Chromium
   pass; Firefox/WebKit and remote CI remain separate release evidence.
 
-- [ ] **C07 — Measured large-project reliability. V1.x; complexity: Medium;
+- [x] **C07 — Measured large-project reliability. V1.x; complexity: Medium;
   owner: existing build/test tooling; CLI: NONE.** Extend current benchmarks and
   six-starter gates with deterministic larger route/component graphs and long
   navigation sessions. Measure cold/warm builds, HMR invalidation, route chunks,
@@ -364,6 +364,18 @@ earlier prioritization. Complexity labels are relative, not delivery estimates.
   and thresholds; cover deep links, base paths, auth changes and repeated mounts;
   regressions fail CI, and browser-scale evidence is not presented as backend
   throughput or a guarantee of concurrent shoppers.
+  **Evidence:** `benchmark:check` compiles a fixed 80-page/32-component graph
+  cold, warm and after targeted invalidation; it also performs first,
+  repeated and `/preview/`-based real Vite builds and asserts stable route
+  chunk counts. A 160-visit runtime regression covers deep nested links,
+  session-guard changes, retained DOM event-listener cleanup and page-owner
+  release. Existing page-data tests bound cache variants/tracked reads at
+  100; the real Store desktop/mobile browser journey checks catalog/admin
+  navigation. The same benchmark samples 100 small local catalog/admin reads,
+  explicitly **not** backend throughput. Timing is recorded, not gated on
+  machine-specific milliseconds; structural, cache, package and bundle
+  regressions fail the existing build/test gates. CLI impact NONE; templates
+  and public Core API remain unchanged.
 
 - [ ] **C08 — Optional Store/Admin starter exposure. V1.x, after C01–C04;
   complexity: Medium; owner: existing scaffolder; CLI: STARTER_SPECIFIC.** Only

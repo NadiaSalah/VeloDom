@@ -14,6 +14,12 @@ or claim that a matching package is available from a registry.
 
 ### Added
 
+- Added C07 larger-project regression evidence: a deterministic 80-page,
+  32-component compiler graph with warm/invalidation checks; repeated real
+  Vite builds including `/preview/` asset base; and 160 route mounts checking
+  guard changes, listener removal and owner cleanup. Build/test gates assert
+  structure rather than unstable wall-clock thresholds. Store response
+  sampling remains a small local fixture, not throughput evidence.
 - Completed C06 without a form DSL: the store's edit page composes an
   application-owned dirty baseline with existing route guards for links/Back
   and a best-effort native unload prompt. Optional progressive forms now

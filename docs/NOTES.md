@@ -2,6 +2,26 @@
 
 ## Architectural Decisions
 
+### Larger-project evidence and non-goals — 2026-10-01
+
+- C07 uses the existing compiler cache and Vite build rather than a second
+  dashboard. The fixed 80-page/32-component graph verifies 112 warm hits,
+  one targeted invalidation, stable lazy production chunks and a base-path
+  asset reference. First/repeated local build times are displayed as
+  observations, not CI time thresholds because runner speed is variable.
+- A 160-visit happy-dom test holds detached event elements to prove listeners
+  are removed, and checks exactly one active page owner across deep links and
+  session-guard changes. Existing 100-value/read page-data cache bounds and
+  Store desktop/mobile browser paths remain dependent checks. This is not a
+  160-route browser session or a memory-heap guarantee.
+- The local catalog/admin service sample contains only fixture products and
+  does not represent database latency, backend throughput or concurrent
+  buyers. Server pagination and lazy routes remain the first scale tools;
+  virtualization is not justified by this evidence. CLI impact NONE;
+  package exports, types, dependency list, templates and published version
+  do not change. The new benchmark runs in `benchmark:check` as part of
+  `npm run build`, so structural failures block the existing build gate.
+
 ### Completed C06 native-form composition and event parity — 2026-10-01
 
 - C06 is complete. The Store uses a small app-owned dirty baseline and the
