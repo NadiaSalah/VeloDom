@@ -259,8 +259,10 @@ The browser gate now captures the GET initiated by detail navigation and
 reports its revision/cache source if stale, avoiding an earlier in-flight
 response being mistaken for that read. The full 434-test suite, production
 build/package-consumer/performance checks, and local Chromium/WebKit journeys
-pass; a strict Linux CI rerun is still required to determine whether the
-intermittent failure is resolved.
+pass. The [strict Linux run on `9a8805f`](https://github.com/NadiaSalah/VeloDom/actions/runs/37120151272)
+also passed build, tests, package audit, and all five browser targets. Since
+the previous WebKit failure was intermittent, repeat the exact behavior gate
+before treating the release-browser issue as closed.
 Changed files: `packages/velodom/src/requests/http-client.ts`, the Store HTTP
 client, browser/client tests, package/handbook docs, and the teaching callout.
 CLI impact: none; templates, generated projects, exports, and package versions

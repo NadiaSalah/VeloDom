@@ -18,6 +18,9 @@ checks passed. The public npm registry still records an unpublished
 version and fresh exact-commit gates require owner approval before this section
 can move into a dated release. The owner chose to keep local `1.0.0` and defer
 publication; no version, tag, or registry state changed.
+The subsequent `9a8805f` strict Linux run passed all five browser targets after
+the JSON-client/cache correction; repeat verification is prudent because the
+preceding WebKit failure was intermittent.
 
 ### Added
 

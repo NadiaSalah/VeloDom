@@ -1694,6 +1694,11 @@ both TODO items open until those follow-up checks pass.
   declarations, both installed consumers, six starter combinations, and
   performance budgets), plus Chromium and WebKit browser journeys passed.
   This is not a substitute for the Linux five-target gate.
+- The correction's `9a8805f` [strict Linux run](https://github.com/NadiaSalah/VeloDom/actions/runs/37120151272)
+  passed build, regression tests, npm artifact audit, and all five browser
+  targets, including WebKit desktop. This is strong regression evidence, but
+  the earlier failure was intermittent; a separate rerun is still useful
+  before describing its root cause as conclusively isolated.
 
 ## Handoff Guidance
 

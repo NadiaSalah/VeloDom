@@ -18,7 +18,7 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 | Developer intelligence | V1 — Implemented | `vd` inspection commands, compiler language helpers, testing utilities |
 | VeloDom Lab | V1 — Experimental / Implemented slice | Optional Vite UI, safe protocol, runtime/compiler inspectors, production-leak test |
 | Public package source | V1 — Implemented | Local `1.0.0` manifests, exports, package docs, starters, and consumer checks |
-| Browser release gate | V1 — Current | `e0a25c3` failed WebKit's Store fresh-detail assertion; verify the HTTP-cache/client correction across strict Linux targets before release |
+| Browser release gate | V1 — Current | `9a8805f` passed all five strict Linux targets after the HTTP-cache/client correction; repeat verification because the prior WebKit failure was intermittent |
 | npm registry state | External verification | `velodom@1.0.0` was previously unpublished and cannot be reused; select a new version before publication |
 | Approved authoring and rendering maturity | Implemented locally | Looped components, keyed updates, `.vd` lazy parity, and compiler cache; release verification remains separate |
 | Approved developer intelligence | Implemented locally | Shared project index, diagnostics, safe fixes, generated types, and CLI composition |
@@ -684,7 +684,11 @@ Current release work is governance rather than a new framework feature:
   request rather than any matching in-flight response. Repeat strict CI to
   distinguish a resolved cache problem from an independent stale-read defect;
   do not close this checkbox on a single local or previous green run. A
-  future publishable commit still needs its own full gate.
+  future publishable commit still needs its own full gate. The first
+  [strict Linux run on the correction](https://github.com/NadiaSalah/VeloDom/actions/runs/37120151272)
+  passed build, regression tests, npm artifact audit, and all five browser
+  targets; an independent rerun remains prudent because the failure was
+  intermittent.
 - [ ] Verify the `velodom` and `create-velodom` registry names and versions at
   release time. Public registry snapshot on 2026-10-01: `velodom` is an
   unpublished tombstone with no active dist-tag, while `create-velodom` returns
