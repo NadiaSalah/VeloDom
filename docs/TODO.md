@@ -694,7 +694,8 @@ Current release work is governance rather than a new framework feature:
   failed WebKit again. The detail GET was revision 3, carried `private,
   no-store`, and was not served by a service worker, but its name was stale.
   The browser gate now checks the outgoing save payload and accepted save
-  response before the GET to locate the first mismatch. Keep this gate open;
+  response before the GET, with passive native input/submit snapshots when
+  the form body is stale. Keep this gate open;
   publication/version approval and the exact publishable-commit gate also
   remain open.
 - [ ] Verify the `velodom` and `create-velodom` registry names and versions at

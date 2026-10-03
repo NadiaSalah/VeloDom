@@ -1707,8 +1707,15 @@ both TODO items open until those follow-up checks pass.
   cache explanation is insufficient, and two prior green runs did not close
   the intermittent issue. The browser gate now records the actual PUT payload
   and accepted PUT response before navigating, to distinguish stale form
-  serialization from a backend/read inconsistency. No production behavior or
+  serialization from a backend/read inconsistency. The next
+  [strict run on `5222a50`](https://github.com/NadiaSalah/VeloDom/actions/runs/37122396157)
+  failed earlier: the PUT body itself contained the old name. Passive native
+  input/submit snapshots now distinguish a DOM value reset from request
+  serialization. No production behavior or
   public contract changed in this diagnostic step; CLI impact is `NONE`.
+  One local WebKit run with the passive trace timed out in the unrelated
+  Playground requests step; the next identical local run passed. This is
+  recorded as separate intermittent browser evidence, not a Store fix.
 
 ## Handoff Guidance
 

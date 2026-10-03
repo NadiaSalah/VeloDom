@@ -624,6 +624,30 @@ async function assertStorefrontSmoke(browser, target, origin) {
         await page.locator('a[href="/admin/products/focus-timer/edit"]').click();
         await waitForPageText(page, "Edit Focus dial timer");
         await page.locator(".locale-button").waitFor();
+        // Keep passive event snapshots so an intermittent stale submit has
+        // evidence from before request middleware or backend processing.
+        await page.evaluate(() => {
+          window.__vdAdminFormTrace = [];
+          const record = (phase, event) => {
+            const input = document.querySelector("#product-name");
+            window.__vdAdminFormTrace.push({
+              phase,
+              currentName: input?.value,
+              eventName: event?.target?.value,
+              dirty: document.querySelector(".dirty-indicator")?.textContent?.trim()
+            });
+          };
+          document.addEventListener("input", event => {
+            if (event.target?.id === "product-name") {
+              queueMicrotask(() => record("input", event));
+            }
+          });
+          document.addEventListener("submit", event => {
+            if (event.target?.classList?.contains("edit-form")) {
+              record("submit", event);
+            }
+          }, true);
+        });
         const nameInput = page.locator("#product-name");
 
         await nameInput.fill("Focus recovery timer");
@@ -672,8 +696,10 @@ async function assertStorefrontSmoke(browser, target, origin) {
         const saveRequest = await saveWrite;
         const submittedProduct = saveRequest.postDataJSON();
         if (submittedProduct.name !== "Focus recovery timer") {
+          const trace = await page.evaluate(() => window.__vdAdminFormTrace);
           throw new Error(
-            `Admin form submitted a stale name: ${JSON.stringify(submittedProduct.name)}.`
+            `Admin form submitted a stale name: ${JSON.stringify(submittedProduct.name)}; `
+            + `input/submit trace ${JSON.stringify(trace)}.`
           );
         }
         const saveResponse = await saveRequest.response();

@@ -26,6 +26,8 @@ The next `0ef81f0` run failed WebKit with a revision-3, no-store detail read
 whose name was stale. Browser verification now checks the submitted PUT body
 and accepted PUT response separately before the detail read. This is a
 diagnostic gate improvement, not a claim that the remaining issue is fixed.
+The `5222a50` strict run isolated the old name in the submitted PUT body;
+the browser gate now records passive input/submit snapshots on that failure.
 
 ### Added
 

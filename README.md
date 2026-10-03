@@ -268,9 +268,17 @@ proof that every intermittent failure mode has been eliminated: the next
 failed WebKit again. Its fresh detail GET returned revision 3 with
 `private, no-store` headers and no service worker, but the wrong product name.
 The browser gate now checks the outgoing save body and accepted save response
-before that GET, so the next failure identifies which boundary first diverges.
+before that GET, and passively records native input/submit values if the form
+body is stale. The next failure can identify whether the DOM or request layer
+first diverges.
 The Store/browser release issue remains open; the eventual publishable version
 still needs an exact-commit release gate.
+During the added diagnostic run, local WebKit once timed out in the separate
+Playground requests step; an immediate rerun passed. That separate timeout is
+not counted as evidence that the Store issue is resolved.
+During the added diagnostic run, local WebKit once timed out in the separate
+Playground requests step; an immediate rerun passed. That separate timeout is
+not counted as evidence that the Store issue is resolved.
 Changed files: `packages/velodom/src/requests/http-client.ts`, the Store HTTP
 client, browser/client tests, package/handbook docs, and the teaching callout.
 CLI impact: none; templates, generated projects, exports, and package versions
