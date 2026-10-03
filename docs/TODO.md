@@ -18,7 +18,7 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 | Developer intelligence | V1 — Implemented | `vd` inspection commands, compiler language helpers, testing utilities |
 | VeloDom Lab | V1 — Experimental / Implemented slice | Optional Vite UI, safe protocol, runtime/compiler inspectors, production-leak test |
 | Public package source | V1 — Implemented | Local `1.0.0` manifests, exports, package docs, starters, and consumer checks |
-| Browser release gate | V1 — Current | `0ef81f0` failed WebKit after two green runs: detail GET had revision 3 and no-store headers but a stale name. Trace save body/response; issue remains open |
+| Browser release gate | V1 — Current | `bad25d9` passed build, tests, package audit, and strict five-browser CI with desktop WebKit repeated three times. The prior intermittent stale form payload remains under observation; the eventual publishable commit needs its own gate |
 | npm registry state | External verification | `velodom@1.0.0` was previously unpublished and cannot be reused; select a new version before publication |
 | Approved authoring and rendering maturity | Implemented locally | Looped components, keyed updates, `.vd` lazy parity, and compiler cache; release verification remains separate |
 | Approved developer intelligence | Implemented locally | Shared project index, diagnostics, safe fixes, generated types, and CLI composition |
@@ -701,7 +701,12 @@ Current release work is governance rather than a new framework feature:
   verifies clean/dirty transitions around reload before sending the next PUT.
   Its badge now uses explicit string `data-dirty` tokens so the warning CSS
   matches; boolean `vd-attr` values previously serialized as presence only.
-  Keep this gate open;
+  [Strict CI on `bad25d9`](https://github.com/NadiaSalah/VeloDom/actions/runs/37126844449)
+  passed build, 434 tests, npm artifact audit, and all five browser targets,
+  including the repeated desktop WebKit check. Local `npm run pack:check`
+  passed both packed packages and six generated JS/TS starter combinations
+  on the same source. These checks are current evidence, not proof that an
+  intermittent payload divergence cannot recur. Keep this gate open;
   publication/version approval and the exact publishable-commit gate also
   remain open.
 - [ ] Verify the `velodom` and `create-velodom` registry names and versions at

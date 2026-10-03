@@ -288,6 +288,13 @@ while the intermittent Linux failure remains under verification.
 The badge now serializes `data-dirty` as the strings `"true"`/`"false"`:
 VeloDom's boolean `vd-attr` value denotes attribute presence, so the old
 presence-only output could not match the example's `[data-dirty="true"]` CSS.
+The [strict `bad25d9` workflow](https://github.com/NadiaSalah/VeloDom/actions/runs/37126844449)
+passed build, 434 regression tests, the npm artifact audit, and all five browser
+targets with desktop WebKit repeated three times. Local `npm run pack:check`
+also passed installed consumers, six generated JS/TS starter combinations,
+and both tarball content/size gates. The earlier intermittent stale form
+payload remains a monitored release issue; these checks do not authorize an
+unpublishable `1.0.0` npm release.
 Changed areas: `packages/velodom/src/requests/http-client.ts`, the Store HTTP
 client and edit page, browser/client tests, package/handbook docs, and the
 teaching examples.

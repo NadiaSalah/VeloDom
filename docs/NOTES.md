@@ -1731,6 +1731,13 @@ both TODO items open until those follow-up checks pass.
   empty presence attribute, so `[data-dirty="true"]` CSS and the test could
   never match. The Store template now emits string tokens. This corrects the
   example's visual warning as well as the assertion without changing Core.
+  The subsequent [strict Linux workflow on `bad25d9`](https://github.com/NadiaSalah/VeloDom/actions/runs/37126844449)
+  passed the complete five-browser gate with desktop WebKit repeated three
+  times, as well as build, regression, and artifact checks. A fresh local
+  `pack:check` passed both packed packages and all six generated starter
+  combinations. The old form-payload divergence has not been reproduced with
+  the new passive trace, so its underlying intermittent cause is not claimed
+  solved solely from green runs; retain the release observation gate.
 
 ## Handoff Guidance
 
