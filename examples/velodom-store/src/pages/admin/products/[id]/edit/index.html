@@ -9,7 +9,7 @@
         request is rejected or conflicts.
       </p>
     </div>
-    <span class="dirty-indicator" vd-attr="{ 'data-dirty': dirty }">
+    <span class="dirty-indicator" vd-attr="{ 'data-dirty': dirty ? 'true' : 'false' }">
       {{ dirty ? 'Unsaved changes' : 'Saved draft' }}
     </span>
   </div>
@@ -82,7 +82,7 @@
     <div vd-if="reloadError !== ''" class="status-panel error" role="alert">{{ reloadError }}</div>
 
     <div class="form-actions">
-      <button class="button button-primary" type="submit" vd-bind:disabled="saveLoading">
+      <button class="button button-primary" type="submit" vd-bind:disabled="saveLoading || !dirty">
         {{ saveLoading ? 'Saving…' : 'Save product' }}
       </button>
       <button

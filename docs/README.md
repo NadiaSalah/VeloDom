@@ -2718,7 +2718,11 @@ the edit is dirty, returns `false` when the user keeps editing, and registers
 `beforeunload` only for a dirty mounted draft. Save/reload/discard removes the
 prompt. Native unload dialogs are best-effort and browser-controlled; never
 rely on them to save data. Its product form compares only real edit fields, not
-the fixture response selector. A failed/conflicting write keeps that draft.
+the fixture response selector, and enables Save only while the draft is dirty.
+A reload returns it to the clean state; a failed/conflicting write keeps it.
+For a CSS token such as `[data-dirty="true"]`, bind the strings `"true"` and
+`"false"`. A boolean `true` in `vd-attr` means an HTML presence attribute
+with an empty value, not the literal text `"true"`.
 
 ### Recipe: Repeatable Fields, Steps, and Latest-Only Validation
 

@@ -1719,6 +1719,18 @@ both TODO items open until those follow-up checks pass.
   The workflow temporarily repeats desktop WebKit three times per run to
   increase the chance of observing this value drift without changing package
   behavior or weakening the five-target strict matrix.
+  The first tripled [strict run](https://github.com/NadiaSalah/VeloDom/actions/runs/37124120527)
+  and three repeated local WebKit targets passed. That does not erase the
+  preceding stale PUT body. The Store example now disables Save for clean
+  drafts, and the browser gate requires its visible dirty state after input
+  and its clean state after reload before the next submit. This is
+  application-owned form policy; Core, types, exports, CLI, and templates do
+  not change.
+  The first local three-run check of this assertion failed deterministically:
+  the badge showed "Unsaved Changes" but its boolean `vd-attr` emitted an
+  empty presence attribute, so `[data-dirty="true"]` CSS and the test could
+  never match. The Store template now emits string tokens. This corrects the
+  example's visual warning as well as the assertion without changing Core.
 
 ## Handoff Guidance
 

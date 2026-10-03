@@ -28,6 +28,10 @@ own authorized backend while retaining the same browser/server boundary.
 - a separate administration layout with list, detail, and native edit routes;
 - URL-backed server-style search/pagination over the shared catalog repository;
 - optimistic revision checks whose failed/conflicting writes preserve drafts;
+  Save is unavailable until the current draft differs from the last loaded
+  or accepted record, and reload restores the clean state. The dirty badge
+  serializes a string `data-dirty` token because boolean `vd-attr` values
+  represent attribute presence, not the literal text `"true"`;
 - native validation, visible recovery, focus restoration, and non-color-only
   status labels;
 - a keyboard-operable native confirmation dialog for bulk publication actions.

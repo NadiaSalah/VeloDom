@@ -30,6 +30,13 @@ The `5222a50` strict run isolated the old name in the submitted PUT body;
 the browser gate now records passive input/submit snapshots on that failure.
 The strict CI workflow temporarily repeats desktop WebKit three times to
 capture the intermittent trace without changing production code.
+The first tripled Linux run and three repeated local WebKit runs passed.
+The Store example now prevents unchanged-draft submits, and its browser gate
+asserts clean/dirty transitions before each accepted edit attempt; this is
+application policy, not a new Core form API.
+Corrected the Store dirty badge to emit string `data-dirty` tokens; a boolean
+`vd-attr` value is a presence attribute and did not match the existing warning
+CSS selector. The browser assertion now checks the rendered token.
 
 ### Added
 

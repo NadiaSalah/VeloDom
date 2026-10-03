@@ -649,9 +649,16 @@ async function assertStorefrontSmoke(browser, target, origin) {
           }, true);
         });
         const nameInput = page.locator("#product-name");
+        const saveButton = page.locator('button:has-text("Save product")');
+        if (await saveButton.isEnabled()) {
+          throw new Error("An unchanged admin draft should not be submitted.");
+        }
 
         await nameInput.fill("Focus recovery timer");
-        await waitForPageText(page, "Unsaved Changes");
+        await page.locator('.dirty-indicator[data-dirty="true"]').waitFor();
+        if (!(await saveButton.isEnabled())) {
+          throw new Error("Editing the product did not enable saving.");
+        }
         const blockedLink = page.locator('a:has-text("Cancel")').click();
         const leavePrompt = await page.waitForEvent("dialog");
         if (leavePrompt.type() !== "confirm" || !leavePrompt.message().includes("unsaved product changes")) {
@@ -685,8 +692,15 @@ async function assertStorefrontSmoke(browser, target, origin) {
         if (await nameInput.inputValue() !== "Focus dial timer") {
           throw new Error("Reload did not restore the authoritative server value.");
         }
+        if (await saveButton.isEnabled()) {
+          throw new Error("Reloaded, unchanged admin data should not be submitted.");
+        }
 
         await nameInput.fill("Focus recovery timer");
+        await page.locator('.dirty-indicator[data-dirty="true"]').waitFor();
+        if (!(await saveButton.isEnabled())) {
+          throw new Error("The final admin draft was not ready for submission.");
+        }
         const saveWrite = page.waitForRequest(request => (
           request.method() === "PUT"
           && new URL(request.url()).pathname

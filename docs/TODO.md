@@ -696,7 +696,12 @@ Current release work is governance rather than a new framework feature:
   The browser gate now checks the outgoing save payload and accepted save
   response before the GET, with passive native input/submit snapshots when
   the form body is stale. The CI workflow temporarily repeats WebKit three
-  times to make that intermittent divergence observable. Keep this gate open;
+  times to make that intermittent divergence observable. The Store edit form
+  now disables Save until its app-owned draft is dirty; the browser test
+  verifies clean/dirty transitions around reload before sending the next PUT.
+  Its badge now uses explicit string `data-dirty` tokens so the warning CSS
+  matches; boolean `vd-attr` values previously serialized as presence only.
+  Keep this gate open;
   publication/version approval and the exact publishable-commit gate also
   remain open.
 - [ ] Verify the `velodom` and `create-velodom` registry names and versions at

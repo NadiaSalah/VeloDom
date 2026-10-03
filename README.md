@@ -279,11 +279,18 @@ not counted as evidence that the Store issue is resolved.
 The strict workflow now repeats desktop WebKit three times while collecting
 passive input/submit traces for the Store failure. This is CI-only stress,
 not a runtime or package change.
-During the added diagnostic run, local WebKit once timed out in the separate
-Playground requests step; an immediate rerun passed. That separate timeout is
-not counted as evidence that the Store issue is resolved.
-Changed files: `packages/velodom/src/requests/http-client.ts`, the Store HTTP
-client, browser/client tests, package/handbook docs, and the teaching callout.
+The [first tripled WebKit workflow](https://github.com/NadiaSalah/VeloDom/actions/runs/37124120527)
+passed, as did three local WebKit runs; that does not erase the prior PUT-body
+failure. The Store edit example now disables Save until its displayed draft is
+dirty, and the browser gate asserts the clean → dirty → reloaded-clean → dirty
+sequence before submitting. This keeps unchanged drafts from producing writes
+while the intermittent Linux failure remains under verification.
+The badge now serializes `data-dirty` as the strings `"true"`/`"false"`:
+VeloDom's boolean `vd-attr` value denotes attribute presence, so the old
+presence-only output could not match the example's `[data-dirty="true"]` CSS.
+Changed areas: `packages/velodom/src/requests/http-client.ts`, the Store HTTP
+client and edit page, browser/client tests, package/handbook docs, and the
+teaching examples.
 CLI impact: none; templates, generated projects, exports, and package versions
 are unchanged.
 

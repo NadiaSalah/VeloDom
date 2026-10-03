@@ -249,7 +249,7 @@ state.openFeatured = () =&gt; {
         <pre class="code-example" vd-pre><code>&lt;form vd-validate vd-request="admin.updateProduct" vd-target="saveResult" vd-auto-state&gt;
   &lt;input name="name" vd-model="draft.name" required minlength="3"&gt;
   &lt;input type="hidden" name="expectedRevision" vd-value="draft.revision"&gt;
-  &lt;button type="submit" vd-bind:disabled="saveLoading"&gt;Save&lt;/button&gt;
+  &lt;button type="submit" vd-bind:disabled="saveLoading || !dirty"&gt;Save&lt;/button&gt;
   &lt;p vd-if="saveError !== ''" role="alert" tabindex="-1"&gt;{{ saveError }}&lt;/p&gt;
 &lt;/form&gt;</code></pre>
       </div>
@@ -257,7 +257,9 @@ state.openFeatured = () =&gt; {
         A failed request changes status, not <code class="inline-code">draft</code>.
         The VeloDom Store administration example adds an explicit reload action,
         focus restoration, server-style validation, an application-owned dirty
-        draft guard for links and Back, and a confirmed bulk action
+        draft guard for links and Back, a Save button enabled only after the
+        application-owned <code class="inline-code">dirty</code> state changes,
+        and a confirmed bulk action
         over the same catalog data used by the public pages.
         <a href="https://github.com/NadiaSalah/VeloDom/tree/main/examples/velodom-store/src/pages/admin" target="_blank" rel="noopener noreferrer" class="font-bold text-indigo-700">Read the complete admin source ↗</a>
       </p>
