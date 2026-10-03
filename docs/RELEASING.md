@@ -179,8 +179,11 @@ environment needs a longer startup window.
 
 The repository includes
 `.github/workflows/release-browser-matrix.yml`. It provisions Chromium,
-Firefox, and WebKit on Ubuntu, builds the package, and runs this strict five-target
+Firefox, and WebKit on Ubuntu, builds the package, and runs the strict five-target
 desktop/mobile matrix on pull requests, pushes to `main`, or manual dispatch.
+Desktop WebKit currently runs three times per workflow to investigate an
+intermittent Store administration form submission; this is a temporary test
+stress measure, not a wider browser-support promise.
 Its successful run is the required replacement for an unavailable local
 Firefox compositor.
 

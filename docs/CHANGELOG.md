@@ -28,6 +28,8 @@ and accepted PUT response separately before the detail read. This is a
 diagnostic gate improvement, not a claim that the remaining issue is fixed.
 The `5222a50` strict run isolated the old name in the submitted PUT body;
 the browser gate now records passive input/submit snapshots on that failure.
+The strict CI workflow temporarily repeats desktop WebKit three times to
+capture the intermittent trace without changing production code.
 
 ### Added
 

@@ -45,5 +45,6 @@ jobs:
         env:
           VELODOM_BROWSER_STRICT: "1"
           VELODOM_BROWSER_E2E_DEBUG: "1"
-          VELODOM_BROWSER_TARGETS: chromium,mobile-chromium,firefox,webkit,mobile-webkit
+          # Repeat desktop WebKit while tracing intermittent admin form drift.
+          VELODOM_BROWSER_TARGETS: chromium,mobile-chromium,firefox,webkit,webkit,webkit,mobile-webkit
         run: npm run browser:check

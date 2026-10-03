@@ -1716,6 +1716,9 @@ both TODO items open until those follow-up checks pass.
   One local WebKit run with the passive trace timed out in the unrelated
   Playground requests step; the next identical local run passed. This is
   recorded as separate intermittent browser evidence, not a Store fix.
+  The workflow temporarily repeats desktop WebKit three times per run to
+  increase the chance of observing this value drift without changing package
+  behavior or weakening the five-target strict matrix.
 
 ## Handoff Guidance
 

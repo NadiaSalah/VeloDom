@@ -695,7 +695,8 @@ Current release work is governance rather than a new framework feature:
   no-store`, and was not served by a service worker, but its name was stale.
   The browser gate now checks the outgoing save payload and accepted save
   response before the GET, with passive native input/submit snapshots when
-  the form body is stale. Keep this gate open;
+  the form body is stale. The CI workflow temporarily repeats WebKit three
+  times to make that intermittent divergence observable. Keep this gate open;
   publication/version approval and the exact publishable-commit gate also
   remain open.
 - [ ] Verify the `velodom` and `create-velodom` registry names and versions at
