@@ -1697,8 +1697,9 @@ both TODO items open until those follow-up checks pass.
 - The correction's `9a8805f` [strict Linux run](https://github.com/NadiaSalah/VeloDom/actions/runs/37120151272)
   passed build, regression tests, npm artifact audit, and all five browser
   targets, including WebKit desktop. This is strong regression evidence, but
-  the earlier failure was intermittent; a separate rerun is still useful
-  before describing its root cause as conclusively isolated.
+  the earlier failure was intermittent; it does not by itself isolate the
+  cause conclusively. The [documentation-only follow-up](https://github.com/NadiaSalah/VeloDom/actions/runs/37120747591)
+  also passed the full five-target gate. No npm publish or tag occurred.
 
 ## Handoff Guidance
 

@@ -260,9 +260,11 @@ reports its revision/cache source if stale, avoiding an earlier in-flight
 response being mistaken for that read. The full 434-test suite, production
 build/package-consumer/performance checks, and local Chromium/WebKit journeys
 pass. The [strict Linux run on `9a8805f`](https://github.com/NadiaSalah/VeloDom/actions/runs/37120151272)
-also passed build, tests, package audit, and all five browser targets. Since
-the previous WebKit failure was intermittent, repeat the exact behavior gate
-before treating the release-browser issue as closed.
+also passed build, tests, package audit, and all five browser targets. The
+[documentation-only follow-up run](https://github.com/NadiaSalah/VeloDom/actions/runs/37120747591)
+passed the same five-target gate. This is repeatable evidence for the fix, not
+proof that every intermittent failure mode has been eliminated; the eventual
+publishable version still needs an exact-commit release gate.
 Changed files: `packages/velodom/src/requests/http-client.ts`, the Store HTTP
 client, browser/client tests, package/handbook docs, and the teaching callout.
 CLI impact: none; templates, generated projects, exports, and package versions
