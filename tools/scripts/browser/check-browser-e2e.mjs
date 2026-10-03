@@ -663,7 +663,29 @@ async function assertStorefrontSmoke(browser, target, origin) {
         }
 
         await nameInput.fill("Focus recovery timer");
+        const saveWrite = page.waitForRequest(request => (
+          request.method() === "PUT"
+          && new URL(request.url()).pathname
+            === "/__fixture-api/admin/products/focus-timer"
+        ));
         await page.locator('button:has-text("Save product")').click();
+        const saveRequest = await saveWrite;
+        const submittedProduct = saveRequest.postDataJSON();
+        if (submittedProduct.name !== "Focus recovery timer") {
+          throw new Error(
+            `Admin form submitted a stale name: ${JSON.stringify(submittedProduct.name)}.`
+          );
+        }
+        const saveResponse = await saveRequest.response();
+        if (!saveResponse?.ok()) {
+          throw new Error(`Admin save did not return success: ${saveResponse?.status() ?? "no response"}.`);
+        }
+        const acceptedSave = await saveResponse.json();
+        if (acceptedSave.product?.name !== "Focus recovery timer") {
+          throw new Error(
+            `Admin save response contained a stale name: ${JSON.stringify(acceptedSave.product?.name)}.`
+          );
+        }
         await waitForPageText(page, "saved as revision 3");
         await page.waitForFunction(() => document.activeElement?.id === "save-status");
         // A successful write is not enough: the private detail route must
@@ -685,7 +707,7 @@ async function assertStorefrontSmoke(browser, target, origin) {
         const savedDetail = await detailResponse.json();
         if (savedDetail.name !== "Focus recovery timer") {
           throw new Error(
-            `Admin detail read returned a stale product after save: revision ${savedDetail.revision}, `
+            `Admin detail read returned a stale product after save: name ${JSON.stringify(savedDetail.name)}, revision ${savedDetail.revision}, `
             + `cache-control ${detailResponse.headers()["cache-control"] || "absent"}, `
             + `service worker ${detailResponse.fromServiceWorker()}.`
           );

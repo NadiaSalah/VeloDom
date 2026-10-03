@@ -1700,6 +1700,15 @@ both TODO items open until those follow-up checks pass.
   the earlier failure was intermittent; it does not by itself isolate the
   cause conclusively. The [documentation-only follow-up](https://github.com/NadiaSalah/VeloDom/actions/runs/37120747591)
   also passed the full five-target gate. No npm publish or tag occurred.
+- The next `0ef81f0` [strict Linux run](https://github.com/NadiaSalah/VeloDom/actions/runs/37121277145)
+  failed the same WebKit administration step. The new detail-request diagnostic
+  reported revision 3, `private, no-store`, and `service worker false`; the
+  name still differed from the expected saved name. Thus a generic browser
+  cache explanation is insufficient, and two prior green runs did not close
+  the intermittent issue. The browser gate now records the actual PUT payload
+  and accepted PUT response before navigating, to distinguish stale form
+  serialization from a backend/read inconsistency. No production behavior or
+  public contract changed in this diagnostic step; CLI impact is `NONE`.
 
 ## Handoff Guidance
 

@@ -18,7 +18,7 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 | Developer intelligence | V1 — Implemented | `vd` inspection commands, compiler language helpers, testing utilities |
 | VeloDom Lab | V1 — Experimental / Implemented slice | Optional Vite UI, safe protocol, runtime/compiler inspectors, production-leak test |
 | Public package source | V1 — Implemented | Local `1.0.0` manifests, exports, package docs, starters, and consumer checks |
-| Browser release gate | V1 — Current | Code-bearing `9a8805f` and its documentation-only follow-up both passed all five strict Linux targets after the HTTP-cache/client correction; exact publishable-commit gate remains open |
+| Browser release gate | V1 — Current | `0ef81f0` failed WebKit after two green runs: detail GET had revision 3 and no-store headers but a stale name. Trace save body/response; issue remains open |
 | npm registry state | External verification | `velodom@1.0.0` was previously unpublished and cannot be reused; select a new version before publication |
 | Approved authoring and rendering maturity | Implemented locally | Looped components, keyed updates, `.vd` lazy parity, and compiler cache; release verification remains separate |
 | Approved developer intelligence | Implemented locally | Shared project index, diagnostics, safe fixes, generated types, and CLI composition |
@@ -689,8 +689,14 @@ Current release work is governance rather than a new framework feature:
   passed build, regression tests, npm artifact audit, and all five browser
   targets. The independent [documentation-only follow-up](https://github.com/NadiaSalah/VeloDom/actions/runs/37120747591)
   passed the same gate. These runs provide repeatability evidence without
-  proving every intermittent mode impossible; publication/version approval
-  and the exact publishable-commit gate are still open.
+  proving every intermittent mode impossible. The next
+  [strict run on `0ef81f0`](https://github.com/NadiaSalah/VeloDom/actions/runs/37121277145)
+  failed WebKit again. The detail GET was revision 3, carried `private,
+  no-store`, and was not served by a service worker, but its name was stale.
+  The browser gate now checks the outgoing save payload and accepted save
+  response before the GET to locate the first mismatch. Keep this gate open;
+  publication/version approval and the exact publishable-commit gate also
+  remain open.
 - [ ] Verify the `velodom` and `create-velodom` registry names and versions at
   release time. Public registry snapshot on 2026-10-01: `velodom` is an
   unpublished tombstone with no active dist-tag, while `create-velodom` returns

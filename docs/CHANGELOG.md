@@ -22,6 +22,10 @@ The subsequent `9a8805f` strict Linux run and its documentation-only
 follow-up both passed all five browser targets after the JSON-client/cache
 correction. The preceding failure was intermittent, so these runs do not
 replace the exact-commit gate for a future publishable version.
+The next `0ef81f0` run failed WebKit with a revision-3, no-store detail read
+whose name was stale. Browser verification now checks the submitted PUT body
+and accepted PUT response separately before the detail read. This is a
+diagnostic gate improvement, not a claim that the remaining issue is fixed.
 
 ### Added
 

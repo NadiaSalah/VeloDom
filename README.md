@@ -263,8 +263,14 @@ pass. The [strict Linux run on `9a8805f`](https://github.com/NadiaSalah/VeloDom/
 also passed build, tests, package audit, and all five browser targets. The
 [documentation-only follow-up run](https://github.com/NadiaSalah/VeloDom/actions/runs/37120747591)
 passed the same five-target gate. This is repeatable evidence for the fix, not
-proof that every intermittent failure mode has been eliminated; the eventual
-publishable version still needs an exact-commit release gate.
+proof that every intermittent failure mode has been eliminated: the next
+[strict run on `0ef81f0`](https://github.com/NadiaSalah/VeloDom/actions/runs/37121277145)
+failed WebKit again. Its fresh detail GET returned revision 3 with
+`private, no-store` headers and no service worker, but the wrong product name.
+The browser gate now checks the outgoing save body and accepted save response
+before that GET, so the next failure identifies which boundary first diverges.
+The Store/browser release issue remains open; the eventual publishable version
+still needs an exact-commit release gate.
 Changed files: `packages/velodom/src/requests/http-client.ts`, the Store HTTP
 client, browser/client tests, package/handbook docs, and the teaching callout.
 CLI impact: none; templates, generated projects, exports, and package versions
