@@ -668,19 +668,27 @@ async function assertStorefrontSmoke(browser, target, origin) {
         await page.waitForFunction(() => document.activeElement?.id === "save-status");
         // A successful write is not enough: the private detail route must
         // perform a fresh server read before presenting the saved record.
-        const detailRead = page.waitForResponse(response => (
-          response.request().method() === "GET"
-          && new URL(response.url()).pathname
+        const detailRead = page.waitForRequest(request => (
+          request.method() === "GET"
+          && new URL(request.url()).pathname
             === "/__fixture-api/admin/products/focus-timer"
         ));
         await page.locator('a:has-text("Cancel")').click();
-        const detailResponse = await detailRead;
+        const detailRequest = await detailRead;
+        const detailResponse = await detailRequest.response();
+        if (!detailResponse) {
+          throw new Error("Admin detail request ended without a response after save.");
+        }
         if (!detailResponse.ok()) {
           throw new Error(`Admin detail read failed after save: ${detailResponse.status()}`);
         }
         const savedDetail = await detailResponse.json();
         if (savedDetail.name !== "Focus recovery timer") {
-          throw new Error("Admin detail read returned a stale product after save.");
+          throw new Error(
+            `Admin detail read returned a stale product after save: revision ${savedDetail.revision}, `
+            + `cache-control ${detailResponse.headers()["cache-control"] || "absent"}, `
+            + `service worker ${detailResponse.fromServiceWorker()}.`
+          );
         }
         await page.locator("main.admin-page .admin-heading h1")
           .filter({ hasText: "Focus recovery timer" })

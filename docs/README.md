@@ -2274,7 +2274,8 @@ export async function create(payload, { signal } = {}) {
 
 - sets `Accept: application/json`
 - adds JSON content type only when a body is present
-- passes `credentials` and `AbortSignal` when supplied
+- forwards standard `fetch` options such as `cache`, `credentials`, `redirect`,
+  and `signal` when supplied; private reads can request `cache: "no-store"`
 - returns `null` for HTTP 204
 - throws `ApiError` with `status`, `url`, and parsed `body`
 

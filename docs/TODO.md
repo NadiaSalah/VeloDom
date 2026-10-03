@@ -18,7 +18,7 @@ surviving user-visible outcomes are summarized in `CHANGELOG.md`.
 | Developer intelligence | V1 — Implemented | `vd` inspection commands, compiler language helpers, testing utilities |
 | VeloDom Lab | V1 — Experimental / Implemented slice | Optional Vite UI, safe protocol, runtime/compiler inspectors, production-leak test |
 | Public package source | V1 — Implemented | Local `1.0.0` manifests, exports, package docs, starters, and consumer checks |
-| Browser release gate | V1 — Current | All five strict Linux targets passed on `d98aaac`; rerun after a publishable version is selected |
+| Browser release gate | V1 — Current | `e0a25c3` failed WebKit's Store fresh-detail assertion; verify the HTTP-cache/client correction across strict Linux targets before release |
 | npm registry state | External verification | `velodom@1.0.0` was previously unpublished and cannot be reused; select a new version before publication |
 | Approved authoring and rendering maturity | Implemented locally | Looped components, keyed updates, `.vd` lazy parity, and compiler cache; release verification remains separate |
 | Approved developer intelligence | Implemented locally | Shared project index, diagnostics, safe fixes, generated types, and CLI composition |
@@ -675,7 +675,16 @@ Current release work is governance rather than a new framework feature:
   the browser and HTTP-contract tests now assert those boundaries separately.
   [Strict CI on the test-bearing `7e33aba` commit](https://github.com/NadiaSalah/VeloDom/actions/runs/36881005404)
   passed all five targets. The earlier intermittent failure's cause remains
-  unproven, and a future publishable commit still needs its own full gate.
+  unproven. The next documentation-only `e0a25c3` run failed again: the
+  detail GET selected by the browser test returned the old record after the
+  accepted write. `requestJson` also had a confirmed runtime/type mismatch:
+  it discarded `cache` despite accepting `RequestInit` options. Core now
+  forwards those options, the Store requests private reads with explicit
+  `cache: "no-store"`, and the browser gate tracks the navigation's new
+  request rather than any matching in-flight response. Repeat strict CI to
+  distinguish a resolved cache problem from an independent stale-read defect;
+  do not close this checkbox on a single local or previous green run. A
+  future publishable commit still needs its own full gate.
 - [ ] Verify the `velodom` and `create-velodom` registry names and versions at
   release time. Public registry snapshot on 2026-10-01: `velodom` is an
   unpublished tombstone with no active dist-tag, while `create-velodom` returns

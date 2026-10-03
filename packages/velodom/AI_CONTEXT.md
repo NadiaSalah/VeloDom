@@ -99,7 +99,9 @@ uniqueness. No schema package or global form state is required.
 an explicit scope when permitted private reads are cached. It coalesces GETs,
 isolates consumer cancellation and fences pending completions on `clear()` or
 scope changes. Clear after successful writes, then explicitly refetch UI.
-Use uncached `requestJson` for session/no-store endpoints. No HttpOnly cookie
+Use uncached `requestJson` with `cache: "no-store"` for session/no-store
+endpoints, and return `Cache-Control: private, no-store` from the backend.
+The JSON helper forwards other standard `fetch` options; no HttpOnly cookie
 change, HTTP cache policy or page-data invalidation is inferred automatically.
 Legacy `ttlMs: 0` remains retained-until-clear/eviction; default capacity is 100.
 

@@ -21,6 +21,9 @@ publication; no version, tag, or registry state changed.
 
 ### Added
 
+- Added a JSON-client regression for forwarding standard `fetch` options and
+  strengthened the Store browser gate to match the private detail request
+  initiated after navigation, reporting revision/cache source on stale reads.
 - Strengthened the Store administration browser gate after an intermittent
   WebKit failure: a saved product must be returned by a fresh private detail
   GET and rendered in the detail heading. The HTTP fixture test asserts the
@@ -253,6 +256,10 @@ publication; no version, tag, or registry state changed.
 
 ### Changed
 
+- `requestJson` now honors standard `RequestInit` options advertised by its
+  TypeScript contract. The Store example requests `cache: "no-store"` for
+  private session, order, and admin reads as well as returning server no-store
+  headers; no new directive, CLI option, export, or dependency is involved.
 - Consolidated reusable framework behavior under `packages/velodom/src` and
   kept the documentation blog under `examples/velodom-blog` as an ordinary
   application consuming public package entry points.

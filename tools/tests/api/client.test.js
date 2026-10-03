@@ -34,6 +34,39 @@ test("GET requests do not send a JSON content type", async () => {
   }
 });
 
+test("JSON requests forward supported fetch options without replacing JSON defaults", async () => {
+  const originalFetch = globalThis.fetch;
+  const controller = new AbortController();
+  let capturedOptions;
+
+  globalThis.fetch = async (_url, options) => {
+    capturedOptions = options;
+    return new Response(JSON.stringify({ ok: true }), { status: 200 });
+  };
+
+  try {
+    await requestJson("https://example.test/private", {
+      cache: "no-store",
+      credentials: "same-origin",
+      redirect: "error",
+      signal: controller.signal,
+      method: "post",
+      body: { value: 1 }
+    });
+
+    assert.equal(capturedOptions.cache, "no-store");
+    assert.equal(capturedOptions.credentials, "same-origin");
+    assert.equal(capturedOptions.redirect, "error");
+    assert.equal(capturedOptions.signal, controller.signal);
+    assert.equal(capturedOptions.method, "POST");
+    assert.equal(capturedOptions.body, '{"value":1}');
+    assert.equal(capturedOptions.headers.Accept, "application/json");
+    assert.equal(capturedOptions.headers["Content-Type"], "application/json");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("204 responses return null", async () => {
   const originalFetch = globalThis.fetch;
 

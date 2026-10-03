@@ -97,7 +97,8 @@ fetch engine. Set finite TTL/capacity, clear only after successful mutation and
 explicitly refetch. In-flight deduplication isolates aborts; clearing/scope
 changes prevent late cache writes, not stale UI assignments. For permitted
 private read caching, include tenant/user/session epoch in app-owned scope and
-clear/abort on auth changes. Session/no-store endpoints remain uncached. Do not
+clear/abort on auth changes. Session/no-store endpoints use direct `requestJson`
+with `cache: "no-store"` and backend no-store headers. Do not
 claim it automatically clears the separate router page-data cache.
 
 Keep complex forms native and application-owned. `vd-form` plus the optional

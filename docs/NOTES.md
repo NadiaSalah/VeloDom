@@ -1677,6 +1677,23 @@ both TODO items open until those follow-up checks pass.
   passed build, regression tests, package audit and all five browser targets.
   This confirms the stronger read/render assertion runs in CI; it does not
   explain the earlier one-off timeout or authorize the deferred npm release.
+- The following documentation-only `e0a25c3` [strict Linux run](https://github.com/NadiaSalah/VeloDom/actions/runs/37118083064)
+  failed WebKit's Store administration step: the captured private detail GET
+  contained an older product after the accepted write. The `requestJson` type
+  accepted `RequestInit` options but runtime passed only method, headers,
+  signal, credentials, and body, silently dropping `cache`. Forwarding those
+  options is a confirmed Core correction. The Store now uses explicit
+  `cache: "no-store"` on private reads while retaining server no-store headers.
+  The browser gate captures the GET started by detail navigation (rather than
+  any earlier matching response) and includes revision/cache source in failure
+  diagnostics. This could remove either client HTTP reuse or a false-positive
+  response match; only repeated strict CI can establish whether an additional
+  stale-read defect remains. CLI impact: `NONE`; templates/generated projects
+  require no change, and package exports/versions are unchanged.
+  Local verification: 434/434 source tests, production build (including
+  declarations, both installed consumers, six starter combinations, and
+  performance budgets), plus Chromium and WebKit browser journeys passed.
+  This is not a substitute for the Linux five-target gate.
 
 ## Handoff Guidance
 

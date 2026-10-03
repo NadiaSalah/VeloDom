@@ -249,15 +249,22 @@ chosen later; any official changelog section and tag must use that approved
 version, not the unpublished `1.0.0`. [TODO](docs/TODO.md), [release policy](docs/RELEASING.md),
 and [NOTES](docs/NOTES.md) record this boundary.
 
-The latest documentation-only CI run exposed an intermittent WebKit failure in
-the Store administration journey. Repository browser and HTTP tests now check
-the accepted-save → fresh private detail read → visible heading sequence
-separately, so a future failure identifies which boundary regressed. Local
-WebKit and focused backend checks pass, and [strict CI on `7e33aba`](https://github.com/NadiaSalah/VeloDom/actions/runs/36881005404)
-passed all browser targets. The preceding intermittent failure's root cause
-remains unproven; any future publishable commit needs its own full gate. This
-changed only `tools/scripts/browser/check-browser-e2e.mjs` and
-`tools/tests/examples/store-backend.test.js`, not Core or the example app.
+The later [strict run on `e0a25c3`](https://github.com/NadiaSalah/VeloDom/actions/runs/37118083064)
+exposed an intermittent WebKit failure: a captured administration detail GET
+returned the old record after a successful save. The typed JSON client had
+silently dropped standard `fetch` options, including `cache`; it now forwards
+them. The Store client explicitly requests `cache: "no-store"` for private
+session/order/admin reads, alongside the backend's existing no-store headers.
+The browser gate now captures the GET initiated by detail navigation and
+reports its revision/cache source if stale, avoiding an earlier in-flight
+response being mistaken for that read. The full 434-test suite, production
+build/package-consumer/performance checks, and local Chromium/WebKit journeys
+pass; a strict Linux CI rerun is still required to determine whether the
+intermittent failure is resolved.
+Changed files: `packages/velodom/src/requests/http-client.ts`, the Store HTTP
+client, browser/client tests, package/handbook docs, and the teaching callout.
+CLI impact: none; templates, generated projects, exports, and package versions
+are unchanged.
 
 ## TODO
 

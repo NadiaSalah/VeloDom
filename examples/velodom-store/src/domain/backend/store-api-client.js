@@ -25,6 +25,7 @@ export const STORE_API_BASE = "/__fixture-api";
  */
 export function getStoreSession(_input = {}, context = {}) {
   return /** @type {Promise<import("./contracts.js").StoreSession>} */ (requestJson(`${STORE_API_BASE}/session`, {
+    cache: "no-store",
     credentials: "same-origin",
     signal: context.signal
   }));
@@ -143,6 +144,7 @@ export function getOrderFromServer(input = {}, context = {}) {
   const id = encodeURIComponent(readScalar(input.id));
 
   return /** @type {Promise<import("./contracts.js").StoreOrder>} */ (requestJson(`${STORE_API_BASE}/orders/${id}`, {
+    cache: "no-store",
     credentials: "same-origin",
     signal: context.signal
   }));
@@ -155,6 +157,7 @@ export function getOrderFromServer(input = {}, context = {}) {
  */
 export function listAdminProductsFromServer(input = {}, context = {}) {
   return requestJson(withQuery("/admin/products", input), {
+    cache: "no-store",
     credentials: "same-origin",
     signal: context.signal
   });
@@ -169,6 +172,7 @@ export function getAdminProductFromServer(input = {}, context = {}) {
   const id = encodeURIComponent(readScalar(input.id ?? input.params?.id));
 
   return requestJson(`${STORE_API_BASE}/admin/products/${id}`, {
+    cache: "no-store",
     credentials: "same-origin",
     signal: context.signal
   });

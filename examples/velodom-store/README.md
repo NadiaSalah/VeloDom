@@ -34,7 +34,8 @@ own authorized backend while retaining the same browser/server boundary.
 - a replaceable HTTP contract for session, catalog, quote, mock order status,
   and administration writes;
 - independent role, owner, tenant, CSRF, expiry, and optimistic-revision denial;
-- private `no-store` session/resource responses and abortable pending reads.
+- private `no-store` session/resource responses, explicit client
+  `cache: "no-store"` reads, and abortable pending reads.
 - an unmounted, opt-in diagnostics recipe that samples only redacted request
   and recoverable-boundary metadata; the example sends no telemetry by default.
 

@@ -61,26 +61,28 @@ export async function requestJson(
   options: JsonRequestOptions = {}
 ): Promise<unknown> {
   const requestUrl = getRequestUrl(url);
-  const method = String(options.method || "GET").toUpperCase();
+  const {
+    body,
+    headers: suppliedHeaders,
+    method: suppliedMethod,
+    ...fetchOptions
+  } = options;
+  const method = String(suppliedMethod || "GET").toUpperCase();
   const headers: Record<string, string> = {
     Accept: "application/json",
-    ...(options.headers || {})
+    ...(suppliedHeaders || {})
   };
   const requestOptions: RequestInit = {
+    ...fetchOptions,
     method,
-    headers,
-    signal: options.signal
+    headers
   };
 
-  if (options.credentials) {
-    requestOptions.credentials = options.credentials;
-  }
-
-  if (options.body !== undefined) {
+  if (body !== undefined) {
     headers["Content-Type"] ??= "application/json";
-    requestOptions.body = typeof options.body === "string"
-      ? options.body
-      : JSON.stringify(options.body);
+    requestOptions.body = typeof body === "string"
+      ? body
+      : JSON.stringify(body);
   }
 
   let response;
